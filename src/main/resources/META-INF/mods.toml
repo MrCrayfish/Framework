@@ -8,7 +8,7 @@ version="0.1.0"
 displayName="Framework"
 updateJSONURL="https://mrcrayfish.com/modupdatejson?id=framework"
 displayURL="https://mrcrayfish.com/mods?id=framework"
-#logoFile="framework.png"
+logoFile="framework.png"
 authors="MrCrayfish"
 description="A library providing powerful utilities for developers"
 
