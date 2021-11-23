@@ -34,7 +34,6 @@ public class SyncedPlayerDataTest
 
     public SyncedPlayerDataTest()
     {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
     }
 
