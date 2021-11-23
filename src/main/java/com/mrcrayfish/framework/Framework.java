@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework;
 
-import com.mrcrayfish.framework.api.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;

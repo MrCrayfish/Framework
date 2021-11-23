@@ -1,9 +1,11 @@
-package com.mrcrayfish.framework.api.data;
+package com.mrcrayfish.framework.common.data;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.Reference;
-import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
+import com.mrcrayfish.framework.api.data.SyncedDataKey;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.network.message.handshake.S2CSyncedPlayerData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdatePlayerData;
@@ -72,7 +74,8 @@ public class SyncedPlayerData
     private static SyncedPlayerData instance;
 
     private final Map<ResourceLocation, SyncedDataKey<?>> registeredDataKeys = new HashMap<>();
-    private final Map<Integer, SyncedDataKey<?>> idToDataKey = new HashMap<>();
+    private final BiMap<Integer, SyncedDataKey<?>> idToDataKey = HashBiMap.create();
+
     private int nextKeyId = 0;
     private boolean dirty = false;
 
@@ -97,14 +100,13 @@ public class SyncedPlayerData
      *
      * @param key a synced data key instance
      */
-    public void registerKey(SyncedDataKey<?> key)
+    public synchronized void registerKey(SyncedDataKey<?> key)
     {
         if(this.registeredDataKeys.containsKey(key.getKey()))
         {
             throw new IllegalArgumentException(String.format("The data key '%s' is already registered!", key.getKey()));
         }
         int nextId = this.nextKeyId++;
-        key.setId(nextId);
         this.registeredDataKeys.put(key.getKey(), key);
         this.idToDataKey.put(nextId, key);
     }
@@ -153,6 +155,11 @@ public class SyncedPlayerData
     public <T> void updateClientEntry(Player player, DataEntry<T> entry)
     {
         SyncedPlayerData.instance().set(player, entry.getKey(), entry.getValue());
+    }
+
+    public int getId(SyncedDataKey<?> key)
+    {
+        return this.idToDataKey.inverse().get(key);
     }
 
     @Nullable
@@ -297,7 +304,6 @@ public class SyncedPlayerData
                 continue;
             }
             int id = keyMappings.get(key);
-            syncedDataKey.setId(id);
             this.idToDataKey.put(id, syncedDataKey);
         }
         if(!missingKeys.isEmpty())
@@ -396,7 +402,8 @@ public class SyncedPlayerData
 
         public void write(FriendlyByteBuf buffer)
         {
-            buffer.writeVarInt(this.key.getId());
+            int id = SyncedPlayerData.instance().getId(this.key);
+            buffer.writeVarInt(id);
             this.key.getSerializer().write(buffer, this.value);
         }
 

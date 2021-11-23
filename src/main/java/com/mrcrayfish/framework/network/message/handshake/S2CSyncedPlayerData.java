@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
-import com.mrcrayfish.framework.api.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.api.network.IMessage;
 import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
 import com.mrcrayfish.framework.network.Network;
@@ -21,14 +21,9 @@ import java.util.function.Supplier;
  */
 public class S2CSyncedPlayerData extends LoginIndexedMessage implements IMessage<S2CSyncedPlayerData>
 {
-    private final Map<ResourceLocation, Integer> keyMap;
+    private Map<ResourceLocation, Integer> keyMap;
 
-    public S2CSyncedPlayerData()
-    {
-        this.keyMap = new HashMap<>();
-        List<SyncedDataKey<?>> keys = SyncedPlayerData.instance().getKeys();
-        keys.forEach(syncedDataKey -> this.keyMap.put(syncedDataKey.getKey(), syncedDataKey.getId()));
-    }
+    public S2CSyncedPlayerData() {}
 
     private S2CSyncedPlayerData(Map<ResourceLocation, Integer> keyMap)
     {
@@ -39,9 +34,10 @@ public class S2CSyncedPlayerData extends LoginIndexedMessage implements IMessage
     public void encode(S2CSyncedPlayerData message, FriendlyByteBuf buffer)
     {
         List<SyncedDataKey<?>> keys = SyncedPlayerData.instance().getKeys();
-        keys.forEach(syncedDataKey -> {
-            buffer.writeResourceLocation(syncedDataKey.getKey());
-            buffer.writeVarInt(syncedDataKey.getId());
+        keys.forEach(key -> {
+            int id = SyncedPlayerData.instance().getId(key);
+            buffer.writeResourceLocation(key.getKey());
+            buffer.writeVarInt(id);
         });
     }
 

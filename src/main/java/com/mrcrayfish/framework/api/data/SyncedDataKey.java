@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.data;
 
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
@@ -66,16 +67,6 @@ public final class SyncedDataKey<T>
     public boolean shouldSyncToAllPlayers()
     {
         return this.syncToAllPlayers;
-    }
-
-    public int getId()
-    {
-        return this.id;
-    }
-
-    void setId(int id)
-    {
-        this.id = id;
     }
 
     public void setValue(Player player, T value)

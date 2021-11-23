@@ -2,7 +2,7 @@ package test.syncedplayerdata;
 
 import com.mrcrayfish.framework.api.data.Serializers;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
-import com.mrcrayfish.framework.api.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -35,13 +35,7 @@ public class SyncedPlayerDataTest
     public SyncedPlayerDataTest()
     {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        bus.addListener(this::onCommonSetup);
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
-    }
-
-    private void onCommonSetup(FMLCommonSetupEvent event)
-    {
-        SyncedPlayerData.instance().registerKey(TOUCHED_GRASS);
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)

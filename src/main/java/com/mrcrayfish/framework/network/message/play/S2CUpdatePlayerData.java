@@ -1,9 +1,8 @@
 package com.mrcrayfish.framework.network.message.play;
 
-import com.mrcrayfish.framework.api.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.api.network.IMessage;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
-import com.mrcrayfish.framework.network.message.handshake.S2CSyncedPlayerData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
