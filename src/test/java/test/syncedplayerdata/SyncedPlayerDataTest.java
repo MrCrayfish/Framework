@@ -59,14 +59,13 @@ public class SyncedPlayerDataTest
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
             this.lastClickedPos = event.getPos();
-            boolean touchedGrass = SyncedPlayerData.instance().get(player, TOUCHED_GRASS);
-            if(touchedGrass)
+            if(TOUCHED_GRASS.getValue(player))
             {
                 player.displayClientMessage(new TextComponent("You've already touched grass!"), true);
             }
             else
             {
-                SyncedPlayerData.instance().set(player, TOUCHED_GRASS, true);
+                TOUCHED_GRASS.setValue(player, true);
                 player.displayClientMessage(new TextComponent("Well done, you've finally touched grass!"), true);
             }
         }

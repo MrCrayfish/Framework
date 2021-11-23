@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.data;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Objects;
@@ -29,6 +30,7 @@ public final class SyncedDataKey<T>
         this.persistent = persistent;
         this.syncToClient = syncToClient;
         this.syncToAllPlayers = syncToAllPlayers;
+        SyncedPlayerData.instance().registerKey(this);
     }
 
     public ResourceLocation getKey()
@@ -74,6 +76,16 @@ public final class SyncedDataKey<T>
     void setId(int id)
     {
         this.id = id;
+    }
+
+    public void setValue(Player player, T value)
+    {
+        SyncedPlayerData.instance().set(player, this, value);
+    }
+
+    public T getValue(Player player)
+    {
+        return SyncedPlayerData.instance().get(player, this);
     }
 
     @Override

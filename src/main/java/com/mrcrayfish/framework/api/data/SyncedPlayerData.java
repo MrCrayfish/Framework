@@ -67,9 +67,8 @@ import java.util.stream.Collectors;
  */
 public class SyncedPlayerData
 {
-    public static final Marker SYNCED_PLAYER_DATA_MARKER = MarkerManager.getMarker("SYNCED_PLAYER_DATA");
-    public static final Capability<DataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
-
+    private static final Marker SYNCED_PLAYER_DATA_MARKER = MarkerManager.getMarker("SYNCED_PLAYER_DATA");
+    private static final Capability<DataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private static SyncedPlayerData instance;
 
     private final Map<ResourceLocation, SyncedDataKey<?>> registeredDataKeys = new HashMap<>();
