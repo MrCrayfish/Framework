@@ -2,9 +2,9 @@ package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.api.network.IMessage;
 import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
+import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
