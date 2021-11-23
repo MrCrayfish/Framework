@@ -1,6 +1,5 @@
 package test.syncedplayerdata;
 
-import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.Serializers;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
