@@ -30,7 +30,10 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Marker;
@@ -78,6 +81,7 @@ public class SyncedPlayerData
 
     private int nextKeyId = 0;
     private boolean dirty = false;
+    private boolean loaded = false;
 
     private SyncedPlayerData() {}
 
@@ -102,9 +106,13 @@ public class SyncedPlayerData
      */
     public synchronized void registerKey(SyncedDataKey<?> key)
     {
+        if(this.loaded)
+        {
+            throw new IllegalStateException(String.format("Tried to register the data key '%s' after initialization phase", key.getKey()));
+        }
         if(this.registeredDataKeys.containsKey(key.getKey()))
         {
-            throw new IllegalArgumentException(String.format("The data key '%s' is already registered!", key.getKey()));
+            throw new IllegalArgumentException(String.format("The data key '%s' is already registered", key.getKey()));
         }
         int nextId = this.nextKeyId++;
         this.registeredDataKeys.put(key.getKey(), key);
@@ -312,6 +320,11 @@ public class SyncedPlayerData
             Framework.LOGGER.info(SYNCED_PLAYER_DATA_MARKER, "Received unknown synced keys: {}", keys);
         }
         return missingKeys.isEmpty();
+    }
+
+    public void onLoadComplete(FMLLoadCompleteEvent event)
+    {
+        this.loaded = true;
     }
 
     private static class DataHolder

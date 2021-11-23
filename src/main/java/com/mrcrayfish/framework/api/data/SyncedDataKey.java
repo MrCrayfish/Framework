@@ -11,29 +11,8 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public final class SyncedDataKey<T>
+public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, boolean syncToClient, boolean syncToAllPlayers)
 {
-    private final ResourceLocation key;
-    private final IDataSerializer<T> serializer;
-    private final Supplier<T> defaultValueSupplier;
-    private final boolean save;
-    private final boolean persistent;
-    private final boolean syncToClient;
-    private final boolean syncToAllPlayers;
-    private int id;
-
-    private SyncedDataKey(ResourceLocation key, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, boolean syncToClient, boolean syncToAllPlayers)
-    {
-        this.key = key;
-        this.serializer = serializer;
-        this.defaultValueSupplier = defaultValueSupplier;
-        this.save = save;
-        this.persistent = persistent;
-        this.syncToClient = syncToClient;
-        this.syncToAllPlayers = syncToAllPlayers;
-        SyncedPlayerData.instance().registerKey(this);
-    }
-
     public ResourceLocation getKey()
     {
         return this.key;
@@ -94,6 +73,11 @@ public final class SyncedDataKey<T>
         return this.key.hashCode();
     }
 
+    public static void register(SyncedDataKey<?> key)
+    {
+        SyncedPlayerData.instance().registerKey(key);
+    }
+
     public static <T> Builder<T> builder(IDataSerializer<T> serializer)
     {
         return new Builder<>(serializer);
@@ -141,7 +125,7 @@ public final class SyncedDataKey<T>
 
         /**
          * Sets the id for the synced key using a String. This is a required property.
-         *
+         * <p>
          * Please use {@link #id(String)} instead.
          */
         @Deprecated

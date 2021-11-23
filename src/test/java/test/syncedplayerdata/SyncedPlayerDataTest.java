@@ -1,8 +1,9 @@
 package test.syncedplayerdata;
 
+import com.mrcrayfish.framework.Framework;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.Serializers;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -11,11 +12,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
  * Author: MrCrayfish
@@ -35,6 +33,7 @@ public class SyncedPlayerDataTest
     public SyncedPlayerDataTest()
     {
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
+        FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)
