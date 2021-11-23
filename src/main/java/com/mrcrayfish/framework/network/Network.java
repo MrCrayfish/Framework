@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.network;
 
 import com.mrcrayfish.framework.Reference;
-import com.mrcrayfish.framework.api.network.ChannelBuilder;
+import com.mrcrayfish.framework.api.network.FrameworkChannelBuilder;
 import com.mrcrayfish.framework.network.message.handshake.S2CSyncedPlayerData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdatePlayerData;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
@@ -12,12 +12,12 @@ import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
  */
 public class Network
 {
-    private static final SimpleChannel HANDSHAKE_CHANNEL = ChannelBuilder
+    private static final SimpleChannel HANDSHAKE_CHANNEL = FrameworkChannelBuilder
             .create(Reference.MOD_ID, "handshake", 1)
             .registerHandshakeMessage(S2CSyncedPlayerData.class)
             .build();
 
-    private static final SimpleChannel PLAY_CHANNEL = ChannelBuilder
+    private static final SimpleChannel PLAY_CHANNEL = FrameworkChannelBuilder
             .create(Reference.MOD_ID, "play", 1)
             .registerPlayMessage(S2CUpdatePlayerData.class, NetworkDirection.PLAY_TO_CLIENT)
             .build();

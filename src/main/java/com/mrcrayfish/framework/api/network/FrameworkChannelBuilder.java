@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * Author: MrCrayfish
  */
-public class ChannelBuilder
+public class FrameworkChannelBuilder
 {
     private final ResourceLocation id;
     private final int version;
@@ -29,30 +29,30 @@ public class ChannelBuilder
     private final List<Consumer<SimpleChannel>> playMessages = new ArrayList<>();
     private final List<Consumer<SimpleChannel>> handshakeMessages = new ArrayList<>();
 
-    private ChannelBuilder(ResourceLocation id, int version)
+    private FrameworkChannelBuilder(ResourceLocation id, int version)
     {
         this.id = id;
         this.version = version;
     }
 
-    public ChannelBuilder ignoreClient()
+    public FrameworkChannelBuilder ignoreClient()
     {
         this.requiresClient = false;
         return this;
     }
 
-    public ChannelBuilder ignoreServer()
+    public FrameworkChannelBuilder ignoreServer()
     {
         this.requiresServer = false;
         return this;
     }
 
-    public <MSG extends IMessage<MSG>> ChannelBuilder registerPlayMessage(Class<MSG> messageClass)
+    public <MSG extends IMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass)
     {
         return registerPlayMessage(messageClass, null);
     }
 
-    public <MSG extends IMessage<MSG>> ChannelBuilder registerPlayMessage(Class<MSG> messageClass, @Nullable NetworkDirection direction)
+    public <MSG extends IMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass, @Nullable NetworkDirection direction)
     {
         try
         {
@@ -72,7 +72,7 @@ public class ChannelBuilder
         return this;
     }
 
-    public <MSG extends LoginIndexedMessage & IMessage<MSG>> ChannelBuilder registerHandshakeMessage(Class<MSG> messageClass)
+    public <MSG extends LoginIndexedMessage & IMessage<MSG>> FrameworkChannelBuilder registerHandshakeMessage(Class<MSG> messageClass)
     {
         try
         {
@@ -128,13 +128,13 @@ public class ChannelBuilder
         return channel;
     }
 
-    public static ChannelBuilder create(ResourceLocation id, int version)
+    public static FrameworkChannelBuilder create(ResourceLocation id, int version)
     {
-        return new ChannelBuilder(id, version);
+        return new FrameworkChannelBuilder(id, version);
     }
 
-    public static ChannelBuilder create(String modId, String channelName, int version)
+    public static FrameworkChannelBuilder create(String modId, String channelName, int version)
     {
-        return new ChannelBuilder(new ResourceLocation(modId, channelName), version);
+        return new FrameworkChannelBuilder(new ResourceLocation(modId, channelName), version);
     }
 }
