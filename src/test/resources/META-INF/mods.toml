@@ -12,6 +12,16 @@ displayURL="https://mrcrayfish.com/mods?id=framework"
 authors="MrCrayfish"
 description="A library providing powerful utilities for developers"
 
+[[mods]]
+modId="synced_player_data_test"
+version="0.1.0"
+displayName="Synced Player Data Test"
+#updateJSONURL="https://mrcrayfish.com/modupdatejson?id=framework"
+#displayURL="https://mrcrayfish.com/mods?id=framework"
+#logoFile="framework.png"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
@@ -19,6 +29,19 @@ description="A library providing powerful utilities for developers"
     ordering="NONE"
     side="BOTH"
 [[dependencies.framework]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.17.1,1.18)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.synced_player_data_test]]
+    modId="forge"
+    mandatory=true
+    versionRange="[37.0.109,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.synced_player_data_test]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.17.1,1.18)"
