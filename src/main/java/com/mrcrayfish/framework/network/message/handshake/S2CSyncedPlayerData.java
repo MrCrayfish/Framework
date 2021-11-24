@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
+import com.mrcrayfish.framework.api.network.AcknowledgeMessage;
 import com.mrcrayfish.framework.api.network.IMessage;
 import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
@@ -60,7 +61,7 @@ public class S2CSyncedPlayerData extends LoginIndexedMessage implements IMessage
             supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
             return;
         }
-        Network.getHandshakeChannel().reply(new C2SAcknowledge(), supplier.get());
+        Network.getHandshakeChannel().reply(new AcknowledgeMessage(), supplier.get());
     }
 
     public Map<ResourceLocation, Integer> getKeyMap()
