@@ -19,6 +19,13 @@ displayName="Synced Player Data Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="network_test"
+version="0.1.0"
+displayName="Newtwork Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
@@ -39,6 +46,19 @@ description=""
     ordering="NONE"
     side="BOTH"
 [[dependencies.synced_player_data_test]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.17.1,1.18)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.network_test]]
+    modId="forge"
+    mandatory=true
+    versionRange="[37.0.109,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.network_test]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.17.1,1.18)"
