@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.network.message.play;
 
-import com.mrcrayfish.framework.api.network.IMessage;
+import com.mrcrayfish.framework.api.network.PlayMessage;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,12 +13,12 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class S2CUpdatePlayerData implements IMessage<S2CUpdatePlayerData>
+public class S2CUpdatePlayerData extends PlayMessage<S2CUpdatePlayerData>
 {
     private int entityId;
     private List<SyncedPlayerData.DataEntry<?>> entries;
 
-    private S2CUpdatePlayerData() {}
+    public S2CUpdatePlayerData() {}
 
     public S2CUpdatePlayerData(int entityId, List<SyncedPlayerData.DataEntry<?>> entries)
     {

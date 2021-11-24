@@ -2,9 +2,7 @@ package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.data.SyncedDataKey;
-import com.mrcrayfish.framework.api.network.AcknowledgeMessage;
-import com.mrcrayfish.framework.api.network.IMessage;
-import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
+import com.mrcrayfish.framework.api.network.HandshakeMessage;
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,7 +18,7 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class S2CSyncedPlayerData extends LoginIndexedMessage implements IMessage<S2CSyncedPlayerData>
+public class S2CSyncedPlayerData extends HandshakeMessage<S2CSyncedPlayerData>
 {
     private Map<ResourceLocation, Integer> keyMap;
 
@@ -61,7 +59,7 @@ public class S2CSyncedPlayerData extends LoginIndexedMessage implements IMessage
             supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
             return;
         }
-        Network.getHandshakeChannel().reply(new AcknowledgeMessage(), supplier.get());
+        Network.getHandshakeChannel().reply(new Acknowledge(), supplier.get());
     }
 
     public Map<ResourceLocation, Integer> getKeyMap()

@@ -1,17 +1,12 @@
-package com.mrcrayfish.framework.api.network;
-
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+package com.mrcrayfish.framework.network.message.handshake;
 
 import java.util.function.IntSupplier;
 
 /**
  * Author: MrCrayfish
  */
-public class LoginIndexedMessage implements IntSupplier
+public abstract class LoginIndexHolder implements IntSupplier
 {
-    public static final Marker HANDSHAKE = MarkerManager.getMarker("FRAMEWORK_HANDSHAKE");
-
     private int loginIndex;
 
     public void setLoginIndex(final int loginIndex)

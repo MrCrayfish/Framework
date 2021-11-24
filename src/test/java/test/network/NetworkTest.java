@@ -2,9 +2,9 @@ package test.network;
 
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.api.network.FrameworkChannelBuilder;
-import com.mrcrayfish.framework.api.network.IMessage;
-import com.mrcrayfish.framework.api.network.LoginIndexedMessage;
-import com.mrcrayfish.framework.api.network.AcknowledgeMessage;
+import com.mrcrayfish.framework.api.network.PlayMessage;
+import com.mrcrayfish.framework.network.message.IMessage;
+import com.mrcrayfish.framework.api.network.HandshakeMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -52,7 +52,7 @@ public class NetworkTest
         TEST_PLAY_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new TestMessage());
     }
 
-    public static class TestMessage implements IMessage<TestMessage>
+    public static class TestMessage extends PlayMessage<TestMessage>
     {
         @Override
         public void encode(TestMessage message, FriendlyByteBuf buffer) {}
@@ -71,7 +71,7 @@ public class NetworkTest
         }
     }
 
-    public static class TestHandshake extends LoginIndexedMessage implements IMessage<TestHandshake>
+    public static class TestHandshake extends HandshakeMessage<TestHandshake>
     {
         @Override
         public void encode(TestHandshake message, FriendlyByteBuf buffer) {}
@@ -87,7 +87,7 @@ public class NetworkTest
         {
             Framework.LOGGER.info("Received test handshake message!");
             supplier.get().setPacketHandled(true);
-            TEST_HANDSHAKE_CHANNEL.reply(new AcknowledgeMessage(), supplier.get());
+            TEST_HANDSHAKE_CHANNEL.reply(new Acknowledge(), supplier.get());
         }
     }
 }

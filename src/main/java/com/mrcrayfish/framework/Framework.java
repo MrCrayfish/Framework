@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(Reference.MOD_ID)
 public class Framework
 {
-    public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
+    public static final Logger LOGGER = LogManager.getLogger("Framework");
 
     public Framework()
     {

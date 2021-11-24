@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.api.network;
+package com.mrcrayfish.framework.network.message;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;

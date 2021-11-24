@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.network;
 
+import com.mrcrayfish.framework.network.message.handshake.LoginIndexHolder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fmllegacy.network.FMLHandshakeHandler;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
@@ -48,12 +49,12 @@ public class FrameworkChannelBuilder
         return this;
     }
 
-    public <MSG extends IMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass)
+    public <MSG extends PlayMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass)
     {
         return registerPlayMessage(messageClass, null);
     }
 
-    public <MSG extends IMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass, @Nullable NetworkDirection direction)
+    public <MSG extends PlayMessage<MSG>> FrameworkChannelBuilder registerPlayMessage(Class<MSG> messageClass, @Nullable NetworkDirection direction)
     {
         try
         {
@@ -76,12 +77,12 @@ public class FrameworkChannelBuilder
         return this;
     }
 
-    public <MSG extends LoginIndexedMessage & IMessage<MSG>> FrameworkChannelBuilder registerHandshakeMessage(Class<MSG> messageClass)
+    public <MSG extends HandshakeMessage<MSG>> FrameworkChannelBuilder registerHandshakeMessage(Class<MSG> messageClass)
     {
         return registerHandshakeMessage(messageClass, null);
     }
 
-    public <MSG extends LoginIndexedMessage & IMessage<MSG>> FrameworkChannelBuilder registerHandshakeMessage(Class<MSG> messageClass, @Nullable Function<Boolean, List<Pair<String,MSG>>> messages)
+    public <MSG extends HandshakeMessage<MSG>> FrameworkChannelBuilder registerHandshakeMessage(Class<MSG> messageClass, @Nullable Function<Boolean, List<Pair<String,MSG>>> messages)
     {
         try
         {
@@ -90,7 +91,7 @@ public class FrameworkChannelBuilder
             this.handshakeMessages.add(channel ->
             {
                 SimpleChannel.MessageBuilder<MSG> builder = channel.messageBuilder(messageClass, this.idCount.getAndIncrement());
-                builder.loginIndex(LoginIndexedMessage::getLoginIndex, LoginIndexedMessage::setLoginIndex);
+                builder.loginIndex(LoginIndexHolder::getLoginIndex, LoginIndexHolder::setLoginIndex);
                 builder.encoder(message::encode);
                 builder.decoder(message::decode);
                 builder.consumer(FMLHandshakeHandler.biConsumerFor((handler, msg, supplier) -> message.handle(msg, supplier)));
@@ -122,11 +123,12 @@ public class FrameworkChannelBuilder
 
     private void registerAckMessage(SimpleChannel channel)
     {
-        channel.messageBuilder(AcknowledgeMessage.class, this.idCount.getAndIncrement())
-            .loginIndex(LoginIndexedMessage::getLoginIndex, LoginIndexedMessage::setLoginIndex)
-            .decoder(AcknowledgeMessage::decode)
-            .encoder(AcknowledgeMessage::encode)
-            .consumer(FMLHandshakeHandler.indexFirst((handler, msg, s) -> AcknowledgeMessage.handle(msg, s)))
+        HandshakeMessage.Acknowledge acknowledge = new HandshakeMessage.Acknowledge();
+        channel.messageBuilder(HandshakeMessage.Acknowledge.class, this.idCount.getAndIncrement())
+            .loginIndex(HandshakeMessage::getLoginIndex, HandshakeMessage::setLoginIndex)
+            .decoder(acknowledge::decode)
+            .encoder(acknowledge::encode)
+            .consumer(FMLHandshakeHandler.indexFirst((handler, msg, s) -> acknowledge.handle(msg, s)))
             .add();
     }
 
