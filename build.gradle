@@ -14,7 +14,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.0'
+version = '0.1.0-1.17.1'
 group = 'com.mrcrayfish'
 archivesBaseName = 'framework'
 
