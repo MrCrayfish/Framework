@@ -35,15 +35,8 @@ public class LoginDataTest
         @Override
         public Optional<String> readData(FriendlyByteBuf buffer)
         {
-            try
-            {
-                String message = buffer.readUtf();
-                Framework.LOGGER.debug(MARKER, "Received test login data: {}", message);
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
+            String message = buffer.readUtf();
+            Framework.LOGGER.debug(MARKER, "Received test login data: {}", message);
             return Optional.empty();
         }
     }
