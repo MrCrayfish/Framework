@@ -5,7 +5,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.Reference;
-import com.mrcrayfish.framework.api.data.SyncedDataKey;
+import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.network.message.handshake.S2CSyncedPlayerData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdatePlayerData;

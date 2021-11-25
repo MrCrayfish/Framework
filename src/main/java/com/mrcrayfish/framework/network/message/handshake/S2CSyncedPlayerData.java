@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.Framework;
-import com.mrcrayfish.framework.api.data.SyncedDataKey;
+import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
 import com.mrcrayfish.framework.api.network.HandshakeMessage;
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import com.mrcrayfish.framework.network.Network;

@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.api.data;
+package com.mrcrayfish.framework.api.data.sync;
 
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.resources.ResourceLocation;

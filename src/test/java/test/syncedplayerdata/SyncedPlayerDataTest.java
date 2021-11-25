@@ -1,8 +1,8 @@
 package test.syncedplayerdata;
 
 import com.mrcrayfish.framework.api.FrameworkAPI;
-import com.mrcrayfish.framework.api.data.Serializers;
-import com.mrcrayfish.framework.api.data.SyncedDataKey;
+import com.mrcrayfish.framework.api.data.sync.Serializers;
+import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;

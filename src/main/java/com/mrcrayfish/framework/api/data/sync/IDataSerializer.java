@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.api.data;
+package com.mrcrayfish.framework.api.data.sync;
 
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;

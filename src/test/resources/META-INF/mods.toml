@@ -26,6 +26,13 @@ displayName="Newtwork Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="login_data_test"
+version="0.1.0"
+displayName="Newtwork Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
@@ -40,27 +47,22 @@ description=""
     side="BOTH"
 
 [[dependencies.synced_player_data_test]]
-    modId="forge"
+    modId="framework"
     mandatory=true
-    versionRange="[37.0.109,)"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.synced_player_data_test]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.17.1,1.18)"
+    versionRange="[0.1.0,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.network_test]]
-    modId="forge"
+    modId="framework"
     mandatory=true
-    versionRange="[37.0.109,)"
+    versionRange="[0.1.0,)"
     ordering="NONE"
     side="BOTH"
-[[dependencies.network_test]]
-    modId="minecraft"
+
+[[dependencies.login_data_test]]
+    modId="framework"
     mandatory=true
-    versionRange="[1.17.1,1.18)"
+    versionRange="[0.1.0,)"
     ordering="NONE"
     side="BOTH"
