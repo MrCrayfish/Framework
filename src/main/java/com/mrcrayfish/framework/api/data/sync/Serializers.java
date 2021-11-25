@@ -17,6 +17,10 @@ import net.minecraft.world.item.ItemStack;
 import java.util.UUID;
 
 /**
+ * Framework provided serializers used for creating a {@link SyncedDataKey}. This covers all
+ * primitive types and common objects. You can create your custom serializer by implementing
+ * {@link IDataSerializer}.
+ * <p>
  * Author: MrCrayfish
  */
 public class Serializers

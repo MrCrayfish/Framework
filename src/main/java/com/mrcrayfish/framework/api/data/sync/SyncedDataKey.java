@@ -73,11 +73,6 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
         return this.key.hashCode();
     }
 
-    public static void register(SyncedDataKey<?> key)
-    {
-        SyncedPlayerData.instance().registerKey(key);
-    }
-
     public static <T> Builder<T> builder(IDataSerializer<T> serializer)
     {
         return new Builder<>(serializer);
