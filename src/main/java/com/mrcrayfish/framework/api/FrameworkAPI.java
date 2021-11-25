@@ -13,14 +13,24 @@ import java.util.function.Supplier;
  */
 public class FrameworkAPI
 {
+    /**
+     *
+     * @param key
+     */
     public static void registerSyncedDataKey(SyncedDataKey<?> key)
     {
         // Internal code, do not call these directly since they may break in a future update.
         SyncedPlayerData.instance().registerKey(key);
     }
 
-    public static <T> void registerLoginData(ResourceLocation id, Supplier<ILoginData> data)
+    /**
+     *
+     * @param id
+     * @param data
+     */
+    public static void registerLoginData(ResourceLocation id, Supplier<ILoginData> data)
     {
+        // Internal code, do not call these directly since they may break in a future update.
         Network.registerLoginData(id, data);
     }
 }

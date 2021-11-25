@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.network;
 
+import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.Reference;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import com.mrcrayfish.framework.api.network.FrameworkChannelBuilder;
@@ -51,6 +52,10 @@ public class Network
 
     public static void registerLoginData(ResourceLocation id, Supplier<? extends ILoginData> data)
     {
+        if(Framework.isGameLoaded())
+        {
+            throw new IllegalStateException(String.format("Tried to register login data '%s' after game initialization", id.toString()));
+        }
         ID_TO_LOGIN_DATA.putIfAbsent(id, data);
     }
 
