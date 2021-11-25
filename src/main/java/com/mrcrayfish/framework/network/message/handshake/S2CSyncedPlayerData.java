@@ -34,7 +34,7 @@ public class S2CSyncedPlayerData extends HandshakeMessage<S2CSyncedPlayerData>
     {
         List<SyncedDataKey<?>> keys = SyncedPlayerData.instance().getKeys();
         keys.forEach(key -> {
-            int id = SyncedPlayerData.instance().getId(key);
+            int id = SyncedPlayerData.instance().getInternalId(key);
             buffer.writeResourceLocation(key.getKey());
             buffer.writeVarInt(id);
         });

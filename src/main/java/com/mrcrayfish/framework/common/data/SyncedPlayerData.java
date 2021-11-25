@@ -73,8 +73,9 @@ public class SyncedPlayerData
     private static final Capability<DataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private static SyncedPlayerData instance;
 
-    private final Map<ResourceLocation, SyncedDataKey<?>> registeredDataKeys = new HashMap<>();
-    private final BiMap<Integer, SyncedDataKey<?>> idToDataKey = HashBiMap.create();
+    private final Map<ResourceLocation, SyncedDataKey<?>> registeredKeys = new HashMap<>();
+    private final Map<ResourceLocation, Integer> internalIds = new HashMap<>();
+    private final BiMap<Integer, SyncedDataKey<?>> syncedIdToKey = HashBiMap.create();
 
     private int nextKeyId = 0;
     private boolean dirty = false;
@@ -106,13 +107,15 @@ public class SyncedPlayerData
         {
             throw new IllegalStateException(String.format("Tried to register synced data key '%s' after game initialization", key.getKey()));
         }
-        if(this.registeredDataKeys.containsKey(key.getKey()))
+        if(this.registeredKeys.containsKey(key.getKey()))
         {
             throw new IllegalArgumentException(String.format("The data key '%s' is already registered", key.getKey()));
         }
         int nextId = this.nextKeyId++;
-        this.registeredDataKeys.put(key.getKey(), key);
-        this.idToDataKey.put(nextId, key);
+        this.registeredKeys.put(key.getKey(), key);
+        this.internalIds.put(key.getKey(), nextId);
+        this.syncedIdToKey.put(nextId, key);
+        Framework.LOGGER.info(SYNCED_PLAYER_DATA_MARKER, "Registered synced data key {}", key.getKey());
     }
 
     /**
@@ -124,7 +127,7 @@ public class SyncedPlayerData
      */
     public <T> void set(Player player, SyncedDataKey<T> key, T value)
     {
-        if(!this.registeredDataKeys.values().contains(key))
+        if(!this.registeredKeys.values().contains(key))
         {
             throw new IllegalArgumentException(String.format("The data key '%s' is not registered!", key.getKey()));
         }
@@ -147,7 +150,7 @@ public class SyncedPlayerData
      */
     public <T> T get(Player player, SyncedDataKey<T> key)
     {
-        if(!this.registeredDataKeys.values().contains(key))
+        if(!this.registeredKeys.values().contains(key))
         {
             throw new IllegalArgumentException(String.format("The data key '%s' is not registered!", key.getKey()));
         }
@@ -161,20 +164,25 @@ public class SyncedPlayerData
         SyncedPlayerData.instance().set(player, entry.getKey(), entry.getValue());
     }
 
-    public int getId(SyncedDataKey<?> key)
+    public int getInternalId(SyncedDataKey<?> key)
     {
-        return this.idToDataKey.inverse().get(key);
+        return this.internalIds.get(key.getKey());
+    }
+
+    public int getSyncedId(SyncedDataKey<?> key)
+    {
+        return this.syncedIdToKey.inverse().get(key);
     }
 
     @Nullable
     private SyncedDataKey<?> getKey(int id)
     {
-        return this.idToDataKey.get(id);
+        return this.syncedIdToKey.get(id);
     }
 
     public List<SyncedDataKey<?>> getKeys()
     {
-        return ImmutableList.copyOf(this.registeredDataKeys.values());
+        return ImmutableList.copyOf(this.registeredKeys.values());
     }
 
     @Nullable
@@ -297,18 +305,18 @@ public class SyncedPlayerData
     public boolean updateMappings(S2CSyncedPlayerData message)
     {
         List<ResourceLocation> missingKeys = new ArrayList<>();
-        this.idToDataKey.clear();
+        this.syncedIdToKey.clear();
         Map<ResourceLocation, Integer> keyMappings = message.getKeyMap();
         for(ResourceLocation key : keyMappings.keySet())
         {
-            SyncedDataKey<?> syncedDataKey = this.registeredDataKeys.get(key);
+            SyncedDataKey<?> syncedDataKey = this.registeredKeys.get(key);
             if(syncedDataKey == null)
             {
                 missingKeys.add(key);
                 continue;
             }
             int id = keyMappings.get(key);
-            this.idToDataKey.put(id, syncedDataKey);
+            this.syncedIdToKey.put(id, syncedDataKey);
         }
         if(!missingKeys.isEmpty())
         {
@@ -406,7 +414,7 @@ public class SyncedPlayerData
 
         public void write(FriendlyByteBuf buffer)
         {
-            int id = SyncedPlayerData.instance().getId(this.key);
+            int id = SyncedPlayerData.instance().getInternalId(this.key);
             buffer.writeVarInt(id);
             this.key.getSerializer().write(buffer, this.value);
         }
@@ -467,7 +475,7 @@ public class SyncedPlayerData
                 CompoundTag keyTag = (CompoundTag) entryTag;
                 ResourceLocation key = ResourceLocation.tryParse(keyTag.getString("Key"));
                 Tag value = keyTag.get("Value");
-                SyncedDataKey<?> syncedDataKey = SyncedPlayerData.instance().registeredDataKeys.get(key);
+                SyncedDataKey<?> syncedDataKey = SyncedPlayerData.instance().registeredKeys.get(key);
                 if(syncedDataKey != null && syncedDataKey.shouldSave())
                 {
                     DataEntry<?> entry = new DataEntry<>(syncedDataKey);
