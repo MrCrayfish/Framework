@@ -31,7 +31,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;

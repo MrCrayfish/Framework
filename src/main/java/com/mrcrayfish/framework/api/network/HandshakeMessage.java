@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.Framework;
 import com.mrcrayfish.framework.network.message.IMessage;
 import com.mrcrayfish.framework.network.message.handshake.LoginIndexHolder;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 

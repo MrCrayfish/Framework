@@ -8,15 +8,21 @@ import com.mrcrayfish.framework.network.message.handshake.S2CLoginData;
 import com.mrcrayfish.framework.network.message.handshake.S2CSyncedPlayerData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdatePlayerData;
 import io.netty.buffer.Unpooled;
+import io.netty.util.AttributeKey;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
-import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+import net.minecraftforge.network.HandshakeHandler;
+import net.minecraftforge.network.NetworkConstants;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -25,6 +31,8 @@ import java.util.stream.Collectors;
  */
 public class Network
 {
+    static final AttributeKey<HandshakeHandler> FML_HANDSHAKE_HANDLER = AttributeKey.valueOf("fml:handshake");
+
     private static final SimpleChannel HANDSHAKE_CHANNEL = FrameworkChannelBuilder
             .create(Reference.MOD_ID, "handshake", 1)
             .registerHandshakeMessage(S2CSyncedPlayerData.class)

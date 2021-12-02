@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.api.network.PlayMessage;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.common.data.SyncedPlayerData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,10 +2,10 @@ package com.mrcrayfish.framework.api.network;
 
 import com.mrcrayfish.framework.network.message.handshake.LoginIndexHolder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.FMLHandshakeHandler;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
-import net.minecraftforge.fmllegacy.network.NetworkRegistry;
-import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+import net.minecraftforge.network.HandshakeHandler;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -94,7 +94,7 @@ public class FrameworkChannelBuilder
                 builder.loginIndex(LoginIndexHolder::getLoginIndex, LoginIndexHolder::setLoginIndex);
                 builder.encoder(message::encode);
                 builder.decoder(message::decode);
-                builder.consumer(FMLHandshakeHandler.biConsumerFor((handler, msg, supplier) -> message.handle(msg, supplier)));
+                builder.consumer(message::handle);
                 if(messages != null)
                 {
                     builder.buildLoginPacketList(messages);
@@ -128,7 +128,7 @@ public class FrameworkChannelBuilder
             .loginIndex(HandshakeMessage::getLoginIndex, HandshakeMessage::setLoginIndex)
             .decoder(acknowledge::decode)
             .encoder(acknowledge::encode)
-            .consumer(FMLHandshakeHandler.indexFirst((handler, msg, s) -> acknowledge.handle(msg, s)))
+            .consumer(HandshakeHandler.indexFirst((handler, msg, s) -> acknowledge.handle(msg, s)))
             .add();
     }
 
