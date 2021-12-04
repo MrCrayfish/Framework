@@ -111,11 +111,12 @@ public class SyncedEntityData
 
     private <E extends Entity> void registerClassKey(SyncedClassKey<E> classKey)
     {
-        if(this.registeredClassKeys.contains(classKey))
-            return;
-        this.registeredClassKeys.add(classKey);
-        this.idToClassKey.put(classKey.id(), classKey);
-        this.classToClassKey.put(classKey.entityClass(), classKey);
+        if(!this.registeredClassKeys.contains(classKey))
+        {
+            this.registeredClassKeys.add(classKey);
+            this.idToClassKey.put(classKey.id(), classKey);
+            this.classToClassKey.put(classKey.entityClass(), classKey);
+        }
     }
 
     /**
@@ -129,11 +130,11 @@ public class SyncedEntityData
         SyncedClassKey<E> classKey = dataKey.classKey();
         if(Framework.isGameLoaded())
         {
-            throw new IllegalStateException(String.format("Tried to register synced data key '%s' for '%s' after game initialization", keyId, classKey.id()));
+            throw new IllegalStateException(String.format("Tried to register synced data key %s for %s after game initialization", keyId, classKey.id()));
         }
         if(this.registeredDataKeys.contains(dataKey))
         {
-            throw new IllegalArgumentException(String.format("The synced data key '%s' for '%s' is already registered", keyId, classKey.id()));
+            throw new IllegalArgumentException(String.format("The synced data key %s for %s is already registered", keyId, classKey.id()));
         }
         this.registerClassKey(dataKey.classKey()); // Attempt to register the class key. Will ignore if already registered.
         this.registeredDataKeys.add(dataKey);
@@ -141,7 +142,7 @@ public class SyncedEntityData
         int nextId = this.nextIdTracker.getAndIncrement();
         this.internalIds.put(dataKey, nextId);
         this.syncedIdToKey.put(nextId, dataKey);
-        Framework.LOGGER.info(SYNCED_ENTITY_DATA_MARKER, "Registered synced data key {}", dataKey.id());
+        Framework.LOGGER.info(SYNCED_ENTITY_DATA_MARKER, "Registered synced data key {} for {}", dataKey.id(), classKey.id());
     }
 
     /**
@@ -155,7 +156,7 @@ public class SyncedEntityData
     {
         if(!this.registeredDataKeys.contains(key))
         {
-            throw new IllegalArgumentException(String.format("The data key '%s' is not registered!", key.id()));
+            throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
         if(holder != null && holder.set(entity, key, value))
@@ -178,7 +179,7 @@ public class SyncedEntityData
     {
         if(!this.registeredDataKeys.contains(key))
         {
-            throw new IllegalArgumentException(String.format("The data key '%s' is not registered!", key.id()));
+            throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
         return holder != null ? holder.get(key) : key.defaultValueSupplier().get();
