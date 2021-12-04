@@ -83,10 +83,10 @@ public class SyncedEntityData
     private final Set<SyncedClassKey<?>> registeredClassKeys = new HashSet<>();
     private final Object2ReferenceMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ReferenceOpenHashMap<>();
     private final Reference2ReferenceMap<Class<?>, SyncedClassKey<?>> classToClassKey = new Reference2ReferenceOpenHashMap<>();
-    private final Reference2BooleanMap<Class<?>> classCache = new Reference2BooleanOpenHashMap<>(); // Caches sub classes to first known class with a registered key
+    private final Reference2BooleanMap<Class<?>> classCapabilityCache = new Reference2BooleanOpenHashMap<>();
 
     private final Set<SyncedDataKey<?, ?>> registeredDataKeys = new HashSet<>();
-    private final Map<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new HashMap<>();
+    private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
     private final Reference2IntMap<SyncedDataKey<?, ?>> internalIds = new Reference2IntOpenHashMap<>();
     private final Int2ReferenceMap<SyncedDataKey<?, ?>> syncedIdToKey = new Int2ReferenceOpenHashMap<>();
 
@@ -226,7 +226,7 @@ public class SyncedEntityData
         /* It's possible that the entity doesn't have a key but it's superclass or subsequent does
          * have a synced data key. In order to prevent checking this every time we attach the
          * capability, a simple one time check can be performed then cache the result. */
-        return this.classCache.computeIfAbsent(entityClass, c ->
+        return this.classCapabilityCache.computeIfAbsent(entityClass, c ->
         {
             Class<?> targetClass = entityClass;
             while(targetClass != CapabilityProvider.class) // Should be good enough
