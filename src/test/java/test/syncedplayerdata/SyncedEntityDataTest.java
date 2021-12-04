@@ -36,9 +36,9 @@ public class SyncedEntityDataTest
             .syncMode(SyncedDataKey.SyncMode.SELF_ONLY)
             .build();
 
-    private static final SyncedDataKey<Animal, Boolean> HIT_ANIMAL = SyncedDataKey.builder(SyncedClassKey.ANIMAL, Serializers.BOOLEAN)
-            .id(new ResourceLocation("synced_entity_data_test", "hit_animal"))
-            .defaultValueSupplier(() -> false)
+    private static final SyncedDataKey<Animal, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.ANIMAL, Serializers.INTEGER)
+            .id(new ResourceLocation("synced_entity_data_test", "hit_count"))
+            .defaultValueSupplier(() -> 0)
             .saveToFile()
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
             .build();
@@ -48,7 +48,7 @@ public class SyncedEntityDataTest
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
         MinecraftForge.EVENT_BUS.addListener(this::onHitEntity);
         FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-        FrameworkAPI.registerSyncedDataKey(HIT_ANIMAL);
+        FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)
@@ -82,15 +82,9 @@ public class SyncedEntityDataTest
     {
         if(event.getTarget() instanceof Animal animal)
         {
-            if(HIT_ANIMAL.getValue(animal))
-            {
-                event.getPlayer().displayClientMessage(new TextComponent("Please stop hitting animals!"), true);
-            }
-            else
-            {
-                HIT_ANIMAL.setValue(animal, true);
-                event.getPlayer().displayClientMessage(new TextComponent("Really dude?"), true);
-            }
+            int newCount = HIT_COUNT.getValue(animal) + 1;
+            HIT_COUNT.setValue(animal, newCount);
+            event.getPlayer().displayClientMessage(new TextComponent("This animal has been hit " + newCount + " times!"), true);
         }
     }
 }
