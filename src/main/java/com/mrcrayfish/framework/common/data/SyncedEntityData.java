@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -34,6 +35,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,6 +47,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +94,7 @@ public class SyncedEntityData
     private final Int2ReferenceMap<SyncedDataKey<?, ?>> syncedIdToKey = new Int2ReferenceOpenHashMap<>();
 
     private final AtomicInteger nextIdTracker = new AtomicInteger();
+    private final List<Entity> dirtyEntities = new ArrayList<>();
     private boolean dirty = false;
 
     private SyncedEntityData() {}
@@ -164,6 +168,7 @@ public class SyncedEntityData
             if(!entity.level.isClientSide())
             {
                 this.dirty = true;
+                this.dirtyEntities.add(entity);
             }
         }
     }
@@ -245,16 +250,17 @@ public class SyncedEntityData
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event)
     {
-        if(event.getTarget() instanceof Player player && !event.getPlayer().level.isClientSide())
+        if(!event.getPlayer().level.isClientSide())
         {
-            DataHolder holder = this.getDataHolder(player);
+            Entity entity = event.getTarget();
+            DataHolder holder = this.getDataHolder(entity);
             if(holder != null)
             {
                 List<DataEntry<?, ?>> entries = holder.gatherAll();
                 entries.removeIf(entry -> !entry.getKey().syncMode().isTracking());
                 if(!entries.isEmpty())
                 {
-                    Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) event.getPlayer()), new S2CUpdateEntityData(player.getId(), entries));
+                    Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) event.getPlayer()), new S2CUpdateEntityData(entity.getId(), entries));
                 }
             }
         }
@@ -303,50 +309,48 @@ public class SyncedEntityData
     }
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.PlayerTickEvent event)
+    public void onServerTick(TickEvent.ServerTickEvent event)
     {
+        if(event.side != LogicalSide.SERVER)
+            return;
+
         if(event.phase != TickEvent.Phase.END)
             return;
 
         if(!this.dirty)
             return;
 
-        Player player = event.player;
-        if(player.level.isClientSide())
-            return;
-
-        DataHolder holder = this.getDataHolder(player);
-        if(holder == null || !holder.isDirty())
-            return;
-
-        List<DataEntry<?, ?>> entries = holder.gatherDirty();
-        if(entries.isEmpty())
-            return;
-
-        List<DataEntry<?, ?>> selfEntries = entries.stream().filter(entry -> entry.getKey().syncMode().isSelf()).collect(Collectors.toList());
-        if(!selfEntries.isEmpty())
+        if(this.dirtyEntities.isEmpty())
         {
-            Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new S2CUpdateEntityData(player.getId(), selfEntries));
+            this.dirty = false;
+            return;
         }
 
-        List<DataEntry<?, ?>> trackingEntries = entries.stream().filter(entry -> entry.getKey().syncMode().isTracking()).collect(Collectors.toList());
-        if(!trackingEntries.isEmpty())
+        for(Entity entity : this.dirtyEntities)
         {
-            Network.getPlayChannel().send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new S2CUpdateEntityData(player.getId(), trackingEntries));
-        }
-        holder.clean();
-    }
+            DataHolder holder = this.getDataHolder(entity);
+            if(holder == null || !holder.isDirty())
+                continue;
 
-    @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent event)
-    {
-        if(event.phase == TickEvent.Phase.END)
-        {
-            if(this.dirty)
+            List<DataEntry<?, ?>> entries = holder.gatherDirty();
+            if(entries.isEmpty())
+                continue;
+
+            List<DataEntry<?, ?>> selfEntries = entries.stream().filter(entry -> entry.getKey().syncMode().isSelf()).collect(Collectors.toList());
+            if(!selfEntries.isEmpty() && entity instanceof ServerPlayer)
             {
-                this.dirty = false;
+                Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) entity), new S2CUpdateEntityData(entity.getId(), selfEntries));
             }
+
+            List<DataEntry<?, ?>> trackingEntries = entries.stream().filter(entry -> entry.getKey().syncMode().isTracking()).collect(Collectors.toList());
+            if(!trackingEntries.isEmpty())
+            {
+                Network.getPlayChannel().send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new S2CUpdateEntityData(entity.getId(), trackingEntries));
+            }
+            holder.clean();
         }
+        this.dirtyEntities.clear();
+        this.dirty = false;
     }
 
     public boolean updateMappings(S2CSyncedEntityData message)
