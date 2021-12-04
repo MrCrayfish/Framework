@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework;
 
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedEntityData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -28,7 +28,7 @@ public class Framework
         bus.addListener(this::onCommonSetup);
         bus.addListener(this::onRegisterCapabilities);
         bus.addListener(this::onLoadComplete);
-        MinecraftForge.EVENT_BUS.register(SyncedPlayerData.instance());
+        MinecraftForge.EVENT_BUS.register(SyncedEntityData.instance());
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
@@ -43,7 +43,7 @@ public class Framework
 
     public void onRegisterCapabilities(RegisterCapabilitiesEvent event)
     {
-        SyncedPlayerData.onRegisterCapability(event);
+        SyncedEntityData.onRegisterCapability(event);
     }
 
     public static boolean isGameLoaded()

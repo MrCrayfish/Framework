@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[37,)"
+loaderVersion="[38,)"
 license="GPL3"
 
 [[mods]]
@@ -13,7 +13,7 @@ authors="MrCrayfish"
 description="A library providing powerful utilities for developers"
 
 [[mods]]
-modId="synced_player_data_test"
+modId="synced_entity_data_test"
 version="0.1.0"
 displayName="Synced Player Data Test"
 authors="MrCrayfish"
@@ -36,17 +36,17 @@ description=""
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
-    versionRange="[37.0.109,)"
+    versionRange="[38.0.10,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.framework]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.17.1,1.18)"
+    versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.synced_player_data_test]]
+[[dependencies.synced_entity_data_test]]
     modId="framework"
     mandatory=true
     versionRange="[0.1.0,)"

@@ -1,9 +1,11 @@
 package com.mrcrayfish.framework.api.data.sync;
 
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -11,51 +13,16 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, boolean syncToClient, boolean syncToAllPlayers)
+public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, ResourceLocation> pairKey, ResourceLocation id, SyncedClassKey<E> classKey, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, SyncMode syncMode)
 {
-    public ResourceLocation getKey()
+    public void setValue(E entity, T value)
     {
-        return this.key;
+        SyncedEntityData.instance().set(entity, this, value);
     }
 
-    public IDataSerializer<T> getSerializer()
+    public T getValue(E entity)
     {
-        return this.serializer;
-    }
-
-    public Supplier<T> getDefaultValueSupplier()
-    {
-        return this.defaultValueSupplier;
-    }
-
-    public boolean shouldSave()
-    {
-        return this.save;
-    }
-
-    public boolean isPersistent()
-    {
-        return this.persistent;
-    }
-
-    public boolean shouldSyncToClient()
-    {
-        return this.syncToClient;
-    }
-
-    public boolean shouldSyncToAllPlayers()
-    {
-        return this.syncToAllPlayers;
-    }
-
-    public void setValue(Player player, T value)
-    {
-        SyncedPlayerData.instance().set(player, this, value);
-    }
-
-    public T getValue(Player player)
-    {
-        return SyncedPlayerData.instance().get(player, this);
+        return SyncedEntityData.instance().get(entity, this);
     }
 
     @Override
@@ -63,47 +30,94 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
     {
         if(this == o) return true;
         if(o == null || getClass() != o.getClass()) return false;
-        SyncedDataKey<?> that = (SyncedDataKey<?>) o;
-        return Objects.equals(this.key, that.key);
+        SyncedDataKey<?, ?> that = (SyncedDataKey<?, ?>) o;
+        return Objects.equals(this.pairKey, that.pairKey);
     }
 
     @Override
     public int hashCode()
     {
-        return this.key.hashCode();
+        return this.pairKey.hashCode();
     }
 
-    public static <T> Builder<T> builder(IDataSerializer<T> serializer)
+    public enum SyncMode
     {
-        return new Builder<>(serializer);
+        /**
+         * Prevents the key from being synced entirely. The data will only be available on the server.
+         */
+        NONE(false, false),
+
+        /**
+         * Syncs the key to all players including the player holding the data. If the entity the key
+         * is bound to is not a player, only the tracking players will receive the data.
+         */
+        ALL(true, true),
+
+        /**
+         * Only allows the key to be synced to players who are tracking the entity. The entity holding
+         * the data will not receive it on the client.
+         */
+        TRACKING_ONLY(true, false),
+
+        /**
+         * Only allows the key to be synced to entity holding the data. Any players tracking the entity
+         * will not receive the data on their clients.
+         */
+        SELF_ONLY(false, true);
+
+        final boolean tracking;
+        final boolean self;
+
+        SyncMode(boolean tracking, boolean self)
+        {
+            this.tracking = tracking;
+            this.self = self;
+        }
+
+        public boolean isTracking()
+        {
+            return this.tracking;
+        }
+
+        public boolean isSelf()
+        {
+            return this.self;
+        }
     }
 
-    public static class Builder<T>
+    public static <E extends Entity, T> Builder<E, T> builder(SyncedClassKey<E> entityClass, IDataSerializer<T> serializer)
     {
+        return new Builder<>(entityClass, serializer);
+    }
+
+    public static class Builder<E extends Entity, T>
+    {
+        private final SyncedClassKey<E> classKey;
         private final IDataSerializer<T> serializer;
         private ResourceLocation id;
         private Supplier<T> defaultValueSupplier;
         private boolean save = false;
         private boolean persistent = true;
-        private boolean syncToClient = true;
-        private boolean syncToAllPlayers = true;
+        private SyncMode syncMode = SyncMode.ALL;
 
-        private Builder(IDataSerializer<T> serializer)
+        private Builder(SyncedClassKey<E> classKey, IDataSerializer<T> serializer)
         {
+            this.classKey = classKey;
             this.serializer = serializer;
         }
 
-        public SyncedDataKey<T> build()
+        public SyncedDataKey<E, T> build()
         {
             Validate.notNull(this.id, "Missing 'id' when building synced data key");
             Validate.notNull(this.defaultValueSupplier, "Missing 'defaultValueSupplier' when building synced data key");
-            return new SyncedDataKey<>(this.id, this.serializer, this.defaultValueSupplier, this.save, this.persistent, this.syncToClient, this.syncToAllPlayers);
+            Pair<ResourceLocation, ResourceLocation> pairKey = Pair.of(this.classKey.id(), this.id);
+            return new SyncedDataKey<>(pairKey, this.id, this.classKey, this.serializer, this.defaultValueSupplier, this.save, this.persistent, this.syncMode);
         }
 
         /**
          * Sets the id for the synced key. This is a required property.
          */
-        public Builder<T> id(ResourceLocation id)
+        public Builder<E, T> id(ResourceLocation id)
         {
             this.id = id;
             return this;
@@ -112,7 +126,7 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
         /**
          * Sets the id for the synced key using a String. This is a required property.
          */
-        public Builder<T> id(String id)
+        public Builder<E, T> id(String id)
         {
             this.id = new ResourceLocation(id);
             return this;
@@ -124,7 +138,7 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
          * Please use {@link #id(String)} instead.
          */
         @Deprecated
-        public Builder<T> key(String key)
+        public Builder<E, T> key(String key)
         {
             return id(key);
         }
@@ -132,7 +146,7 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
         /**
          * Sets the default value supplier for the synced key. This is a required property.
          */
-        public Builder<T> defaultValueSupplier(Supplier<T> defaultValueSupplier)
+        public Builder<E, T> defaultValueSupplier(Supplier<T> defaultValueSupplier)
         {
             this.defaultValueSupplier = defaultValueSupplier;
             return this;
@@ -142,7 +156,7 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
          * Saves this synced key to the players file. This means that the data will persist even if
          * the player reloads a world or joins back into the server.
          */
-        public Builder<T> saveToFile()
+        public Builder<E, T> saveToFile()
         {
             this.save = true;
             return this;
@@ -150,32 +164,21 @@ public record SyncedDataKey<T>(ResourceLocation key, IDataSerializer<T> serializ
 
         /**
          * Stops this synced key from transferring over when a player dies and basically resets the
-         * data back to the result of the default value supplier.
+         * data back to result from the default value supplier. This only has an effect on players.
          */
-        public Builder<T> resetOnDeath()
+        public Builder<E, T> resetOnDeath()
         {
             this.persistent = false;
             return this;
         }
 
         /**
-         * Stops the synced key from syncing at all. This is only useful if the data only needs to
-         * be available on the server. This does contradict the whole idea of this system but
-         * creates a quick way to store data that is bound to a player.
+         * The syncing method to use when sending data to clients.
+         * See {@link SyncMode} for details
          */
-        public Builder<T> doNotSync()
+        public Builder<E, T> syncMode(SyncMode mode)
         {
-            this.syncToClient = false;
-            return this;
-        }
-
-        /**
-         * Restricts this synced key from syncing to everyone who is tracking the player and only to
-         * the player which data was changed.
-         */
-        public Builder<T> restrictSync()
-        {
-            this.syncToAllPlayers = false;
+            this.syncMode = mode;
             return this;
         }
     }

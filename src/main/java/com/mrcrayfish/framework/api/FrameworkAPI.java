@@ -2,9 +2,10 @@ package com.mrcrayfish.framework.api;
 
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
+import com.mrcrayfish.framework.common.data.SyncedEntityData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 import java.util.function.Supplier;
 
@@ -22,10 +23,10 @@ public class FrameworkAPI
      *
      * @param key the synced data key instance
      */
-    public static void registerSyncedDataKey(SyncedDataKey<?> key)
+    public static <E extends Entity, T> void registerSyncedDataKey(SyncedDataKey<E, T> key)
     {
         // Internal code, do not call these directly since they may break in a future update.
-        SyncedPlayerData.instance().registerKey(key);
+        SyncedEntityData.instance().registerDataKey(key);
     }
 
     /**

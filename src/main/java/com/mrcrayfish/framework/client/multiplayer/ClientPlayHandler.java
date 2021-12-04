@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.client.multiplayer;
 
-import com.mrcrayfish.framework.common.data.SyncedPlayerData;
-import com.mrcrayfish.framework.network.message.play.S2CUpdatePlayerData;
+import com.mrcrayfish.framework.common.data.SyncedEntityData;
+import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -14,17 +14,17 @@ import java.util.List;
  */
 public class ClientPlayHandler
 {
-    public static void handleSyncPlayerData(S2CUpdatePlayerData message)
+    public static void handleSyncEntityData(S2CUpdateEntityData message)
     {
         Level level = Minecraft.getInstance().level;
         if(level == null)
             return;
 
         Entity entity = level.getEntity(message.getEntityId());
-        if(!(entity instanceof Player player))
+        if(entity == null)
             return;
 
-        List<SyncedPlayerData.DataEntry<?>> entries = message.getEntries();
-        entries.forEach(entry -> SyncedPlayerData.instance().updateClientEntry(player, entry));
+        List<SyncedEntityData.DataEntry<?, ?>> entries = message.getEntries();
+        entries.forEach(entry -> SyncedEntityData.instance().updateClientEntry(entity, entry));
     }
 }
