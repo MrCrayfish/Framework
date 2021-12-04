@@ -35,6 +35,7 @@ void onHitEntity(AttackEntityEvent event)
     }
 }
 ```
+You're also not restricted to the Serializers provided by Framework. For more advanced uses, you can create your own custom serializers by implementing `IDataSerializer` on a class. If you want to use Synced Data Keys on your own entities, you'll need to create your own `SyncedClassKey` which is provided for the first argument when creating a `SyncedDatakey#builder`.
 
 ### 📦 Easy Login Packets
 Forge has the ability to allow developers to create login packets, however implementing it requires a significant amount of code. Framework condenses the required code into a simple registration method and will handle sending your data to clients.
