@@ -9,26 +9,31 @@ Framework is lightweight but powerful library built to enhance the development o
 ## Features:
 
 ### 🔑 Synced Data Keys
-Synced Data Keys are an improvement of Minecraft's entity data accessor system (which tracks and syncs data from an entity on the server to clients). The problem with this system is that it's impossible for modders to safely add additional data accessors to vanilla entities. A common problem that occurs in Minecraft's system is a mismatched key id which means the data sent from the server is applied to the wrong data accessor on the client. Framework solves this problem by syncing the id of every key to the client during the handshake phase. Framework also take's the system even futher by providing the ability to easily save the data, peresist over deaths, and more! **This currently is only designed to work for players and will be expanded soon to include every entity**
+Synced Data Keys are an improvement of Minecraft's entity data accessor system. It allows you to attach additonal data to any entity without the need of writing a complex capability. The benefit of using Framework's Synced Data Keys is the powerful features it provides. As mentioned by in the name, the data can be automatically synced to clients; this means you don't have to deal with packets. The data can be saved to the entity so it's remembered across world reloads or server restarts. Unlike Minecraft's system, Framework adds an option to allow your data to persist across deaths instead of being reset back to it's default value. Not convinced yet? Check out the example below to see how simple but powerful this system is.
 
-An example of adding an aiming property to a player, possibly for weapon mod or similar.
+An example of keeping track of how many times a chicken has been hit by players
 ```java
 // Create the synced data key
-private static final SyncedDataKey<Boolean> AIMING = SyncedDataKey.builder(Serializers.BOOLEAN)
-            .id(new ResourceLocation("synced_player_data_test", "aiming"))
-            .defaultValueSupplier(() -> false)
-            .resetOnDeath()
+private static final SyncedDataKey<Chicken, Boolean> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.CHICKEN, Serializers.INTEGER)
+            .id(new ResourceLocation("your_mod_id", "hit_count"))
+            .defaultValueSupplier(() -> 0)
             .saveToFile()
+	    .syncMode(SyncMode.TRACKING_ONLY)
             .build();
 
-// Register it into Framework API
-FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);  
+// Register it into Framework API somewhere in your common initialization
+FrameworkAPI.registerSyncedDataKey(HIT_COUNT);  
 
-// Set the value for the synced data key
-AIMING.setValue(player, true);
-
-// Get the value for the synced data key
-AIMING.getValue(player);
+// Forge event for entity attacks
+void onHitEntity(AttackEntityEvent event)
+{
+    if(event.getTarget() instanceof Chicken chicken)
+    {
+    	int newCount = HIT_COUNT.getValue(chicken) + 1;
+    	HIT_COUNT.setValue(chicken, newCount);
+        event.getPlayer().displayClientMessage(new TextComponent("This chicken has been hit " + newCount + " times!"), true);
+    }
+}
 ```
 
 ### 📦 Easy Login Packets
