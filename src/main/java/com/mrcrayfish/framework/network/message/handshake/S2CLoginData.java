@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 
 /**
@@ -48,15 +49,31 @@ public class S2CLoginData extends HandshakeMessage<S2CLoginData>
     @Override
     public void handle(S2CLoginData message, Supplier<NetworkEvent.Context> supplier)
     {
+        String[] response = new String[1];
+        CountDownLatch block = new CountDownLatch(1);
         supplier.get().enqueueWork(() ->
         {
             ILoginData data = Network.getLoginDataSupplier(message.id).get();
-            data.readData(message.data).ifPresent(s ->
-            {
-                String modName = ModList.get().getModContainerById(message.id.getNamespace()).map(container -> container.getModInfo().getDisplayName()).orElse("Framework");
-                supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [" + modName + "] " + s));
-            });
+            data.readData(message.data).ifPresent(s -> response[0] = s);
+            block.countDown();
         });
+
+        try
+        {
+            block.await();
+        }
+        catch(InterruptedException e)
+        {
+            Thread.interrupted();
+        }
+
+        if(response[0] != null)
+        {
+            String modName = ModList.get().getModContainerById(message.id.getNamespace()).map(container -> container.getModInfo().getDisplayName()).orElse("Framework");
+            supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [" + modName + "] " + response[0]));
+            return;
+        }
+
         supplier.get().setPacketHandled(true);
         Network.getHandshakeChannel().reply(new Acknowledge(), supplier.get());
     }
