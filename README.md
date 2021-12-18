@@ -14,7 +14,7 @@ Synced Data Keys are an improvement of Minecraft's entity data accessor system. 
 An example of keeping track of how many times a chicken has been hit by players
 ```java
 // Create the synced data key
-private static final SyncedDataKey<Chicken, Boolean> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.CHICKEN, Serializers.INTEGER)
+private static final SyncedDataKey<Chicken, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.CHICKEN, Serializers.INTEGER)
             .id(new ResourceLocation("your_mod_id", "hit_count"))
             .defaultValueSupplier(() -> 0)
             .saveToFile()
