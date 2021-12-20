@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Supplier;
 
 /**
@@ -64,12 +65,24 @@ public class S2CSyncedEntityData extends HandshakeMessage<S2CSyncedEntityData>
     public void handle(S2CSyncedEntityData message, Supplier<NetworkEvent.Context> supplier)
     {
         Framework.LOGGER.debug(HANDSHAKE, "Received synced key mappings from server");
-        supplier.get().setPacketHandled(true);
-        if(!SyncedEntityData.instance().updateMappings(message))
+        CountDownLatch block = new CountDownLatch(1);
+        supplier.get().enqueueWork(() ->
         {
-            supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
-            return;
+            if(!SyncedEntityData.instance().updateMappings(message))
+            {
+                supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
+            }
+            block.countDown();
+        });
+        try
+        {
+            block.await();
         }
+        catch(InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        supplier.get().setPacketHandled(true);
         Network.getHandshakeChannel().reply(new Acknowledge(), supplier.get());
     }
 
