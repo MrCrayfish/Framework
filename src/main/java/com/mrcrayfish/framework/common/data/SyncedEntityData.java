@@ -223,7 +223,9 @@ public class SyncedEntityData
     {
         if(this.hasSyncedDataKey(event.getObject().getClass()))
         {
-            event.addCapability(new ResourceLocation(Reference.MOD_ID, "synced_entity_data"), new Provider());
+            Provider provider = new Provider();
+            event.addCapability(new ResourceLocation(Reference.MOD_ID, "synced_entity_data"), provider);
+            event.addListener(provider::invalidate);
         }
     }
 
@@ -512,6 +514,11 @@ public class SyncedEntityData
         final DataHolder holder = new DataHolder();
         final LazyOptional<DataHolder> optional = LazyOptional.of(() -> this.holder);
 
+        public void invalidate()
+        {
+            this.optional.invalidate();
+        }
+
         @Override
         public ListTag serializeNBT()
         {
@@ -563,7 +570,7 @@ public class SyncedEntityData
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
         {
-            return CAPABILITY.orEmpty(cap, this.optional);
+            return this.optional.cast();
         }
     }
 }
