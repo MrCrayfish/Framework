@@ -293,14 +293,15 @@ public class SyncedEntityData
     public void onPlayerClone(PlayerEvent.Clone event)
     {
         Player original = event.getOriginal();
-        if(original.level.isClientSide())
-            return;
+        original.reviveCaps();
 
-        Player player = event.getPlayer();
         DataHolder oldHolder = this.getDataHolder(original);
         if(oldHolder == null)
             return;
 
+        original.invalidateCaps();
+
+        Player player = event.getPlayer();
         DataHolder newHolder = this.getDataHolder(player);
         if(newHolder == null)
             return;
