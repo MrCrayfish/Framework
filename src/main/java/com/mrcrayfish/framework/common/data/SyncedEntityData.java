@@ -573,7 +573,7 @@ public class SyncedEntityData
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
         {
-            return this.optional.cast();
+            return CAPABILITY.orEmpty(cap, this.optional);
         }
     }
 }
