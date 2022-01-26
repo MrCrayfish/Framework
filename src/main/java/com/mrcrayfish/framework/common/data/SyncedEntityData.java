@@ -225,7 +225,10 @@ public class SyncedEntityData
         {
             Provider provider = new Provider();
             event.addCapability(new ResourceLocation(Reference.MOD_ID, "synced_entity_data"), provider);
-            event.addListener(provider::invalidate);
+            if(!(event.getObject() instanceof ServerPlayer)) //Temporary fix until Forge fixes bug
+            {
+                event.addListener(provider::invalidate);
+            }
         }
     }
 
