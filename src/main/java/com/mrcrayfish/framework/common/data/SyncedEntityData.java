@@ -158,6 +158,8 @@ public class SyncedEntityData
     {
         if(!this.registeredDataKeys.contains(key))
         {
+            String keys = this.registeredDataKeys.stream().map(k -> k.pairKey().toString()).collect(Collectors.joining(",", "[", "]"));
+            Framework.LOGGER.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
             throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
@@ -182,6 +184,8 @@ public class SyncedEntityData
     {
         if(!this.registeredDataKeys.contains(key))
         {
+            String keys = this.registeredDataKeys.stream().map(k -> k.pairKey().toString()).collect(Collectors.joining(",", "[", "]"));
+            Framework.LOGGER.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
             throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
