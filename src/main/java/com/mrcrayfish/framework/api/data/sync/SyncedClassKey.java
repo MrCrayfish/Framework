@@ -52,13 +52,13 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
         if(this == o) return true;
         if(o == null || getClass() != o.getClass()) return false;
         SyncedClassKey<?> that = (SyncedClassKey<?>) o;
-        return this.entityClass.equals(that.entityClass);
+        return this.entityClass.getName().equals(that.entityClass.getName());
     }
 
     @Override
     public int hashCode()
     {
-        return this.entityClass.getCanonicalName().hashCode();
+        return this.entityClass.getName().hashCode();
     }
 
     public static final SyncedClassKey<AbstractArrow> ABSTRACT_ARROW = new SyncedClassKey<>(AbstractArrow.class, new ResourceLocation("abstract_arrow"));

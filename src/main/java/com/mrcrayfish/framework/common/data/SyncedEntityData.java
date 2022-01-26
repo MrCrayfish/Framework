@@ -17,7 +17,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +46,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,9 +82,9 @@ public class SyncedEntityData
     private static SyncedEntityData instance;
 
     private final Set<SyncedClassKey<?>> registeredClassKeys = new HashSet<>();
-    private final Object2ReferenceMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ReferenceOpenHashMap<>();
-    private final Reference2ReferenceMap<Class<?>, SyncedClassKey<?>> classToClassKey = new Reference2ReferenceOpenHashMap<>();
-    private final Reference2BooleanMap<Class<?>> classCapabilityCache = new Reference2BooleanOpenHashMap<>();
+    private final Object2ObjectMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<String, SyncedClassKey<?>> classNameToClassKey = new Object2ObjectOpenHashMap<>();
+    private final Object2BooleanMap<String> classNameCapabilityCache = new Object2BooleanOpenHashMap<>();
 
     private final Set<SyncedDataKey<?, ?>> registeredDataKeys = new HashSet<>();
     private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
@@ -119,7 +117,7 @@ public class SyncedEntityData
         {
             this.registeredClassKeys.add(classKey);
             this.idToClassKey.put(classKey.id(), classKey);
-            this.classToClassKey.put(classKey.entityClass(), classKey);
+            this.classNameToClassKey.put(classKey.entityClass().getName(), classKey);
         }
     }
 
@@ -237,12 +235,12 @@ public class SyncedEntityData
         /* It's possible that the entity doesn't have a key but it's superclass or subsequent does
          * have a synced data key. In order to prevent checking this every time we attach the
          * capability, a simple one time check can be performed then cache the result. */
-        return this.classCapabilityCache.computeIfAbsent(entityClass, c ->
+        return this.classNameCapabilityCache.computeIfAbsent(entityClass.getName(), c ->
         {
             Class<?> targetClass = entityClass;
-            while(targetClass != CapabilityProvider.class) // Should be good enough
+            while(!targetClass.isAssignableFrom(Entity.class)) // Should be good enough
             {
-                if(this.classToClassKey.containsKey(targetClass))
+                if(this.classNameToClassKey.containsKey(targetClass.getName()))
                 {
                     return true;
                 }
