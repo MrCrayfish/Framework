@@ -106,7 +106,7 @@ public class SyncedEntityData
         return instance;
     }
 
-    public static void onRegisterCapability(RegisterCapabilitiesEvent event)
+    public static void registerCapability(RegisterCapabilitiesEvent event)
     {
         event.register(DataHolder.class);
     }

@@ -5,7 +5,10 @@ import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -20,6 +23,11 @@ public class LoginDataTest
     public static final Marker MARKER = MarkerManager.getMarker("LOGIN_DATA_TEST");
 
     public LoginDataTest()
+    {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+    }
+
+    private void onCommonSetup(FMLCommonSetupEvent event)
     {
         FrameworkAPI.registerLoginData(new ResourceLocation("login_data_test", "test"), CustomData::new);
     }

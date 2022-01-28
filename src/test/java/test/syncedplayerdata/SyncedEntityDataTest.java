@@ -18,6 +18,8 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.checkerframework.checker.units.qual.C;
 
 /**
@@ -47,6 +49,11 @@ public class SyncedEntityDataTest
     {
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
         MinecraftForge.EVENT_BUS.addListener(this::onHitEntity);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+    }
+
+    private void onCommonSetup(FMLCommonSetupEvent event)
+    {
         FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
         FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
     }
