@@ -36,7 +36,7 @@ description=""
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
-    versionRange="[39,)"
+    versionRange="[39.0.45,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.framework]]
