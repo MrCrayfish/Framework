@@ -54,7 +54,7 @@ public class Network
          return PLAY_CHANNEL;
     }
 
-    public static void registerLoginData(ResourceLocation id, Supplier<? extends ILoginData> data)
+    public synchronized static void registerLoginData(ResourceLocation id, Supplier<? extends ILoginData> data)
     {
         if(Framework.isGameLoaded())
         {
