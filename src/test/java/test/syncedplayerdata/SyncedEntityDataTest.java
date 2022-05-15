@@ -54,8 +54,10 @@ public class SyncedEntityDataTest
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
-        FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-        FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
+        event.enqueueWork(() -> {
+            FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
+            FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
+        });
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)
