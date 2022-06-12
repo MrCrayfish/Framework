@@ -1,13 +1,12 @@
 package test.login;
 
 import com.mrcrayfish.framework.Framework;
-import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
+import com.mrcrayfish.framework.api.event.FrameworkEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -24,12 +23,12 @@ public class LoginDataTest
 
     public LoginDataTest()
     {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onFrameworkRegister);
     }
 
-    private void onCommonSetup(FMLCommonSetupEvent event)
+    private void onFrameworkRegister(FrameworkEvent.Register event)
     {
-        FrameworkAPI.registerLoginData(new ResourceLocation("login_data_test", "test"), CustomData::new);
+        event.registerLoginData(new ResourceLocation("login_data_test", "test"), CustomData::new);
     }
 
     public static class CustomData implements ILoginData

@@ -1,9 +1,9 @@
 package test.syncedplayerdata;
 
-import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.sync.Serializers;
 import com.mrcrayfish.framework.api.data.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
+import com.mrcrayfish.framework.api.event.FrameworkEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +16,6 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
@@ -46,15 +45,13 @@ public class SyncedEntityDataTest
     {
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
         MinecraftForge.EVENT_BUS.addListener(this::onHitEntity);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onFrameworkRegister);
     }
 
-    private void onCommonSetup(FMLCommonSetupEvent event)
+    private void onFrameworkRegister(FrameworkEvent.Register event)
     {
-        event.enqueueWork(() -> {
-            FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-            FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
-        });
+        event.registerSyncedDataKey(TOUCHED_GRASS);
+        event.registerSyncedDataKey(HIT_COUNT);
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)

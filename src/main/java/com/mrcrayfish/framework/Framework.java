@@ -1,9 +1,11 @@
 package com.mrcrayfish.framework;
 
+import com.mrcrayfish.framework.api.event.FrameworkEvent;
 import com.mrcrayfish.framework.common.data.SyncedEntityData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
@@ -32,7 +34,10 @@ public class Framework
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
-        Network.init();
+        event.enqueueWork(() -> {
+            Network.init();
+            ModLoader.get().postEvent(new FrameworkEvent.Register());
+        });
     }
 
     private void onLoadComplete(FMLLoadCompleteEvent event)

@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.api.data.login;
 
-import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.event.FrameworkEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * ILoginData is used to send custom data to clients during the handshake phase, i.e. when connecting
  * to a server (both integrated and dedicated). This is for syncing data required to join the server.
  * At any point during the readData phase, the client should be disconnected if unable to process the
- * data. Implementations must be registered using {@link FrameworkAPI#registerLoginData(ResourceLocation, Supplier)}
+ * data. Implementations must be registered using {@link FrameworkEvent.Register#registerLoginData(ResourceLocation, Supplier)}
  * for them to function.
  * <p>
  * Author: MrCrayfish
