@@ -6,7 +6,7 @@ import com.mrcrayfish.framework.api.network.HandshakeMessage;
 import com.mrcrayfish.framework.common.data.SyncedEntityData;
 import com.mrcrayfish.framework.network.Network;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -70,7 +70,7 @@ public class S2CSyncedEntityData extends HandshakeMessage<S2CSyncedEntityData>
         {
             if(!SyncedEntityData.instance().updateMappings(message))
             {
-                supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
+                supplier.get().getNetworkManager().disconnect(Component.literal("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
             }
             block.countDown();
         });

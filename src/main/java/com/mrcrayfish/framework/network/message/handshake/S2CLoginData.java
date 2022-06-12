@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.api.network.HandshakeMessage;
 import com.mrcrayfish.framework.network.Network;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkEvent;
@@ -70,7 +70,7 @@ public class S2CLoginData extends HandshakeMessage<S2CLoginData>
         if(response[0] != null)
         {
             String modName = ModList.get().getModContainerById(message.id.getNamespace()).map(container -> container.getModInfo().getDisplayName()).orElse("Framework");
-            supplier.get().getNetworkManager().disconnect(new TextComponent("Connection closed - [" + modName + "] " + response[0]));
+            supplier.get().getNetworkManager().disconnect(Component.literal("Connection closed - [" + modName + "] " + response[0]));
             return;
         }
 

@@ -5,22 +5,19 @@ import com.mrcrayfish.framework.api.data.sync.Serializers;
 import com.mrcrayfish.framework.api.data.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.data.sync.SyncedDataKey;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.checkerframework.checker.units.qual.C;
 
 /**
  * Author: MrCrayfish
@@ -77,12 +74,12 @@ public class SyncedEntityDataTest
             this.lastClickedPos = event.getPos();
             if(TOUCHED_GRASS.getValue(player))
             {
-                player.displayClientMessage(new TextComponent("You've already touched grass!"), true);
+                player.displayClientMessage(Component.literal("You've already touched grass!"), true);
             }
             else
             {
                 TOUCHED_GRASS.setValue(player, true);
-                player.displayClientMessage(new TextComponent("Well done, you've finally touched grass!"), true);
+                player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
             }
         }
     }
@@ -93,7 +90,7 @@ public class SyncedEntityDataTest
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            event.getPlayer().displayClientMessage(new TextComponent("This animal has been hit " + newCount + " times!"), true);
+            event.getPlayer().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
         }
     }
 }
