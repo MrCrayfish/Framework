@@ -200,7 +200,7 @@ public class SyncedEntityData
 
     public int getInternalId(SyncedDataKey<?, ?> key)
     {
-        return this.internalIds.get(key);
+        return this.internalIds.getInt(key);
     }
 
     @Nullable
@@ -217,7 +217,7 @@ public class SyncedEntityData
     @Nullable
     private DataHolder getDataHolder(Entity entity)
     {
-        return entity.getCapability(CAPABILITY, null).orElse(null);
+        return entity.getCapability(CAPABILITY, null).resolve().orElse(null);
     }
 
     @SubscribeEvent
@@ -227,7 +227,7 @@ public class SyncedEntityData
         {
             Provider provider = new Provider();
             event.addCapability(new ResourceLocation(Reference.MOD_ID, "synced_entity_data"), provider);
-            if(!(event.getObject() instanceof ServerPlayer)) //Temporary fix until Forge fixes bug
+            if(!(event.getObject() instanceof ServerPlayer)) // Don't add invalidate to server player since it's persistent
             {
                 event.addListener(provider::invalidate);
             }
