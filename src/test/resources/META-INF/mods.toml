@@ -33,6 +33,13 @@ displayName="Newtwork Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="open_model_test"
+version="0.1.0"
+displayName="Open Model Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
@@ -61,6 +68,13 @@ description=""
     side="BOTH"
 
 [[dependencies.login_data_test]]
+    modId="framework"
+    mandatory=true
+    versionRange="[0.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.open_model_test]]
     modId="framework"
     mandatory=true
     versionRange="[0.1.0,)"
