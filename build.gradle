@@ -60,8 +60,8 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19-41.0.17'
-    implementation fg.deobf('curse.maven:catalogue-459701:3822882')
+    minecraft 'net.minecraftforge:forge:1.19-41.0.91'
+    //implementation fg.deobf('curse.maven:catalogue-459701:3822882')
 }
 
 jar {
