@@ -94,7 +94,7 @@ public class FrameworkChannelBuilder
                 builder.loginIndex(LoginIndexHolder::getLoginIndex, LoginIndexHolder::setLoginIndex);
                 builder.encoder(message::encode);
                 builder.decoder(message::decode);
-                builder.consumer(message::handle);
+                builder.consumerNetworkThread(message::handle);
                 if(messages != null)
                 {
                     builder.buildLoginPacketList(messages);
@@ -128,7 +128,7 @@ public class FrameworkChannelBuilder
             .loginIndex(HandshakeMessage::getLoginIndex, HandshakeMessage::setLoginIndex)
             .decoder(acknowledge::decode)
             .encoder(acknowledge::encode)
-            .consumer(HandshakeHandler.indexFirst((handler, msg, s) -> acknowledge.handle(msg, s)))
+            .consumerNetworkThread(HandshakeHandler.indexFirst((handler, msg, s) -> acknowledge.handle(msg, s)))
             .add();
     }
 

@@ -59,12 +59,10 @@ public class SyncedEntityDataTest
         if(event.getSide() != LogicalSide.SERVER)
             return;
 
-        if(!(event.getEntityLiving() instanceof Player player))
-            return;
-
         if(this.lastClickedPos.equals(event.getPos()))
             return;
 
+        Player player = event.getEntity();
         BlockState state = player.level.getBlockState(event.getPos());
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
@@ -87,7 +85,7 @@ public class SyncedEntityDataTest
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            event.getPlayer().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            event.getEntity().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
         }
     }
 }

@@ -49,7 +49,8 @@ public class NetworkTest
         if(event.getSide() != LogicalSide.SERVER)
             return;
 
-        if(!(event.getEntityLiving() instanceof Player player))
+        Player player = event.getEntity();
+        if(!(player instanceof ServerPlayer))
             return;
 
         TEST_PLAY_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new TestMessage());

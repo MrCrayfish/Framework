@@ -10,7 +10,14 @@ import com.mrcrayfish.framework.network.message.handshake.S2CSyncedEntityData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,14 +31,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityProvider;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -257,7 +263,7 @@ public class SyncedEntityData
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event)
     {
-        if(!event.getPlayer().level.isClientSide())
+        if(!event.getEntity().level.isClientSide())
         {
             Entity entity = event.getTarget();
             DataHolder holder = this.getDataHolder(entity);
@@ -267,17 +273,17 @@ public class SyncedEntityData
                 entries.removeIf(entry -> !entry.getKey().syncMode().isTracking());
                 if(!entries.isEmpty())
                 {
-                    Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) event.getPlayer()), new S2CUpdateEntityData(entity.getId(), entries));
+                    Network.getPlayChannel().send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) event.getEntity()), new S2CUpdateEntityData(entity.getId(), entries));
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public void onPlayerJoinWorld(EntityJoinWorldEvent event)
+    public void onPlayerJoinWorld(EntityJoinLevelEvent event)
     {
         Entity entity = event.getEntity();
-        if(entity instanceof Player player && !event.getWorld().isClientSide())
+        if(entity instanceof Player player && !event.getLevel().isClientSide())
         {
             DataHolder holder = this.getDataHolder(player);
             if(holder != null)
@@ -303,7 +309,7 @@ public class SyncedEntityData
 
         original.invalidateCaps();
 
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         DataHolder newHolder = this.getDataHolder(player);
         if(newHolder == null)
             return;
