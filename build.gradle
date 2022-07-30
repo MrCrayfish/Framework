@@ -70,7 +70,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.32'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
     implementation fg.deobf('curse.maven:catalogue-459701:3721991')
 }
 

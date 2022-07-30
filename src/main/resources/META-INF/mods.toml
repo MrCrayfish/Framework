@@ -15,7 +15,7 @@ description="A library providing powerful utilities for developers"
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
-    versionRange="[40.0.32,)"
+    versionRange="[40.1.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.framework]]
