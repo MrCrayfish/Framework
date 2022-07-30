@@ -41,6 +41,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -90,7 +91,8 @@ public class SyncedEntityData
     private final Set<SyncedClassKey<?>> registeredClassKeys = new HashSet<>();
     private final Object2ObjectMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectMap<String, SyncedClassKey<?>> classNameToClassKey = new Object2ObjectOpenHashMap<>();
-    private final Object2BooleanMap<String> classNameCapabilityCache = new Object2BooleanOpenHashMap<>();
+    private final Object2BooleanMap<String> clientClassNameCapabilityCache = new Object2BooleanOpenHashMap<>();
+    private final Object2BooleanMap<String> serverClassNameCapabilityCache = new Object2BooleanOpenHashMap<>();
 
     private final Set<SyncedDataKey<?, ?>> registeredDataKeys = new HashSet<>();
     private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
@@ -242,10 +244,10 @@ public class SyncedEntityData
 
     private boolean hasSyncedDataKey(Class<? extends Entity> entityClass)
     {
-        /* It's possible that the entity doesn't have a key but it's superclass or subsequent does
+        /* It's possible that the entity doesn't have a key, but it's superclass or subsequent does
          * have a synced data key. In order to prevent checking this every time we attach the
          * capability, a simple one time check can be performed then cache the result. */
-        return this.classNameCapabilityCache.computeIfAbsent(entityClass.getName(), c ->
+        return this.getClassNameCapabilityCache().computeIfAbsent(entityClass.getName(), c ->
         {
             Class<?> targetClass = entityClass;
             while(!targetClass.isAssignableFrom(Entity.class)) // Should be good enough
@@ -258,6 +260,15 @@ public class SyncedEntityData
             }
             return false;
         });
+    }
+
+    /**
+     * Gets the class name capability cache for the effective side. This is needed to avoid
+     * concurrency issue due to client and server threads; fast util does not support concurrent maps.
+     */
+    private Object2BooleanMap<String> getClassNameCapabilityCache()
+    {
+        return EffectiveSide.get().isClient() ? this.clientClassNameCapabilityCache : this.serverClassNameCapabilityCache;
     }
 
     @SubscribeEvent
