@@ -4,7 +4,7 @@ license="GPL3"
 
 [[mods]]
 modId="framework"
-version="0.2.4"
+version="0.3.0"
 displayName="Framework"
 updateJSONURL="https://mrcrayfish.com/modupdatejson?id=framework"
 displayURL="https://mrcrayfish.com/mods?id=framework"
