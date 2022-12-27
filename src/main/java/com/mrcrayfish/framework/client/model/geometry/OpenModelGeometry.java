@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.client.model;
+package com.mrcrayfish.framework.client.model.geometry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -8,6 +8,8 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import com.mrcrayfish.framework.Reference;
+import com.mrcrayfish.framework.api.serialize.DataObject;
+import com.mrcrayfish.framework.client.model.BakedOpenModel;
 import com.mrcrayfish.framework.util.GsonUtils;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementRotation;
@@ -31,6 +33,7 @@ import net.minecraftforge.client.model.geometry.IModelGeometry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,19 +43,21 @@ import java.util.function.Function;
 /**
  * Author: MrCrayfish
  */
-public class OpenModel implements IModelGeometry<OpenModel>
+public class OpenModelGeometry implements IModelGeometry<OpenModelGeometry>
 {
     private final BlockModel model;
+    private final DataObject data;
 
-    public OpenModel(BlockModel model)
+    public OpenModelGeometry(BlockModel model, @Nullable DataObject data)
     {
         this.model = model;
+        this.data = data;
     }
 
     @Override
     public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation)
     {
-        return this.model.bake(bakery, this.model, spriteGetter, modelTransform, modelLocation, true);
+        return new BakedOpenModel(this.model.bake(bakery, this.model, spriteGetter, modelTransform, modelLocation, true), this.data);
     }
 
     @Override
@@ -62,15 +67,15 @@ public class OpenModel implements IModelGeometry<OpenModel>
     }
 
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class Loader implements IModelLoader<OpenModel>
+    public static class Loader implements IModelLoader<OpenModelGeometry>
     {
         @Override
         public void onResourceManagerReload(ResourceManager manager) {}
 
         @Override
-        public OpenModel read(JsonDeserializationContext context, JsonObject object)
+        public OpenModelGeometry read(JsonDeserializationContext context, JsonObject object)
         {
-            return new OpenModel(Deserializer.INSTANCE.deserialize(object, BlockModel.class, context));
+            return new OpenModelGeometry(Deserializer.INSTANCE.deserialize(object, BlockModel.class, context), DataObject.convert(object.get("data")));
         }
 
         @SubscribeEvent

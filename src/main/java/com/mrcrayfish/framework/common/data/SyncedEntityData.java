@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
  * <p></p>
  * <p>Author: MrCrayfish</p>
  */
-public class SyncedEntityData
+public final class SyncedEntityData
 {
     private static final Marker SYNCED_ENTITY_DATA_MARKER = MarkerManager.getMarker("SYNCED_ENTITY_DATA");
     private static final Capability<DataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
