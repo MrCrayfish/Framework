@@ -41,7 +41,7 @@ import java.util.function.Function;
 /**
  * Author: MrCrayfish
  */
-public class OpenModelGeometry implements IModelGeometry<OpenModelGeometry>
+public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
 {
     private final BlockModel model;
     private final DataObject data;
