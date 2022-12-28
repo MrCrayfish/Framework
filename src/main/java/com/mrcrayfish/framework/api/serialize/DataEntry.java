@@ -4,17 +4,31 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * Author: MrCrayfish
  */
 public abstract sealed class DataEntry permits DataObject, DataArray, DataString, DataNumber, DataBoolean
 {
+    private UUID id;
     private final DataType type;
 
     protected DataEntry(DataType type)
     {
         this.type = type;
+    }
+
+    /**
+     * @return A unique identifier for this entry. Lazily initialized
+     */
+    public UUID getId()
+    {
+        if(this.id == null)
+        {
+            this.id = UUID.randomUUID();
+        }
+        return this.id;
     }
 
     /**
