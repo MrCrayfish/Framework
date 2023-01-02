@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.api.client;
 
+import com.mrcrayfish.framework.api.client.resources.IDataLoader;
+import com.mrcrayfish.framework.api.client.resources.IResourceSupplier;
 import com.mrcrayfish.framework.api.serialize.DataObject;
+import com.mrcrayfish.framework.client.JsonDataManager;
 import com.mrcrayfish.framework.client.model.BakedOpenModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -79,5 +82,17 @@ public class FrameworkClientAPI
     {
         // Internal code, do not call these directly since they may break in a future update.
         return BakedOpenModel.getData(stack, level, entity, seed);
+    }
+
+    /**
+     * Registers a data loader. This must be called during the construction phase. See
+     * {@link net.minecraftforge.fml.DistExecutor} to safely execute on the client side.
+     *
+     * @param loader the data loader instance
+     */
+    public static <T extends IResourceSupplier> void registerDataLoader(IDataLoader<T> loader)
+    {
+        // Internal code, do not call these directly since they may break in a future update.
+        JsonDataManager.getInstance().addLoader(loader);
     }
 }

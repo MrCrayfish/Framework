@@ -47,6 +47,13 @@ displayName="Open Model Data Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="data_loader_test"
+version="0.1.0"
+displayName="Data Loader Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.framework]]
     modId="forge"
     mandatory=true
@@ -89,6 +96,13 @@ description=""
     side="BOTH"
 
 [[dependencies.open_model_data_test]]
+    modId="framework"
+    mandatory=true
+    versionRange="[0.2.4,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.data_loader_test]]
     modId="framework"
     mandatory=true
     versionRange="[0.2.4,)"
