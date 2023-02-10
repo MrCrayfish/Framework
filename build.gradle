@@ -4,14 +4,14 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.+'
 }
 
-version = '0.4.2-1.19.2'
+version = '0.4.2-1.19.3'
 group = 'com.mrcrayfish'
 archivesBaseName = 'framework'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.19.3'
 
     runs {
         client {
@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
     //implementation fg.deobf('curse.maven:catalogue-459701:3822882')
 }
 

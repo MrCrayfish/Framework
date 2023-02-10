@@ -3,8 +3,8 @@ package com.mrcrayfish.framework.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.math.Vector3f;
 import net.minecraft.util.GsonHelper;
+import org.joml.Vector3f;
 
 /**
  * Author: MrCrayfish

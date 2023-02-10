@@ -63,7 +63,7 @@ description=""
 [[dependencies.framework]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.2,1.20)"
+    versionRange="[1.19.2,)"
     ordering="NONE"
     side="BOTH"
 

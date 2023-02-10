@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import com.mrcrayfish.framework.Reference;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.BakedOpenModel;
@@ -18,6 +17,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
@@ -30,6 +30,7 @@ import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -53,15 +54,15 @@ public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation)
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
     {
-        return new BakedOpenModel(this.model.bake(bakery, this.model, spriteGetter, modelTransform, modelLocation, true), this.data);
+        return new BakedOpenModel(this.model.bake(baker, this.model, spriteGetter, modelState, modelLocation, true), this.data);
     }
 
     @Override
-    public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors)
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context)
     {
-        return this.model.getMaterials(modelGetter, missingTextureErrors);
+        this.model.resolveParents(modelGetter);
     }
 
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -131,7 +132,7 @@ public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
 
             // Read vanilla element and construct new element with custom properties
             BlockElement e = BLOCK_PART_DESERIALIZER.deserialize(element, BlockElement.class, context);
-            BlockElementRotation r = e.rotation != null ? new BlockElementRotation(e.rotation.origin, e.rotation.axis, angle, e.rotation.rescale) : null;
+            BlockElementRotation r = e.rotation != null ? new BlockElementRotation(e.rotation.origin(), e.rotation.axis(), angle, e.rotation.rescale()) : null;
             return new BlockElement(from, to, e.faces, r, e.shade);
         }
     }
