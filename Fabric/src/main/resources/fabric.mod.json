@@ -1,0 +1,38 @@
+{
+    "schemaVersion": 1,
+    "id": "framework",
+    "version": "${version}",
+    "name": "Framework",
+    "description": "This is an example description! Tell everyone what your mod is about!",
+    "authors": [
+        "Me!"
+    ],
+    "contact": {
+        "homepage": "https://fabricmc.net/",
+        "sources": "https://github.com/FabricMC/fabric-example-mod"
+    },
+    "license": "CC0-1.0",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.mrcrayfish.framework.Framework"
+        ],
+        "client": [
+            "com.mrcrayfish.framework.client.FrameworkClientFabric"
+        ]
+    },
+    "mixins": [
+        "framework.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.14",
+        "fabric": "*",
+        "minecraft": "1.19.3",
+        "java": ">=17"
+    },
+    "suggests": {
+        "another-mod": "*"
+    },
+    "accessWidener": "framework.accesswidener"
+}
+  

@@ -1,0 +1,20 @@
+{
+    "schemaVersion": 1,
+    "id": "framework_test",
+    "version": "0.1.0",
+    "name": "Framework Test",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "test.login.LoginDataTest",
+            "test.network.NetworkTest",
+            "test.openmodel.OpenModelTest",
+            "test.openmodeldata.OpenModelDataTest"
+        ],
+        "client": [
+            "test.dataloader.DataLoaderTest",
+            "test.openmodeldata.ClientOpenModelDataTest"
+        ]
+    }
+}
+  

@@ -1,99 +1,58 @@
-plugins {
-    id 'eclipse'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.+'
-}
-
-version = '0.4.2-1.19.3'
-group = 'com.mrcrayfish'
-archivesBaseName = 'framework'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-minecraft {
-    mappings channel: 'official', version: '1.19.3'
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                framework {
-                    source sourceSets.main
-                    source sourceSets.test
-                }
-            }
+subprojects {
+    
+    apply plugin: 'java'
+    
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.withSourcesJar()
+    java.withJavadocJar()
+        
+    jar {
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${mod_name}" }
         }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                framework {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'framework', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                framework {
-                    source sourceSets.main
-                }
-            }
+        manifest {
+            attributes([
+                'Specification-Title'     : mod_name,
+                'Specification-Vendor'    : mod_author,
+                'Specification-Version'   : project.jar.archiveVersion,
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_author,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Timestamp'               : System.currentTimeMillis(),
+                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                'Built-On-Minecraft'      : minecraft_version
+            ])
         }
     }
-}
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-repositories {
-    maven {
-        url = "https://www.cursemaven.com"
-    }
-}
-
-dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
-    //implementation fg.deobf('curse.maven:catalogue-459701:3822882')
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "Framework",
-                "Specification-Vendor"    : "MrCrayfish",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "Framework",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
-jar.finalizedBy('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
+    sourcesJar {
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${mod_name}" }
         }
     }
+
     repositories {
+        mavenCentral()
         maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        maven {
+            name = 'BlameJared Maven (CrT / Bookshelf)'
+            url = 'https://maven.blamejared.com'
         }
     }
-}
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = 'UTF-8'
+        it.options.release = 17
+    }
 
+    // Disables Gradle's custom module metadata from being published to maven. The
+    // metadata includes mapped dependencies which are not reasonably consumable by
+    // other mod developers.
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+}
