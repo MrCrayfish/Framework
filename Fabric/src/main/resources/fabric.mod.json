@@ -1,17 +1,15 @@
 {
     "schemaVersion": 1,
-    "id": "framework",
+    "id": "${mod_id}",
     "version": "${version}",
-    "name": "Framework",
-    "description": "This is an example description! Tell everyone what your mod is about!",
-    "authors": [
-        "Me!"
-    ],
+    "name": "${mod_name}",
+    "description": "${mod_desc}",
+    "authors": [ "${mod_author}" ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "${mod_homepage}",
+        "sources": "${mod_source}"
     },
-    "license": "CC0-1.0",
+    "license": "${mod_license}",
     "icon": "framework_icon.png",
     "environment": "*",
     "entrypoints": {

@@ -1,26 +1,26 @@
 modLoader="javafml"
 loaderVersion="[39,)"
-license="GPL3"
+license="${mod_license}"
 
 [[mods]]
-modId="framework"
-version="0.4.2"
-displayName="Framework"
-updateJSONURL="https://mrcrayfish.com/modupdatejson?id=framework"
-displayURL="https://mrcrayfish.com/mods?id=framework"
-logoFile="framework_icon.png"
-authors="MrCrayfish"
-description="A library providing powerful utilities for developers"
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+updateJSONURL="https://mrcrayfish.com/modupdatejson?id=${mod_id}"
+displayURL="${mod_homepage}"
+logoFile="${mod_id}_icon.png"
+authors="${mod_author}"
+description="${mod_desc}"
 
-[[dependencies.framework]]
+[[dependencies."${mod_id}"]]
     modId="forge"
     mandatory=true
-    versionRange="[44.1.0,)"
+    versionRange="[${forge_version},)"
     ordering="NONE"
     side="BOTH"
-[[dependencies.framework]]
+[[dependencies."${mod_id}"]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.3,1.20)"
+    versionRange="[${minecraft_version},)"
     ordering="NONE"
     side="BOTH"
