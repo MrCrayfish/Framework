@@ -56,3 +56,10 @@ subprojects {
         enabled = false
     }
 }
+
+def propertiesFile = new File(System.getenv("GITHUB_CREDENTIALS"))
+def properties = new Properties()
+properties.load(new FileInputStream(propertiesFile))
+project.ext {
+    localProperties = properties
+}
