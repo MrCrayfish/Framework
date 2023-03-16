@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
 import com.mrcrayfish.framework.platform.services.IPlatformHelper;
+import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 
 import java.util.ServiceLoader;
 
@@ -12,6 +13,7 @@ public class Services
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
     public static final INetworkHelper NETWORK = load(INetworkHelper.class);
     public static final IClientHelper CLIENT = load(IClientHelper.class);
+    public static final IRegistrationHelper REGISTRATION = load(IRegistrationHelper.class);
 
     public static <T> T load(Class<T> clazz)
     {

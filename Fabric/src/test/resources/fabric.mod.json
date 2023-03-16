@@ -15,6 +15,13 @@
             "test.dataloader.DataLoaderTest",
             "test.openmodeldata.ClientOpenModelDataTest"
         ]
+    },
+    "custom": {
+        "framework": {
+            "containers": [
+                "test.registry"
+            ]
+        }
     }
 }
   

@@ -2,9 +2,14 @@ plugins {
     id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
     id 'idea'
+    id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 archivesBaseName = "${mod_id}-fabric-${minecraft_version}"
+
+configurations {
+    shadowInclude
+}
 
 sourceSets {
     testMod {
@@ -21,6 +26,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation "org.reflections:reflections:0.10.2"
+    shadowInclude "org.reflections:reflections:0.10.2"
+
     implementation project(":Common")
     testModImplementation sourceSets.main.output
     testModImplementation sourceSets.test.output
@@ -59,6 +67,23 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
+}
+
+shadowJar {
+    mergeServiceFiles()
+    configurations = [project.configurations.shadowInclude]
+    relocate "org.reflections", "com.mrcrayfish.framework.shadow.org.reflections"
+    relocate "javassist", "com.mrcrayfish.framework.shadow.javassist"
+    relocate "javax", "com.mrcrayfish.framework.shadow.javax"
+    relocate "org.slf4j", "com.mrcrayfish.framework.shadow.org.slf4j"
+    exclude "META-INF/maven/"
+    classifier "shadow"
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    classifier null
 }
 
 tasks.withType(JavaCompile) {

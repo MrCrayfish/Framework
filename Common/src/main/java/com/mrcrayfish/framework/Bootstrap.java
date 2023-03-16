@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.network.Network;
 /**
  * Author: MrCrayfish
  */
-public class Setup
+public class Bootstrap
 {
     public static void init()
     {
