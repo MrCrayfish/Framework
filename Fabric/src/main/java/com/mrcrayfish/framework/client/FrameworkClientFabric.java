@@ -1,18 +1,16 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.api.data.login.ILoginData;
-import com.mrcrayfish.framework.event.Events;
+import com.mrcrayfish.framework.GameStates;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -39,6 +37,10 @@ public class FrameworkClientFabric implements ClientModInitializer
             {
                 return JsonDataManager.getInstance().reload(preparationBarrier, resourceManager, profilerFiller, profilerFiller2, executor, executor2);
             }
+        });
+
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            GameStates.setLoaded();
         });
     }
 }

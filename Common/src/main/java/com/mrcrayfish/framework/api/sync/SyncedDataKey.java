@@ -1,9 +1,8 @@
-package com.mrcrayfish.framework.api.data.sync;
+package com.mrcrayfish.framework.api.sync;
 
-import com.mrcrayfish.framework.common.data.SyncedEntityData;
+import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 

@@ -9,7 +9,8 @@
             "test.login.LoginDataTest",
             "test.network.NetworkTest",
             "test.openmodel.OpenModelTest",
-            "test.openmodeldata.OpenModelDataTest"
+            "test.openmodeldata.OpenModelDataTest",
+            "test.syncedentitydata.SyncedEntityDataTest"
         ],
         "client": [
             "test.dataloader.DataLoaderTest",

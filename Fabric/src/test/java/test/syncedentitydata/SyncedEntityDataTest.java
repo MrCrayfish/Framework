@@ -1,29 +1,28 @@
-package test.syncedplayerdata;
+package test.syncedentitydata;
 
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.sync.Serializers;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * Author: MrCrayfish
- */
-@Mod("synced_entity_data_test")
-public class SyncedEntityDataTest
+public class SyncedEntityDataTest implements ModInitializer
 {
     private BlockPos lastClickedPos = BlockPos.ZERO;
 
@@ -42,34 +41,25 @@ public class SyncedEntityDataTest
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
             .build();
 
-    public SyncedEntityDataTest()
+    @Override
+    public void onInitialize()
     {
-        MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
-        MinecraftForge.EVENT_BUS.addListener(this::onHitEntity);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+        FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
+        FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
+
+        AttackEntityCallback.EVENT.register(this::onHitEntity);
+        AttackBlockCallback.EVENT.register(this::onTouchBlock);
     }
 
-    private void onCommonSetup(FMLCommonSetupEvent event)
+    private InteractionResult onTouchBlock(Player player, Level level, InteractionHand hand, BlockPos pos, Direction direction)
     {
-        event.enqueueWork(() -> {
-            FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-            FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
-        });
-    }
+        if(level.isClientSide() || this.lastClickedPos.equals(pos))
+            return InteractionResult.PASS;
 
-    private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)
-    {
-        if(event.getSide() != LogicalSide.SERVER)
-            return;
-
-        if(this.lastClickedPos.equals(event.getPos()))
-            return;
-
-        Player player = event.getEntity();
-        BlockState state = player.level.getBlockState(event.getPos());
+        BlockState state = player.level.getBlockState(pos);
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
-            this.lastClickedPos = event.getPos();
+            this.lastClickedPos = pos;
             if(TOUCHED_GRASS.getValue(player))
             {
                 player.displayClientMessage(Component.literal("You've already touched grass!"), true);
@@ -80,15 +70,17 @@ public class SyncedEntityDataTest
                 player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
             }
         }
+        return InteractionResult.PASS;
     }
 
-    private void onHitEntity(AttackEntityEvent event)
+    private InteractionResult onHitEntity(Player player, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult result)
     {
-        if(event.getTarget() instanceof Animal animal && !animal.getLevel().isClientSide())
+        if(entity instanceof Animal animal && !animal.getLevel().isClientSide())
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            event.getEntity().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            player.displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
         }
+        return InteractionResult.PASS;
     }
 }

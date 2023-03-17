@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.api.data.sync;
+package com.mrcrayfish.framework.api.sync;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ByteTag;

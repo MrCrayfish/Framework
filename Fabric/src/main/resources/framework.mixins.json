@@ -4,6 +4,7 @@
     "package": "com.mrcrayfish.framework.mixin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
+        "EntityMixin"
     ],
     "client": [
         "client.BlockModelDeserializerMixin"

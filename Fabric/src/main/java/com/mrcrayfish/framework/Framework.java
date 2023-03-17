@@ -2,6 +2,7 @@ package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -32,6 +33,10 @@ public class Framework implements ModInitializer
                     Registry.register(registry, name, valueSupplier.get());
                 }
             });
+        });
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            GameStates.setLoaded();
         });
     }
 }

@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.network.message.play;
 
 import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
-import com.mrcrayfish.framework.common.data.SyncedEntityData;
+import com.mrcrayfish.framework.entity.sync.DataEntry;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -15,11 +15,11 @@ import java.util.List;
 public class S2CUpdateEntityData extends PlayMessage<S2CUpdateEntityData>
 {
     private int entityId;
-    private List<SyncedEntityData.DataEntry<?, ?>> entries;
+    private List<DataEntry<?, ?>> entries;
 
     public S2CUpdateEntityData() {}
 
-    public S2CUpdateEntityData(int entityId, List<SyncedEntityData.DataEntry<?, ?>> entries)
+    public S2CUpdateEntityData(int entityId, List<DataEntry<?, ?>> entries)
     {
         this.entityId = entityId;
         this.entries = entries;
@@ -38,10 +38,10 @@ public class S2CUpdateEntityData extends PlayMessage<S2CUpdateEntityData>
     {
         int entityId = buffer.readVarInt();
         int size = buffer.readVarInt();
-        List<SyncedEntityData.DataEntry<?, ?>> entries = new ArrayList<>();
+        List<DataEntry<?, ?>> entries = new ArrayList<>();
         for(int i = 0; i < size; i++)
         {
-            entries.add(SyncedEntityData.DataEntry.read(buffer));
+            entries.add(DataEntry.read(buffer));
         }
         return new S2CUpdateEntityData(entityId, entries);
     }
@@ -58,7 +58,7 @@ public class S2CUpdateEntityData extends PlayMessage<S2CUpdateEntityData>
         return this.entityId;
     }
 
-    public List<SyncedEntityData.DataEntry<?, ?>> getEntries()
+    public List<DataEntry<?, ?>> getEntries()
     {
         return this.entries;
     }
