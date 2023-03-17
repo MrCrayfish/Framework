@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.platform.network;
 
-import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.MessageDirection;
 import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nullable;

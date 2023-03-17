@@ -1,12 +1,12 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.google.common.collect.EnumBiMap;
-import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
-import com.mrcrayfish.framework.api.network.MessageDirection;
-import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.MessageDirection;
+import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
+import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import com.mrcrayfish.framework.network.message.IMessage;
 import com.mrcrayfish.framework.network.message.LoginIndexHolder;
 import net.minecraft.Util;

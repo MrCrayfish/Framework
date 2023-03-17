@@ -1,10 +1,10 @@
 package com.mrcrayfish.framework.platform.network;
 
-import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
-import com.mrcrayfish.framework.api.network.MessageDirection;
-import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
+import com.mrcrayfish.framework.api.network.MessageDirection;
+import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
+import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;

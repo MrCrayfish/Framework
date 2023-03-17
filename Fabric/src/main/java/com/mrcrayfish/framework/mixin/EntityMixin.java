@@ -4,7 +4,6 @@ import com.mrcrayfish.framework.entity.sync.DataHolder;
 import com.mrcrayfish.framework.entity.sync.ISyncedDataHolder;
 import com.mrcrayfish.framework.entity.sync.LazyDataHolder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

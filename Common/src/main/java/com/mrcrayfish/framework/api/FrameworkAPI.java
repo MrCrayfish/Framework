@@ -3,7 +3,6 @@ package com.mrcrayfish.framework.api;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
-import com.mrcrayfish.framework.entity.sync.DataHolder;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.network.LoginDataManager;
 import com.mrcrayfish.framework.platform.Services;

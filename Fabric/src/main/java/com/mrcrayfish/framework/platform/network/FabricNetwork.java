@@ -2,8 +2,8 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.SideExecutor;
-import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
+import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.network.message.IMessage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;

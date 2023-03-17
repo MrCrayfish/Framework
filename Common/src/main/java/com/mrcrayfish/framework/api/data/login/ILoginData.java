@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.data.login;
 
-import com.mrcrayfish.framework.api.event.IFrameworkEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 

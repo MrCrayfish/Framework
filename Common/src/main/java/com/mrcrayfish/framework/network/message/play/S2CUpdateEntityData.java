@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.network.message.play;
 
+import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.entity.sync.DataEntry;
-import com.mrcrayfish.framework.api.network.MessageContext;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;

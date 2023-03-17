@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.network.message.handshake;
 
 import com.mrcrayfish.framework.api.data.login.ILoginData;
+import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
 import com.mrcrayfish.framework.network.LoginDataManager;
-import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.platform.Services;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
