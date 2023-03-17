@@ -19,7 +19,7 @@ public interface FrameworkNetworkBuilder
 
     <T extends PlayMessage<T>> FrameworkNetworkBuilder registerPlayMessage(Class<T> messageClass, @Nullable MessageDirection direction);
 
-    <T extends HandshakeMessage<T>> FrameworkNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnLogIn);
+    <T extends HandshakeMessage<T>> FrameworkNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnHandshake);
 
     <T extends HandshakeMessage<T>> FrameworkNetworkBuilder registerHandshakeMessage(Class<T> messageClass, @Nullable Function<Boolean, List<Pair<String, T>>> messages);
 
@@ -29,7 +29,7 @@ public interface FrameworkNetworkBuilder
 
     FrameworkNetwork build();
 
-    static <T extends HandshakeMessage<T>> Function<Boolean, List<Pair<String, T>>> createLoginMessageSupplier(Class<T> messageClass)
+    static <T extends HandshakeMessage<T>> Function<Boolean, List<Pair<String, T>>> createHandshakeMessageSupplier(Class<T> messageClass)
     {
         return isLocal ->
         {

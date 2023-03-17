@@ -25,7 +25,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     private final int version;
     private final AtomicInteger idCount = new AtomicInteger(1);
     private final List<FabricMessage<?>> playMessages = new ArrayList<>();
-    private final List<FabricLoginMessage<?>> handshakeMessages = new ArrayList<>();
+    private final List<FabricHandshakeMessage<?>> handshakeMessages = new ArrayList<>();
 
     public FabricNetworkBuilder(ResourceLocation id, int version)
     {
@@ -64,9 +64,9 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     }
 
     @Override
-    public <T extends HandshakeMessage<T>> FrameworkNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnLogIn)
+    public <T extends HandshakeMessage<T>> FrameworkNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnHandshake)
     {
-        return this.registerHandshakeMessage(messageClass, sendOnLogIn ? FrameworkNetworkBuilder.createLoginMessageSupplier(messageClass) : null);
+        return this.registerHandshakeMessage(messageClass, sendOnHandshake ? FrameworkNetworkBuilder.createHandshakeMessageSupplier(messageClass) : null);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
         {
             Constructor<T> constructor = messageClass.getDeclaredConstructor();
             T message = constructor.newInstance();
-            this.handshakeMessages.add(new FabricLoginMessage<>(this.idCount.getAndIncrement(), messageClass, message::encode, message::decode, message::handle, null, messages));
+            this.handshakeMessages.add(new FabricHandshakeMessage<>(this.idCount.getAndIncrement(), messageClass, message::encode, message::decode, message::handle, null, messages));
         }
         catch(NoSuchMethodException e)
         {

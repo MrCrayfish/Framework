@@ -36,8 +36,8 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     private static final EnumBiMap<MessageDirection, NetworkDirection> DIRECTION_MAPPER = Util.make(EnumBiMap.create(MessageDirection.class, NetworkDirection.class), map -> {
         map.put(MessageDirection.PLAY_CLIENT_BOUND, NetworkDirection.PLAY_TO_CLIENT);
         map.put(MessageDirection.PLAY_SERVER_BOUND, NetworkDirection.PLAY_TO_SERVER);
-        map.put(MessageDirection.LOGIN_CLIENT_BOUND, NetworkDirection.LOGIN_TO_CLIENT);
-        map.put(MessageDirection.LOGIN_SERVER_BOUND, NetworkDirection.LOGIN_TO_SERVER);
+        map.put(MessageDirection.HANDSHAKE_CLIENT_BOUND, NetworkDirection.LOGIN_TO_CLIENT);
+        map.put(MessageDirection.HANDSHAKE_SERVER_BOUND, NetworkDirection.LOGIN_TO_SERVER);
     });
 
     private final ResourceLocation id;
@@ -105,9 +105,9 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     }
 
     @Override
-    public <T extends HandshakeMessage<T>> ForgeNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnLogIn)
+    public <T extends HandshakeMessage<T>> ForgeNetworkBuilder registerHandshakeMessage(Class<T> messageClass, boolean sendOnHandshake)
     {
-        return registerHandshakeMessage(messageClass, sendOnLogIn ? FrameworkNetworkBuilder.createLoginMessageSupplier(messageClass) : null);
+        return registerHandshakeMessage(messageClass, sendOnHandshake ? FrameworkNetworkBuilder.createHandshakeMessageSupplier(messageClass) : null);
     }
 
     @Override

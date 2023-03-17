@@ -45,17 +45,17 @@ public class FabricNetwork implements FrameworkNetwork
     final int protocolVersion;
     final Map<Class<?>, FabricMessage<?>> classToPlayMessage;
     final Map<Integer, FabricMessage<?>> indexToPlayMessage;
-    final Map<Class<?>, FabricLoginMessage<?>> classToLoginMessage;
-    final Map<Integer, FabricLoginMessage<?>> indexToLoginMessage;
+    final Map<Class<?>, FabricHandshakeMessage<?>> classToHandshakeMessage;
+    final Map<Integer, FabricHandshakeMessage<?>> indexToHandshakeMessage;
 
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<FabricLoginMessage<?>> handshakeMessages)
+    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<FabricHandshakeMessage<?>> handshakeMessages)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
         this.classToPlayMessage = createClassMap(playMessages);
         this.indexToPlayMessage = createIndexMap(playMessages);
-        this.classToLoginMessage = createClassMap(handshakeMessages);
-        this.indexToLoginMessage = createIndexMap(handshakeMessages);
+        this.classToHandshakeMessage = createClassMap(handshakeMessages);
+        this.indexToHandshakeMessage = createIndexMap(handshakeMessages);
         this.setup();
     }
 
@@ -76,20 +76,20 @@ public class FabricNetwork implements FrameworkNetwork
         }
 
         // Register receivers for login messages and register events
-        if(!this.classToLoginMessage.isEmpty())
+        if(!this.classToHandshakeMessage.isEmpty())
         {
             // Only register client receiver only if on physical client
             SideExecutor.runOn(EnvType.CLIENT, () -> () -> {
                 ClientLoginNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
-                    return CompletableFuture.completedFuture(FabricClientNetworkHandler.receiveLogin(this, client, handler, buf, responseSender));
+                    return CompletableFuture.completedFuture(FabricClientNetworkHandler.receiveHandshake(this, client, handler, buf, responseSender));
                 });
             });
             // Sends the login messages to client when they are connecting
             ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
-                this.sendLoginMessages(sender, handler.getConnection().isMemoryConnection());
+                this.sendHandshakeMessages(sender, handler.getConnection().isMemoryConnection());
             });
             ServerLoginNetworking.registerGlobalReceiver(this.id, (server, handler, understood, buf, synchronizer, responseSender) -> {
-                FabricServerNetworkHandler.receiveLogin(this, server, handler, understood, buf, synchronizer, responseSender);
+                FabricServerNetworkHandler.receiveHandshake(this, server, handler, understood, buf, synchronizer, responseSender);
             });
         }
     }
@@ -128,9 +128,9 @@ public class FabricNetwork implements FrameworkNetwork
         return buf;
     }
 
-    private void sendLoginMessages(PacketSender sender, boolean isLocal)
+    private void sendHandshakeMessages(PacketSender sender, boolean isLocal)
     {
-        this.classToLoginMessage.values().forEach(fabricMessage ->
+        this.classToHandshakeMessage.values().forEach(fabricMessage ->
         {
             Optional.ofNullable(fabricMessage.getMessages()).ifPresent(messages ->
             {
@@ -148,8 +148,8 @@ public class FabricNetwork implements FrameworkNetwork
     @SuppressWarnings("unchecked")
     private <T> void encodeLoginMessage(T message, FriendlyByteBuf buf)
     {
-        FabricLoginMessage<T> fabricLoginMessage = (FabricLoginMessage<T>) this.classToLoginMessage.get(message.getClass());
-        fabricLoginMessage.encode(message, buf);
+        FabricHandshakeMessage<T> msg = (FabricHandshakeMessage<T>) this.classToHandshakeMessage.get(message.getClass());
+        msg.encode(message, buf);
     }
 
     private static <T extends FabricMessage<?>> Map<Class<?>, T> createClassMap(Collection<T> c)

@@ -31,10 +31,10 @@ public class FabricClientNetworkHandler
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static FriendlyByteBuf receiveLogin(FabricNetwork network, Minecraft minecraft, ClientHandshakePacketListenerImpl handler, FriendlyByteBuf buf, Consumer<GenericFutureListener<? extends Future<? super Void>>> consumer)
+    public static FriendlyByteBuf receiveHandshake(FabricNetwork network, Minecraft minecraft, ClientHandshakePacketListenerImpl handler, FriendlyByteBuf buf, Consumer<GenericFutureListener<? extends Future<? super Void>>> consumer)
     {
         int index = buf.readInt();
-        FabricMessage message = network.indexToLoginMessage.get(index);
+        FabricMessage message = network.indexToHandshakeMessage.get(index);
         if(!FabricNetwork.validateMessage(message, handler.getConnection()))
             return null;
 
@@ -46,7 +46,7 @@ public class FabricClientNetworkHandler
         IMessage reply = context.getReply();
         if(reply != null)
         {
-            message = network.classToLoginMessage.get(reply.getClass());
+            message = network.classToHandshakeMessage.get(reply.getClass());
             responseBuf.writeInt(message.getIndex());
             context.getReply().encode(reply, responseBuf);
         }

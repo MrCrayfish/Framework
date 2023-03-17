@@ -13,11 +13,11 @@ import java.util.function.Function;
 /**
  * Author: MrCrayfish
  */
-public class FabricLoginMessage<T> extends FabricMessage<T>
+public class FabricHandshakeMessage<T> extends FabricMessage<T>
 {
     private final Function<Boolean, List<Pair<String, T>>> messages;
 
-    public FabricLoginMessage(int index, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable MessageDirection direction, @Nullable Function<Boolean, List<Pair<String, T>>> messages)
+    public FabricHandshakeMessage(int index, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable MessageDirection direction, @Nullable Function<Boolean, List<Pair<String, T>>> messages)
     {
         super(index, messageClass, encoder, decoder, handler, direction);
         this.messages = messages;

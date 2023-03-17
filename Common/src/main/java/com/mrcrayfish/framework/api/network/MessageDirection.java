@@ -7,8 +7,8 @@ public enum MessageDirection
 {
     PLAY_SERVER_BOUND(false, true),
     PLAY_CLIENT_BOUND(true, false),
-    LOGIN_SERVER_BOUND(false, true),
-    LOGIN_CLIENT_BOUND(true, false);
+    HANDSHAKE_SERVER_BOUND(false, true),
+    HANDSHAKE_CLIENT_BOUND(true, false);
 
     private final boolean client;
     private final boolean server;

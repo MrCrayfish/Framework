@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.platform;
 
-import com.mrcrayfish.framework.api.registry.EntryContainer;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
@@ -42,7 +42,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .forPackages(this.getScanPackages())
                 .addScanners(Scanners.TypesAnnotated));
-        Set<Class<?>> containerClass = reflections.getTypesAnnotatedWith(EntryContainer.class);
+        Set<Class<?>> containerClass = reflections.getTypesAnnotatedWith(RegistryContainer.class);
         return containerClass.stream()
                 .map(ReflectionUtils::findRegistryEntriesInClass)
                 .flatMap(Collection::stream)

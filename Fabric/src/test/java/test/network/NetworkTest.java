@@ -19,9 +19,17 @@ public class NetworkTest implements ModInitializer
 {
     public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
-    public static final FrameworkNetwork TEST_PLAY_CHANNEL = FrameworkAPI.createNetworkBuilder(new ResourceLocation("network_test", "play"), 1).registerPlayMessage(TestMessage.class).ignoreClient().ignoreServer().build();
+    public static final FrameworkNetwork TEST_PLAY_CHANNEL = FrameworkAPI
+            .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
+            .registerPlayMessage(TestMessage.class)
+            .ignoreClient()
+            .ignoreServer()
+            .build();
 
-    public static final FrameworkNetwork TEST_HANDSHAKE_CHANNEL = FrameworkAPI.createNetworkBuilder(new ResourceLocation("network_test", "handshake"), 1).registerHandshakeMessage(TestHandshake.class, true).build();
+    public static final FrameworkNetwork TEST_HANDSHAKE_CHANNEL = FrameworkAPI
+            .createNetworkBuilder(new ResourceLocation("network_test", "handshake"), 1)
+            .registerHandshakeMessage(TestHandshake.class, true)
+            .build();
 
     @Override
     public void onInitialize()

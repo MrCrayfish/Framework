@@ -28,14 +28,14 @@ public class FabricServerNetworkHandler
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    static void receiveLogin(FabricNetwork network, MinecraftServer server, ServerLoginPacketListenerImpl listener, boolean understood, FriendlyByteBuf buf, ServerLoginNetworking.LoginSynchronizer synchronizer, PacketSender sender)
+    static void receiveHandshake(FabricNetwork network, MinecraftServer server, ServerLoginPacketListenerImpl listener, boolean understood, FriendlyByteBuf buf, ServerLoginNetworking.LoginSynchronizer synchronizer, PacketSender sender)
     {
         // Client didn't understand message, so just return
         if(!understood)
             return;
 
         int index = buf.readInt();
-        FabricMessage message = network.indexToLoginMessage.get(index);
+        FabricMessage message = network.indexToHandshakeMessage.get(index);
         if(!FabricNetwork.validateMessage(message, listener.getConnection()))
             return;
 

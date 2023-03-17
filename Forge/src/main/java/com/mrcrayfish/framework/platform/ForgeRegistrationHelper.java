@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.platform;
 
-import com.mrcrayfish.framework.api.registry.EntryContainer;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class ForgeRegistrationHelper implements IRegistrationHelper
 {
-    public static final Type ENTRY_CONTAINER = Type.getType(EntryContainer.class);
+    public static final Type ENTRY_CONTAINER = Type.getType(RegistryContainer.class);
 
     @Override
     public List<RegistryEntry<?>> getAllRegistryEntries()
