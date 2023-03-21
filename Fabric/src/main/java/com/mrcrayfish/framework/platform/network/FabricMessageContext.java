@@ -3,7 +3,9 @@ package com.mrcrayfish.framework.platform.network;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.api.network.MessageDirection;
 import net.minecraft.network.Connection;
+import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -15,9 +17,9 @@ public class FabricMessageContext extends MessageContext
     private final Executor executor;
     private final Connection connection;
 
-    public FabricMessageContext(Executor executor, Connection connection, MessageDirection direction)
+    public FabricMessageContext(Executor executor, Connection connection, @Nullable ServerPlayer player, MessageDirection direction)
     {
-        super(direction);
+        super(direction, player);
         this.executor = executor;
         this.connection = connection;
     }

@@ -36,13 +36,13 @@ public class EntityMixin implements ISyncedDataHolder
     }
 
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
-    private void onLoadData(CompoundTag tag, CallbackInfo ci)
+    private void frameworkOnLoadData(CompoundTag tag, CallbackInfo ci)
     {
         this.frameworkLazyDataHolder = new LazyDataHolder(tag.getCompound("FrameworkDataHolder"));
     }
 
     @Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
-    private void onSaveData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir)
+    private void frameworkOnSaveData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir)
     {
         if(this.frameworkLazyDataHolder != null)
         {

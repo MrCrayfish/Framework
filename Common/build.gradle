@@ -54,8 +54,8 @@ publishing {
             name = "GitHubPackages"
             url = "https://maven.pkg.github.com/MrCrayfish/Maven"
             credentials {
-                username = rootProject.localProperties['GITHUB_USERNAME']
-                password = rootProject.localProperties['GITHUB_TOKEN']
+                username = rootProject.githubCredentials['GITHUB_USERNAME']
+                password = rootProject.githubCredentials['GITHUB_TOKEN']
             }
         }
     }

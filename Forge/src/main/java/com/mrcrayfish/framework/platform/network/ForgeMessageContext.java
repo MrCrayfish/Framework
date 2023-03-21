@@ -16,7 +16,7 @@ public class ForgeMessageContext extends MessageContext
 
     public ForgeMessageContext(NetworkEvent.Context context, MessageDirection direciton)
     {
-        super(direciton);
+        super(direciton, context.getSender());
         this.context = context;
     }
 

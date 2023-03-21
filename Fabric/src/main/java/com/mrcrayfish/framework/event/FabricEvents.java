@@ -1,6 +1,10 @@
 package com.mrcrayfish.framework.event;
 
+import com.mrcrayfish.framework.api.event.EntityEvents;
+import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.TickEvents;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -34,6 +38,12 @@ public class FabricEvents implements ModInitializer
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             PlayerEvents.COPY.post().handle(oldPlayer, newPlayer, !alive);
+        });
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            PlayerEvents.RESPAWN.post().handle(newPlayer, alive);
+        });
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+            PlayerEvents.CHANGE_DIMENSION.post().handle(player, origin.dimension(), destination.dimension());
         });
     }
 }

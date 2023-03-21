@@ -4,7 +4,14 @@
     "package": "com.mrcrayfish.framework.mixin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
-        "EntityMixin"
+        "EntityMixin",
+        "ExperienceOrbMixin",
+        "ItemEntityMixin",
+        "LivingEntityMixin",
+        "PlayerListMixin",
+        "PlayerMixin",
+        "ResultSlotMixin",
+        "ServerPlayerMixin"
     ],
     "client": [
         "client.BlockModelDeserializerMixin"
