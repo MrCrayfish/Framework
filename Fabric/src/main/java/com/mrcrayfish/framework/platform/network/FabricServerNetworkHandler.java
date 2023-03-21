@@ -24,7 +24,7 @@ public class FabricServerNetworkHandler
             return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        message.handle(msg, new FabricMessageContext(server, handler.getConnection(), message.getDirection()));
+        message.handle(msg, new FabricMessageContext(server, handler.getConnection(), player, message.getDirection()));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -40,7 +40,7 @@ public class FabricServerNetworkHandler
             return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(server, listener.getConnection(), message.getDirection());
+        MessageContext context = new FabricMessageContext(server, listener.getConnection(), null, message.getDirection());
         message.handle(msg, context);
     }
 }

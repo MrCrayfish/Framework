@@ -27,7 +27,7 @@ public class FabricClientNetworkHandler
             return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        message.handle(msg, new FabricMessageContext(minecraft, listener.getConnection(), message.getDirection()));
+        message.handle(msg, new FabricMessageContext(minecraft, listener.getConnection(), null, message.getDirection()));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -39,7 +39,7 @@ public class FabricClientNetworkHandler
             return null;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(minecraft, handler.getConnection(), message.getDirection());
+        MessageContext context = new FabricMessageContext(minecraft, handler.getConnection(), null, message.getDirection());
         message.handle(msg, context);
 
         FriendlyByteBuf responseBuf = PacketByteBufs.create();
