@@ -2,11 +2,13 @@ package com.mrcrayfish.framework.event;
 
 import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 
@@ -44,6 +46,18 @@ public class FabricEvents implements ModInitializer
         });
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
             PlayerEvents.CHANGE_DIMENSION.post().handle(player, origin.dimension(), destination.dimension());
+        });
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            ServerEvents.STARTING.post().handle(server);
+        });
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            ServerEvents.STARTED.post().handle(server);
+        });
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            ServerEvents.STOPPING.post().handle(server);
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            ServerEvents.STOPPED.post().handle(server);
         });
     }
 }

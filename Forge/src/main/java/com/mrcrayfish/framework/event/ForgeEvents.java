@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.event;
 
 import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
@@ -12,6 +13,9 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
@@ -157,5 +161,29 @@ public class ForgeEvents
         {
             TickEvents.END_PLAYER.post().handle(event.player);
         }
+    }
+
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event)
+    {
+        ServerEvents.STARTING.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStarted(ServerStartingEvent event)
+    {
+        ServerEvents.STARTED.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event)
+    {
+        ServerEvents.STOPPING.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStopped(ServerStoppedEvent event)
+    {
+        ServerEvents.STOPPED.post().handle(event.getServer());
     }
 }
