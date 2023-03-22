@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.util;
 
-import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.util.thread.BlockableEventLoop;

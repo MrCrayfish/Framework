@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework;
 
-import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

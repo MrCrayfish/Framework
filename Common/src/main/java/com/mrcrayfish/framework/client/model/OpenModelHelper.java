@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.client.model;
 
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.platform.ClientServices;
-import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
