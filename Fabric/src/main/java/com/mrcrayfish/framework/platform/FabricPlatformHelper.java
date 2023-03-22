@@ -1,6 +1,8 @@
 package com.mrcrayfish.framework.platform;
 
+import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.platform.services.IPlatformHelper;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class FabricPlatformHelper implements IPlatformHelper
@@ -27,5 +29,11 @@ public class FabricPlatformHelper implements IPlatformHelper
     public boolean isDevelopmentEnvironment()
     {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
+    }
+
+    @Override
+    public Environment getEnvironment()
+    {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ? Environment.CLIENT : Environment.DEDICATED_SERVER;
     }
 }

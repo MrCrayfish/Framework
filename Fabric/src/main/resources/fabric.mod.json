@@ -14,11 +14,11 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.mrcrayfish.framework.Framework",
+            "com.mrcrayfish.framework.FrameworkFabric",
             "com.mrcrayfish.framework.event.FabricEvents"
         ],
         "client": [
-            "com.mrcrayfish.framework.client.FrameworkClientFabric"
+            "com.mrcrayfish.framework.client.ClientFrameworkFabric"
         ]
     },
     "mixins": [

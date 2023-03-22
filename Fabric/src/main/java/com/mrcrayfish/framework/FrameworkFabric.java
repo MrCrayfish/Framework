@@ -1,11 +1,8 @@
 package com.mrcrayfish.framework;
 
-import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,13 +11,11 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class Framework implements ModInitializer
+public class FrameworkFabric implements ModInitializer
 {
-    public Framework()
+    public FrameworkFabric()
     {
         Registration.init();
-        FrameworkData.setEnvironment(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ?
-                Environment.CLIENT : Environment.DEDICATED_SERVER);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package test.dataloader;
 
 import com.google.common.collect.ImmutableList;
-import com.mrcrayfish.framework.Framework;
+import com.mrcrayfish.framework.FrameworkForge;
 import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.api.serialize.DataType;
@@ -63,7 +63,7 @@ public class DataLoaderTest
                 DataObject object = pair.getRight();
                 if(object.has("message", DataType.STRING))
                 {
-                    Framework.LOGGER.info(MARKER, object.getDataString("message").asString());
+                    FrameworkForge.LOGGER.info(MARKER, object.getDataString("message").asString());
                 }
             });
         }

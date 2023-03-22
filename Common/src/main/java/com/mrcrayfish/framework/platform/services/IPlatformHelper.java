@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.platform.services;
 
+import com.mrcrayfish.framework.api.Environment;
+
 public interface IPlatformHelper {
 
     /**
@@ -36,8 +38,10 @@ public interface IPlatformHelper {
      *
      * @return The name of the environment type.
      */
-    default String getEnvironmentName() {
-
+    default String getEnvironmentName()
+    {
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    Environment getEnvironment();
 }

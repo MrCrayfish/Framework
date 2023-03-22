@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.util;
 
 import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.Environment;
+import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.util.thread.BlockableEventLoop;
 import org.apache.commons.lang3.tuple.MutablePair;
 
@@ -27,12 +28,12 @@ public class EnvironmentHelper
 
     public static Environment getEnvironment()
     {
-        return FrameworkData.getEnvironment();
+        return Services.PLATFORM.getEnvironment();
     }
 
     public static <T> T callOn(Environment env, Supplier<Callable<T>> task)
     {
-        if(FrameworkData.getEnvironment() == env)
+        if(Services.PLATFORM.getEnvironment() == env)
         {
             try
             {
@@ -48,7 +49,7 @@ public class EnvironmentHelper
 
     public static void runOn(Environment env, Supplier<Runnable> task)
     {
-        if(FrameworkData.getEnvironment() == env)
+        if(Services.PLATFORM.getEnvironment() == env)
         {
             task.get().run();
         }

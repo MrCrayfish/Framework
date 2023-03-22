@@ -1,6 +1,6 @@
 package test.network;
 
-import com.mrcrayfish.framework.Framework;
+import com.mrcrayfish.framework.FrameworkForge;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.MessageContext;
@@ -68,7 +68,7 @@ public class NetworkTest
         @Override
         public void handle(TestMessage message, MessageContext context)
         {
-            Framework.LOGGER.info(MARKER, "Received test play message on side: " + context.getDirection().name());
+            FrameworkForge.LOGGER.info(MARKER, "Received test play message on side: " + context.getDirection().name());
             context.setHandled(true);
         }
     }
@@ -87,7 +87,7 @@ public class NetworkTest
         @Override
         public void handle(TestHandshake message, MessageContext context)
         {
-            Framework.LOGGER.debug(MARKER, "Received test handshake message!");
+            FrameworkForge.LOGGER.debug(MARKER, "Received test handshake message!");
             context.setHandled(true);
             context.reply(new Acknowledge());
         }

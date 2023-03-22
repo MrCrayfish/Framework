@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework;
+package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;

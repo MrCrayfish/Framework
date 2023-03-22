@@ -1,6 +1,6 @@
 package test.login;
 
-import com.mrcrayfish.framework.Framework;
+import com.mrcrayfish.framework.FrameworkForge;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import net.minecraft.network.FriendlyByteBuf;
@@ -36,7 +36,7 @@ public class LoginDataTest
         public Optional<String> readData(FriendlyByteBuf buffer)
         {
             String message = buffer.readUtf();
-            Framework.LOGGER.debug(MARKER, "Received test login data: {}", message);
+            FrameworkForge.LOGGER.debug(MARKER, "Received test login data: {}", message);
             return Optional.empty();
         }
     }

@@ -19,17 +19,4 @@ public class FrameworkData
     {
         return gameLoaded;
     }
-
-    public static void setEnvironment(Environment env)
-    {
-        if(FrameworkData.env == null)
-        {
-            FrameworkData.env = env;
-        }
-    }
-
-    public static Environment getEnvironment()
-    {
-        return env;
-    }
 }

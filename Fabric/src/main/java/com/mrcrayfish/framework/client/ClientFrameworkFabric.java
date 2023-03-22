@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.client;
 
-import com.mrcrayfish.framework.ClientBootstrap;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
 import net.fabricmc.api.ClientModInitializer;
@@ -18,7 +17,7 @@ import java.util.concurrent.Executor;
 /**
  * Author: MrCrayfish
  */
-public class FrameworkClientFabric implements ClientModInitializer
+public class ClientFrameworkFabric implements ClientModInitializer
 {
     public static final ResourceLocation OPEN_MODEL_ID = new ResourceLocation(Constants.MOD_ID, "open_model");
 

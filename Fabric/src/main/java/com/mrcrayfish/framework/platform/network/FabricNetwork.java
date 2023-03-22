@@ -1,15 +1,16 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.google.common.base.Preconditions;
-import com.mrcrayfish.framework.SideExecutor;
+import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.MessageDirection;
+import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.message.IMessage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -68,7 +69,7 @@ public class FabricNetwork implements FrameworkNetwork
         if(!this.classToPlayMessage.isEmpty())
         {
             // Only register client receiver only if on physical client
-            SideExecutor.runOn(EnvType.CLIENT, () -> () -> {
+            EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
                 ClientPlayNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
                     FabricClientNetworkHandler.receivePlay(this, client, handler, buf, responseSender);
                 });
@@ -82,7 +83,7 @@ public class FabricNetwork implements FrameworkNetwork
         if(!this.classToHandshakeMessage.isEmpty())
         {
             // Only register client receiver only if on physical client
-            SideExecutor.runOn(EnvType.CLIENT, () -> () -> {
+            EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
                 ClientLoginNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
                     return CompletableFuture.completedFuture(FabricClientNetworkHandler.receiveHandshake(this, client, handler, buf, responseSender));
                 });

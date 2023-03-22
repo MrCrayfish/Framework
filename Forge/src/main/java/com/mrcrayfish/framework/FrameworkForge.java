@@ -2,7 +2,7 @@ package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
-import com.mrcrayfish.framework.client.ClientHandler;
+import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
@@ -26,11 +25,11 @@ import java.util.function.Supplier;
  * Author: MrCrayfish
  */
 @Mod(Constants.MOD_ID)
-public class Framework
+public class FrameworkForge
 {
     public static final Logger LOGGER = LogManager.getLogger("Framework");
 
-    public Framework()
+    public FrameworkForge()
     {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::onCommonSetup);
@@ -39,20 +38,19 @@ public class Framework
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             bus.addListener(this::onClientSetup);
-            bus.addListener(ClientHandler::registerReloadListener);
+            bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
         Registration.init();
-        FrameworkData.setEnvironment(FMLLoader.getDist() == Dist.CLIENT ? Environment.CLIENT : Environment.DEDICATED_SERVER);
-    }
-
-    private void onClientSetup(FMLClientSetupEvent event)
-    {
-        event.enqueueWork(ClientBootstrap::init);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
         event.enqueueWork(Bootstrap::init);
+    }
+
+    private void onClientSetup(FMLClientSetupEvent event)
+    {
+        event.enqueueWork(ClientFrameworkForge::init);
     }
 
     private void onRegister(RegisterEvent event)
