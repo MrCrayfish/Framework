@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.GameStates;
+import com.mrcrayfish.framework.FrameworkData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -40,7 +40,7 @@ public class FrameworkClientFabric implements ClientModInitializer
         });
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            GameStates.setLoaded();
+            FrameworkData.setLoaded();
         });
     }
 }

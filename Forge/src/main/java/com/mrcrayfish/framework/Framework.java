@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework;
 
+import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.client.ClientHandler;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
@@ -12,6 +13,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +40,7 @@ public class Framework
             bus.addListener(ClientHandler::registerReloadListener);
         });
         Registration.init();
+        FrameworkData.setEnvironment(FMLLoader.getDist() == Dist.CLIENT ? Environment.CLIENT : Environment.DEDICATED_SERVER);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
@@ -60,6 +64,6 @@ public class Framework
 
     private void onLoadComplete(FMLLoadCompleteEvent event)
     {
-        GameStates.setLoaded();
+        FrameworkData.setLoaded();
     }
 }

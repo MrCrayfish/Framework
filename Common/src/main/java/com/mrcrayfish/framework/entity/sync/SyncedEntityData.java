@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.entity.sync;
 
 import com.google.common.collect.ImmutableSet;
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.GameStates;
+import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.api.event.EntityEvents;
@@ -121,7 +121,7 @@ public final class SyncedEntityData
     {
         ResourceLocation keyId = dataKey.id();
         SyncedClassKey<E> classKey = dataKey.classKey();
-        if(GameStates.isLoaded())
+        if(FrameworkData.isLoaded())
         {
             throw new IllegalStateException(String.format("Tried to register synced data key %s for %s after game initialization", keyId, classKey.id()));
         }
