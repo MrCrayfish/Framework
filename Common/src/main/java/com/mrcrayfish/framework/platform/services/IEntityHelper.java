@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.mrcrayfish.framework.entity.sync.DataHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
 
 import javax.annotation.Nullable;
 
