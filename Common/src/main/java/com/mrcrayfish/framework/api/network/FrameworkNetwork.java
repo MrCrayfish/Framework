@@ -16,4 +16,6 @@ public interface FrameworkNetwork
     void sendToTracking(Supplier<Entity> supplier, IMessage<?> message);
 
     void sendToServer(IMessage<?> message);
+
+    void sendToAll(IMessage<?> message);
 }

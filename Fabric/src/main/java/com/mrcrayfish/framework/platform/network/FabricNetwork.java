@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
@@ -23,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +49,7 @@ public class FabricNetwork implements FrameworkNetwork
     final Map<Integer, FabricMessage<?>> indexToPlayMessage;
     final Map<Class<?>, FabricHandshakeMessage<?>> classToHandshakeMessage;
     final Map<Integer, FabricHandshakeMessage<?>> indexToHandshakeMessage;
+    private MinecraftServer server;
 
     public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<FabricHandshakeMessage<?>> handshakeMessages)
     {
@@ -92,6 +95,14 @@ public class FabricNetwork implements FrameworkNetwork
                 FabricServerNetworkHandler.receiveHandshake(this, server, handler, understood, buf, synchronizer, responseSender);
             });
         }
+
+        // Get access to MinecraftServer instances
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            this.server = server;
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            this.server = null;
+        });
     }
 
     @Override
@@ -115,6 +126,14 @@ public class FabricNetwork implements FrameworkNetwork
     {
         FriendlyByteBuf buf = this.encode(message);
         ClientPlayNetworking.send(this.id, buf);
+    }
+
+    @Override
+    public void sendToAll(IMessage<?> message)
+    {
+        FriendlyByteBuf buf = this.encode(message);
+        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        this.server.getPlayerList().broadcastAll(packet);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

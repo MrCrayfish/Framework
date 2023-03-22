@@ -38,4 +38,10 @@ public class ForgeNetwork implements FrameworkNetwork
     {
         this.channel.sendToServer(message);
     }
+
+    @Override
+    public void sendToAll(IMessage<?> message)
+    {
+        this.channel.send(PacketDistributor.ALL.noArg(), message);
+    }
 }
