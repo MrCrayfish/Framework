@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.client.model;
 
 import com.mrcrayfish.framework.api.serialize.DataObject;
+import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -21,7 +22,7 @@ public class OpenModelHelper
 {
     public static DataObject getData(ResourceLocation modelLocation)
     {
-        BakedModel model = Services.CLIENT.getBakedModel(modelLocation);
+        BakedModel model = ClientServices.CLIENT.getBakedModel(modelLocation);
         return model instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
     }
 

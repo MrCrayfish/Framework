@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mrcrayfish.framework.api.serialize.DataObject;
-import com.mrcrayfish.framework.client.FrameworkClientFabric;
+import com.mrcrayfish.framework.client.ClientFrameworkFabric;
 import com.mrcrayfish.framework.client.model.FabricOpenBlockModel;
 import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
 import net.minecraft.client.renderer.block.model.BlockElement;
@@ -59,7 +59,7 @@ public class BlockModelDeserializerMixin
 
             String rawLoader = primitive.getAsString();
             ResourceLocation loader = ResourceLocation.tryParse(rawLoader);
-            return FrameworkClientFabric.OPEN_MODEL_ID.equals(loader);
+            return ClientFrameworkFabric.OPEN_MODEL_ID.equals(loader);
         }
         return false;
     }

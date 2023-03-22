@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.GsonUtils;
 import net.minecraft.client.renderer.block.model.BlockElement;
@@ -68,7 +69,7 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
         rotation.addProperty("angle", 0F);
 
         // Read vanilla element and construct new element with custom properties
-        BlockElement e = Services.CLIENT.deserializeBlockElement(element, context);
+        BlockElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
         BlockElementRotation r = e.rotation != null ? new BlockElementRotation(e.rotation.origin(), e.rotation.axis(), angle, e.rotation.rescale()) : null;
         return new BlockElement(from, to, e.faces, r, e.shade);
     }
