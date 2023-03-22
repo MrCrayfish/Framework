@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.network;
 
 import com.mrcrayfish.framework.network.message.IMessage;
+import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
@@ -18,4 +19,6 @@ public interface FrameworkNetwork
     void sendToServer(IMessage<?> message);
 
     void sendToAll(IMessage<?> message);
+
+    boolean isActive(Connection connection);
 }

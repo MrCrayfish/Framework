@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.network.message.IMessage;
+import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.PacketDistributor;
@@ -43,5 +44,11 @@ public class ForgeNetwork implements FrameworkNetwork
     public void sendToAll(IMessage<?> message)
     {
         this.channel.send(PacketDistributor.ALL.noArg(), message);
+    }
+
+    @Override
+    public boolean isActive(Connection connection)
+    {
+        return this.channel.isRemotePresent(connection);
     }
 }

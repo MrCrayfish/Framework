@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -51,6 +52,7 @@ public class FabricNetwork implements FrameworkNetwork
     final Map<Class<?>, FabricHandshakeMessage<?>> classToHandshakeMessage;
     final Map<Integer, FabricHandshakeMessage<?>> indexToHandshakeMessage;
     private MinecraftServer server;
+    private boolean active = false;
 
     public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<FabricHandshakeMessage<?>> handshakeMessages)
     {
@@ -104,6 +106,28 @@ public class FabricNetwork implements FrameworkNetwork
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             this.server = null;
         });
+
+        // Track the registered channels to determine if connected
+        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+            C2SPlayChannelEvents.REGISTER.register((handler, sender, client, channels) -> {
+                this.active = channels.contains(this.id);
+            });
+            C2SPlayChannelEvents.UNREGISTER.register((handler, sender, client, channels) -> {
+                if(channels.contains(this.id)) {
+                    this.active = false;
+                }
+            });
+        });
+        EnvironmentHelper.runOn(Environment.DEDICATED_SERVER, () -> () -> {
+            S2CPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
+                this.active = channels.contains(this.id);
+            });
+            S2CPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
+                if(channels.contains(this.id)) {
+                    this.active = false;
+                }
+            });
+        });
     }
 
     @Override
@@ -135,6 +159,12 @@ public class FabricNetwork implements FrameworkNetwork
         FriendlyByteBuf buf = this.encode(message);
         Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         this.server.getPlayerList().broadcastAll(packet);
+    }
+
+    @Override
+    public boolean isActive(Connection connection)
+    {
+        return connection.isConnected() && this.active;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
