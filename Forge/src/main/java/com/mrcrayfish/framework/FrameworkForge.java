@@ -4,9 +4,11 @@ import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
+import com.mrcrayfish.framework.event.ForgeEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -41,6 +43,7 @@ public class FrameworkForge
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
         Registration.init();
+        MinecraftForge.EVENT_BUS.register(new ForgeEvents());
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
