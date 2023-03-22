@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.client;
 
+import com.mrcrayfish.framework.ClientBootstrap;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
 import net.fabricmc.api.ClientModInitializer;
@@ -24,6 +25,8 @@ public class FrameworkClientFabric implements ClientModInitializer
     @Override
     public void onInitializeClient()
     {
+        ClientBootstrap.init();
+
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener()
         {
             @Override

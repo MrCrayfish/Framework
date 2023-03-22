@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -37,17 +38,21 @@ public class Framework
         bus.addListener(this::onRegister);
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            bus.addListener(this::onClientSetup);
             bus.addListener(ClientHandler::registerReloadListener);
         });
         Registration.init();
         FrameworkData.setEnvironment(FMLLoader.getDist() == Dist.CLIENT ? Environment.CLIENT : Environment.DEDICATED_SERVER);
     }
 
+    private void onClientSetup(FMLClientSetupEvent event)
+    {
+        event.enqueueWork(ClientBootstrap::init);
+    }
+
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
-        event.enqueueWork(() -> {
-            Bootstrap.init();
-        });
+        event.enqueueWork(Bootstrap::init);
     }
 
     private void onRegister(RegisterEvent event)
