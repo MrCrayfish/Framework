@@ -127,12 +127,12 @@ public final class RegistryEntry<T>
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuType(ResourceLocation id, BiFunction<Integer, Inventory, T> function)
     {
-        return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createMenuType(function));
+        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuType(function));
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuTypeWithData(ResourceLocation id, TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
     {
-        return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createMenuTypeWithData(function));
+        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(function));
     }
 
     public static <T extends MobEffect> RegistryEntry<T> mobEffect(ResourceLocation id, Supplier<T> supplier)
