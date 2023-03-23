@@ -30,4 +30,17 @@ public class ClientForgeEvents
     {
         ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY());
     }
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent event)
+    {
+        if(event.phase == TickEvent.Phase.START)
+        {
+            TickEvents.START_CLIENT.post().handle();
+        }
+        else
+        {
+            TickEvents.END_CLIENT.post().handle();
+        }
+    }
 }

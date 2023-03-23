@@ -25,19 +25,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class ForgeEvents
 {
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event)
-    {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_CLIENT.post().handle();
-        }
-        else
-        {
-            TickEvents.END_CLIENT.post().handle();
-        }
-    }
-
-    @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event)
     {
         if(event.phase == TickEvent.Phase.START)

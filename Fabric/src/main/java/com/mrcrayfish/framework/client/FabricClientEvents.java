@@ -14,6 +14,12 @@ public class FabricClientEvents implements ClientModInitializer
     @Override
     public void onInitializeClient()
     {
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            TickEvents.START_CLIENT.post().handle();
+        });
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            TickEvents.END_CLIENT.post().handle();
+        });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             ClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
         });
