@@ -1,11 +1,11 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 
 /**
  * Author: MrCrayfish
@@ -26,6 +26,9 @@ public class FabricClientEvents implements ClientModInitializer
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             ClientConnectionEvents.LOGGING_OUT.post().handle();
+        });
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            ScreenEvents.INIT.post().handle(screen);
         });
     }
 }

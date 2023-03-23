@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.api.event.TickEvents;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -56,5 +57,11 @@ public class ClientForgeEvents
     public void onInteraction(InputEvent.InteractionKeyMappingTriggered event)
     {
         InputEvents.CLICK.post().handle(event.isAttack(), event.isUseItem(), event.isPickBlock(), event.getHand());
+    }
+
+    @SubscribeEvent
+    public void onScreenInit(ScreenEvent.Init.Post event)
+    {
+        ScreenEvents.INIT.post().handle(event.getScreen());
     }
 }
