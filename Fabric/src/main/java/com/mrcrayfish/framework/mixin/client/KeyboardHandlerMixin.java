@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.mixin;
+package com.mrcrayfish.framework.mixin.client;
 
 import com.mrcrayfish.framework.api.event.InputEvents;
 import net.minecraft.client.KeyboardHandler;

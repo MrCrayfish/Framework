@@ -38,6 +38,7 @@ public class FrameworkForge
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             bus.addListener(this::onClientSetup);
+            bus.addListener(ClientFrameworkForge::registerKeyMappings);
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
         Registration.init();
