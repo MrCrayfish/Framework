@@ -5,7 +5,8 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
-archivesBaseName = "${mod_id}-fabric-${minecraft_version}"
+archivesBaseName = "${mod_id}-fabric"
+version = "${minecraft_version}-${mod_version}"
 
 configurations {
     shadowInclude
@@ -20,24 +21,11 @@ sourceSets {
     }
 }
 
-repositories {
-    maven {
-        name = 'Ladysnake Mods'
-        url = 'https://ladysnake.jfrog.io/artifactory/mods'
-    }
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-
-    // Cardinal Components API
-    //modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.1.0"
-    //modImplementation "dev.onyxstudios.cardinal-components-api:<MODULE>:5.1.0"
-    //shadowInclude "dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.1.0"
-    //shadowInclude "dev.onyxstudios.cardinal-components-api:<MODULE>:5.1.0"
 
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation "org.reflections:reflections:0.10.2"

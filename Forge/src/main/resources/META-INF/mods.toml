@@ -4,7 +4,7 @@ license="${mod_license}"
 
 [[mods]]
 modId="${mod_id}"
-version="${version}"
+version="${mod_version}"
 displayName="${mod_name}"
 updateJSONURL="https://mrcrayfish.com/modupdatejson?id=${mod_id}"
 displayURL="${mod_homepage}"

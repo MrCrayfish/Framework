@@ -1,3 +1,10 @@
+def githubFile = new File(System.getenv("GITHUB_CREDENTIALS"))
+def githubProperties = new Properties()
+githubProperties.load(new FileInputStream(githubFile))
+project.ext {
+    githubCredentials = githubProperties
+}
+
 subprojects {
     
     apply plugin: 'java'
@@ -55,11 +62,4 @@ subprojects {
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
-}
-
-def credentialsFile = new File(System.getenv("GITHUB_CREDENTIALS"))
-def credentials = new Properties()
-credentials.load(new FileInputStream(credentialsFile))
-project.ext {
-    githubCredentials = credentials
 }
