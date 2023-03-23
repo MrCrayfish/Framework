@@ -16,6 +16,6 @@ public class FabricEntityHelper implements IEntityHelper
     @Nullable
     public DataHolder getDataHolder(Entity entity, boolean old)
     {
-        return ((ISyncedDataHolder) entity).getDataHolder();
+        return ((ISyncedDataHolder) entity).frameworkGetDataHolder();
     }
 }

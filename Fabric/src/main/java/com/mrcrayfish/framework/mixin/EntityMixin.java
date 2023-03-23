@@ -26,7 +26,7 @@ public class EntityMixin implements ISyncedDataHolder
 
     @Nullable
     @Override
-    public DataHolder getDataHolder()
+    public DataHolder frameworkGetDataHolder()
     {
         if(this.frameworkLazyDataHolder == null)
         {

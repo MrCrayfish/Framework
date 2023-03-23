@@ -5,5 +5,5 @@ package com.mrcrayfish.framework.entity.sync;
  */
 public interface ISyncedDataHolder
 {
-    DataHolder getDataHolder();
+    DataHolder frameworkGetDataHolder();
 }
