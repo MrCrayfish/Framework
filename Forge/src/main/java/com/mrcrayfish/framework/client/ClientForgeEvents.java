@@ -55,7 +55,6 @@ public class ClientForgeEvents
     @SubscribeEvent
     public void onInteraction(InputEvent.InteractionKeyMappingTriggered event)
     {
-        int button = event.isAttack() ? 0 : event.isUseItem() ? 1 : 2;
-        InputEvents.CLICK.post().handle(button, event.getHand());
+        InputEvents.CLICK.post().handle(event.isAttack(), event.isUseItem(), event.isPickBlock(), event.getHand());
     }
 }

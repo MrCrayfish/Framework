@@ -26,6 +26,6 @@ public interface IInputEvent extends IFrameworkEvent
     @FunctionalInterface
     interface Click extends IInputEvent
     {
-        boolean handle(int button, InteractionHand hand);
+        boolean handle(boolean attack, boolean use, boolean pick, InteractionHand hand);
     }
 }

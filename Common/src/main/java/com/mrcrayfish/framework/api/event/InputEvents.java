@@ -15,9 +15,9 @@ public class InputEvents
        listeners.forEach(listener -> listener.handle(key, scanCode, action, modifiers));
     });
 
-    public static final FrameworkEvent<IInputEvent.Click> CLICK = new FrameworkEvent<>(listeners -> (button, hand) -> {
+    public static final FrameworkEvent<IInputEvent.Click> CLICK = new FrameworkEvent<>(listeners -> (attack, use, pick, hand) -> {
         for(var listener : listeners) {
-            if(listener.handle(button, hand)) {
+            if(listener.handle(attack, use, pick, hand)) {
                 return true;
             }
         }
