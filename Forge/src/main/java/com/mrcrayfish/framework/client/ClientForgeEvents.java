@@ -51,4 +51,11 @@ public class ClientForgeEvents
     {
         InputEvents.KEY.post().handle(event.getKey(), event.getScanCode(), event.getAction(), event.getModifiers());
     }
+
+    @SubscribeEvent
+    public void onInteraction(InputEvent.InteractionKeyMappingTriggered event)
+    {
+        int button = event.isAttack() ? 0 : event.isUseItem() ? 1 : 2;
+        InputEvents.CLICK.post().handle(button, event.getHand());
+    }
 }

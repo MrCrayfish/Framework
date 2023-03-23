@@ -14,4 +14,13 @@ public class InputEvents
     public static final FrameworkEvent<IInputEvent.Key> KEY = new FrameworkEvent<>(listeners -> (key, scanCode, action, modifiers) -> {
        listeners.forEach(listener -> listener.handle(key, scanCode, action, modifiers));
     });
+
+    public static final FrameworkEvent<IInputEvent.Click> CLICK = new FrameworkEvent<>(listeners -> (button, hand) -> {
+        for(var listener : listeners) {
+            if(listener.handle(button, hand)) {
+                return true;
+            }
+        }
+        return false;
+    });
 }

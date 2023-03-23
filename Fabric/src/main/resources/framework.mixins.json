@@ -17,6 +17,7 @@
         "client.AbstractContainerScreenMixin",
         "client.BlockModelDeserializerMixin",
         "client.KeyboardHandlerMixin",
+        "client.MinecraftMixin",
         "client.OptionsMixin"
     ],
     "injectors": {
