@@ -24,4 +24,10 @@ public class ClientForgeEvents
     {
         ClientConnectionEvents.LOGGING_OUT.post().handle();
     }
+
+    @SubscribeEvent
+    public void onAfterDrawBackground(ContainerScreenEvent.Render.Background event)
+    {
+        ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY());
+    }
 }

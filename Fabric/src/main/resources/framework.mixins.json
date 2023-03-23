@@ -14,8 +14,8 @@
         "ServerPlayerMixin"
     ],
     "client": [
-        "client.BlockModelDeserializerMixin"
-    ],
+        "client.AbstractContainerScreenMixin",
+        "client.BlockModelDeserializerMixin" ],
     "injectors": {
         "defaultRequire": 1
     }
