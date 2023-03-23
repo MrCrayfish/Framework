@@ -45,7 +45,6 @@ public class ClientFrameworkFabric implements ClientModInitializer
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             FrameworkData.setLoaded();
-            InputEvents.REGISTER_KEY_MAPPING.post().handle(KeyBindingHelper::registerKeyBinding);
         });
     }
 }
