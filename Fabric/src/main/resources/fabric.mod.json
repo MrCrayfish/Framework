@@ -18,7 +18,8 @@
             "com.mrcrayfish.framework.event.FabricEvents"
         ],
         "client": [
-            "com.mrcrayfish.framework.client.ClientFrameworkFabric"
+            "com.mrcrayfish.framework.client.ClientFrameworkFabric",
+            "com.mrcrayfish.framework.client.FabricClientEvents"
         ]
     },
     "mixins": [
