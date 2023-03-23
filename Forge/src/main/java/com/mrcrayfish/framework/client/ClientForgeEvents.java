@@ -1,10 +1,12 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.InputEvents;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -42,5 +44,11 @@ public class ClientForgeEvents
         {
             TickEvents.END_CLIENT.post().handle();
         }
+    }
+
+    @SubscribeEvent
+    public void onKey(InputEvent.Key event)
+    {
+        InputEvents.KEY.post().handle(event.getKey(), event.getScanCode(), event.getAction(), event.getModifiers());
     }
 }

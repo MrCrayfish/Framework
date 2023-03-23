@@ -14,8 +14,10 @@
         "ServerPlayerMixin"
     ],
     "client": [
+        "KeyboardHandlerMixin",
         "client.AbstractContainerScreenMixin",
-        "client.BlockModelDeserializerMixin" ],
+        "client.BlockModelDeserializerMixin"
+    ],
     "injectors": {
         "defaultRequire": 1
     }
