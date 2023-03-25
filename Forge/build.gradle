@@ -94,12 +94,12 @@ jar.finalizedBy('reobfJar')
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
-            artifact sourcesJar
-            artifact javadocJar
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
+            artifact jar
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
     repositories {

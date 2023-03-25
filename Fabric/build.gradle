@@ -77,12 +77,10 @@ tasks.withType(JavaCompile) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact remapJar
-            artifact sourcesJar
-            artifact javadocJar
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
+            from components.java
         }
     }
 
@@ -100,6 +98,3 @@ publishing {
         }
     }
 }
-
-loom.disableDeprecatedPomGeneration(publishing.publications.mavenJava)
-
