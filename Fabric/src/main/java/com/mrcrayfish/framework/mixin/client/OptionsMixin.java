@@ -17,8 +17,8 @@ import java.io.File;
 @Mixin(Options.class)
 public class OptionsMixin
 {
-    @Inject(method = "<init>", at = @At(value = "HEAD"))
-    private static void frameworkInit(Minecraft minecraft, File file, CallbackInfo ci)
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;load()V"))
+    private void frameworkInit(Minecraft minecraft, File file, CallbackInfo ci)
     {
         InputEvents.REGISTER_KEY_MAPPING.post().handle(KeyBindingHelper::registerKeyBinding);
     }
