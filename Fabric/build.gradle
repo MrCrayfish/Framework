@@ -16,15 +16,20 @@ sourceSets {
     }
 }
 
+configurations {
+    implementation.extendsFrom library
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
+
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
-    api(include("org.reflections:reflections:0.10.2"))
-    api(include("org.javassist:javassist:3.29.2-GA"))
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    library include("org.reflections:reflections:0.10.2")
+    library include("org.javassist:javassist:3.29.2-GA")
 
     implementation project(":Common")
 
@@ -87,7 +92,7 @@ publishing {
 
             pom.withXml {
                 def depsNode = asNode().appendNode('dependencies')
-                [this.configurations.modApi, this.configurations.api].each {
+                [this.configurations.library].each {
                     it.allDependencies.each {
                         def depNode = depsNode.appendNode('dependency')
                         depNode.appendNode('groupId', it.group)
