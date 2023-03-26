@@ -22,11 +22,12 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation(include("org.reflections:reflections:0.10.2"))
-    implementation(include("org.javassist:javassist:3.29.2-GA"))
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    api(include("org.reflections:reflections:0.10.2"))
+    api(include("org.javassist:javassist:3.29.2-GA"))
 
     implementation project(":Common")
+
     testModImplementation sourceSets.main.output
     testModImplementation sourceSets.test.output
 }
@@ -41,10 +42,8 @@ loom {
             runDir("run")
         }
         testModClient {
-            client()
+            inherit client
             setConfigName("Fabric Test Client")
-            ideConfigGenerated(true)
-            runDir("run")
             setSource(sourceSets.testMod)
         }
         server {
@@ -80,7 +79,23 @@ publishing {
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
-            from components.java
+
+            artifact remapJar
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+
+            pom.withXml {
+                def depsNode = asNode().appendNode('dependencies')
+                [this.configurations.modApi, this.configurations.api].each {
+                    it.allDependencies.each {
+                        def depNode = depsNode.appendNode('dependency')
+                        depNode.appendNode('groupId', it.group)
+                        depNode.appendNode('artifactId', it.name)
+                        depNode.appendNode('version', it.version)
+                    }
+                }
+            }
         }
     }
 
@@ -98,3 +113,5 @@ publishing {
         }
     }
 }
+
+loom.disableDeprecatedPomGeneration(publishing.publications.mavenJava)
