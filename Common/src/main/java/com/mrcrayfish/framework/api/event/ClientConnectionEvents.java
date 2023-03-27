@@ -11,7 +11,7 @@ public class ClientConnectionEvents
         listeners.forEach(listener -> listener.handle(player, gameMode, connection));
     });
 
-    public static final FrameworkEvent<IClientConnectionEvent.LoggingOut> LOGGING_OUT = new FrameworkEvent<>(listeners -> () -> {
-        listeners.forEach(IClientConnectionEvent.LoggingOut::handle);
+    public static final FrameworkEvent<IClientConnectionEvent.LoggingOut> LOGGING_OUT = new FrameworkEvent<>(listeners -> (connection) -> {
+        listeners.forEach(listener -> listener.handle(connection));
     });
 }

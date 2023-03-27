@@ -25,7 +25,7 @@ public class FabricClientEvents implements ClientModInitializer
             ClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            ClientConnectionEvents.LOGGING_OUT.post().handle();
+            ClientConnectionEvents.LOGGING_OUT.post().handle(handler.getConnection());
         });
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             ScreenEvents.INIT.post().handle(screen);

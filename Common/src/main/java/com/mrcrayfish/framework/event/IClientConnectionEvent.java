@@ -5,6 +5,8 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
 
+import javax.annotation.Nullable;
+
 /**
  * Author: MrCrayfish
  */
@@ -19,6 +21,6 @@ public interface IClientConnectionEvent extends IFrameworkEvent
     @FunctionalInterface
     interface LoggingOut extends IClientConnectionEvent
     {
-        void handle();
+        void handle(@Nullable Connection connection);
     }
 }

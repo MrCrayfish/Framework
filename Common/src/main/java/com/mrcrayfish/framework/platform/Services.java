@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.platform.services.IConfigHelper;
 import com.mrcrayfish.framework.platform.services.IEntityHelper;
 import com.mrcrayfish.framework.platform.services.IItemHelper;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
@@ -16,6 +17,7 @@ public class Services
     public static final IRegistrationHelper REGISTRATION = load(IRegistrationHelper.class);
     public static final IEntityHelper ENTITY = load(IEntityHelper.class);
     public static final IItemHelper ITEM = load(IItemHelper.class);
+    public static final IConfigHelper CONFIG = load(IConfigHelper.class);
 
     public static <T> T load(Class<T> serviceClass)
     {

@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.util;
 
 import com.mrcrayfish.framework.api.Environment;
+import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.util.thread.BlockableEventLoop;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -16,12 +17,12 @@ public class EnvironmentHelper
 {
     private static final MutablePair<Supplier<BlockableEventLoop<?>>, Supplier<BlockableEventLoop<?>>> EXECUTOR = new MutablePair<>(() -> null, () -> null);
 
-    public static void setExecutor(Environment env, BlockableEventLoop<?> eventLoop)
+    public static void setExecutor(LogicalEnvironment env, BlockableEventLoop<?> eventLoop)
     {
         switch(env)
         {
             case CLIENT -> EXECUTOR.setLeft(() -> eventLoop);
-            case DEDICATED_SERVER -> EXECUTOR.setRight(() -> eventLoop);
+            case SERVER -> EXECUTOR.setRight(() -> eventLoop);
         }
     }
 
@@ -60,6 +61,15 @@ public class EnvironmentHelper
         {
             case CLIENT -> Optional.ofNullable(EXECUTOR.getLeft().get()).ifPresent(e -> e.submit(task.get()));
             case DEDICATED_SERVER -> Optional.ofNullable(EXECUTOR.getRight().get()).ifPresent(e -> e.submit(task.get()));
+        }
+    }
+
+    public static void submitOn(LogicalEnvironment env, Supplier<Runnable> task)
+    {
+        switch(env)
+        {
+            case CLIENT -> Optional.ofNullable(EXECUTOR.getLeft().get()).ifPresent(e -> e.submit(task.get()));
+            case SERVER -> Optional.ofNullable(EXECUTOR.getRight().get()).ifPresent(e -> e.submit(task.get()));
         }
     }
 }

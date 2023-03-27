@@ -25,7 +25,7 @@ public class ClientForgeEvents
     @SubscribeEvent
     public void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggingOut event)
     {
-        ClientConnectionEvents.LOGGING_OUT.post().handle();
+        ClientConnectionEvents.LOGGING_OUT.post().handle(event.getConnection());
     }
 
     @SubscribeEvent

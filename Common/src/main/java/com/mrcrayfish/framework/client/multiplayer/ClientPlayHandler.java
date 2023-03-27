@@ -1,9 +1,14 @@
 package com.mrcrayfish.framework.client.multiplayer;
 
+import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import com.mrcrayfish.framework.entity.sync.DataEntry;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
+import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
@@ -26,5 +31,19 @@ public final class ClientPlayHandler
 
         List<DataEntry<?, ?>> entries = message.getEntries();
         entries.forEach(entry -> SyncedEntityData.instance().updateClientEntry(entity, entry));
+    }
+
+    public static void handleSyncConfigData(MessageContext context, S2CSyncConfigData message)
+    {
+        // Avoid updating config if packet was sent to self
+        if(Minecraft.getInstance().isLocalServer())
+            return;
+
+        Constants.LOG.debug("Received framework config sync from server");
+
+        if(!FrameworkConfigManager.getInstance().processSyncData(message))
+        {
+            context.getNetworkManager().disconnect(Component.translatable("framework.multiplayer.disconnect.process_config"));
+        }
     }
 }

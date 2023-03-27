@@ -21,6 +21,9 @@
         "framework": {
             "containers": [
                 "test.registry"
+            ],
+            "configs": [
+                "test.config.ConfigTest"
             ]
         }
     }
