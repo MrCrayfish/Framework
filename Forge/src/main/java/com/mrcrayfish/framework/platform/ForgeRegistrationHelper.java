@@ -10,12 +10,14 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.network.IContainerFactory;
@@ -61,13 +63,13 @@ public class ForgeRegistrationHelper implements IRegistrationHelper
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> createMenuType(BiFunction<Integer, Inventory, T> function)
     {
-        return new MenuType<>(function::apply);
+        return new MenuType<>(function::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> createMenuTypeWithData(TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
     {
-        return new MenuType<>((IContainerFactory<T>) function::apply);
+        return new MenuType<>((IContainerFactory<T>) function::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override

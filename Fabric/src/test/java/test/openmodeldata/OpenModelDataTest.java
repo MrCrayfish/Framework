@@ -17,7 +17,7 @@ public class OpenModelDataTest implements ModInitializer
     @Override
     public void onInitialize()
     {
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("framework_test", "test_model"), TEST_BLOCK);
+        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("framework_test", "test_block"), TEST_BLOCK);
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("framework_test", "test_item"), TEST_ITEM);
     }
 }

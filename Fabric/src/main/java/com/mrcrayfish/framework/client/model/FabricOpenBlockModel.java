@@ -25,7 +25,7 @@ public class FabricOpenBlockModel extends BlockModel
 {
     private final DataObject data;
 
-    public FabricOpenBlockModel(@Nullable ResourceLocation resourceLocation, List<BlockElement> elements, Map<String, Either<Material, String>> materials, boolean ambientOcc, @Nullable BlockModel.GuiLight light, ItemTransforms transforms, List<ItemOverride> overrides, @Nullable DataObject data)
+    public FabricOpenBlockModel(@Nullable ResourceLocation resourceLocation, List<BlockElement> elements, Map<String, Either<Material, String>> materials, @Nullable Boolean ambientOcc, @Nullable BlockModel.GuiLight light, ItemTransforms transforms, List<ItemOverride> overrides, @Nullable DataObject data)
     {
         super(resourceLocation, elements, materials, ambientOcc, light, transforms, overrides);
         this.data = data;

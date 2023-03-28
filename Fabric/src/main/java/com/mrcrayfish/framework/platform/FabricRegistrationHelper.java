@@ -14,6 +14,7 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
@@ -100,7 +101,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> createMenuType(BiFunction<Integer, Inventory, T> function)
     {
-        return new MenuType<>(function::apply);
+        return new MenuType<>(function::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override

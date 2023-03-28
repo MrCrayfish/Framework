@@ -35,11 +35,11 @@ public class FabricClientNetworkHandler
     {
         int index = buf.readInt();
         FabricMessage message = network.indexToHandshakeMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, handler.getConnection()))
+        if(!FabricNetwork.validateMessage(message, handler.connection))
             return null;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(minecraft, handler.getConnection(), null, message.getDirection());
+        MessageContext context = new FabricMessageContext(minecraft, handler.connection, null, message.getDirection());
         message.handle(msg, context);
 
         FriendlyByteBuf responseBuf = PacketByteBufs.create();

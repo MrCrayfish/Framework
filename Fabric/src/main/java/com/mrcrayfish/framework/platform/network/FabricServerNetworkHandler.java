@@ -20,11 +20,11 @@ public class FabricServerNetworkHandler
     {
         int index = buf.readInt();
         FabricMessage message = network.indexToPlayMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, handler.getConnection()))
+        if(!FabricNetwork.validateMessage(message, handler.connection))
             return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        message.handle(msg, new FabricMessageContext(server, handler.getConnection(), player, message.getDirection()));
+        message.handle(msg, new FabricMessageContext(server, handler.connection, player, message.getDirection()));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -36,11 +36,11 @@ public class FabricServerNetworkHandler
 
         int index = buf.readInt();
         FabricMessage message = network.indexToHandshakeMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, listener.getConnection()))
+        if(!FabricNetwork.validateMessage(message, listener.connection))
             return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(server, listener.getConnection(), null, message.getDirection());
+        MessageContext context = new FabricMessageContext(server, listener.connection, null, message.getDirection());
         message.handle(msg, context);
     }
 }

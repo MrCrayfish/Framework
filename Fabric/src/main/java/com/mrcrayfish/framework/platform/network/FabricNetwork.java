@@ -92,7 +92,7 @@ public class FabricNetwork implements FrameworkNetwork
             });
             // Sends the login messages to client when they are connecting
             ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
-                this.sendHandshakeMessages(sender, handler.getConnection().isMemoryConnection());
+                this.sendHandshakeMessages(sender, handler.connection.isMemoryConnection());
             });
             ServerLoginNetworking.registerGlobalReceiver(this.id, (server, handler, understood, buf, synchronizer, responseSender) -> {
                 FabricServerNetworkHandler.receiveHandshake(this, server, handler, understood, buf, synchronizer, responseSender);
