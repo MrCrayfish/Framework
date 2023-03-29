@@ -8,7 +8,7 @@ import com.mrcrayfish.framework.api.serialize.DataType;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
 import com.mrcrayfish.framework.client.resources.IResourceSupplier;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -34,7 +34,7 @@ public class DataLoaderTest implements ClientModInitializer
         @Override
         public ResourceLocation getLocation()
         {
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(this.item.get());
+            ResourceLocation key = Registry.ITEM.getKey(this.item.get());
             return new ResourceLocation(key.getNamespace(), "custom_data/" + key.getPath() + ".json");
         }
     }

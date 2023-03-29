@@ -32,7 +32,7 @@ public class BlockModelDeserializerMixin
 
     @SuppressWarnings("unchecked")
     @Inject(method = "deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockModel;", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext jsonDeserializationContext, CallbackInfoReturnable<BlockModel> cir, JsonObject object, List elements, String string, Map materials, Boolean ambientOcc, ItemTransforms transforms, List overrides, BlockModel.GuiLight light, ResourceLocation resourceLocation)
+    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext jsonDeserializationContext, CallbackInfoReturnable<BlockModel> cir, JsonObject object, List elements, String string, Map materials, boolean ambientOcc, ItemTransforms transforms, List overrides, BlockModel.GuiLight light, ResourceLocation resourceLocation)
     {
         if(this.isFrameworkOpenModel(object))
         {

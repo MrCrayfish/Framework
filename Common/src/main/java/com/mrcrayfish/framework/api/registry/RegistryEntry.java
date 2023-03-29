@@ -6,7 +6,6 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -87,81 +86,81 @@ public final class RegistryEntry<T>
 
     public static <T extends Attribute> RegistryEntry<T> attribute(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ATTRIBUTE, id, supplier);
+        return new RegistryEntry<>(Registry.ATTRIBUTE, id, supplier);
     }
 
     public static <T extends Block> RegistryEntry<T> block(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.BLOCK, id, supplier);
+        return new RegistryEntry<>(Registry.BLOCK, id, supplier);
     }
 
     public static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> blockEntity(ResourceLocation id, BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createBlockEntityType(function, validBlocksSupplier));
+        return new RegistryEntry<>(Registry.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createBlockEntityType(function, validBlocksSupplier));
     }
 
     public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> RegistryEntry<I> commandArgumentType(ResourceLocation id, Class<A> argumentTypeClass, Supplier<I> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
+        return new RegistryEntry<>(Registry.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT, id, supplier);
+        return new RegistryEntry<>(Registry.ENCHANTMENT, id, supplier);
     }
 
     public static <T extends EntityType<?>> RegistryEntry<T> entityType(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENTITY_TYPE, id, supplier);
+        return new RegistryEntry<>(Registry.ENTITY_TYPE, id, supplier);
     }
 
     public static <T extends Fluid> RegistryEntry<T> fluid(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.FLUID, id, supplier);
+        return new RegistryEntry<>(Registry.FLUID, id, supplier);
     }
 
     public static <T extends Item> RegistryEntry<T> item(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ITEM, id, supplier);
+        return new RegistryEntry<>(Registry.ITEM, id, supplier);
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuType(ResourceLocation id, BiFunction<Integer, Inventory, T> function)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuType(function));
+        return new RegistryEntry<>(Registry.MENU, id, () -> Services.REGISTRATION.createMenuType(function));
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuTypeWithData(ResourceLocation id, TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(function));
+        return new RegistryEntry<>(Registry.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(function));
     }
 
     public static <T extends MobEffect> RegistryEntry<T> mobEffect(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MOB_EFFECT, id, supplier);
+        return new RegistryEntry<>(Registry.MOB_EFFECT, id, supplier);
     }
 
     public static <T extends ParticleType<?>> RegistryEntry<T> particleType(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.PARTICLE_TYPE, id, supplier);
+        return new RegistryEntry<>(Registry.PARTICLE_TYPE, id, supplier);
     }
 
     public static <T extends Potion> RegistryEntry<T> potion(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.POTION, id, supplier);
+        return new RegistryEntry<>(Registry.POTION, id, supplier);
     }
 
     public static <T extends RecipeType<?>> RegistryEntry<T> recipeType(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, supplier);
+        return new RegistryEntry<>(Registry.RECIPE_TYPE, id, supplier);
     }
 
     public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_SERIALIZER, id, supplier);
+        return new RegistryEntry<>(Registry.RECIPE_SERIALIZER, id, supplier);
     }
 
     public static <T extends SoundEvent> RegistryEntry<T> soundEvent(ResourceLocation id, Function<ResourceLocation, Supplier<T>> supplier)
     {
-        return new RegistryEntry<>(BuiltInRegistries.SOUND_EVENT, id, supplier.apply(id));
+        return new RegistryEntry<>(Registry.SOUND_EVENT, id, supplier.apply(id));
     }
 }
