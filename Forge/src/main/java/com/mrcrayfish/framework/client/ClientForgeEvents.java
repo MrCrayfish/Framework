@@ -35,7 +35,7 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event)
+    public void onRenderTick(TickEvent.ClientTickEvent event)
     {
         if(event.phase == TickEvent.Phase.START)
         {
@@ -66,7 +66,7 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.RenderTickEvent event)
+    public void onRenderTick(TickEvent.RenderTickEvent event)
     {
         if(event.phase == TickEvent.Phase.START)
         {
@@ -76,5 +76,17 @@ public class ClientForgeEvents
         {
             TickEvents.END_RENDER.post().handle(event.renderTickTime);
         }
+    }
+
+    @SubscribeEvent
+    public void onScreenRenderPre(ScreenEvent.Render.Pre event)
+    {
+        ScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+    }
+
+    @SubscribeEvent
+    public void onScreenRenderPost(ScreenEvent.Render.Post event)
+    {
+        ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
     }
 }
