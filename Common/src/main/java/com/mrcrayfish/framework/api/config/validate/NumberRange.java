@@ -5,19 +5,14 @@ import net.minecraft.network.chat.Component;
 
 /**
  * A simple validator that to test if a number is within a range (inclusive).
- *
+ * <p>
  * Author: MrCrayfish
  */
-public class NumberRange<T extends Number & Comparable<T>> implements Validator<T>
+public record NumberRange<T extends Number & Comparable<T>>(T minValue, T maxValue) implements Validator<T>
 {
-    private final T minValue;
-    private final T maxValue;
-
-    public NumberRange(T minValue, T maxValue)
+    public NumberRange
     {
         Preconditions.checkArgument(minValue.compareTo(maxValue) <= 0, "Min value must be less than or equal to the max value");
-        this.minValue = minValue;
-        this.maxValue = maxValue;
     }
 
     @Override
