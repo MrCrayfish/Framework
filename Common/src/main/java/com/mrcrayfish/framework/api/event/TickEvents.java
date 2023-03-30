@@ -34,4 +34,12 @@ public final class TickEvents
     public static final FrameworkEvent<ITickEvent.StartLivingEntity> START_LIVING_ENTITY = new FrameworkEvent<>(listeners -> (entity) -> {
         listeners.forEach(listener -> listener.handle(entity));
     });
+
+    public static final FrameworkEvent<ITickEvent.StartRender> START_RENDER = new FrameworkEvent<>(listeners -> (partialTick) -> {
+        listeners.forEach(listener -> listener.handle(partialTick));
+    });
+
+    public static final FrameworkEvent<ITickEvent.EndRender> END_RENDER = new FrameworkEvent<>(listeners -> (partialTick) -> {
+        listeners.forEach(listener -> listener.handle(partialTick));
+    });
 }

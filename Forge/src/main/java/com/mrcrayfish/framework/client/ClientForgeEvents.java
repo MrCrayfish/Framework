@@ -64,4 +64,17 @@ public class ClientForgeEvents
     {
         ScreenEvents.INIT.post().handle(event.getScreen());
     }
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.RenderTickEvent event)
+    {
+        if(event.phase == TickEvent.Phase.START)
+        {
+            TickEvents.START_RENDER.post().handle(event.renderTickTime);
+        }
+        else
+        {
+            TickEvents.END_RENDER.post().handle(event.renderTickTime);
+        }
+    }
 }
