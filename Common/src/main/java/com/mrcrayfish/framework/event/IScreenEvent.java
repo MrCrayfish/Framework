@@ -16,8 +16,19 @@ public interface IScreenEvent extends IFrameworkEvent
         void handle(AbstractContainerScreen<?> screen, PoseStack stack, int mouseX, int mouseY);
     }
 
+    @FunctionalInterface
     interface Init extends IScreenEvent
     {
         void handle(Screen screen);
+    }
+
+    interface BeforeDraw extends IScreenEvent
+    {
+        void handle(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float partialTick);
+    }
+
+    interface AfterDraw extends IScreenEvent
+    {
+        void handle(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float partialTick);
     }
 }
