@@ -9,6 +9,7 @@ import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
@@ -88,5 +89,11 @@ public class ClientForgeEvents
     public void onScreenRenderPost(ScreenEvent.Render.Post event)
     {
         ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled
+    public void onScreenOpen(ScreenEvent.Opening event)
+    {
+        ScreenEvents.OPENED.post().handle(event.getNewScreen());
     }
 }
