@@ -20,6 +20,16 @@ public interface ITickEvent extends IFrameworkEvent
         void handle();
     }
 
+    interface StartRender extends ITickEvent
+    {
+        void handle(float partialTick);
+    }
+
+    interface EndRender extends ITickEvent
+    {
+        void handle(float partialTick);
+    }
+
     interface StartServer extends ITickEvent
     {
         void handle(MinecraftServer server);

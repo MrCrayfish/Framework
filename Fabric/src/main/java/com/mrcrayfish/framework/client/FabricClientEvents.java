@@ -30,5 +30,6 @@ public class FabricClientEvents implements ClientModInitializer
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             ScreenEvents.INIT.post().handle(screen);
         });
+
     }
 }
