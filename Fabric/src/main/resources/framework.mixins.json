@@ -18,6 +18,7 @@
         "client.BlockModelDeserializerMixin",
         "client.GameRendererMixin",
         "client.KeyboardHandlerMixin",
+        "client.LocalPlayerMixin",
         "client.MinecraftMixin",
         "client.OptionsMixin"
     ],
