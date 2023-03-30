@@ -1,12 +1,14 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.InputEvents;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -95,5 +97,11 @@ public class ClientForgeEvents
     public void onScreenOpen(ScreenEvent.Opening event)
     {
         ScreenEvents.OPENED.post().handle(event.getNewScreen());
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onInputUpdate(MovementInputUpdateEvent event)
+    {
+        ClientEvents.PLAYER_INPUT_UPDATE.post().handle(event.getEntity(), event.getInput());
     }
 }
