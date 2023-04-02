@@ -100,7 +100,7 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onInputUpdate(MovementInputUpdateEvent event)
+    public void onInputUpdate(MovementInputUpdateEvent event)
     {
         ClientEvents.PLAYER_INPUT_UPDATE.post().handle(event.getEntity(), event.getInput());
     }
