@@ -41,7 +41,7 @@ public class FrameworkForge
             bus.addListener(ClientFrameworkForge::registerKeyMappings);
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
-        Registration.init();
+        Bootstrap.earlyInit();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
     }
 
