@@ -5,6 +5,7 @@ import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.InputEvents;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
@@ -13,6 +14,10 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Author: MrCrayfish
@@ -66,6 +71,8 @@ public class ClientForgeEvents
     public void onScreenInit(ScreenEvent.Init.Post event)
     {
         ScreenEvents.INIT.post().handle(event.getScreen());
+        List<AbstractWidget> widgets = event.getListenersList().stream().filter(listener -> listener instanceof AbstractWidget).map(listener -> (AbstractWidget) listener).toList();
+        ScreenEvents.MODIFY_WIDGETS.post().handle(event.getScreen(), widgets, event::addListener, event::removeListener);
     }
 
     @SubscribeEvent
