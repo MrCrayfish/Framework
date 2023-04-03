@@ -15,7 +15,7 @@ public class FrameworkFabric implements ModInitializer
 {
     public FrameworkFabric()
     {
-        Registration.init();
+        Bootstrap.earlyInit();
     }
 
     @Override

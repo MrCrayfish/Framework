@@ -45,7 +45,7 @@ public class FrameworkForge
             bus.addListener(ClientFrameworkForge::registerKeyMappings);
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
-        Registration.init();
+        Bootstrap.earlyInit();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
 
         // Allows Framework to be installed on clients and join servers that don't have it.
