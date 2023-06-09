@@ -18,7 +18,7 @@ public class ExperienceOrbMixin
     private void frameworkOnPlayerTouch(Player player, CallbackInfo ci)
     {
         ExperienceOrb orb = (ExperienceOrb) (Object) this;
-        if(!orb.level.isClientSide() && player.takeXpDelay == 0)
+        if(!orb.level().isClientSide() && player.takeXpDelay == 0)
         {
             if(PlayerEvents.PICKUP_EXPERIENCE.post().handle(player, orb))
             {

@@ -56,7 +56,7 @@ public class SyncedEntityDataTest implements ModInitializer
         if(level.isClientSide() || this.lastClickedPos.equals(pos))
             return InteractionResult.PASS;
 
-        BlockState state = player.level.getBlockState(pos);
+        BlockState state = player.level().getBlockState(pos);
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
             this.lastClickedPos = pos;
@@ -75,7 +75,7 @@ public class SyncedEntityDataTest implements ModInitializer
 
     private InteractionResult onHitEntity(Player player, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult result)
     {
-        if(entity instanceof Animal animal && !animal.getLevel().isClientSide())
+        if(entity instanceof Animal animal && !animal.level().isClientSide())
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);

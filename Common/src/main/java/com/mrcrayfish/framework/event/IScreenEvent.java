@@ -1,9 +1,8 @@
 package com.mrcrayfish.framework.event;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.framework.api.event.IFrameworkEvent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
@@ -18,7 +17,7 @@ public interface IScreenEvent extends IFrameworkEvent
     @FunctionalInterface
     interface AfterDrawContainerBackground extends IScreenEvent
     {
-        void handle(AbstractContainerScreen<?> screen, PoseStack stack, int mouseX, int mouseY);
+        void handle(AbstractContainerScreen<?> screen, GuiGraphics graphics, int mouseX, int mouseY);
     }
 
     @FunctionalInterface
@@ -30,13 +29,13 @@ public interface IScreenEvent extends IFrameworkEvent
     @FunctionalInterface
     interface BeforeDraw extends IScreenEvent
     {
-        void handle(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float partialTick);
+        void handle(Screen screen, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
     }
 
     @FunctionalInterface
     interface AfterDraw extends IScreenEvent
     {
-        void handle(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float partialTick);
+        void handle(Screen screen, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
     }
 
     @FunctionalInterface

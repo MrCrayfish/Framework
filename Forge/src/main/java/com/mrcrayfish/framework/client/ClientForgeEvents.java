@@ -39,7 +39,7 @@ public class ClientForgeEvents
     @SubscribeEvent
     public void onAfterDrawBackground(ContainerScreenEvent.Render.Background event)
     {
-        ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY());
+        ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY());
     }
 
     @SubscribeEvent
@@ -91,13 +91,13 @@ public class ClientForgeEvents
     @SubscribeEvent
     public void onScreenRenderPre(ScreenEvent.Render.Pre event)
     {
-        ScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        ScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
     }
 
     @SubscribeEvent
     public void onScreenRenderPost(ScreenEvent.Render.Post event)
     {
-        ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled

@@ -66,7 +66,7 @@ public class SyncedEntityDataTest
             return;
 
         Player player = event.getEntity();
-        BlockState state = player.level.getBlockState(event.getPos());
+        BlockState state = player.level().getBlockState(event.getPos());
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
             this.lastClickedPos = event.getPos();
@@ -84,7 +84,7 @@ public class SyncedEntityDataTest
 
     private void onHitEntity(AttackEntityEvent event)
     {
-        if(event.getTarget() instanceof Animal animal && !animal.getLevel().isClientSide())
+        if(event.getTarget() instanceof Animal animal && !animal.level().isClientSide())
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);

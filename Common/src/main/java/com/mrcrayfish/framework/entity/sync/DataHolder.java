@@ -28,7 +28,7 @@ public class DataHolder
         DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, DataEntry::new);
         if(!entry.getValue().equals(value))
         {
-            boolean dirty = !entity.level.isClientSide() && entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE;
+            boolean dirty = !entity.level().isClientSide() && entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE;
             entry.setValue(value, dirty);
             this.dirty = dirty;
             return true;
