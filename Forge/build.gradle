@@ -1,3 +1,5 @@
+import net.minecraftforge.gradle.common.tasks.SignJar
+
 plugins {
     id 'java'
     id 'eclipse'
@@ -10,7 +12,7 @@ version = "${minecraft_version}-${mod_version}"
 
 minecraft {
     mappings channel: 'official', version: minecraft_version
-    
+
     if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
         // This location is hardcoded in Forge and can not be changed.
         // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
@@ -92,7 +94,6 @@ processResources {
     }
 }
 
-
 jar.finalizedBy('reobfJar')
 
 publishing {
@@ -132,3 +133,21 @@ publishing {
         }
     }
 }
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+task signJar(type: SignJar, dependsOn: jar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = outputFile = jar.archivePath
+}
+
+jar.finalizedBy 'signJar'
+signJar.mustRunAfter 'reobfJar'

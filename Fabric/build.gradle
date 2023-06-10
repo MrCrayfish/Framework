@@ -121,4 +121,8 @@ publishing {
     }
 }
 
+signing {
+    sign publishing.publications.mavenJava
+}
+
 loom.disableDeprecatedPomGeneration(publishing.publications.mavenJava)
