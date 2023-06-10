@@ -146,7 +146,7 @@ task signJar(type: SignJar, dependsOn: jar) {
     alias = project.findProperty('keyStoreAlias')
     storePass = project.findProperty('keyStorePass')
     keyPass = project.findProperty('keyStoreKeyPass')
-    inputFile = outputFile = jar.archivePath
+    inputFile = outputFile = jar.archiveFile
 }
 
 jar.finalizedBy 'signJar'
