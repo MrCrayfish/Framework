@@ -70,8 +70,8 @@ jobs:
         echo "fabric=Fabric/build/libs/${{ steps.mod_id.outputs.value }}-fabric-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}.jar" >> "$GITHUB_OUTPUT"
     - name: Import GPG
       env:
-        SIGNING_KEY: ${{ secrets.MRCRAYFISH_MODS_KEY }}
-        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       if: ${{ env.SIGNING_KEY != '' && env.PASSPHRASE != '' }}
       uses: crazy-max/ghaction-import-gpg@v5.3.0
       with:
@@ -79,8 +79,8 @@ jobs:
         passphrase: ${{ env.PASSPHRASE }}
     - name: Sign JAR with GPG
       env:
-        SIGNING_KEY: ${{ secrets.MRCRAYFISH_MODS_KEY }}
-        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       if: ${{ env.SIGNING_KEY != '' && env.PASSPHRASE != '' }}
       run: |
         gpg --local-user "MrCrayfish <4958241+MrCrayfish@users.noreply.github.com>" --passphrase "${{ env.PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.forge }}
