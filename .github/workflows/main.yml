@@ -82,7 +82,7 @@ jobs:
     - name: Sign JAR
       env:
         SIGNING_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      if: ${{ env.PASSPHRASE != '' }}
+      if: ${{ env.SIGNING_PASSPHRASE != '' }}
       run: |
         gpg --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.forge }}
         gpg --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.fabric }}
