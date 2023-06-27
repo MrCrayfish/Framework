@@ -1,12 +1,4 @@
-def githubFile = new File(System.getenv("GITHUB_CREDENTIALS"))
-def githubProperties = new Properties()
-githubProperties.load(new FileInputStream(githubFile))
-project.ext {
-    githubCredentials = githubProperties
-}
-
 subprojects {
-    
     apply plugin: 'java'
     
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
