@@ -28,8 +28,6 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     implementation "com.google.code.findbugs:jsr305:3.0.2"
-    library include("org.reflections:reflections:0.10.2")
-    library include("org.javassist:javassist:3.29.2-GA")
     library include("com.electronwill.night-config:core:3.6.6")
     library include("com.electronwill.night-config:toml:3.6.6")
 
@@ -60,11 +58,6 @@ loom {
             runDir("run")
         }
     }
-}
-
-jar {
-    from(file("LICENSE_Javassist"))
-    from(file("LICENSE_Reflections"))
 }
 
 processResources {
@@ -114,8 +107,8 @@ publishing {
             name = "GitHubPackages"
             url = "https://maven.pkg.github.com/MrCrayfish/Maven"
             credentials {
-                username = rootProject.githubCredentials['GITHUB_USERNAME']
-                password = rootProject.githubCredentials['GITHUB_TOKEN']
+                username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
+                password = project.findProperty("gpr.key") ?: System.getenv("GPR_KEY")
             }
         }
     }
