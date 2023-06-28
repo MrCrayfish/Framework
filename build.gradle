@@ -71,6 +71,12 @@ jar {
     }
 }
 
+jar {
+    from(file("LICENSE")) {
+        rename { "${it}_Framework" }
+    }
+}
+
 jar.finalizedBy('reobfJar')
 
 publishing {

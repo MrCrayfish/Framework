@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[39,)"
-license="GPL3"
+license="LGPLv2.1"
 
 [[mods]]
 modId="framework"
