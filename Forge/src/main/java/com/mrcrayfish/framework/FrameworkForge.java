@@ -10,11 +10,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkConstants;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +47,15 @@ public class FrameworkForge
         });
         Bootstrap.earlyInit();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
+
+        // Allows Framework to be installed on clients and join servers that don't have it.
+        // However, if Framework is installed on the server, the client version must match.
+        ModList.get().getModContainerById(Constants.MOD_ID).ifPresent(container -> {
+            String modVersion = container.getModInfo().getVersion().toString();
+            ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> modVersion, (remoteVersion, fromServer) -> {
+                return fromServer && (remoteVersion == null || remoteVersion.equals(modVersion));
+            }));
+        });
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
