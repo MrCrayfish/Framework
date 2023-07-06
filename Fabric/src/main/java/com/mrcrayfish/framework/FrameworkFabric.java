@@ -1,10 +1,14 @@
 package com.mrcrayfish.framework;
 
+import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 
 import java.util.function.Supplier;
 
@@ -27,11 +31,20 @@ public class FrameworkFabric implements ModInitializer
             entry.register(new IRegisterFunction()
             {
                 @Override
-                public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> valueSupplier)
+                public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
                 {
-                    Registry.register(registry, name, valueSupplier.get());
+                    Registry.register(registry, name, supplier.get());
                 }
             });
+        });
+
+        // Special case for block registry entries to register items
+        Registration.get(Registry.BLOCK_REGISTRY).forEach(entry ->
+        {
+            if(entry instanceof BlockRegistryEntry<?, ?> blockEntry)
+            {
+                blockEntry.item().ifPresent(item -> Registry.register(Registry.ITEM, entry.getId(), item));
+            }
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {

@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework;
 
+import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
@@ -78,6 +79,18 @@ public class FrameworkForge
                 event.register(registry.key(), name, supplier);
             }
         }));
+
+        // Special case for block registry entries to register items
+        if(event.getRegistryKey().equals(Registry.ITEM_REGISTRY))
+        {
+            Registration.get(Registry.BLOCK_REGISTRY).forEach(entry ->
+            {
+                if(entry instanceof BlockRegistryEntry<?, ?> blockEntry)
+                {
+                    blockEntry.item().ifPresent(item -> event.register(Registry.ITEM_REGISTRY, entry.getId(), () -> item));
+                }
+            });
+        }
     }
 
     private void onLoadComplete(FMLLoadCompleteEvent event)

@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -34,13 +36,13 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public final class RegistryEntry<T>
+public sealed class RegistryEntry<T> permits BlockRegistryEntry
 {
     private final Registry<?> registry;
     private final ResourceLocation id;
     private final Supplier<T> supplier;
 
-    private RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
+    RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
     {
         this.registry = registry;
         this.id = id;
@@ -56,7 +58,7 @@ public final class RegistryEntry<T>
         return this.instance;
     }
 
-    private T create()
+    protected T create()
     {
         if(this.instance != null)
             throw new IllegalStateException("Entry has already been created");
@@ -74,13 +76,17 @@ public final class RegistryEntry<T>
         return this.id;
     }
 
+    protected void invalidate()
+    {
+        this.instance = null;
+    }
+
     @SuppressWarnings("unchecked")
     public void register(IRegisterFunction function)
     {
-        function.call((Registry<T>) this.registry, this.id, () -> {
-            this.instance = null;
-            this.instance = this.create();
-            return this.instance;
+        function.call((Registry<? super Object>) this.registry, this.id, () -> {
+            this.invalidate();
+            return this.create();
         });
     }
 
@@ -91,7 +97,17 @@ public final class RegistryEntry<T>
 
     public static <T extends Block> RegistryEntry<T> block(ResourceLocation id, Supplier<T> supplier)
     {
-        return new RegistryEntry<>(Registry.BLOCK, id, supplier);
+        return new BlockRegistryEntry<>(Registry.BLOCK, id, supplier, t -> null);
+    }
+
+    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceLocation id, Supplier<T> supplier)
+    {
+        return new BlockRegistryEntry<>(Registry.BLOCK, id, supplier, t -> new BlockItem(t, new Item.Properties()));
+    }
+
+    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceLocation id, Supplier<T> supplier, Function<T, E> function)
+    {
+        return new BlockRegistryEntry<>(Registry.BLOCK, id, supplier, function);
     }
 
     public static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> blockEntity(ResourceLocation id, BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
