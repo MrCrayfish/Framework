@@ -28,10 +28,12 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     implementation "com.google.code.findbugs:jsr305:3.0.2"
-    library include("org.reflections:reflections:0.10.2")
-    library include("org.javassist:javassist:3.29.2-GA")
     library include("com.electronwill.night-config:core:3.6.6")
     library include("com.electronwill.night-config:toml:3.6.6")
+    library include("org.javassist:javassist:3.29.2-GA")
+    library include("org.reflections:reflections:0.10.2") {
+        transitive = false
+    }
 
     implementation project(":Common")
 
