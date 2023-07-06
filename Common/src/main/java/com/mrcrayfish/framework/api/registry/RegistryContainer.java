@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Author: MrCrayfish
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface RegistryContainer
 {
 }
