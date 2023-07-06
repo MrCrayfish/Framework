@@ -1,8 +1,6 @@
 package com.mrcrayfish.framework.platform;
 
-import com.google.common.reflect.ClassPath;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
@@ -24,8 +22,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.function.TriFunction;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ConfigurationBuilder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,48 +43,22 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     @Override
     public List<RegistryEntry<?>> getAllRegistryEntries()
     {
-        try
-        {
-            Constants.LOG.debug("Scanning for registry containers");
-            long time = System.currentTimeMillis();
-            List<String> scanPackages = this.getScanPackages();
-            ClassLoader loader = FabricRegistrationHelper.class.getClassLoader();
-            Set<Class<?>> containerClasses = ClassPath.from(loader).getAllClasses()
-                    .stream()
-                    .filter(info -> scanPackages.contains(info.getPackageName()))
-                    .map(info -> this.loadClass(info.getName(), loader))
-                    .filter(clazz -> clazz.getDeclaredAnnotation(RegistryContainer.class) != null)
-                    .collect(Collectors.toSet());
-            Constants.LOG.debug("Found {} registry container(s) in {} milliseconds", containerClasses.size(), System.currentTimeMillis() - time);
-            return containerClasses.stream()
-                    .map(ReflectionUtils::findRegistryEntriesInClass)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .forPackages(this.getScanPackages())
+                .addScanners(Scanners.TypesAnnotated));
+        Set<Class<?>> containerClass = reflections.getTypesAnnotatedWith(RegistryContainer.class);
+        return containerClass.stream()
+                .map(ReflectionUtils::findRegistryEntriesInClass)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
-    private Class<?> loadClass(String className, ClassLoader loader)
-    {
-        try
-        {
-            return Class.forName(className, false, loader);
-        }
-        catch(ClassNotFoundException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<String> getScanPackages()
+    private String[] getScanPackages()
     {
         return FabricLoader.getInstance().getAllMods().stream()
                 .map(this::getScanPackages)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toArray(String[]::new);
     }
 
     private List<String> getScanPackages(ModContainer container)
