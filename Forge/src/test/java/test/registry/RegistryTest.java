@@ -15,5 +15,5 @@ import net.minecraftforge.fml.common.Mod;
 @RegistryContainer
 public class RegistryTest
 {
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.block(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
 }
