@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -118,6 +119,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
     public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> RegistryEntry<I> commandArgumentType(ResourceLocation id, Class<A> argumentTypeClass, Supplier<I> supplier)
     {
         return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
+    }
+
+    public static <T extends CreativeModeTab> RegistryEntry<T> creativeModeTab(ResourceLocation id, Supplier<T> supplier)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.CREATIVE_MODE_TAB, id, supplier);
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
