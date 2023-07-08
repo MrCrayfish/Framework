@@ -5,6 +5,7 @@ import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -116,5 +118,11 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         I instance = supplier.get();
         ArgumentTypeInfos.BY_CLASS.put(argumentTypeClass, instance);
         return instance;
+    }
+
+    @Override
+    public CreativeModeTab.Builder createCreativeModeTabBuilder()
+    {
+        return FabricItemGroup.builder();
     }
 }

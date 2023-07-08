@@ -31,6 +31,7 @@ import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -121,9 +122,13 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
         return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
     }
 
-    public static <T extends CreativeModeTab> RegistryEntry<T> creativeModeTab(ResourceLocation id, Supplier<T> supplier)
+    public static RegistryEntry<CreativeModeTab> creativeModeTab(ResourceLocation id, Consumer<CreativeModeTab.Builder> consumer)
     {
-        return new RegistryEntry<>(BuiltInRegistries.CREATIVE_MODE_TAB, id, supplier);
+        return new RegistryEntry<>(BuiltInRegistries.CREATIVE_MODE_TAB, id, () -> {
+            CreativeModeTab.Builder builder = Services.REGISTRATION.createCreativeModeTabBuilder();
+            consumer.accept(builder);
+            return builder.build();
+        });
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)

@@ -24,11 +24,11 @@ public class RegistryTest
     public static final RegistryEntry<Item> THE_BEST_ITEM = RegistryEntry.item(new ResourceLocation("framework_test", "best_item"), () -> new BlockItem(THE_BEST_BLOCK.get(), new Item.Properties()));
     public static final RegistryEntry<Block> THE_ACTUAL_BEST_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("framework_test", "best_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
 
-    public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(new ResourceLocation("registry_test", "tab"), () -> FabricItemGroup.builder()
-            .title(Component.literal("Creative tabs are pretty cool!"))
-            .icon(() -> new ItemStack(Items.STICK))
-            .displayItems((params, output) -> {
-                output.accept(new ItemStack(Items.STICK));
-            })
-            .build());
+    public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(new ResourceLocation("registry_test", "tab"), builder -> {
+        builder.title(Component.literal("Creative tabs are pretty cool!"));
+        builder.icon(() -> new ItemStack(Items.STICK));
+        builder.displayItems((params, output) -> {
+            output.accept(new ItemStack(Items.STICK));
+        });
+    });
 }

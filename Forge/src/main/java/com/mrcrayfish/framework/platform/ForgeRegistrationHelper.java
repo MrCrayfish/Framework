@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -76,5 +77,11 @@ public class ForgeRegistrationHelper implements IRegistrationHelper
     public <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> I createArgumentTypeInfo(Class<A> argumentTypeClass, Supplier<I> supplier)
     {
         return ArgumentTypeInfos.registerByClass(argumentTypeClass, supplier.get());
+    }
+
+    @Override
+    public CreativeModeTab.Builder createCreativeModeTabBuilder()
+    {
+        return CreativeModeTab.builder();
     }
 }
