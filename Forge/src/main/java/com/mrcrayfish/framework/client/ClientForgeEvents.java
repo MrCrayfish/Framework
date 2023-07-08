@@ -106,6 +106,12 @@ public class ClientForgeEvents
         ScreenEvents.OPENED.post().handle(event.getNewScreen());
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled
+    public void onScreenOpen(ScreenEvent.Closing event)
+    {
+        ScreenEvents.CLOSED.post().handle(event.getScreen());
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onInputUpdate(MovementInputUpdateEvent event)
     {

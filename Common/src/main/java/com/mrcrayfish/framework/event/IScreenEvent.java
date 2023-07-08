@@ -44,6 +44,12 @@ public interface IScreenEvent extends IFrameworkEvent
         void handle(Screen screen);
     }
 
+    @FunctionalInterface
+    interface Closed extends IScreenEvent
+    {
+        void handle(Screen screen);
+    }
+
     interface ModifyWidgets extends IScreenEvent
     {
          void handle(Screen screen, List<AbstractWidget> widgets, Consumer<AbstractWidget> add, Consumer<AbstractWidget> remove);
