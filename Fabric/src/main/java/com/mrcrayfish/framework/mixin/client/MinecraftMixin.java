@@ -60,4 +60,11 @@ public class MinecraftMixin
     {
         ScreenEvents.OPENED.post().handle(screen);
     }
+
+    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
+    private void frameworkOnScreenClosed(Screen screen, CallbackInfo ci)
+    {
+        Minecraft mc = (Minecraft) (Object) this;
+        ScreenEvents.CLOSED.post().handle(mc.screen);
+    }
 }
