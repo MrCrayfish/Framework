@@ -32,4 +32,8 @@ public class ScreenEvents
     public static final FrameworkEvent<IScreenEvent.Opened> OPENED = new FrameworkEvent<>(listeners -> (screen) -> {
         listeners.forEach(listener -> listener.handle(screen));
     });
+
+    public static final FrameworkEvent<IScreenEvent.Closed> CLOSED = new FrameworkEvent<>(listeners -> (screen) -> {
+        listeners.forEach(listener -> listener.handle(screen));
+    });
 }
