@@ -20,12 +20,14 @@ public class Network
             .createNetworkBuilder(new ResourceLocation(Constants.MOD_ID, "handshake"), 1)
             .registerHandshakeMessage(S2CLoginData.class, LoginDataManager::getLoginDataMessages)
             .registerHandshakeMessage(S2CLoginConfigData.class, FrameworkConfigManager.getInstance()::getMessagesForLogin)
+            .ignoreServer()
             .build();
 
     private static final FrameworkNetwork PLAY_CHANNEL = FrameworkAPI
             .createNetworkBuilder(new ResourceLocation(Constants.MOD_ID, "play"), 1)
             .registerPlayMessage(S2CUpdateEntityData.class, MessageDirection.PLAY_CLIENT_BOUND)
             .registerPlayMessage(S2CSyncConfigData.class, MessageDirection.PLAY_CLIENT_BOUND)
+            .ignoreServer()
             .build();
 
     public static void init() {}
