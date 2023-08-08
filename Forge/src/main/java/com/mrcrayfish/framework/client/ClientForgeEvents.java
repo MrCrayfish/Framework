@@ -64,7 +64,10 @@ public class ClientForgeEvents
     @SubscribeEvent
     public void onInteraction(InputEvent.InteractionKeyMappingTriggered event)
     {
-        InputEvents.CLICK.post().handle(event.isAttack(), event.isUseItem(), event.isPickBlock(), event.getHand());
+        if(InputEvents.CLICK.post().handle(event.isAttack(), event.isUseItem(), event.isPickBlock(), event.getHand()))
+        {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
