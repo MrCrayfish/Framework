@@ -20,12 +20,8 @@ public class FrameworkFabric implements ModInitializer
     public FrameworkFabric()
     {
         Bootstrap.earlyInit();
-    }
 
-    @Override
-    public void onInitialize()
-    {
-        Bootstrap.init();
+        // Register all entries
         Registration.getAllRegistryEntries().forEach(entry ->
         {
             entry.register(new IRegisterFunction()
@@ -46,7 +42,12 @@ public class FrameworkFabric implements ModInitializer
                 blockEntry.item().ifPresent(item -> Registry.register(Registry.ITEM, entry.getId(), item));
             }
         });
+    }
 
+    @Override
+    public void onInitialize()
+    {
+        Bootstrap.init();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             FrameworkData.setLoaded();
         });
