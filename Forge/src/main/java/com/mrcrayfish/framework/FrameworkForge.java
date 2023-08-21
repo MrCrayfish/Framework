@@ -19,7 +19,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkConstants;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +45,7 @@ public class FrameworkForge
             bus.addListener(ClientFrameworkForge::registerKeyMappings);
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
-        Bootstrap.earlyInit();
+        FrameworkSetup.run();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
 
         // Allows Framework to be installed on clients and join servers that don't have it.
@@ -61,7 +60,7 @@ public class FrameworkForge
 
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
-        event.enqueueWork(Bootstrap::init);
+        event.enqueueWork(FrameworkSetup::init);
     }
 
     private void onClientSetup(FMLClientSetupEvent event)
