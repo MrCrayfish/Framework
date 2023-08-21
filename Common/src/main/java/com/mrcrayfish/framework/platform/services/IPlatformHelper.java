@@ -5,11 +5,9 @@ import com.mrcrayfish.framework.api.Environment;
 public interface IPlatformHelper {
 
     /**
-     * Gets the name of the current platform
-     *
-     * @return The name of the current platform.
+     * @return The current platform
      */
-    String getPlatformName();
+    Platform getPlatform();
 
     /**
      * Checks if a mod with the given id is loaded.
@@ -44,4 +42,19 @@ public interface IPlatformHelper {
     }
 
     Environment getEnvironment();
+
+    enum Platform
+    {
+        FORGE, FABRIC;
+
+        public boolean isForge()
+        {
+            return this == FORGE;
+        }
+
+        public boolean isFabric()
+        {
+            return this == FABRIC;
+        }
+    }
 }
