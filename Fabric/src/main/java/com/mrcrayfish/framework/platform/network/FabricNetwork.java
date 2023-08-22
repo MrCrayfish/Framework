@@ -3,6 +3,7 @@ package com.mrcrayfish.framework.platform.network;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
+import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.message.IMessage;
@@ -20,6 +21,7 @@ import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -30,12 +32,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -140,10 +148,57 @@ public class FabricNetwork implements FrameworkNetwork
     @Override
     public void sendToTracking(Supplier<Entity> supplier, IMessage<?> message)
     {
+        this.sendToTrackingEntity(supplier, message);
+    }
+
+    @Override
+    public void sendToTrackingEntity(Supplier<Entity> supplier, IMessage<?> message)
+    {
+        Entity entity = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
         Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
-        Entity entity = supplier.get();
         ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
+    }
+
+    @Override
+    public void sendToTrackingBlockEntity(Supplier<BlockEntity> supplier, IMessage<?> message)
+    {
+        this.sendToTrackingChunk(() -> {
+            BlockEntity entity = supplier.get();
+            return Objects.requireNonNull(entity.getLevel()).getChunkAt(entity.getBlockPos());
+        }, message);
+    }
+
+    @Override
+    public void sendToTrackingLocation(Supplier<LevelLocation> supplier, IMessage<?> message)
+    {
+        this.sendToTrackingChunk(() -> {
+            LevelLocation location = supplier.get();
+            Vec3 pos = location.pos();
+            int chunkX = SectionPos.blockToSectionCoord(pos.x);
+            int chunkZ = SectionPos.blockToSectionCoord(pos.z);
+            return location.level().getChunk(chunkX, chunkZ);
+        }, message);
+    }
+
+    @Override
+    public void sendToTrackingChunk(Supplier<LevelChunk> supplier, IMessage<?> message)
+    {
+        LevelChunk chunk = supplier.get();
+        FriendlyByteBuf buf = this.encode(message);
+        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
+    }
+
+    @Override
+    public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, IMessage<?> message)
+    {
+        LevelLocation location = supplier.get();
+        Level level = location.level();
+        Vec3 pos = location.pos();
+        FriendlyByteBuf buf = this.encode(message);
+        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
     @Override
