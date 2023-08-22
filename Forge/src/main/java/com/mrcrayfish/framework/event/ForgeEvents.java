@@ -13,6 +13,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -152,7 +153,7 @@ public class ForgeEvents
     }
 
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
+    public void onServerStarting(ServerAboutToStartEvent event)
     {
         ServerEvents.STARTING.post().handle(event.getServer());
     }
