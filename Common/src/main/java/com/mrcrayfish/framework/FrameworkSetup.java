@@ -9,8 +9,6 @@ import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
@@ -46,11 +44,11 @@ public class FrameworkSetup
             });
 
             // Special case for block registry entries to register items
-            Registration.get(Registries.BLOCK).forEach(entry ->
+            Registration.get(Registry.BLOCK_REGISTRY).forEach(entry ->
             {
                 if(entry instanceof BlockRegistryEntry<?, ?> blockEntry)
                 {
-                    blockEntry.item().ifPresent(item -> Registry.register(BuiltInRegistries.ITEM, entry.getId(), item));
+                    blockEntry.item().ifPresent(item -> Registry.register(Registry.ITEM, entry.getId(), item));
                 }
             });
         }
