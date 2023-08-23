@@ -44,4 +44,14 @@ public final class LevelLocation
     {
         return new LevelLocation(level, Vec3.atCenterOf(pos), range);
     }
+
+    public static LevelLocation create(Level level, Vec3 pos, double range)
+    {
+        return new LevelLocation(level, pos, range);
+    }
+
+    public static LevelLocation create(Level level, double x, double y, double z, double range)
+    {
+        return new LevelLocation(level, new Vec3(x, y, z), range);
+    }
 }
