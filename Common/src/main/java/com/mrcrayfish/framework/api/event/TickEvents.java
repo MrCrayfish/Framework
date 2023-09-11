@@ -23,6 +23,14 @@ public final class TickEvents
         listeners.forEach(listener -> listener.handle(server));
     });
 
+    public static final FrameworkEvent<ITickEvent.StartLevel> START_LEVEL = new FrameworkEvent<>(listeners -> (server) -> {
+        listeners.forEach(listener -> listener.handle(server));
+    });
+
+    public static final FrameworkEvent<ITickEvent.EndLevel> END_LEVEL = new FrameworkEvent<>(listeners -> (server) -> {
+        listeners.forEach(listener -> listener.handle(server));
+    });
+
     public static final FrameworkEvent<ITickEvent.StartPlayer> START_PLAYER = new FrameworkEvent<>(listeners -> (player) -> {
         listeners.forEach(listener -> listener.handle(player));
     });

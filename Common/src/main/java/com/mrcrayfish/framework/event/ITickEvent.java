@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.api.event.IFrameworkEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 /**
  * Author: MrCrayfish
@@ -38,6 +39,16 @@ public interface ITickEvent extends IFrameworkEvent
     interface EndServer extends ITickEvent
     {
         void handle(MinecraftServer server);
+    }
+
+    interface StartLevel extends ITickEvent
+    {
+        void handle(Level level);
+    }
+
+    interface EndLevel extends ITickEvent
+    {
+        void handle(Level level);
     }
 
     interface StartPlayer extends ITickEvent
