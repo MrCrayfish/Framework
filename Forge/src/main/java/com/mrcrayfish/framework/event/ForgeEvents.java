@@ -15,7 +15,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,6 +34,19 @@ public class ForgeEvents
         else
         {
             TickEvents.END_SERVER.post().handle(event.getServer());
+        }
+    }
+
+    @SubscribeEvent
+    public void onLevelTick(TickEvent.LevelTickEvent event)
+    {
+        if(event.phase == TickEvent.Phase.START)
+        {
+            TickEvents.START_LEVEL.post().handle(event.level);
+        }
+        else
+        {
+            TickEvents.END_LEVEL.post().handle(event.level);
         }
     }
 
