@@ -26,6 +26,12 @@ public class FabricEvents implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             TickEvents.END_SERVER.post().handle(server);
         });
+        ServerTickEvents.START_WORLD_TICK.register(level -> {
+            TickEvents.START_LEVEL.post().handle(level);
+        });
+        ServerTickEvents.END_WORLD_TICK.register(level -> {
+            TickEvents.END_LEVEL.post().handle(level);
+        });
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
             PlayerEvents.START_TRACKING_ENTITY.post().handle(entity, player);
         });

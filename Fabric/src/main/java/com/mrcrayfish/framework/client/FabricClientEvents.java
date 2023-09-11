@@ -26,6 +26,12 @@ public class FabricClientEvents implements ClientModInitializer
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             TickEvents.END_CLIENT.post().handle();
         });
+        ClientTickEvents.START_WORLD_TICK.register(level -> {
+            TickEvents.START_LEVEL.post().handle(level);
+        });
+        ClientTickEvents.END_WORLD_TICK.register(level -> {
+            TickEvents.END_LEVEL.post().handle(level);
+        });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             ClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
         });
