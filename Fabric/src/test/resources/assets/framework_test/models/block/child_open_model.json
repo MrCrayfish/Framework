@@ -1,0 +1,9 @@
+{
+	"credit": "Model by MrCrayfish (https://twitter.com/MrCrayfish) using Blockbench. All Rights Reserved.",
+	"parent": "framework_test:block/parent_open_model",
+	"textures": {
+		"0": "block/furnace_front",
+		"1": "block/furnace_side",
+		"2": "block/furnace_top"
+	}
+}

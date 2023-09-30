@@ -18,9 +18,12 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.model.ElementsModel;
+import net.minecraftforge.client.model.IModelBuilder;
 import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import net.minecraftforge.client.model.geometry.SimpleUnbakedGeometry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -30,13 +33,14 @@ import java.util.function.Function;
 /**
  * Author: MrCrayfish
  */
-public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
+public class OpenModelGeometry extends ElementsModel
 {
     private final BlockModel model;
     private final DataObject data;
 
     public OpenModelGeometry(BlockModel model, @Nullable DataObject data)
     {
+        super(model.getElements());
         this.model = model;
         this.data = data;
     }
@@ -44,7 +48,7 @@ public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
     @Override
     public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
     {
-        return new ForgeBakedOpenModel(this.model.bake(baker, this.model, spriteGetter, modelState, modelLocation, true), this.data);
+        return new ForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides, modelLocation), this.data);
     }
 
     @Override
@@ -54,7 +58,7 @@ public class OpenModelGeometry implements IUnbakedGeometry<OpenModelGeometry>
     }
 
     @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class Loader implements IGeometryLoader<OpenModelGeometry>
+    public static class Loader implements IGeometryLoader<ElementsModel>
     {
         @Override
         public OpenModelGeometry read(JsonObject object, JsonDeserializationContext context) throws JsonParseException

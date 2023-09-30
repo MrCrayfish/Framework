@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": { "model": "framework_test:block/child_open_model" }
+    }
+}
