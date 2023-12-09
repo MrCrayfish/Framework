@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 public final class Registration
 {
     private static final Map<ResourceLocation, Integer> REGISTRATION_PRIORITY = Util.make(new HashMap<>(), map -> {
-        map.put(Registries.BLOCK.location(), 0);
-        map.put(Registries.ITEM.location(), 1);
-        map.put(Registries.FLUID.location(), 2);
-        map.put(Registries.MOB_EFFECT.location(), 3);
-        map.put(Registries.SOUND_EVENT.location(), 4);
+        map.put(Registries.SOUND_EVENT.location(), 0);
+        map.put(Registries.BLOCK.location(), 1);
+        map.put(Registries.ITEM.location(), 2);
+        map.put(Registries.FLUID.location(), 3);
+        map.put(Registries.MOB_EFFECT.location(), 4);
         map.put(Registries.POTION.location(), 5);
         map.put(Registries.ENCHANTMENT.location(), 6);
         map.put(Registries.ENTITY_TYPE.location(), 7);
