@@ -1,21 +1,22 @@
-package com.mrcrayfish.framework.network.message.handshake;
+package com.mrcrayfish.framework.network.message.configuration;
 
+import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
-import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
+import com.mrcrayfish.framework.api.network.FrameworkResponse;
+import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.LoginDataManager;
 import com.mrcrayfish.framework.platform.Services;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish
  */
-public class S2CLoginData extends HandshakeMessage<S2CLoginData>
+public class S2CLoginData extends ConfigurationMessage<S2CLoginData>
 {
     private ResourceLocation id;
     private FriendlyByteBuf data;
@@ -46,12 +47,11 @@ public class S2CLoginData extends HandshakeMessage<S2CLoginData>
     }
 
     @Override
-    public void handle(S2CLoginData message, MessageContext context)
+    public FrameworkResponse handle(S2CLoginData message, Consumer<Runnable> executor)
     {
         String[] response = new String[1];
         CountDownLatch block = new CountDownLatch(1);
-        context.execute(() ->
-        {
+        executor.accept(() -> {
             ILoginData data = LoginDataManager.getLoginDataSupplier(message.id).get();
             data.readData(message.data).ifPresent(s -> response[0] = s);
             block.countDown();
@@ -69,11 +69,10 @@ public class S2CLoginData extends HandshakeMessage<S2CLoginData>
         if(response[0] != null)
         {
             String modName = Services.PLATFORM.getModName(message.id.getNamespace());
-            context.getNetworkManager().disconnect(Component.literal("Connection closed - [" + modName + "] " + response[0]));
-            return;
+            return FrameworkResponse.error("[%s] %s".formatted(modName, response[0]));
+
         }
 
-        context.setHandled(true);
-        context.reply(new Acknowledge());
+        return FrameworkResponse.SUCCESS;
     }
 }

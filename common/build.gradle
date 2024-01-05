@@ -33,13 +33,6 @@ dependencies {
     library "com.electronwill.night-config:toml:3.6.6"
 }
 
-processResources {
-    def buildProps = project.properties.clone()
-    filesMatching(['pack.mcmeta']) {
-        expand buildProps
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {

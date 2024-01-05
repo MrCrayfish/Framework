@@ -7,32 +7,40 @@ import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.message.IMessage;
+import io.netty.channel.ChannelHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.impl.recipe.ingredient.CustomIngredientSync;
+import net.fabricmc.fabric.impl.recipe.ingredient.SupportedIngredientsPacketEncoder;
+import net.fabricmc.fabric.mixin.networking.accessor.ServerCommonNetworkHandlerAccessor;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ConfigurationTask;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -45,7 +53,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -57,19 +68,17 @@ public class FabricNetwork implements FrameworkNetwork
     final int protocolVersion;
     final Map<Class<?>, FabricMessage<?>> classToPlayMessage;
     final Map<Integer, FabricMessage<?>> indexToPlayMessage;
-    final Map<Class<?>, FabricHandshakeMessage<?>> classToHandshakeMessage;
-    final Map<Integer, FabricHandshakeMessage<?>> indexToHandshakeMessage;
+    final List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks;
     private MinecraftServer server;
     private boolean active = false;
 
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<FabricHandshakeMessage<?>> handshakeMessages)
+    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
         this.classToPlayMessage = createClassMap(playMessages);
         this.indexToPlayMessage = createIndexMap(playMessages);
-        this.classToHandshakeMessage = createClassMap(handshakeMessages);
-        this.indexToHandshakeMessage = createIndexMap(handshakeMessages);
+        this.configurationTasks = configurationTasks;
         this.setup();
     }
 
@@ -87,23 +96,19 @@ public class FabricNetwork implements FrameworkNetwork
             ServerPlayNetworking.registerGlobalReceiver(this.id, (server, player, handler, buf, responseSender) -> {
                 FabricServerNetworkHandler.receivePlay(this, server, player, handler, buf, responseSender);
             });
-        }
 
-        // Register receivers for login messages and register events
-        if(!this.classToHandshakeMessage.isEmpty())
-        {
-            // Only register client receiver only if on physical client
             EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                ClientLoginNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
-                    return CompletableFuture.completedFuture(FabricClientNetworkHandler.receiveHandshake(this, client, handler, buf, responseSender));
+                ClientConfigurationNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
+                    FabricClientNetworkHandler.receiveConfiguration(this, client, handler, buf, responseSender);
                 });
             });
-            // Sends the login messages to client when they are connecting
-            ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
-                this.sendHandshakeMessages(sender, handler.connection.isMemoryConnection());
+            ServerConfigurationNetworking.registerGlobalReceiver(this.id, (server1, handler, buf, responseSender) -> {
+                FabricServerNetworkHandler.receiveConfiguration(this, server1, handler, buf, responseSender);
             });
-            ServerLoginNetworking.registerGlobalReceiver(this.id, (server, handler, understood, buf, synchronizer, responseSender) -> {
-                FabricServerNetworkHandler.receiveHandshake(this, server, handler, understood, buf, synchronizer, responseSender);
+            ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
+                if(ServerConfigurationNetworking.canSend(handler, this.id)) {
+                    this.configurationTasks.forEach(function -> handler.addTask(function.apply(this, handler)));
+                }
             });
         }
 
@@ -139,6 +144,17 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
+    public void send(Connection connection, IMessage<?> message)
+    {
+        FriendlyByteBuf buf = this.encode(message);
+        switch(connection.getSending())
+        {
+            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.id, buf));
+            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.id, buf));
+        }
+    }
+
+    @Override
     public void sendToPlayer(Supplier<ServerPlayer> supplier, IMessage<?> message)
     {
         FriendlyByteBuf buf = this.encode(message);
@@ -156,7 +172,7 @@ public class FabricNetwork implements FrameworkNetwork
     {
         Entity entity = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
     }
 
@@ -186,7 +202,7 @@ public class FabricNetwork implements FrameworkNetwork
     {
         LevelChunk chunk = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
     }
 
@@ -197,7 +213,7 @@ public class FabricNetwork implements FrameworkNetwork
         Level level = location.level();
         Vec3 pos = location.pos();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
@@ -212,7 +228,7 @@ public class FabricNetwork implements FrameworkNetwork
     public void sendToAll(IMessage<?> message)
     {
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         this.server.getPlayerList().broadcastAll(packet);
     }
 
@@ -223,7 +239,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private FriendlyByteBuf encode(IMessage<?> message)
+    public FriendlyByteBuf encode(IMessage<?> message)
     {
         FabricMessage fabricMessage = this.classToPlayMessage.get(message.getClass());
         Preconditions.checkNotNull(fabricMessage);
@@ -231,30 +247,6 @@ public class FabricNetwork implements FrameworkNetwork
         buf.writeInt(fabricMessage.getIndex());
         fabricMessage.encode(message, buf);
         return buf;
-    }
-
-    private void sendHandshakeMessages(PacketSender sender, boolean isLocal)
-    {
-        this.classToHandshakeMessage.values().forEach(fabricMessage ->
-        {
-            Optional.ofNullable(fabricMessage.getMessages()).ifPresent(messages ->
-            {
-                messages.apply(isLocal).forEach(pair ->
-                {
-                    FriendlyByteBuf buf = PacketByteBufs.create();
-                    buf.writeInt(fabricMessage.getIndex());
-                    this.encodeLoginMessage(pair.getValue(), buf);
-                    sender.sendPacket(this.id, buf);
-                });
-            });
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void encodeLoginMessage(T message, FriendlyByteBuf buf)
-    {
-        FabricHandshakeMessage<T> msg = (FabricHandshakeMessage<T>) this.classToHandshakeMessage.get(message.getClass());
-        msg.encode(message, buf);
     }
 
     private static <T extends FabricMessage<?>> Map<Class<?>, T> createClassMap(Collection<T> c)

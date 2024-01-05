@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkHooks;
 
 import java.util.OptionalInt;
 import java.util.function.Consumer;
@@ -28,7 +27,7 @@ public class ForgeNetworkHelper implements INetworkHelper
     public OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data)
     {
         AbstractContainerMenu oldMenu = player.containerMenu;
-        NetworkHooks.openScreen(player, provider, data);
+        player.openMenu(provider, data);
         AbstractContainerMenu newMenu = player.containerMenu;
         return oldMenu != newMenu ? OptionalInt.of(player.containerCounter) : OptionalInt.empty();
     }

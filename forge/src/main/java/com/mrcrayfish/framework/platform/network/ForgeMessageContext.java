@@ -3,7 +3,7 @@ package com.mrcrayfish.framework.platform.network;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.api.network.MessageDirection;
 import net.minecraft.network.Connection;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -12,15 +12,15 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ForgeMessageContext extends MessageContext
 {
-    private final NetworkEvent.Context context;
+    private final CustomPayloadEvent.Context context;
 
-    public ForgeMessageContext(NetworkEvent.Context context, MessageDirection direciton)
+    public ForgeMessageContext(CustomPayloadEvent.Context context, MessageDirection direciton)
     {
         super(direciton, context.getSender());
         this.context = context;
     }
 
-    public NetworkEvent.Context getNetworkContext()
+    public CustomPayloadEvent.Context getNetworkContext()
     {
         return this.context;
     }
@@ -34,7 +34,7 @@ public class ForgeMessageContext extends MessageContext
     @Override
     public Connection getNetworkManager()
     {
-        return this.context.getNetworkManager();
+        return this.context.getConnection();
     }
 
     @Override

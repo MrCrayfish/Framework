@@ -25,17 +25,18 @@ import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.Network;
-import com.mrcrayfish.framework.network.message.handshake.S2CLoginConfigData;
+import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.ConfigHelper;
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -107,19 +108,18 @@ public class FrameworkConfigManager
         return this.configs.get(id);
     }
 
-    public List<Pair<String, S2CLoginConfigData>> getMessagesForLogin(boolean local)
+    public List<S2CConfigData> getConfigurationMessages()
     {
-        if(local) return Collections.emptyList();
         return this.configs.values().stream()
             .filter(entry -> entry.getType().isSync())
             .map(entry -> {
                 ResourceLocation key = entry.getName();
                 byte[] data = ConfigHelper.getBytes(entry.config);
-                return Pair.of("FrameworkConfig " + key, new S2CLoginConfigData(key, data));
+                return new S2CConfigData(key, data);
             }).collect(Collectors.toList());
     }
 
-    public boolean processConfigData(S2CLoginConfigData message)
+    public boolean processConfigData(S2CConfigData message)
     {
         Constants.LOG.info("Loading synced config from server: " + message.getKey());
         FrameworkConfigImpl entry = this.configs.get(message.getKey());
@@ -632,6 +632,23 @@ public class FrameworkConfigManager
                 }
                 stack.pop();
             }));
+        }
+    }
+
+    public static class ConfigDataTask implements ConfigurationTask
+    {
+        public static final Type TYPE = new Type("framework:config_data");
+
+        @Override
+        public void start(Consumer<Packet<?>> consumer)
+        {
+
+        }
+
+        @Override
+        public Type type()
+        {
+            return TYPE;
         }
     }
 

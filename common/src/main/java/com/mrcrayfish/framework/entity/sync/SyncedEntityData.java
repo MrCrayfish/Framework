@@ -9,7 +9,7 @@ import com.mrcrayfish.framework.api.event.TickEvents;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.network.Network;
-import com.mrcrayfish.framework.network.message.handshake.S2CSyncedEntityData;
+import com.mrcrayfish.framework.network.message.configuration.S2CSyncedEntityData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;

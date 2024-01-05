@@ -3,6 +3,7 @@ package com.mrcrayfish.framework.mixin;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerListMixin
 {
     @Inject(method = "placeNewPlayer", at = @At(value = "TAIL"))
-    private void frameworkOnPlayerJoin(Connection connection, ServerPlayer player, CallbackInfo ci)
+    private void frameworkOnPlayerJoin(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci)
     {
         PlayerEvents.LOGGED_IN.post().handle(player);
     }

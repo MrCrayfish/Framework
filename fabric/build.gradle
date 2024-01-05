@@ -1,10 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
-    id 'maven-publish'
+    id 'java'
     id 'idea'
+    id 'maven-publish'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
 }
 
-archivesBaseName = "${mod_id}-fabric"
+base {
+    archivesName = "${mod_name}-fabric"
+}
+
 version = "${minecraft_version}-${mod_version}"
 
 sourceSets {
@@ -42,7 +46,9 @@ dependencies {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/framework.accesswidener")
+    if(file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(file("src/main/resources/${mod_id}.accesswidener"))
+    }
     runs {
         client {
             client()
@@ -69,6 +75,10 @@ jar {
     from(file("LICENSE_Reflections"))
 }
 
+tasks.withType(JavaCompile) {
+    source(project(":common").sourceSets.main.allSource)
+}
+
 processResources {
     from project(":common").sourceSets.main.resources
     inputs.property "version", project.version
@@ -76,10 +86,6 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand project.properties
     }
-}
-
-tasks.withType(JavaCompile) {
-    source(project(":common").sourceSets.main.allSource)
 }
 
 publishing {

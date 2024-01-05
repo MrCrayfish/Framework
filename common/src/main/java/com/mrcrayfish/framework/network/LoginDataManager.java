@@ -1,11 +1,10 @@
 package com.mrcrayfish.framework.network;
 
 import com.mrcrayfish.framework.api.data.login.ILoginData;
-import com.mrcrayfish.framework.network.message.handshake.S2CLoginData;
+import com.mrcrayfish.framework.network.message.configuration.S2CLoginData;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -20,14 +19,14 @@ public class LoginDataManager
 {
     private static final Map<ResourceLocation, Supplier<? extends ILoginData>> LOGIN_DATA = new ConcurrentHashMap<>();
 
-    public static List<Pair<String, S2CLoginData>> getLoginDataMessages(boolean isLocal)
+    public static List<S2CLoginData> getConfigurationMessages()
     {
         return LOGIN_DATA.entrySet().stream().map(entry -> {
             ResourceLocation id = entry.getKey();
             ILoginData data = entry.getValue().get();
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             data.writeData(buffer);
-            return Pair.of(id.toString(), new S2CLoginData(id, buffer));
+            return new S2CLoginData(id, buffer);
         }).collect(Collectors.toList());
     }
 

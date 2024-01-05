@@ -1,12 +1,11 @@
-package com.mrcrayfish.framework.network.message.handshake;
+package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
+import com.mrcrayfish.framework.api.network.FrameworkResponse;
+import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -16,11 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish
  */
-public class S2CSyncedEntityData extends HandshakeMessage<S2CSyncedEntityData>
+public class S2CSyncedEntityData extends ConfigurationMessage<S2CSyncedEntityData>
 {
     private Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> keyMap;
 
@@ -60,15 +60,14 @@ public class S2CSyncedEntityData extends HandshakeMessage<S2CSyncedEntityData>
     }
 
     @Override
-    public void handle(S2CSyncedEntityData message, MessageContext context)
+    public FrameworkResponse handle(S2CSyncedEntityData message, Consumer<Runnable> executor)
     {
-        Constants.LOG.debug(HANDSHAKE, "Received synced key mappings from server");
+        Constants.LOG.debug(CONFIGURATION_MARKER, "Received synced key mappings from server");
+        boolean[] failed = new boolean[1];
         CountDownLatch block = new CountDownLatch(1);
-        context.execute(() ->
-        {
-            if(!SyncedEntityData.instance().updateMappings(message))
-            {
-                context.getNetworkManager().disconnect(Component.literal("Connection closed - [Framework] Received unknown synced data keys. See logs for more details."));
+        executor.accept(() -> {
+            if(!SyncedEntityData.instance().updateMappings(message)) {
+                failed[0] = true;
             }
             block.countDown();
         });
@@ -80,8 +79,11 @@ public class S2CSyncedEntityData extends HandshakeMessage<S2CSyncedEntityData>
         {
             e.printStackTrace();
         }
-        context.setHandled(true);
-        context.reply(new Acknowledge());
+        if(failed[0])
+        {
+            return FrameworkResponse.error("[Framework] Received unknown synced data keys. See logs for more details.");
+        }
+        return FrameworkResponse.SUCCESS;
     }
 
     public Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> getKeyMap()

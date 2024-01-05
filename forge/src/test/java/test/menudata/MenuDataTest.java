@@ -74,7 +74,7 @@ public class MenuDataTest
         @Override
         protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
         {
-            this.renderBackground(graphics);
+            this.renderBackground(graphics, mouseX, mouseY, partialTick);
             graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFF);
             graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFF);
         }

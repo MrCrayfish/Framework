@@ -7,6 +7,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
@@ -31,25 +32,22 @@ public class FabricClientNetworkHandler
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static FriendlyByteBuf receiveHandshake(FabricNetwork network, Minecraft minecraft, ClientHandshakePacketListenerImpl handler, FriendlyByteBuf buf, Consumer<GenericFutureListener<? extends Future<? super Void>>> consumer)
+    public static void receiveConfiguration(FabricNetwork network, Minecraft minecraft, ClientConfigurationPacketListenerImpl listener, FriendlyByteBuf buf, PacketSender packetSender)
     {
         int index = buf.readInt();
-        FabricMessage message = network.indexToHandshakeMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, handler.connection))
-            return null;
+        FabricMessage message = network.indexToPlayMessage.get(index);
+        if(!FabricNetwork.validateMessage(message, listener.connection))
+            return;
 
         IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(minecraft, handler.connection, null, message.getDirection());
+        MessageContext context = new FabricMessageContext(minecraft, listener.connection, null, message.getDirection());
         message.handle(msg, context);
 
-        FriendlyByteBuf responseBuf = PacketByteBufs.create();
         IMessage reply = context.getReply();
         if(reply != null)
         {
-            message = network.classToHandshakeMessage.get(reply.getClass());
-            responseBuf.writeInt(message.getIndex());
-            context.getReply().encode(reply, responseBuf);
+            FriendlyByteBuf responseBuf = network.encode(reply);
+            packetSender.sendPacket(network.id, responseBuf);
         }
-        return responseBuf;
     }
 }

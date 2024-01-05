@@ -15,16 +15,16 @@ import java.util.function.Function;
  */
 public class FabricHandshakeMessage<T> extends FabricMessage<T>
 {
-    private final Function<Boolean, List<Pair<String, T>>> messages;
+    private final Function<Boolean, List<T>> messages;
 
-    public FabricHandshakeMessage(int index, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable MessageDirection direction, @Nullable Function<Boolean, List<Pair<String, T>>> messages)
+    public FabricHandshakeMessage(int index, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable MessageDirection direction, @Nullable Function<Boolean, List<T>> messages)
     {
         super(index, messageClass, encoder, decoder, handler, direction);
         this.messages = messages;
     }
 
     @Nullable
-    public Function<Boolean, List<Pair<String, T>>> getMessages()
+    public Function<Boolean, List<T>> getMessages()
     {
         return this.messages;
     }

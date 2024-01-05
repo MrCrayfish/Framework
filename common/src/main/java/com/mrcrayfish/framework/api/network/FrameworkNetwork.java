@@ -3,11 +3,13 @@ package com.mrcrayfish.framework.api.network;
 import com.mrcrayfish.framework.network.message.IMessage;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -15,6 +17,8 @@ import java.util.function.Supplier;
  */
 public interface FrameworkNetwork
 {
+    void send(Connection connection, IMessage<?> message);
+
     void sendToPlayer(Supplier<ServerPlayer> supplier, IMessage<?> message);
 
     /**

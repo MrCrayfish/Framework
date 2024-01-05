@@ -3,18 +3,23 @@ package com.mrcrayfish.framework.platform.network;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.network.message.IMessage;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.network.GatherLoginConfigurationTasksEvent;
+import net.minecraftforge.network.ConnectionType;
+import net.minecraftforge.network.NetworkContext;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.SimpleChannel;
 
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -24,15 +29,27 @@ public class ForgeNetwork implements FrameworkNetwork
 {
     private final SimpleChannel channel;
 
-    public ForgeNetwork(SimpleChannel channel)
+    public ForgeNetwork(SimpleChannel channel, List<Function<SimpleChannel, ConfigurationTask>> tasks)
     {
         this.channel = channel;
+        MinecraftForge.EVENT_BUS.addListener((GatherLoginConfigurationTasksEvent event) -> {
+            NetworkContext context = NetworkContext.get(event.getConnection());
+            if(context.getType() == ConnectionType.MODDED) {
+                tasks.forEach(f -> event.addTask(f.apply(this.channel)));
+            }
+        });
+    }
+
+    @Override
+    public void send(Connection connection, IMessage<?> message)
+    {
+        this.channel.send(message, connection);
     }
 
     @Override
     public void sendToPlayer(Supplier<ServerPlayer> supplier, IMessage<?> message)
     {
-        this.channel.send(PacketDistributor.PLAYER.with(supplier), message);
+        this.channel.send(message, PacketDistributor.PLAYER.with(supplier.get()));
     }
 
     @Override
@@ -45,7 +62,7 @@ public class ForgeNetwork implements FrameworkNetwork
     @Override
     public void sendToTrackingEntity(Supplier<Entity> supplier, IMessage<?> message)
     {
-        this.channel.send(PacketDistributor.TRACKING_ENTITY.with(supplier), message);
+        this.channel.send(message, PacketDistributor.TRACKING_ENTITY.with(supplier.get()));
     }
 
     @Override
@@ -72,29 +89,28 @@ public class ForgeNetwork implements FrameworkNetwork
     @Override
     public void sendToTrackingChunk(Supplier<LevelChunk> supplier, IMessage<?> message)
     {
-        this.channel.send(PacketDistributor.TRACKING_CHUNK.with(supplier), message);
+        this.channel.send(message, PacketDistributor.TRACKING_CHUNK.with(supplier.get()));
     }
 
     @Override
     public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, IMessage<?> message)
     {
-        this.channel.send(PacketDistributor.NEAR.with(() -> {
-            LevelLocation location = supplier.get();
-            Vec3 pos = location.pos();
-            return new PacketDistributor.TargetPoint(pos.x, pos.y, pos.z, location.range(), location.level().dimension());
-        }), message);
+        LevelLocation location = supplier.get();
+        Vec3 pos = location.pos();
+        PacketDistributor.TargetPoint point = new PacketDistributor.TargetPoint(pos.x, pos.y, pos.z, location.range(), location.level().dimension());
+        this.channel.send(message, PacketDistributor.NEAR.with(point));
     }
 
     @Override
     public void sendToServer(IMessage<?> message)
     {
-        this.channel.sendToServer(message);
+        this.channel.send(message, PacketDistributor.SERVER.noArg());
     }
 
     @Override
     public void sendToAll(IMessage<?> message)
     {
-        this.channel.send(PacketDistributor.ALL.noArg(), message);
+        this.channel.send(message, PacketDistributor.ALL.noArg());
     }
 
     @Override
