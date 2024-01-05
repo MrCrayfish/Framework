@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

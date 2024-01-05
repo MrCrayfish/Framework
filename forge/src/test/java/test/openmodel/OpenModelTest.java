@@ -25,8 +25,8 @@ public class OpenModelTest
     private static final DeferredRegister<Block> BLOCK_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCKS, "open_model_test");
     private static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, "open_model_test");
 
-    private static final RegistryObject<Block> OPEN_MODEL_BLOCK = register("open_model", () -> new Block(BlockBehaviour.Properties.copy(Blocks.GLASS)));
-    private static final RegistryObject<Block> CHILD_OPEN_MODEL_BLOCK = register("child_open_model", () -> new Block(BlockBehaviour.Properties.copy(Blocks.GLASS)));
+    private static final RegistryObject<Block> OPEN_MODEL_BLOCK = register("open_model", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    private static final RegistryObject<Block> CHILD_OPEN_MODEL_BLOCK = register("child_open_model", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
 
     public OpenModelTest()
     {

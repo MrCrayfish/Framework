@@ -31,7 +31,7 @@ public class OpenModelDataTest
     private static final DeferredRegister<Block> BLOCK_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCKS, "open_model_data_test");
     private static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, "open_model_data_test");
 
-    private static final RegistryObject<Block> TEST_BLOCK = register("test_block", () -> new Block(BlockBehaviour.Properties.copy(Blocks.GLASS)));
+    private static final RegistryObject<Block> TEST_BLOCK = register("test_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
     private static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTER.register("test_item", () -> new Item(new Item.Properties()));
 
     public OpenModelDataTest()

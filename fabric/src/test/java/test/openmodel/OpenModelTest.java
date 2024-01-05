@@ -12,8 +12,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class OpenModelTest implements ModInitializer
 {
-    private static final Block OPEN_MODEL_BLOCK = new Block(BlockBehaviour.Properties.copy(Blocks.GLASS));
-    private static final Block CHILD_OPEN_MODEL_BLOCK = new Block(BlockBehaviour.Properties.copy(Blocks.GLASS));
+    private static final Block OPEN_MODEL_BLOCK = new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    private static final Block CHILD_OPEN_MODEL_BLOCK = new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
 
     @Override
     public void onInitialize()

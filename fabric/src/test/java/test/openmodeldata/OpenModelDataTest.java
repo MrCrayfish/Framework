@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class OpenModelDataTest implements ModInitializer
 {
-    public static final Block TEST_BLOCK = new Block(BlockBehaviour.Properties.copy(Blocks.GLASS));
+    public static final Block TEST_BLOCK = new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final Item TEST_ITEM = new Item(new Item.Properties());
 
     @Override
