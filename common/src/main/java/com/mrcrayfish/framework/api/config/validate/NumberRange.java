@@ -3,6 +3,8 @@ package com.mrcrayfish.framework.api.config.validate;
 import com.google.common.base.Preconditions;
 import net.minecraft.network.chat.Component;
 
+import java.text.DecimalFormat;
+
 /**
  * A simple validator that to test if a number is within a range (inclusive).
  * <p>
@@ -10,6 +12,8 @@ import net.minecraft.network.chat.Component;
  */
 public record NumberRange<T extends Number & Comparable<T>>(T minValue, T maxValue) implements Validator<T>
 {
+    private static final DecimalFormat FORMAT = new DecimalFormat("0.#####");
+
     public NumberRange
     {
         Preconditions.checkArgument(minValue.compareTo(maxValue) <= 0, "Min value must be less than or equal to the max value");
@@ -25,5 +29,11 @@ public record NumberRange<T extends Number & Comparable<T>>(T minValue, T maxVal
     public Component getHint()
     {
         return Component.translatable("configured.validator.range_hint", this.minValue, this.maxValue);
+    }
+
+    @Override
+    public String getCommentHint()
+    {
+        return "Valid range: %s to %s (inclusive)".formatted(FORMAT.format(this.minValue), FORMAT.format(this.maxValue));
     }
 }

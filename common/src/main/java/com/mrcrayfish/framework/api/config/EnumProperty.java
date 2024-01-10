@@ -5,6 +5,8 @@ import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,6 +40,12 @@ public final class EnumProperty<T extends Enum<T>> extends AbstractProperty<T>
         return this.allowedValues;
     }
 
+    @Override
+    public String getAllowedValuesString()
+    {
+        return "Valid values: " + String.join(", ", this.allowedValues.stream().map(Enum::name).toList());
+    }
+
     /**
      * Creates an EnumProperty with the given default value. By default, all enum constants from
      * the default value's declaring class will be considered acceptable values. If more control is
@@ -48,7 +56,7 @@ public final class EnumProperty<T extends Enum<T>> extends AbstractProperty<T>
      */
     public static <T extends Enum<T>> EnumProperty<T> create(T defaultValue)
     {
-        return create(defaultValue, Set.of(defaultValue.getDeclaringClass().getEnumConstants()));
+        return create(defaultValue, new LinkedHashSet<>(List.of(defaultValue.getDeclaringClass().getEnumConstants())));
     }
 
     /**

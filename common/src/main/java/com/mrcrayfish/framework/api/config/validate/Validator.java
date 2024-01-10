@@ -16,7 +16,15 @@ public interface Validator<T>
     boolean test(T value);
 
     /**
-     * @return A hint to the user that explains a valid value
+     * @return A formatted hint to the user that explains a valid value
      */
     Component getHint();
+
+    /**
+     * @return A hint to add into the config comments to explain a valid value/range
+     */
+    default String getCommentHint()
+    {
+        return "";
+    }
 }
