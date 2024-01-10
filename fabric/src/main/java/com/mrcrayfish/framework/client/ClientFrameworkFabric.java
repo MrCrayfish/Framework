@@ -2,10 +2,8 @@ package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
-import com.mrcrayfish.framework.api.event.InputEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;

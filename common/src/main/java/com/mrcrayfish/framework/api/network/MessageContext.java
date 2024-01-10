@@ -1,13 +1,11 @@
 package com.mrcrayfish.framework.api.network;
 
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Author: MrCrayfish

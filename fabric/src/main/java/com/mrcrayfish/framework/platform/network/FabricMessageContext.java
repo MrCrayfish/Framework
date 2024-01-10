@@ -4,11 +4,9 @@ import com.mrcrayfish.framework.api.network.MessageContext;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**

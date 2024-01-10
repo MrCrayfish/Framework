@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
-import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 

@@ -6,9 +6,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Author: MrCrayfish

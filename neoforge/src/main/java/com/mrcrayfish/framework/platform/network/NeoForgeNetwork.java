@@ -19,10 +19,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
-import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 

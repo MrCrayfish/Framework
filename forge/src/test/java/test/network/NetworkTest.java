@@ -1,7 +1,6 @@
 package test.network;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.FrameworkForge;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
