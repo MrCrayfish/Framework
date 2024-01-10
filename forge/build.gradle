@@ -11,8 +11,6 @@ base {
     archivesName = "${mod_name}-forge"
 }
 
-version = "${minecraft_version}-${mod_version}"
-
 minecraft {
     mappings channel: 'official', version: minecraft_version
 
@@ -23,49 +21,42 @@ minecraft {
     }
 
     runs {
-        client {
+        configureEach {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Client'
+            property 'forge.logging.markers', 'REGISTRIES,SCAN,LOADING'
+            property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
-                modClientRun {
+                framework {
                     source sourceSets.main
-                    source sourceSets.test
                     source project(":common").sourceSets.main
                 }
             }
         }
-
+        def client = client {
+            taskName "Client"
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+        clientTest {
+            parent(client)
+            taskName "TestClient"
+            ideaModule "${rootProject.name}.${project.name}.test"
+            mods {
+                framework {
+                    source sourceSets.test
+                }
+            }
+        }
         server {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Server'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                modServerRun {
-                    source sourceSets.main
-                    source sourceSets.test
-                    source project(":common").sourceSets.main
-                }
-            }
+            taskName "Server"
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
         }
-
         data {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Data"
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            taskName 'Data'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                modDataRun {
-                    source sourceSets.main
-                    source project(":common").sourceSets.main
-                }
-            }
         }
     }
 }
@@ -82,17 +73,14 @@ dependencies {
     testCompileOnly project(":common")
 }
 
-tasks.withType(JavaCompile) {
+// Copying the same exclusion from neoforge seems to fix test mods and module issues
+Spec<Task> notForge = { Task it -> !it.name.startsWith("forge") && !it.name.contains("Test") } as Spec<Task>
+
+tasks.withType(JavaCompile).matching(notForge).configureEach {
     source(project(":common").sourceSets.main.allSource)
 }
 
-sourceSets.each {
-    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
-    it.output.resourcesDir = dir
-    it.java.destinationDirectory = dir
-}
-
-processResources {
+tasks.withType(ProcessResources).matching(notForge).configureEach {
     from project(":common").sourceSets.main.resources
 }
 
@@ -160,3 +148,9 @@ task signJar(type: SignJar, dependsOn: jar) {
 
 jar.finalizedBy 'signJar'
 signJar.mustRunAfter 'reobfJar'
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}

@@ -1,11 +1,9 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.api.network.MessageDirection;
-import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraftforge.event.network.CustomPayloadEvent;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Author: MrCrayfish
@@ -14,27 +12,22 @@ public class ForgeMessageContext extends MessageContext
 {
     private final CustomPayloadEvent.Context context;
 
-    public ForgeMessageContext(CustomPayloadEvent.Context context, MessageDirection direciton)
+    public ForgeMessageContext(CustomPayloadEvent.Context context, PacketFlow flow)
     {
-        super(direciton, context.getSender());
+        super(flow, context.getSender());
         this.context = context;
     }
 
-    public CustomPayloadEvent.Context getNetworkContext()
+    @Override
+    public void execute(Runnable runnable)
     {
-        return this.context;
+        this.context.enqueueWork(runnable);
     }
 
     @Override
-    public CompletableFuture<Void> execute(Runnable runnable)
+    public void disconnect(Component reason)
     {
-        return this.context.enqueueWork(runnable);
-    }
-
-    @Override
-    public Connection getNetworkManager()
-    {
-        return this.context.getConnection();
+        this.context.getConnection().disconnect(reason);
     }
 
     @Override

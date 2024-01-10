@@ -1,3 +1,7 @@
+plugins {
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'signing'
@@ -5,6 +9,8 @@ subprojects {
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
     java.withSourcesJar()
     java.withJavadocJar()
+
+    version = "${minecraft_version}-${mod_version}"
 
     configurations {
         library
@@ -60,6 +66,9 @@ subprojects {
                 "forge_version": forge_version,
                 "fabric_version": fabric_version,
                 "fabric_loader_version": fabric_loader_version,
+                "neoforge_version": neoforge_version,
+                "neoforge_version_range": neoforge_version_range,
+                "neoforge_loader_version_range": neoforge_loader_version_range,
                 "mod_name": mod_name,
                 "mod_version": mod_version,
                 "mod_author": mod_author,
@@ -80,6 +89,10 @@ subprojects {
     // other mod developers.
     tasks.withType(GenerateModuleMetadata).forEach {
         enabled = false
+    }
+
+    tasks.withType(Jar).configureEach {
+        duplicatesStrategy DuplicatesStrategy.INHERIT
     }
 }
 

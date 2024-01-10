@@ -9,8 +9,6 @@ base {
     archivesName = "${mod_name}-fabric"
 }
 
-version = "${minecraft_version}-${mod_version}"
-
 sourceSets {
     testMod {
         compileClasspath += main.compileClasspath

@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api;
 
 import com.mrcrayfish.framework.api.data.login.ILoginData;
+import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;

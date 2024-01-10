@@ -1,9 +1,7 @@
 package com.mrcrayfish.framework.network.message.configuration;
 
-import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.data.login.ILoginData;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.LoginDataManager;
 import com.mrcrayfish.framework.platform.Services;
 import io.netty.buffer.Unpooled;
@@ -16,29 +14,16 @@ import java.util.function.Consumer;
 /**
  * Author: MrCrayfish
  */
-public class S2CLoginData extends ConfigurationMessage<S2CLoginData>
+public record S2CLoginData(ResourceLocation id, FriendlyByteBuf data)
 {
-    private ResourceLocation id;
-    private FriendlyByteBuf data;
-
-    public S2CLoginData() {}
-
-    public S2CLoginData(ResourceLocation id, FriendlyByteBuf data)
-    {
-        this.id = id;
-        this.data = data;
-    }
-
-    @Override
-    public void encode(S2CLoginData message, FriendlyByteBuf buffer)
+    public static void encode(S2CLoginData message, FriendlyByteBuf buffer)
     {
         buffer.writeResourceLocation(message.id);
         buffer.writeVarInt(message.data.readableBytes());
         buffer.writeBytes(message.data);
     }
 
-    @Override
-    public S2CLoginData decode(FriendlyByteBuf buffer)
+    public static S2CLoginData decode(FriendlyByteBuf buffer)
     {
         ResourceLocation id = buffer.readResourceLocation();
         int readableBytes = buffer.readVarInt();
@@ -46,8 +31,7 @@ public class S2CLoginData extends ConfigurationMessage<S2CLoginData>
         return new S2CLoginData(id, data);
     }
 
-    @Override
-    public FrameworkResponse handle(S2CLoginData message, Consumer<Runnable> executor)
+    public static FrameworkResponse handle(S2CLoginData message, Consumer<Runnable> executor)
     {
         String[] response = new String[1];
         CountDownLatch block = new CountDownLatch(1);

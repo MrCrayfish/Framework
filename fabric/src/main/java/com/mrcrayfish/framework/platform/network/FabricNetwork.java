@@ -4,34 +4,22 @@ import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
-import com.mrcrayfish.framework.api.network.MessageDirection;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
-import com.mrcrayfish.framework.network.message.IMessage;
-import io.netty.channel.ChannelHandler;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
-import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.impl.recipe.ingredient.CustomIngredientSync;
-import net.fabricmc.fabric.impl.recipe.ingredient.SupportedIngredientsPacketEncoder;
-import net.fabricmc.fabric.mixin.networking.accessor.ServerCommonNetworkHandlerAccessor;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -46,71 +34,67 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
-public class FabricNetwork implements FrameworkNetwork
+public final class FabricNetwork implements FrameworkNetwork
 {
     final ResourceLocation id;
     final int protocolVersion;
-    final Map<Class<?>, FabricMessage<?>> classToPlayMessage;
-    final Map<Integer, FabricMessage<?>> indexToPlayMessage;
+    final List<FrameworkMessage<?>> playMessages;
+    final List<FrameworkMessage<?>> configurationMessages;
+    final Map<Class<?>, FrameworkMessage<?>> classToMessage;
     final List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks;
     private MinecraftServer server;
     private boolean active = false;
 
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FabricMessage<?>> playMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
+    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FrameworkMessage<?>> playMessages, List<FrameworkMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
-        this.classToPlayMessage = createClassMap(playMessages);
-        this.indexToPlayMessage = createIndexMap(playMessages);
+        this.playMessages = playMessages;
+        this.configurationMessages = configurationMessages;
         this.configurationTasks = configurationTasks;
+        this.classToMessage = createClassMap(playMessages, configurationMessages);
         this.setup();
     }
 
     private void setup()
     {
-        // Register receivers for play messages
-        if(!this.classToPlayMessage.isEmpty())
-        {
-            // Only register client receiver only if on physical client
+        this.playMessages.forEach(message -> {
             EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                ClientPlayNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
-                    FabricClientNetworkHandler.receivePlay(this, client, handler, buf, responseSender);
+                ClientPlayNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, sender) -> {
+                    FabricClientNetworkHandler.receivePlay(message, this, client, handler, buf, sender);
                 });
             });
-            ServerPlayNetworking.registerGlobalReceiver(this.id, (server, player, handler, buf, responseSender) -> {
-                FabricServerNetworkHandler.receivePlay(this, server, player, handler, buf, responseSender);
+            ServerPlayNetworking.registerGlobalReceiver(message.id(), (server1, player, handler, buf, responseSender) -> {
+                FabricServerNetworkHandler.receivePlay(message, this, server1, player, handler, buf, responseSender);
             });
+        });
 
+        this.configurationMessages.forEach(message -> {
             EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                ClientConfigurationNetworking.registerGlobalReceiver(this.id, (client, handler, buf, responseSender) -> {
-                    FabricClientNetworkHandler.receiveConfiguration(this, client, handler, buf, responseSender);
+                ClientConfigurationNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, responseSender) -> {
+                    FabricClientNetworkHandler.receiveConfiguration(message, this, client, handler, buf, responseSender);
                 });
             });
-            ServerConfigurationNetworking.registerGlobalReceiver(this.id, (server1, handler, buf, responseSender) -> {
-                FabricServerNetworkHandler.receiveConfiguration(this, server1, handler, buf, responseSender);
+            ServerConfigurationNetworking.registerGlobalReceiver(message.id(), (server1, handler, buf, responseSender) -> {
+                FabricServerNetworkHandler.receiveConfiguration(message, this, server1, handler, buf, responseSender);
             });
             ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
-                if(ServerConfigurationNetworking.canSend(handler, this.id)) {
+                if(ServerConfigurationNetworking.canSend(handler, message.id())) {
                     this.configurationTasks.forEach(function -> handler.addTask(function.apply(this, handler)));
                 }
             });
-        }
+        });
 
         // Get access to MinecraftServer instances
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -144,7 +128,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void send(Connection connection, IMessage<?> message)
+    public void send(Connection connection, Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
         switch(connection.getSending())
@@ -155,20 +139,14 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToPlayer(Supplier<ServerPlayer> supplier, IMessage<?> message)
+    public void sendToPlayer(Supplier<ServerPlayer> supplier, Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
         ServerPlayNetworking.send(supplier.get(), this.id, buf);
     }
 
     @Override
-    public void sendToTracking(Supplier<Entity> supplier, IMessage<?> message)
-    {
-        this.sendToTrackingEntity(supplier, message);
-    }
-
-    @Override
-    public void sendToTrackingEntity(Supplier<Entity> supplier, IMessage<?> message)
+    public void sendToTrackingEntity(Supplier<Entity> supplier, Object message)
     {
         Entity entity = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
@@ -177,7 +155,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToTrackingBlockEntity(Supplier<BlockEntity> supplier, IMessage<?> message)
+    public void sendToTrackingBlockEntity(Supplier<BlockEntity> supplier, Object message)
     {
         this.sendToTrackingChunk(() -> {
             BlockEntity entity = supplier.get();
@@ -186,7 +164,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToTrackingLocation(Supplier<LevelLocation> supplier, IMessage<?> message)
+    public void sendToTrackingLocation(Supplier<LevelLocation> supplier, Object message)
     {
         this.sendToTrackingChunk(() -> {
             LevelLocation location = supplier.get();
@@ -198,7 +176,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToTrackingChunk(Supplier<LevelChunk> supplier, IMessage<?> message)
+    public void sendToTrackingChunk(Supplier<LevelChunk> supplier, Object message)
     {
         LevelChunk chunk = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
@@ -207,7 +185,7 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, IMessage<?> message)
+    public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, Object message)
     {
         LevelLocation location = supplier.get();
         Level level = location.level();
@@ -218,14 +196,14 @@ public class FabricNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToServer(IMessage<?> message)
+    public void sendToServer(Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
         ClientPlayNetworking.send(this.id, buf);
     }
 
     @Override
-    public void sendToAll(IMessage<?> message)
+    public void sendToAll(Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
         Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
@@ -238,44 +216,21 @@ public class FabricNetwork implements FrameworkNetwork
         return connection.isConnected() && this.active;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FriendlyByteBuf encode(IMessage<?> message)
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    FriendlyByteBuf encode(Object message)
     {
-        FabricMessage fabricMessage = this.classToPlayMessage.get(message.getClass());
-        Preconditions.checkNotNull(fabricMessage);
+        FrameworkMessage msg = this.classToMessage.get(message.getClass());
+        Preconditions.checkNotNull(msg);
         FriendlyByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(fabricMessage.getIndex());
-        fabricMessage.encode(message, buf);
+        msg.encoder().accept(message, buf);
         return buf;
     }
 
-    private static <T extends FabricMessage<?>> Map<Class<?>, T> createClassMap(Collection<T> c)
+    private static <T extends FrameworkMessage<?>> Map<Class<?>, T> createClassMap(Collection<T> a, Collection<T> b)
     {
         Object2ObjectMap<Class<?>, T> map = new Object2ObjectArrayMap<>();
-        c.forEach(msg -> map.put(msg.getMessageClass(), msg));
+        a.forEach(msg -> map.put(msg.messageClass(), msg));
+        b.forEach(msg -> map.put(msg.messageClass(), msg));
         return Collections.unmodifiableMap(map);
-    }
-
-    private static <T extends FabricMessage<?>> Map<Integer, T> createIndexMap(Collection<T> c)
-    {
-        Int2ObjectMap<T> map = new Int2ObjectArrayMap<>();
-        c.forEach(msg -> map.put(msg.getIndex(), msg));
-        return Collections.unmodifiableMap(map);
-    }
-
-    static boolean validateMessage(@Nullable FabricMessage<?> message, Connection connection)
-    {
-        if(message == null)
-        {
-            connection.disconnect(Component.literal("Received invalid packet, closing connection"));
-            return false;
-        }
-        MessageDirection direction = message.getDirection();
-        if(direction != null && !direction.isClient())
-        {
-            connection.disconnect(Component.literal("Received invalid packet, closing connection"));
-            return false;
-        }
-        return true;
     }
 }

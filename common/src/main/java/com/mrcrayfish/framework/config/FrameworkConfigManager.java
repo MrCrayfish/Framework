@@ -17,9 +17,9 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.config.AbstractProperty;
+import com.mrcrayfish.framework.api.config.ConfigProperty;
 import com.mrcrayfish.framework.api.config.ConfigType;
 import com.mrcrayfish.framework.api.config.FrameworkConfig;
-import com.mrcrayfish.framework.api.config.ConfigProperty;
 import com.mrcrayfish.framework.api.config.event.FrameworkConfigEvents;
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
@@ -47,7 +47,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -121,11 +120,11 @@ public class FrameworkConfigManager
 
     public boolean processConfigData(S2CConfigData message)
     {
-        Constants.LOG.info("Loading synced config from server: " + message.getKey());
-        FrameworkConfigImpl entry = this.configs.get(message.getKey());
+        Constants.LOG.info("Loading synced config from server: " + message.key());
+        FrameworkConfigImpl entry = this.configs.get(message.key());
         if(entry != null && entry.getType().isSync())
         {
-            return entry.loadFromData(message.getData());
+            return entry.loadFromData(message.data());
         }
         return false;
     }

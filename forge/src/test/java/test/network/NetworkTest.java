@@ -1,12 +1,11 @@
 package test.network;
 
+import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkForge;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
-import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,9 +17,8 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,7 +29,7 @@ import java.util.function.Consumer;
 @Mod("network_test")
 public class NetworkTest
 {
-    public static final Marker MARKER = MarkerManager.getMarker("NETWORK_TEST");
+    public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
     public static FrameworkNetwork testPlayChannel;
     public static FrameworkNetwork testConfigurationChannel;
@@ -47,14 +45,13 @@ public class NetworkTest
     {
         testPlayChannel = FrameworkAPI
             .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
-            .registerPlayMessage(TestMessage.class)
-            .ignoreClient()
-            .ignoreServer()
+            .registerPlayMessage("test", TestMessage.class, TestMessage::encode, TestMessage::decode, TestMessage::handle)
+            .optional()
             .build();
 
         testConfigurationChannel = FrameworkAPI
             .createNetworkBuilder(new ResourceLocation("network_test", "configuration"), 1)
-            .registerConfigurationMessage(TestConfiguration.class, "test", () -> List.of(new TestConfiguration()))
+            .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration::encode, TestConfiguration::decode, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
             .build();
     }
 
@@ -70,40 +67,34 @@ public class NetworkTest
         testPlayChannel.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());
     }
 
-    public static class TestMessage extends PlayMessage<TestMessage>
+    public record TestMessage()
     {
-        @Override
-        public void encode(TestMessage message, FriendlyByteBuf buffer) {}
+        public static void encode(TestMessage message, FriendlyByteBuf buffer) {}
 
-        @Override
-        public TestMessage decode(FriendlyByteBuf buffer)
+        public static TestMessage decode(FriendlyByteBuf buffer)
         {
             return new TestMessage();
         }
 
-        @Override
-        public void handle(TestMessage message, MessageContext context)
+        public static void handle(TestMessage message, MessageContext context)
         {
-            FrameworkForge.LOGGER.info(MARKER, "Received test play message on side: " + context.getDirection().name());
+            Constants.LOG.info(MARKER, "Received test play message on side: " + context.getFlow().name());
             context.setHandled(true);
         }
     }
 
-    public static class TestConfiguration extends ConfigurationMessage<TestConfiguration>
+    public record TestConfiguration()
     {
-        @Override
-        public void encode(TestConfiguration message, FriendlyByteBuf buffer) {}
+        public static void encode(TestConfiguration message, FriendlyByteBuf buffer) {}
 
-        @Override
-        public TestConfiguration decode(FriendlyByteBuf buffer)
+        public static TestConfiguration decode(FriendlyByteBuf buffer)
         {
             return new TestConfiguration();
         }
 
-        @Override
-        public FrameworkResponse handle(TestConfiguration message, Consumer<Runnable> executor)
+        public static FrameworkResponse handle(TestConfiguration message, Consumer<Runnable> executor)
         {
-            FrameworkForge.LOGGER.debug(MARKER, "Received test configuration message!");
+            Constants.LOG.debug(MARKER, "Received test configuration message!");
             return FrameworkResponse.SUCCESS;
         }
     }

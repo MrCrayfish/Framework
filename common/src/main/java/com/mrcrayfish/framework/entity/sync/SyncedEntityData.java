@@ -334,7 +334,7 @@ public final class SyncedEntityData
             List<DataEntry<?, ?>> trackingEntries = entries.stream().filter(entry -> entry.getKey().syncMode().isTracking()).collect(Collectors.toList());
             if(!trackingEntries.isEmpty())
             {
-                Network.getPlayChannel().sendToTracking(() -> entity, new S2CUpdateEntityData(entity.getId(), trackingEntries));
+                Network.getPlayChannel().sendToTrackingEntity(() -> entity, new S2CUpdateEntityData(entity.getId(), trackingEntries));
             }
             holder.clean();
         }
@@ -376,5 +376,15 @@ public final class SyncedEntityData
         }
 
         return missingKeys.isEmpty();
+    }
+
+    public List<S2CSyncedEntityData> getConfigurationMessages()
+    {
+        Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> map = new HashMap<>();
+        this.getKeys().forEach(key -> {
+            int id = this.getInternalId(key);
+            map.computeIfAbsent(key.classKey().id(), c -> new ArrayList<>()).add(Pair.of(key.id(), id));
+        });
+        return List.of(new S2CSyncedEntityData(map));
     }
 }

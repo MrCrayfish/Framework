@@ -25,11 +25,11 @@ public final class ClientPlayHandler
         if(level == null)
             return;
 
-        Entity entity = level.getEntity(message.getEntityId());
+        Entity entity = level.getEntity(message.entityId());
         if(entity == null)
             return;
 
-        List<DataEntry<?, ?>> entries = message.getEntries();
+        List<DataEntry<?, ?>> entries = message.entries();
         entries.forEach(entry -> SyncedEntityData.instance().updateClientEntry(entity, entry));
     }
 
@@ -43,7 +43,7 @@ public final class ClientPlayHandler
 
         if(!FrameworkConfigManager.getInstance().processSyncData(message))
         {
-            context.getNetworkManager().disconnect(Component.translatable("framework.multiplayer.disconnect.process_config"));
+            context.disconnect(Component.translatable("framework.multiplayer.disconnect.process_config"));
         }
     }
 }

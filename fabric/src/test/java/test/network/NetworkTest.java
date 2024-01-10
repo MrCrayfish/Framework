@@ -5,8 +5,6 @@ import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
-import com.mrcrayfish.framework.api.network.message.PlayMessage;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,21 +22,20 @@ public class NetworkTest implements ModInitializer
     public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
     public static FrameworkNetwork testPlayChannel;
-    public static FrameworkNetwork testHandshakeChannel;
+    public static FrameworkNetwork testConfigurationChannel;
 
     @Override
     public void onInitialize()
     {
         testPlayChannel = FrameworkAPI
                 .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
-                .registerPlayMessage(TestMessage.class)
-                .ignoreClient()
-                .ignoreServer()
+                .registerPlayMessage("test", TestMessage.class, TestMessage::encode, TestMessage::decode, TestMessage::handle)
+                .optional()
                 .build();
 
-        testHandshakeChannel = FrameworkAPI
-                .createNetworkBuilder(new ResourceLocation("network_test", "handshake"), 1)
-                .registerConfigurationMessage(TestHandshake.class, "test", () -> List.of(new TestHandshake()))
+        testConfigurationChannel = FrameworkAPI
+                .createNetworkBuilder(new ResourceLocation("network_test", "configuration"), 1)
+                .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration::encode, TestConfiguration::decode, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
                 .build();
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
@@ -49,40 +46,34 @@ public class NetworkTest implements ModInitializer
         });
     }
 
-    public static class TestMessage extends PlayMessage<TestMessage>
+    public record TestMessage()
     {
-        @Override
-        public void encode(TestMessage message, FriendlyByteBuf buffer) {}
+        public static void encode(TestMessage message, FriendlyByteBuf buffer) {}
 
-        @Override
-        public TestMessage decode(FriendlyByteBuf buffer)
+        public static TestMessage decode(FriendlyByteBuf buffer)
         {
             return new TestMessage();
         }
 
-        @Override
-        public void handle(TestMessage message, MessageContext context)
+        public static void handle(TestMessage message, MessageContext context)
         {
-            Constants.LOG.info(MARKER, "Received test play message on side: " + context.getNetworkManager().getReceiving().name());
+            Constants.LOG.info(MARKER, "Received test play message on flow: " + context.getFlow());
             context.setHandled(true);
         }
     }
 
-    public static class TestHandshake extends ConfigurationMessage<TestHandshake>
+    public record TestConfiguration()
     {
-        @Override
-        public void encode(TestHandshake message, FriendlyByteBuf buffer) {}
+        public static void encode(TestConfiguration message, FriendlyByteBuf buffer) {}
 
-        @Override
-        public TestHandshake decode(FriendlyByteBuf buffer)
+        public static TestConfiguration decode(FriendlyByteBuf buffer)
         {
-            return new TestHandshake();
+            return new TestConfiguration();
         }
 
-        @Override
-        public FrameworkResponse handle(TestHandshake message, Consumer<Runnable> executor)
+        public static FrameworkResponse handle(TestConfiguration message, Consumer<Runnable> executor)
         {
-            Constants.LOG.debug(MARKER, "Received test handshake message!");
+            Constants.LOG.debug(MARKER, "Received test configuration message!");
             return FrameworkResponse.success();
         }
     }

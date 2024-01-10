@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": { "model": "open_model_test:block/open_model_with_data" }
+    }
+}

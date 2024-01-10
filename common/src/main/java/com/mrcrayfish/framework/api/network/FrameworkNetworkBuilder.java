@@ -1,10 +1,14 @@
 package com.mrcrayfish.framework.api.network;
 
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
-import com.mrcrayfish.framework.api.network.message.PlayMessage;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -12,17 +16,13 @@ import java.util.function.Supplier;
  */
 public interface FrameworkNetworkBuilder
 {
-    // TODO in future, change messages to use records and use static encode/decode methods to align better with forge/fabric networking
+    <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler);
 
-    <T extends PlayMessage<T>> FrameworkNetworkBuilder registerPlayMessage(Class<T> messageClass);
+    <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow);
 
-    <T extends PlayMessage<T>> FrameworkNetworkBuilder registerPlayMessage(Class<T> messageClass, @Nullable MessageDirection direction);
+    <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages);
 
-    <T extends ConfigurationMessage<T>> FrameworkNetworkBuilder registerConfigurationMessage(Class<T> taskClass, String name, Supplier<List<T>> messages);
-
-    FrameworkNetworkBuilder ignoreClient();
-
-    FrameworkNetworkBuilder ignoreServer();
+    FrameworkNetworkBuilder optional();
 
     FrameworkNetwork build();
 }

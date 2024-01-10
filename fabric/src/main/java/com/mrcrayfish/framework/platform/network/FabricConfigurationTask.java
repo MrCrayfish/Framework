@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.network.ConfigurationTask;
@@ -14,17 +14,17 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class FabricConfigurationTask <T extends ConfigurationMessage<T>> implements ConfigurationTask
+public class FabricConfigurationTask<T> implements ConfigurationTask
 {
     private final FabricNetwork network;
-    private final ServerConfigurationPacketListenerImpl handler;
+    private final ServerConfigurationPacketListenerImpl listener;
     private final Type type;
     private final Supplier<List<T>> messages;
 
-    public FabricConfigurationTask(FabricNetwork network, ServerConfigurationPacketListenerImpl handler, Type type, Supplier<List<T>> messages)
+    public FabricConfigurationTask(FabricNetwork network, ServerConfigurationPacketListenerImpl listener, Type type, Supplier<List<T>> messages)
     {
         this.network = network;
-        this.handler = handler;
+        this.listener = listener;
         this.type = type;
         this.messages = messages;
     }
@@ -32,11 +32,11 @@ public class FabricConfigurationTask <T extends ConfigurationMessage<T>> impleme
     @Override
     public void start(Consumer<Packet<?>> consumer)
     {
-        Constants.LOG.debug(ConfigurationMessage.CONFIGURATION_MARKER, "Sending configuration task '%s'".formatted(this.type.id()));
+        Constants.LOG.debug(ConfigurationMessage.MARKER, "Sending configuration task '%s'".formatted(this.type.id()));
         this.messages.get().forEach(msg -> {
             consumer.accept(ServerPlayNetworking.createS2CPacket(this.network.id, this.network.encode(msg)));
         });
-        this.handler.completeTask(this.type);
+        this.listener.completeTask(this.type);
     }
 
     @Override

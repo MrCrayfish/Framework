@@ -1,9 +1,10 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.network.MessageContext;
-import com.mrcrayfish.framework.network.message.IMessage;
+import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
@@ -16,28 +17,19 @@ import javax.annotation.Nullable;
  */
 public class FabricServerNetworkHandler
 {
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    static void receivePlay(FabricNetwork network, MinecraftServer server, @Nullable ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
+    static <T> void receivePlay(FrameworkMessage<T> message, FabricNetwork network, MinecraftServer server, @Nullable ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
     {
-        int index = buf.readInt();
-        FabricMessage message = network.indexToPlayMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, handler.connection))
-            return;
-
-        IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        message.handle(msg, new FabricMessageContext(server, handler.connection, player, message.getDirection()));
+        T msg = message.decoder().apply(buf);
+        MessageContext context = new FabricMessageContext(server, handler.connection, player, PacketFlow.SERVERBOUND);
+        message.handler().accept(msg, context);
+        context.getReply().ifPresent(reply -> sender.sendPacket(message.id(), network.encode(reply)));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static void receiveConfiguration(FabricNetwork network, MinecraftServer server, ServerConfigurationPacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
+    static <T> void receiveConfiguration(FrameworkMessage<T> message, FabricNetwork network, MinecraftServer server, ServerConfigurationPacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
     {
-        int index = buf.readInt();
-        FabricMessage message = network.indexToPlayMessage.get(index);
-        if(!FabricNetwork.validateMessage(message, handler.connection))
-            return;
-
-        IMessage<?> msg = (IMessage<?>) message.decode(buf);
-        MessageContext context = new FabricMessageContext(server, handler.connection, null, message.getDirection());
-        message.handle(msg, context);
+        T msg = message.decoder().apply(buf);
+        MessageContext context = new FabricMessageContext(server, handler.connection, null, PacketFlow.SERVERBOUND);
+        message.handler().accept(msg, context);
+        context.getReply().ifPresent(reply -> sender.sendPacket(message.id(), network.encode(reply)));
     }
 }

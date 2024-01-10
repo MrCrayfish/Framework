@@ -1,10 +1,12 @@
 package com.mrcrayfish.framework.api.network;
 
-import com.mrcrayfish.framework.network.message.IMessage;
 import net.minecraft.network.Connection;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -12,43 +14,40 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class MessageContext
 {
-    private final MessageDirection direction;
-    private IMessage<?> reply;
-    private ServerPlayer player;
+    private final PacketFlow flow;
+    private final @Nullable Player player;
+    private Object reply;
 
-    public MessageContext(MessageDirection direction, ServerPlayer player)
+    public MessageContext(PacketFlow flow, @Nullable Player player)
     {
-        this.direction = direction;
+        this.flow = flow;
         this.player = player;
     }
 
     @Nullable
-    public MessageDirection getDirection()
+    public PacketFlow getFlow()
     {
-        return this.direction;
+        return this.flow;
     }
 
-    public void reply(IMessage<?> reply)
+    public void reply(Object reply)
     {
         this.reply = reply;
     }
 
-    @Nullable
-    @SuppressWarnings("rawtypes")
-    public IMessage getReply()
+    public Optional<Object> getReply()
     {
-        return this.reply;
+        return Optional.ofNullable(this.reply);
     }
 
-    @Nullable
-    public ServerPlayer getPlayer()
+    public Optional<Player> getPlayer()
     {
-        return this.player;
+        return Optional.ofNullable(this.player);
     }
 
     public abstract void setHandled(boolean handled);
 
-    public abstract CompletableFuture<Void> execute(Runnable runnable);
+    public abstract void execute(Runnable runnable);
 
-    public abstract Connection getNetworkManager();
+    public abstract void disconnect(Component reason);
 }

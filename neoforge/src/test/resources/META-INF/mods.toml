@@ -1,0 +1,101 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId="synced_entity_data_test"
+version="0.1.0"
+displayName="Synced Player Data Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="network_test"
+version="0.1.0"
+displayName="Newtwork Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="login_data_test"
+version="0.1.0"
+displayName="Newtwork Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="open_model_test"
+version="0.1.0"
+displayName="Open Model Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="open_model_data_test"
+version="0.1.0"
+displayName="Open Model Data Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="data_loader_test"
+version="0.1.0"
+displayName="Data Loader Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="registry_test"
+version="0.1.0"
+displayName="Registry Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
+modId="menu_data_test"
+version="0.1.0"
+displayName="Menu Data Test"
+authors="MrCrayfish"
+description=""
+
+[[dependencies.synced_entity_data_test]]
+modId="framework"
+type="required"
+versionRange="[0.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.network_test]]
+modId="framework"
+type="required"
+versionRange="[0.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.login_data_test]]
+modId="framework"
+type="required"
+versionRange="[0.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.open_model_test]]
+modId="framework"
+type="required"
+versionRange="[0.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.open_model_data_test]]
+modId="framework"
+type="required"
+versionRange="[0.2.4,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.data_loader_test]]
+modId="framework"
+type="required"
+versionRange="[0.2.4,)"
+ordering="NONE"
+side="BOTH"

@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.api.network.message.ConfigurationMessage;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraftforge.network.SimpleChannel;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class ForgeConfigurationTask <T extends ConfigurationMessage<T>> implements ConfigurationTask
+public class ForgeConfigurationTask <T> implements ConfigurationTask
 {
     private final SimpleChannel channel;
     private final Type type;
@@ -30,7 +30,7 @@ public class ForgeConfigurationTask <T extends ConfigurationMessage<T>> implemen
     @Override
     public void start(ConfigurationTaskContext context)
     {
-        Constants.LOG.debug(ConfigurationMessage.CONFIGURATION_MARKER, "Sending configuration task '%s'".formatted(this.type.id()));
+        Constants.LOG.debug(ConfigurationMessage.MARKER, "Sending configuration task '%s'".formatted(this.type.id()));
         this.messages.get().forEach(msg -> this.channel.send(msg, context.getConnection()));
         context.finish(this.type);
     }

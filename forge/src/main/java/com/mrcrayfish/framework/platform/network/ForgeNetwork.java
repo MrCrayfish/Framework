@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
-import com.mrcrayfish.framework.network.message.IMessage;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +24,7 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public class ForgeNetwork implements FrameworkNetwork
+public final class ForgeNetwork implements FrameworkNetwork
 {
     private final SimpleChannel channel;
 
@@ -41,32 +40,25 @@ public class ForgeNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void send(Connection connection, IMessage<?> message)
+    public void send(Connection connection, Object message)
     {
         this.channel.send(message, connection);
     }
 
     @Override
-    public void sendToPlayer(Supplier<ServerPlayer> supplier, IMessage<?> message)
+    public void sendToPlayer(Supplier<ServerPlayer> supplier, Object message)
     {
         this.channel.send(message, PacketDistributor.PLAYER.with(supplier.get()));
     }
 
     @Override
-    @Deprecated
-    public void sendToTracking(Supplier<Entity> supplier, IMessage<?> message)
-    {
-        this.sendToTrackingEntity(supplier, message);
-    }
-
-    @Override
-    public void sendToTrackingEntity(Supplier<Entity> supplier, IMessage<?> message)
+    public void sendToTrackingEntity(Supplier<Entity> supplier, Object message)
     {
         this.channel.send(message, PacketDistributor.TRACKING_ENTITY.with(supplier.get()));
     }
 
     @Override
-    public void sendToTrackingBlockEntity(Supplier<BlockEntity> supplier, IMessage<?> message)
+    public void sendToTrackingBlockEntity(Supplier<BlockEntity> supplier, Object message)
     {
         this.sendToTrackingChunk(() -> {
             BlockEntity entity = supplier.get();
@@ -75,7 +67,7 @@ public class ForgeNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToTrackingLocation(Supplier<LevelLocation> supplier, IMessage<?> message)
+    public void sendToTrackingLocation(Supplier<LevelLocation> supplier, Object message)
     {
         this.sendToTrackingChunk(() -> {
             LevelLocation location = supplier.get();
@@ -87,13 +79,13 @@ public class ForgeNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToTrackingChunk(Supplier<LevelChunk> supplier, IMessage<?> message)
+    public void sendToTrackingChunk(Supplier<LevelChunk> supplier, Object message)
     {
         this.channel.send(message, PacketDistributor.TRACKING_CHUNK.with(supplier.get()));
     }
 
     @Override
-    public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, IMessage<?> message)
+    public void sendToNearbyPlayers(Supplier<LevelLocation> supplier, Object message)
     {
         LevelLocation location = supplier.get();
         Vec3 pos = location.pos();
@@ -102,13 +94,13 @@ public class ForgeNetwork implements FrameworkNetwork
     }
 
     @Override
-    public void sendToServer(IMessage<?> message)
+    public void sendToServer(Object message)
     {
         this.channel.send(message, PacketDistributor.SERVER.noArg());
     }
 
     @Override
-    public void sendToAll(IMessage<?> message)
+    public void sendToAll(Object message)
     {
         this.channel.send(message, PacketDistributor.ALL.noArg());
     }
