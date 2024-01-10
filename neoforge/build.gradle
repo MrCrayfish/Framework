@@ -135,8 +135,8 @@ tasks.register('signJar', PotentiallySignJar) {
     keyStore = findProperty('keyStore') ?: System.getenv("KEYSTORE")
     alias = findProperty('keyStoreAlias') ?: System.getenv("KEYSTORE_ALIAS")
     storePass = findProperty('keyStorePass') ?: System.getenv("KEYSTORE_PASS")
-    input = jar.archiveFile
+    input = output = jar.archiveFile
+    input
 }
 
 jar.finalizedBy 'signJar'
-signJar.mustRunAfter 'reobfJar'
