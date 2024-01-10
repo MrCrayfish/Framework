@@ -94,6 +94,11 @@ subprojects {
     tasks.withType(Jar).configureEach {
         duplicatesStrategy DuplicatesStrategy.INHERIT
     }
+
+    // Mutes javadoc warnings
+    tasks.withType(Javadoc).configureEach {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 }
 
 task incrementBuild {
