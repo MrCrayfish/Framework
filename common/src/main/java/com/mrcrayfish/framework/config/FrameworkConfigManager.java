@@ -376,6 +376,22 @@ public class FrameworkConfigManager
 
         private boolean isCorrect(UnmodifiableConfig config)
         {
+            // Check if comments are correct
+            if(config instanceof CommentedConfig c)
+            {
+                for(AbstractProperty<?> prop : this.allProperties)
+                {
+                    String propComment = prop.getComment();
+                    if(!propComment.isBlank())
+                    {
+                        String configComment = c.getComment(prop.getPath());
+                        if(!propComment.equals(configComment))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
             if(config instanceof Config)
             {
                 return this.spec.isCorrect((Config) config);
@@ -599,26 +615,21 @@ public class FrameworkConfigManager
         private void scan(Stack<String> stack, Object instance)
         {
             Field[] fields = instance.getClass().getDeclaredFields();
-            Stream.of(fields).forEach(field -> Optional.ofNullable(field.getDeclaredAnnotation(ConfigProperty.class)).ifPresent(sp ->
+            Stream.of(fields).forEach(field -> Optional.ofNullable(field.getDeclaredAnnotation(ConfigProperty.class)).ifPresent(prop ->
             {
-                stack.push(sp.name());
+                stack.push(prop.name());
                 try
                 {
                     field.setAccessible(true);
 
-                    // Read comment
-                    if(!sp.comment().isEmpty())
-                    {
-                        this.comments.put(new ArrayList<>(stack), sp.comment());
-                    }
-
-                    // Read config property or object
+                    // Retrieve the field object
                     Object obj = field.get(instance);
+                    String comment = this.pushComment(stack, prop, obj);
                     if(obj instanceof AbstractProperty<?> property)
                     {
                         List<String> path = new ArrayList<>(stack);
                         String key = String.format("framework_config.%s.%s.%s", this.config.id(), this.config.name(), StringUtils.join(path, '.'));
-                        property.initProperty(new PropertyData(sp.name(), path, key, sp.comment(), sp.worldRestart(), sp.gameRestart()));
+                        property.initProperty(new PropertyData(prop.name(), path, key, comment, prop.worldRestart(), prop.gameRestart()));
                         this.properties.add(property);
                     }
                     else
@@ -632,6 +643,26 @@ public class FrameworkConfigManager
                 }
                 stack.pop();
             }));
+        }
+
+        private String pushComment(Stack<String> stack, ConfigProperty prop, Object obj)
+        {
+            if(!prop.comment().isBlank())
+            {
+                String comment = prop.comment();
+                if(obj instanceof AbstractProperty<?> property)
+                {
+                    String hint = property.getAllowedValuesString();
+                    if(!hint.isBlank())
+                    {
+                        comment = comment + "\n" + hint;
+                    }
+                }
+                comment = " " + comment.replace("\n", "\n ");
+                this.comments.put(new ArrayList<>(stack), comment);
+                return comment;
+            }
+            return "";
         }
     }
 

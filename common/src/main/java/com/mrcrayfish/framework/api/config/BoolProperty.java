@@ -26,6 +26,12 @@ public final class BoolProperty extends AbstractProperty<Boolean>
         return value != null;
     }
 
+    @Override
+    public String getAllowedValuesString()
+    {
+        return "Valid values: true, false";
+    }
+
     /**
      * Creates a BoolProperty with the given default value
      *

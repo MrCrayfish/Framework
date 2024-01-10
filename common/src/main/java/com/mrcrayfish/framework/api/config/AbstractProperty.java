@@ -238,4 +238,20 @@ public abstract sealed class AbstractProperty<T> implements FrameworkConfigManag
             this.data = data;
         }
     }
+
+    /**
+     * @return A hint to add into the config comments to explain a valid value/range
+     */
+    public String getAllowedValuesString()
+    {
+        if(this.validator != null)
+        {
+            String hint = this.validator.getCommentHint();
+            if(!hint.isBlank())
+            {
+                return hint;
+            }
+        }
+        return "";
+    }
 }
