@@ -177,7 +177,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
         return new RegistryEntry<>(BuiltInRegistries.POTION, id, supplier);
     }
 
-    public static <T extends Recipe<?>> RegistryEntry<RecipeType<?>> recipeType(ResourceLocation id)
+    public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(ResourceLocation id)
     {
         return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<T>() {
             @Override
