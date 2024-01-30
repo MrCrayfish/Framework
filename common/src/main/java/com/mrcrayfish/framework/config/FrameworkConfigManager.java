@@ -135,7 +135,7 @@ public class FrameworkConfigManager
         if(connection != null && !connection.isMemoryConnection()) // Run only if disconnected from remote server
         {
             Constants.LOG.info("Unloading synced configs from server");
-            this.configs.values().stream().filter(entry -> entry.getType().isSync()).forEach(entry -> entry.unload(true));
+            this.configs.values().stream().filter(entry -> entry.getType().isSync()).forEach(entry -> entry.unload(true, true));
         }
     }
 
@@ -226,7 +226,7 @@ public class FrameworkConfigManager
     private void onServerStopped(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
-        this.configs.values().stream().filter(entry -> entry.configType.isServer()).forEach(entry -> entry.unload(true));
+        this.configs.values().forEach(entry -> entry.unload(true, false));
     }
 
     public static final class FrameworkConfigImpl
@@ -295,12 +295,15 @@ public class FrameworkConfigManager
             this.correct(config);
             this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
             this.config = config;
-            ConfigHelper.watchConfig(config, this::changeCallback);
+            if(!this.readOnly && this.configType != ConfigType.MEMORY)
+            {
+                ConfigHelper.watchConfig(config, this::changeCallback);
+            }
         }
 
         private boolean loadFromData(byte[] data)
         {
-            this.unload(false);
+            this.unload(false, true);
             try
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
@@ -322,7 +325,7 @@ public class FrameworkConfigManager
             catch(Exception e)
             {
                 Constants.LOG.info("An exception occurred when loading config data: {}", e.toString());
-                this.unload(false);
+                this.unload(false, true);
                 return false;
             }
         }
@@ -337,12 +340,15 @@ public class FrameworkConfigManager
             return createFrameworkConfig(configDir, this.id, this.separator, this.name);
         }
 
-        private void unload(boolean sendEvent)
+        private void unload(boolean sendEvent, boolean fromServer)
         {
             if(this.config != null)
             {
                 this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
-                ConfigHelper.closeConfig(this.config);
+                if(!this.readOnly && this.configType != ConfigType.MEMORY && (!this.configType.isSync() || !fromServer))
+                {
+                    ConfigHelper.unwatchConfig(this.config);
+                }
                 this.config = null;
                 if(sendEvent)
                 {
@@ -705,7 +711,7 @@ public class FrameworkConfigManager
         corrector.accept(temp);
         CommentedConfig config = CommentedConfig.inMemory();
         config.putAll(temp);
-        ConfigHelper.closeConfig(temp);
+        temp.close();
         return config.unmodifiable();
     }
 
