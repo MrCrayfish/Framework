@@ -135,8 +135,7 @@ tasks.register('signJar', PotentiallySignJar) {
     keyStore = findProperty('keyStore') ?: System.getenv("KEYSTORE")
     alias = findProperty('keyStoreAlias') ?: System.getenv("KEYSTORE_ALIAS")
     storePass = findProperty('keyStorePass') ?: System.getenv("KEYSTORE_PASS")
-    input = output = jar.archiveFile
-    input
+    input = jar.archiveFile
 }
 
 jar.finalizedBy 'signJar'
