@@ -4,29 +4,26 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.toml.TomlFormat;
+import com.mrcrayfish.framework.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Author: MrCrayfish
  */
 public class ConfigHelper
 {
-    private static final Set<Path> WATCHED_PATHS = new HashSet<>();
-
     public static void createBackup(UnmodifiableConfig config)
     {
         if(config instanceof FileConfig fileConfig)
         {
+            Path configPath = fileConfig.getNioPath();
             try
             {
-                Path configPath = fileConfig.getNioPath();
                 // The length check prevents backing up on initial creation of the config file
                 // It also doesn't really make sense to back up an empty file
                 if(Files.exists(configPath) && fileConfig.getFile().length() > 0)
@@ -37,22 +34,25 @@ public class ConfigHelper
             }
             catch(IOException e)
             {
+                Constants.LOG.debug("Failed to backup config: " + configPath);
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public static void closeConfig(UnmodifiableConfig config)
+    public static void unwatchConfig(UnmodifiableConfig config)
     {
         if(config instanceof FileConfig fileConfig)
         {
             Path path = fileConfig.getNioPath();
-            if(WATCHED_PATHS.contains(path))
+            try
             {
                 FileWatcher.defaultInstance().removeWatch(path);
-                WATCHED_PATHS.remove(path);
             }
-            fileConfig.close();
+            catch(RuntimeException e)
+            {
+                Constants.LOG.debug("Failed to unwatch config: " + path, e);
+            }
         }
     }
 
@@ -83,14 +83,15 @@ public class ConfigHelper
     {
         if(config instanceof FileConfig fileConfig)
         {
+            Path path = fileConfig.getNioPath();
             try
             {
-                Path path = fileConfig.getNioPath();
-                WATCHED_PATHS.add(path);
                 FileWatcher.defaultInstance().setWatch(path, callback);
+                Constants.LOG.debug("Watching config: " + path);
             }
             catch(IOException e)
             {
+                Constants.LOG.debug("Failed to watch config: " + path, e);
                 throw new RuntimeException(e);
             }
         }
