@@ -317,7 +317,7 @@ public class FrameworkConfigManager
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
                 CommentedConfig commentedConfig = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data));
-                if(!this.isCorrect(commentedConfig)) // The server should be sending correct configs
+                if(!this.spec.isCorrect(commentedConfig)) // The server should be sending correct configs
                     return false;
                 this.correct(commentedConfig);
                 UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
