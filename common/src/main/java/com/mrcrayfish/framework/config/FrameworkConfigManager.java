@@ -136,7 +136,7 @@ public class FrameworkConfigManager
         if(connection != null && !connection.isMemoryConnection()) // Run only if disconnected from remote server
         {
             Constants.LOG.info("Unloading synced configs from server");
-            this.configs.values().stream().filter(entry -> entry.getType().isSync()).forEach(entry -> entry.unload(true, true));
+            this.configs.values().stream().filter(entry -> entry.getType().isSync()).forEach(entry -> entry.unload(true));
         }
     }
 
@@ -211,13 +211,13 @@ public class FrameworkConfigManager
         {
             switch(entry.configType)
             {
-                case WORLD, WORLD_SYNC -> entry.load(serverConfig);
-                case SERVER, SERVER_SYNC -> entry.load(Services.CONFIG.getConfigPath());
+                case WORLD, WORLD_SYNC -> entry.load(serverConfig, true);
+                case SERVER, SERVER_SYNC -> entry.load(Services.CONFIG.getConfigPath(), true);
                 case DEDICATED_SERVER ->
                 {
                     if(EnvironmentHelper.getEnvironment() == Environment.DEDICATED_SERVER)
                     {
-                        entry.load(Services.CONFIG.getConfigPath());
+                        entry.load(Services.CONFIG.getConfigPath(), true);
                     }
                 }
             }
@@ -227,7 +227,7 @@ public class FrameworkConfigManager
     private void onServerStopped(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
-        this.configs.values().forEach(entry -> entry.unload(true, false));
+        this.configs.values().forEach(entry -> entry.unload(true));
     }
 
     public static final class FrameworkConfigImpl
@@ -270,11 +270,11 @@ public class FrameworkConfigManager
             {
                 if(this.configType == ConfigType.MEMORY)
                 {
-                    this.load(null);
+                    this.load(null, true);
                 }
                 else
                 {
-                    this.load(Services.CONFIG.getConfigPath());
+                    this.load(Services.CONFIG.getConfigPath(), true);
                 }
             }
         }
@@ -284,8 +284,9 @@ public class FrameworkConfigManager
          * loaded instead.
          *
          * @param configDir the path of the configuration directory
+         * @param watch
          */
-        private void load(@Nullable Path configDir)
+        public void load(@Nullable Path configDir, boolean watch)
         {
             Optional<Environment> env = this.getType().getEnv();
             if(env.isPresent() && !EnvironmentHelper.getEnvironment().equals(env.get()))
@@ -296,15 +297,15 @@ public class FrameworkConfigManager
             this.correct(config);
             this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
             this.config = config;
-            if(!this.readOnly && this.configType != ConfigType.MEMORY)
+            if(!this.readOnly && this.configType != ConfigType.MEMORY && watch)
             {
                 ConfigHelper.watchConfig(config, this::changeCallback);
             }
         }
 
-        private boolean loadFromData(byte[] data)
+        public boolean loadFromData(byte[] data)
         {
-            this.unload(false, true);
+            this.unload(false);
             try
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
@@ -326,12 +327,12 @@ public class FrameworkConfigManager
             catch(Exception e)
             {
                 Constants.LOG.info("An exception occurred when loading config data: {}", e.toString());
-                this.unload(false, true);
+                this.unload(false);
                 return false;
             }
         }
 
-        private UnmodifiableConfig createConfig(@Nullable Path configDir)
+        public UnmodifiableConfig createConfig(@Nullable Path configDir)
         {
             if(this.readOnly)
             {
@@ -341,12 +342,12 @@ public class FrameworkConfigManager
             return createFrameworkConfig(configDir, this.id, this.separator, this.name);
         }
 
-        private void unload(boolean sendEvent, boolean fromServer)
+        public void unload(boolean sendEvent)
         {
             if(this.config != null)
             {
                 this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
-                if(!this.readOnly && this.configType != ConfigType.MEMORY && (!this.configType.isSync() || !fromServer))
+                if(!this.readOnly && this.configType != ConfigType.MEMORY)
                 {
                     ConfigHelper.unwatchConfig(this.config);
                 }
@@ -380,7 +381,7 @@ public class FrameworkConfigManager
             this.preventNextChangeCallback = false;
         }
 
-        private boolean isCorrect(UnmodifiableConfig config)
+        public boolean isCorrect(UnmodifiableConfig config)
         {
             if(config instanceof Config)
             {
@@ -389,7 +390,7 @@ public class FrameworkConfigManager
             return true;
         }
 
-        private void correct(UnmodifiableConfig config)
+        public void correct(UnmodifiableConfig config)
         {
             if(config instanceof Config && !this.isCorrect(config))
             {
@@ -399,6 +400,64 @@ public class FrameworkConfigManager
                     c.putAllComments(this.comments);
                 ConfigHelper.saveConfig(config);
             }
+        }
+
+        /**
+         * @return True if the config is different from its default
+         */
+        public boolean isChanged()
+        {
+            // Block unloaded world configs since the path is dynamic
+            if((this.configType == ConfigType.WORLD || this.configType == ConfigType.WORLD_SYNC) && this.config == null)
+                return false;
+
+            // An unloaded memory config is never going to be changed
+            if(this.getType() == ConfigType.MEMORY && this.config == null)
+                return false;
+
+            // Test and return immediately if config already loaded
+            if(this.config != null)
+                return this.allProperties.stream().anyMatch(property -> !property.isDefault());
+
+            // Temporarily load config to test for changes. Unloads immediately after test.
+            CommentedFileConfig tempConfig = createTempConfig(Services.CONFIG.getConfigPath(), this.id, this.separator, this.name);
+            ConfigHelper.loadConfig(tempConfig);
+            this.correct(tempConfig);
+            tempConfig.putAllComments(this.comments);
+            this.allProperties.forEach(p -> p.updateProxy(new FrameworkConfigManager.ValueProxy(tempConfig, p.getPath(), this.readOnly)));
+            boolean changed = this.allProperties.stream().anyMatch(property -> !property.isDefault());
+            this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
+            tempConfig.close();
+            return changed;
+        }
+
+        /**
+         * Restores the entire config to its default values
+         */
+        public void restoreDefaults()
+        {
+            // Don't restore default if read only
+            if(this.readOnly)
+                return;
+
+            // Block unloaded world configs since the path is dynamic
+            if((this.configType == ConfigType.WORLD || this.configType == ConfigType.WORLD_SYNC) && this.config == null)
+                return;
+
+            // Restore properties immediately if config already loaded
+            if(this.config != null) {
+                this.allProperties.forEach(AbstractProperty::restoreDefault);
+                return;
+            }
+
+            // Temporarily loads the config, restores the defaults then saves and closes.
+            CommentedFileConfig tempConfig = createTempConfig(Services.CONFIG.getConfigPath(), this.id, this.separator, this.name);
+            ConfigHelper.loadConfig(tempConfig);
+            this.correct(tempConfig);
+            tempConfig.putAllComments(this.comments);
+            this.allProperties.forEach(property -> tempConfig.set(property.getPath(), property.getDefaultValue()));
+            ConfigHelper.saveConfig(tempConfig);
+            tempConfig.close();
         }
 
         public ResourceLocation getName()
@@ -451,6 +510,16 @@ public class FrameworkConfigManager
         public ConfigSpec getSpec()
         {
             return this.spec;
+        }
+
+        public CommentedConfig getComments()
+        {
+            return this.comments;
+        }
+
+        public char getSeparator()
+        {
+            return this.separator;
         }
     }
 
