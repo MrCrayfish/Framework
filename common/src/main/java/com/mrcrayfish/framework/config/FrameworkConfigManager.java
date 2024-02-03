@@ -227,7 +227,14 @@ public class FrameworkConfigManager
     private void onServerStopped(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
-        this.configs.values().forEach(entry -> entry.unload(true));
+        this.configs.values().stream().filter(config -> {
+            // Unload all on dedicated server
+            if(server.isDedicatedServer()) {
+                return true;
+            }
+            // Only unload server configs since were on client
+            return config.getType().isServer();
+        }).forEach(entry -> entry.unload(true));
     }
 
     public static final class FrameworkConfigImpl
