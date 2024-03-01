@@ -34,11 +34,13 @@ import org.slf4j.MarkerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -73,8 +75,8 @@ public final class SyncedEntityData
     private final Set<SyncedClassKey<?>> registeredClassKeys = new HashSet<>();
     private final Object2ObjectMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectMap<String, SyncedClassKey<?>> classNameToClassKey = new Object2ObjectOpenHashMap<>();
-    private final Object2BooleanMap<String> clientClassNameCapabilityCache = new Object2BooleanOpenHashMap<>();
-    private final Object2BooleanMap<String> serverClassNameCapabilityCache = new Object2BooleanOpenHashMap<>();
+    private final Map<String, Boolean> clientClassNameCapabilityCache = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> serverClassNameCapabilityCache = new ConcurrentHashMap<>();
 
     private final Set<SyncedDataKey<?, ?>> registeredDataKeys = new HashSet<>();
     private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
@@ -245,7 +247,7 @@ public final class SyncedEntityData
      * Gets the class name capability cache for the effective side. This is needed to avoid
      * concurrency issue due to client and server threads; fast util does not support concurrent maps.
      */
-    private Object2BooleanMap<String> getClassNameCapabilityCache(boolean client)
+    private Map<String, Boolean> getClassNameCapabilityCache(boolean client)
     {
         return client ? this.clientClassNameCapabilityCache : this.serverClassNameCapabilityCache;
     }
