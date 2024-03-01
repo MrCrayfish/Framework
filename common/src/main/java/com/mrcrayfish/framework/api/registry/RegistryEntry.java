@@ -20,6 +20,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -176,9 +177,14 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
         return new RegistryEntry<>(BuiltInRegistries.POTION, id, supplier);
     }
 
-    public static <T extends RecipeType<?>> RegistryEntry<T> recipeType(ResourceLocation id, Supplier<T> supplier)
+    public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(ResourceLocation id)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, supplier);
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<>() {
+            @Override
+            public String toString() {
+                return id.getPath();
+            }
+        });
     }
 
     public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(ResourceLocation id, Supplier<T> supplier)
