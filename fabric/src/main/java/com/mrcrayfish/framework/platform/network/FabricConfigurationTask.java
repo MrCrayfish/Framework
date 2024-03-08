@@ -39,6 +39,7 @@ public class FabricConfigurationTask<T> implements ConfigurationTask
         this.messages.get().forEach(msg -> {
             consumer.accept(ServerPlayNetworking.createS2CPacket(this.network.id(msg), this.network.encode(msg)));
         });
+        // TODO look into adding option to allow configuration message to accept a response instead of completed after send
         this.listener.completeTask(this.type);
     }
 
