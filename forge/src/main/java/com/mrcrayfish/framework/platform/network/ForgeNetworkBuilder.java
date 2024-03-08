@@ -97,7 +97,8 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
                 context.setHandled(true);
                 channel.reply(new Acknowledge(), ctx);
             }).add());
-        ConfigurationTask.Type type = new ConfigurationTask.Type(this.id.withPath(name).toString());
+        ResourceLocation taskId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        ConfigurationTask.Type type = new ConfigurationTask.Type(taskId.toString());
         this.configurationTasks.add(channel -> new ForgeConfigurationTask<>(channel, type, messages));
         return this;
     }

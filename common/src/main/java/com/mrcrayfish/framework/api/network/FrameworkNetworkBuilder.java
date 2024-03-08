@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,4 +26,9 @@ public interface FrameworkNetworkBuilder
     FrameworkNetworkBuilder optional();
 
     FrameworkNetwork build();
+
+    static ResourceLocation createMessageId(ResourceLocation id, String name)
+    {
+        return new ResourceLocation(id.getNamespace(), id.getPath() + "/" + name);
+    }
 }

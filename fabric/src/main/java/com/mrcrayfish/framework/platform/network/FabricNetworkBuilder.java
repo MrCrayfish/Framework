@@ -54,7 +54,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
-        ResourceLocation id = this.id.withPath(name);
+        ResourceLocation id = FrameworkNetworkBuilder.createMessageId(this.id, name);
         this.playMessages.add(new FrameworkMessage<>(id, messageClass, encoder, decoder, handler, flow));
         return this;
     }
@@ -63,10 +63,10 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
     {
         this.registerConfigurationAckMessage();
-        ResourceLocation id = this.id.withPath(name);
+        ResourceLocation id = FrameworkNetworkBuilder.createMessageId(this.id, name);
         this.configurationMessages.add(new ConfigurationMessage<>(id, taskClass, encoder, decoder, handler));
-        ConfigurationTask.Type type = new ConfigurationTask.Type(this.id.withPath(name).toString());
-        this.configurationTasks.add((network, listener) -> new FabricConfigurationTask<>(network, listener, type, messages));
+        ConfigurationTask.Type type = new ConfigurationTask.Type(id.toString());
+        this.configurationTasks.add((network, listener) -> new FabricConfigurationTask<>(id, network, listener, type, messages));
         return this;
     }
 
@@ -74,7 +74,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     {
         if(this.configurationMessages.isEmpty())
         {
-            ResourceLocation id = this.id.withPath("ack");
+            ResourceLocation id = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
             this.configurationMessages.add(new FrameworkMessage<>(id, Acknowledge.class, Acknowledge::encode, Acknowledge::decode, Acknowledge::handle, PacketFlow.SERVERBOUND));
         }
     }
@@ -82,6 +82,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public FrameworkNetwork build()
     {
+        this.registerConfigurationMessage("ping", FabricNetwork.Ping.class, FabricNetwork.Ping::encode, FabricNetwork.Ping::decode, FabricNetwork.Ping::handle, () -> List.of(new FabricNetwork.Ping()));
         return new FabricNetwork(this.id, this.version, this.playMessages, this.configurationMessages, this.configurationTasks);
     }
 }

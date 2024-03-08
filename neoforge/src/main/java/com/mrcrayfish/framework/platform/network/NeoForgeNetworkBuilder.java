@@ -60,11 +60,11 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
-        ResourceLocation id = this.id.withPath(name);
-        FrameworkMessage<T> message = new FrameworkMessage<>(id, messageClass, encoder, decoder, handler, flow);
+        ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        FrameworkMessage<T> message = new FrameworkMessage<>(messageId, messageClass, encoder, decoder, handler, flow);
         this.playMessages.add(message);
         this.playPayloads.add((network, registrar) -> {
-            registrar.play(id, message::readPayload, (payload, ctx) -> {
+            registrar.play(messageId, message::readPayload, (payload, ctx) -> {
                 MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
                 message.handler().accept(payload.msg(), context);
                 context.getReply().ifPresent(msg -> ctx.replyHandler().send(network.encode(msg)));
@@ -77,11 +77,11 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
     {
         this.registerConfigurationAckMessage();
-        ResourceLocation id = this.id.withPath(name);
-        FrameworkMessage<T> message = new ConfigurationMessage<>(id, taskClass, encoder, decoder, handler);
+        ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        FrameworkMessage<T> message = new ConfigurationMessage<>(messageId, taskClass, encoder, decoder, handler);
         this.configurationMessages.add(message);
         this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
-        ConfigurationTask.Type type = new ConfigurationTask.Type(id.toString());
+        ConfigurationTask.Type type = new ConfigurationTask.Type(messageId.toString());
         this.configurationTasks.add((network, listener) -> {
             return new NeoForgeConfigurationTask<>(network, listener, type, messages);
         });
@@ -92,8 +92,8 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         if(this.configurationMessages.isEmpty())
         {
-            ResourceLocation id = this.id.withPath("ack");
-            FrameworkMessage<Acknowledge> message = new FrameworkMessage<>(id, Acknowledge.class, Acknowledge::encode, Acknowledge::decode, Acknowledge::handle, PacketFlow.SERVERBOUND);
+            ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
+            FrameworkMessage<Acknowledge> message = new FrameworkMessage<>(messageId, Acknowledge.class, Acknowledge::encode, Acknowledge::decode, Acknowledge::handle, PacketFlow.SERVERBOUND);
             this.configurationMessages.add(message);
             this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
         }

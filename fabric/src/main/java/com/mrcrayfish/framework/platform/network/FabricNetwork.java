@@ -3,17 +3,18 @@ package com.mrcrayfish.framework.platform.network;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
+import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
+import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -21,6 +22,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -70,28 +73,53 @@ public final class FabricNetwork implements FrameworkNetwork
     private void setup()
     {
         this.playMessages.forEach(message -> {
-            EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                ClientPlayNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, sender) -> {
-                    FabricClientNetworkHandler.receivePlay(message, this, client, handler, buf, sender);
+            if(message.flow() == PacketFlow.CLIENTBOUND || message.flow() == null) {
+                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+                    ClientPlayNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, sender) -> {
+                        FabricClientNetworkHandler.receivePlay(message, this, client, handler, buf, sender);
+                    });
                 });
+            }
+            if(message.flow() == PacketFlow.SERVERBOUND || message.flow() == null) {
+                ServerPlayNetworking.registerGlobalReceiver(message.id(), (server1, player, handler, buf, responseSender) -> {
+                    FabricServerNetworkHandler.receivePlay(message, this, server1, player, handler, buf, responseSender);
+                });
+            }
+        });
+
+        // Ping lets the client know that this network is also running on the server.
+        // If no ping is received, it's most likely the mod is not installed on the server.
+        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+            ResourceLocation id = FrameworkNetworkBuilder.createMessageId(this.id, "ping");
+            ClientConfigurationNetworking.registerGlobalReceiver(id, (client, handler, buf, responseSender) -> {
+                this.active = true;
             });
-            ServerPlayNetworking.registerGlobalReceiver(message.id(), (server1, player, handler, buf, responseSender) -> {
-                FabricServerNetworkHandler.receivePlay(message, this, server1, player, handler, buf, responseSender);
+            ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+                this.active = false;
             });
         });
 
         this.configurationMessages.forEach(message -> {
-            EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                ClientConfigurationNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, responseSender) -> {
-                    FabricClientNetworkHandler.receiveConfiguration(message, this, client, handler, buf, responseSender);
+            if(message.flow() == PacketFlow.CLIENTBOUND || message.flow() == null) {
+                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+                    ClientConfigurationNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, responseSender) -> {
+                        FabricClientNetworkHandler.receiveConfiguration(message, this, client, handler, buf, responseSender);
+                    });
                 });
-            });
-            ServerConfigurationNetworking.registerGlobalReceiver(message.id(), (server1, handler, buf, responseSender) -> {
-                FabricServerNetworkHandler.receiveConfiguration(message, this, server1, handler, buf, responseSender);
-            });
-            ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
-                if(ServerConfigurationNetworking.canSend(handler, message.id())) {
-                    this.configurationTasks.forEach(function -> handler.addTask(function.apply(this, handler)));
+            }
+            if(message.flow() == PacketFlow.SERVERBOUND || message.flow() == null) {
+                ServerConfigurationNetworking.registerGlobalReceiver(message.id(), (server1, handler, buf, responseSender) -> {
+                    FabricServerNetworkHandler.receiveConfiguration(message, this, server1, handler, buf, responseSender);
+                });
+            }
+        });
+
+        // Add configuration tasks
+        ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
+            this.configurationTasks.forEach(function -> {
+                FabricConfigurationTask<?> task = (FabricConfigurationTask<?>) function.apply(this, handler);
+                if(ServerConfigurationNetworking.canSend(handler, task.id())) {
+                    handler.addTask(task);
                 }
             });
         });
@@ -103,28 +131,6 @@ public final class FabricNetwork implements FrameworkNetwork
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             this.server = null;
         });
-
-        // Track the registered channels to determine if connected
-        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-            C2SPlayChannelEvents.REGISTER.register((handler, sender, client, channels) -> {
-                this.active = channels.contains(this.id);
-            });
-            C2SPlayChannelEvents.UNREGISTER.register((handler, sender, client, channels) -> {
-                if(channels.contains(this.id)) {
-                    this.active = false;
-                }
-            });
-        });
-        EnvironmentHelper.runOn(Environment.DEDICATED_SERVER, () -> () -> {
-            S2CPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
-                this.active = channels.contains(this.id);
-            });
-            S2CPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
-                if(channels.contains(this.id)) {
-                    this.active = false;
-                }
-            });
-        });
     }
 
     @Override
@@ -133,8 +139,8 @@ public final class FabricNetwork implements FrameworkNetwork
         FriendlyByteBuf buf = this.encode(message);
         switch(connection.getSending())
         {
-            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.id, buf));
-            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.id, buf));
+            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.id(message), buf));
+            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.id(message), buf));
         }
     }
 
@@ -142,7 +148,7 @@ public final class FabricNetwork implements FrameworkNetwork
     public void sendToPlayer(Supplier<ServerPlayer> supplier, Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
-        ServerPlayNetworking.send(supplier.get(), this.id, buf);
+        ServerPlayNetworking.send(supplier.get(), this.id(message), buf);
     }
 
     @Override
@@ -150,7 +156,7 @@ public final class FabricNetwork implements FrameworkNetwork
     {
         Entity entity = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
         ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
     }
 
@@ -180,7 +186,7 @@ public final class FabricNetwork implements FrameworkNetwork
     {
         LevelChunk chunk = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
         ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
     }
 
@@ -191,7 +197,7 @@ public final class FabricNetwork implements FrameworkNetwork
         Level level = location.level();
         Vec3 pos = location.pos();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
         this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
@@ -199,21 +205,26 @@ public final class FabricNetwork implements FrameworkNetwork
     public void sendToServer(Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
-        ClientPlayNetworking.send(this.id, buf);
+        ClientPlayNetworking.send(this.id(message), buf);
     }
 
     @Override
     public void sendToAll(Object message)
     {
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
         this.server.getPlayerList().broadcastAll(packet);
     }
 
     @Override
     public boolean isActive(Connection connection)
     {
-        return connection.isConnected() && this.active;
+        return EnvironmentHelper.getEnvironment() != Environment.CLIENT || this.active;
+    }
+
+    ResourceLocation id(Object message)
+    {
+        return this.classToMessage.get(message.getClass()).id();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -232,5 +243,23 @@ public final class FabricNetwork implements FrameworkNetwork
         a.forEach(msg -> map.put(msg.messageClass(), msg));
         b.forEach(msg -> map.put(msg.messageClass(), msg));
         return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Simple message to let client know if a network is active on the server
+     */
+    record Ping()
+    {
+        public static void encode(Ping message, FriendlyByteBuf buffer) {}
+
+        public static Ping decode(FriendlyByteBuf buffer)
+        {
+            return new Ping();
+        }
+
+        public static FrameworkResponse handle(Ping message, Consumer<Runnable> executor)
+        {
+            return FrameworkResponse.success();
+        }
     }
 }
