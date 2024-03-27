@@ -34,7 +34,11 @@ public record S2CConfigData(ResourceLocation key, byte[] data)
         boolean[] failed = new boolean[1];
         CountDownLatch block = new CountDownLatch(1);
         executor.accept(() -> {
-            if(!FrameworkConfigManager.getInstance().processConfigData(message)) {
+            try {
+                if(!FrameworkConfigManager.getInstance().processConfigData(message)) {
+                    failed[0] = true;
+                }
+            } catch (Exception e) {
                 failed[0] = true;
             }
             block.countDown();
