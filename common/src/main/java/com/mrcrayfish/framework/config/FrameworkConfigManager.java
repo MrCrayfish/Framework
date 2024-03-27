@@ -29,6 +29,7 @@ import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.ConfigHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -120,6 +121,10 @@ public class FrameworkConfigManager
 
     public boolean processConfigData(S2CConfigData message)
     {
+        // If local server, accept immediately since config is already loaded
+        if(this.isLocalServer())
+            return true;
+
         Constants.LOG.info("Loading synced config from server: " + message.key());
         FrameworkConfigImpl entry = this.configs.get(message.key());
         if(entry != null && entry.getType().isSync())
@@ -127,6 +132,12 @@ public class FrameworkConfigManager
             return entry.loadFromData(message.data());
         }
         return false;
+    }
+    
+    private boolean isLocalServer()
+    {
+        // Weird looking but just ensures client classes aren't loaded a dedicated server
+        return Boolean.TRUE.equals(EnvironmentHelper.callOn(Environment.CLIENT, () -> () -> Minecraft.getInstance().isLocalServer()));
     }
 
     // Unloads all synced configs since they should no longer be accessible
