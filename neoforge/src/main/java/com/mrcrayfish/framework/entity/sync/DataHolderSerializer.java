@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.entity.sync;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.ListTag;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 /**
@@ -9,16 +12,16 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 public class DataHolderSerializer implements IAttachmentSerializer<ListTag, DataHolder>
 {
     @Override
-    public DataHolder read(ListTag list)
+    public DataHolder read(IAttachmentHolder holder, ListTag list, HolderLookup.Provider provider)
     {
-        DataHolder holder = new DataHolder();
-        holder.deserialize(list);
-        return holder;
+        DataHolder data = new DataHolder();
+        data.deserialize(list, provider);
+        return data;
     }
 
     @Override
-    public ListTag write(DataHolder holder)
+    public ListTag write(DataHolder holder, HolderLookup.Provider provider)
     {
-        return holder.serialize();
+        return holder.serialize(provider);
     }
 }

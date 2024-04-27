@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -9,18 +10,18 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class LevelLocation
 {
-    private final Level level;
+    private final ServerLevel level;
     private final Vec3 pos;
     private final double range;
 
-    private LevelLocation(Level level, Vec3 pos, double range)
+    private LevelLocation(ServerLevel level, Vec3 pos, double range)
     {
         this.level = level;
         this.pos = pos;
         this.range = range;
     }
 
-    public Level level()
+    public ServerLevel level()
     {
         return this.level;
     }
@@ -35,22 +36,22 @@ public final class LevelLocation
         return this.range;
     }
 
-    public static LevelLocation create(Level level, BlockPos pos)
+    public static LevelLocation create(ServerLevel level, BlockPos pos)
     {
         return new LevelLocation(level, pos.getCenter(), 16);
     }
 
-    public static LevelLocation create(Level level, BlockPos pos, double range)
+    public static LevelLocation create(ServerLevel level, BlockPos pos, double range)
     {
         return new LevelLocation(level, pos.getCenter(), range);
     }
 
-    public static LevelLocation create(Level level, Vec3 pos, double range)
+    public static LevelLocation create(ServerLevel level, Vec3 pos, double range)
     {
         return new LevelLocation(level, pos, range);
     }
 
-    public static LevelLocation create(Level level, double x, double y, double z, double range)
+    public static LevelLocation create(ServerLevel level, double x, double y, double z, double range)
     {
         return new LevelLocation(level, new Vec3(x, y, z), range);
     }

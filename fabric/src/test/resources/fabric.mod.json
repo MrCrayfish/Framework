@@ -6,7 +6,6 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "test.login.LoginDataTest",
             "test.network.NetworkTest",
             "test.openmodel.OpenModelTest",
             "test.openmodeldata.OpenModelDataTest",

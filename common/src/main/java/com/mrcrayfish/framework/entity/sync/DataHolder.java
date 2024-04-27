@@ -2,6 +2,8 @@ package com.mrcrayfish.framework.entity.sync;
 
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -12,6 +14,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +67,7 @@ public class DataHolder
         return this.dataMap.values().stream().filter(entry -> entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE).collect(Collectors.toList());
     }
 
-    public ListTag serialize()
+    public ListTag serialize(HolderLookup.Provider provider)
     {
         ListTag list = new ListTag();
         this.dataMap.forEach((key, entry) ->
@@ -74,14 +77,14 @@ public class DataHolder
                 CompoundTag keyTag = new CompoundTag();
                 keyTag.putString("ClassKey", key.classKey().id().toString());
                 keyTag.putString("DataKey", key.id().toString());
-                keyTag.put("Value", entry.writeValue());
+                Optional.ofNullable(entry.writeValue(provider)).ifPresent(tag -> keyTag.put("Value", tag));
                 list.add(keyTag);
             }
         });
         return list;
     }
 
-    public void deserialize(ListTag listTag)
+    public void deserialize(ListTag listTag, HolderLookup.Provider provider)
     {
         this.dataMap.clear();
         listTag.forEach(entryTag ->
@@ -104,7 +107,7 @@ public class DataHolder
                 return;
 
             DataEntry<?, ?> entry = new DataEntry<>(syncedDataKey);
-            entry.readValue(value);
+            entry.readValue(value, provider);
             this.dataMap.put(syncedDataKey, entry);
         });
     }

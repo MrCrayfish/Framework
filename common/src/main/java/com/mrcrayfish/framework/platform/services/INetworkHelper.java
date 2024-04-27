@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.platform.services;
 
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -31,5 +32,5 @@ public interface INetworkHelper
      * @param data the custom data to be sent to the client
      * @return an optional containing the window id or empty if failed to open
      */
-    OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data);
+    <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data);
 }

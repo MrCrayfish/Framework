@@ -3,9 +3,12 @@ package com.mrcrayfish.framework.network.message.play;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.entity.sync.DataEntry;
+import com.mrcrayfish.framework.network.FrameworkCodecs;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,24 +16,13 @@ import java.util.List;
  */
 public record S2CUpdateEntityData(int entityId, List<DataEntry<?, ?>> entries)
 {
-    public static void encode(S2CUpdateEntityData message, FriendlyByteBuf buffer)
-    {
-        buffer.writeVarInt(message.entityId);
-        buffer.writeVarInt(message.entries.size());
-        message.entries.forEach(entry -> entry.write(buffer));
-    }
-
-    public static S2CUpdateEntityData decode(FriendlyByteBuf buffer)
-    {
-        int entityId = buffer.readVarInt();
-        int size = buffer.readVarInt();
-        List<DataEntry<?, ?>> entries = new ArrayList<>();
-        for(int i = 0; i < size; i++)
-        {
-            entries.add(DataEntry.read(buffer));
-        }
-        return new S2CUpdateEntityData(entityId, entries);
-    }
+    public static final StreamCodec<RegistryFriendlyByteBuf, S2CUpdateEntityData> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT,
+        S2CUpdateEntityData::entityId,
+        FrameworkCodecs.DATA_ENTRIES,
+        S2CUpdateEntityData::entries,
+        S2CUpdateEntityData::new
+    );
 
     public static void handle(S2CUpdateEntityData message, MessageContext context)
     {

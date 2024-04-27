@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.api.sync;
 
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.Validate;
@@ -12,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, ResourceLocation> pairKey, ResourceLocation id, SyncedClassKey<E> classKey, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, SyncMode syncMode)
+public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, ResourceLocation> pairKey, ResourceLocation id, SyncedClassKey<E> classKey, DataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, SyncMode syncMode)
 {
     public void setValue(E entity, T value)
     {
@@ -84,7 +87,7 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
         }
     }
 
-    public static <E extends Entity, T> Builder<E, T> builder(SyncedClassKey<E> entityClass, IDataSerializer<T> serializer)
+    public static <E extends Entity, T> Builder<E, T> builder(SyncedClassKey<E> entityClass, DataSerializer<T> serializer)
     {
         return new Builder<>(entityClass, serializer);
     }
@@ -92,14 +95,14 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
     public static class Builder<E extends Entity, T>
     {
         private final SyncedClassKey<E> classKey;
-        private final IDataSerializer<T> serializer;
+        private final DataSerializer<T> serializer;
         private ResourceLocation id;
         private Supplier<T> defaultValueSupplier;
         private boolean save = false;
         private boolean persistent = true;
         private SyncMode syncMode = SyncMode.ALL;
 
-        private Builder(SyncedClassKey<E> classKey, IDataSerializer<T> serializer)
+        private Builder(SyncedClassKey<E> classKey, DataSerializer<T> serializer)
         {
             this.classKey = classKey;
             this.serializer = serializer;

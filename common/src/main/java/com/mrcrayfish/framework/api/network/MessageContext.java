@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;

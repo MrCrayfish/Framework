@@ -8,6 +8,8 @@ import com.mrcrayfish.framework.api.network.MessageContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -29,13 +31,13 @@ public class NetworkTest implements ModInitializer
     {
         testPlayChannel = FrameworkAPI
                 .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
-                .registerPlayMessage("test", TestMessage.class, TestMessage::encode, TestMessage::decode, TestMessage::handle)
+                .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle)
                 .optional()
                 .build();
 
         testConfigurationChannel = FrameworkAPI
                 .createNetworkBuilder(new ResourceLocation("network_test", "configuration"), 1)
-                .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration::encode, TestConfiguration::decode, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
+                .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
                 .build();
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
@@ -48,12 +50,8 @@ public class NetworkTest implements ModInitializer
 
     public record TestMessage()
     {
-        public static void encode(TestMessage message, FriendlyByteBuf buffer) {}
-
-        public static TestMessage decode(FriendlyByteBuf buffer)
-        {
-            return new TestMessage();
-        }
+        private static final TestMessage INSTANCE = new TestMessage();
+        public static final StreamCodec<RegistryFriendlyByteBuf, TestMessage> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         public static void handle(TestMessage message, MessageContext context)
         {
@@ -64,12 +62,8 @@ public class NetworkTest implements ModInitializer
 
     public record TestConfiguration()
     {
-        public static void encode(TestConfiguration message, FriendlyByteBuf buffer) {}
-
-        public static TestConfiguration decode(FriendlyByteBuf buffer)
-        {
-            return new TestConfiguration();
-        }
+        private static final TestConfiguration INSTANCE = new TestConfiguration();
+        public static final StreamCodec<FriendlyByteBuf, TestConfiguration> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         public static FrameworkResponse handle(TestConfiguration message, Consumer<Runnable> executor)
         {

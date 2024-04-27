@@ -10,17 +10,14 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -53,12 +50,12 @@ public class FrameworkNeoForge
 
         // Allows Framework to be installed on clients and join servers that don't have it.
         // However, if Framework is installed on the server, the client version must match.
-        ModList.get().getModContainerById(Constants.MOD_ID).ifPresent(container -> {
+        /*ModList.get().getModContainerById(Constants.MOD_ID).ifPresent(container -> {
             String modVersion = container.getModInfo().getVersion().toString();
             ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> modVersion, (remoteVersion, fromServer) -> {
                 return fromServer && (remoteVersion == null || remoteVersion.equals(modVersion));
             }));
-        });
+        });*/
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event)
@@ -68,11 +65,9 @@ public class FrameworkNeoForge
 
     private void onRegister(RegisterEvent event)
     {
-        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction()
-        {
+        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction() {
             @Override
-            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
-            {
+            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier) {
                 event.register(registry.key(), name, supplier);
             }
         }));
@@ -95,15 +90,15 @@ public class FrameworkNeoForge
         FrameworkData.setLoaded();
     }
 
-    private void onRegisterPayloadHandler(RegisterPayloadHandlerEvent event)
+    private void onRegisterPayloadHandler(RegisterPayloadHandlersEvent event)
     {
         NeoForgeNetwork.ALL_NETWORKS.forEach(network -> {
-            IPayloadRegistrar registrar = event.registrar(network.getId().getNamespace());
+            PayloadRegistrar registrar = event.registrar(network.getId().getNamespace());
             network.registerPayloads(registrar);
         });
     }
 
-    private void onRegisterGameConfigurations(OnGameConfigurationEvent event)
+    private void onRegisterGameConfigurations(RegisterConfigurationTasksEvent event)
     {
         NeoForgeNetwork.ALL_NETWORKS.forEach(network -> {
             network.getTasks().forEach(f -> event.register(f.apply(network, event.getListener())));

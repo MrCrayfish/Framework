@@ -2,34 +2,35 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
+import com.mrcrayfish.framework.network.message.FrameworkPayload;
+import com.mrcrayfish.framework.network.message.PlayMessage;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-
-import javax.annotation.Nullable;
 
 /**
  * Author: MrCrayfish
  */
 public class FabricServerNetworkHandler
 {
-    static <T> void receivePlay(FrameworkMessage<T> message, FabricNetwork network, MinecraftServer server, @Nullable ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
+    static <T> void receivePlay(PlayMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ServerPlayNetworking.Context context)
     {
-        T msg = message.decoder().apply(buf);
-        MessageContext context = new FabricMessageContext(server, handler.connection, player, PacketFlow.SERVERBOUND);
-        message.handler().accept(msg, context);
-        context.getReply().ifPresent(reply -> sender.sendPacket(message.id(), network.encode(reply)));
+        ServerPlayer player = context.player();
+        MessageContext ctx = new FabricMessageContext(player.server, context.responseSender()::disconnect, player, message.flow());
+        message.handler().accept(payload.msg(), ctx);
+        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));
     }
 
-    static <T> void receiveConfiguration(FrameworkMessage<T> message, FabricNetwork network, MinecraftServer server, ServerConfigurationPacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
+    public static <T> void receiveConfiguration(FrameworkMessage<T, FriendlyByteBuf> message, FrameworkPayload<T> payload, FabricNetwork network, ServerConfigurationNetworking.Context context)
     {
-        T msg = message.decoder().apply(buf);
-        MessageContext context = new FabricMessageContext(server, handler.connection, null, PacketFlow.SERVERBOUND);
-        message.handler().accept(msg, context);
-        context.getReply().ifPresent(reply -> sender.sendPacket(message.id(), network.encode(reply)));
+        // TODO check
+        MessageContext ctx = new FabricMessageContext(null, context.responseSender()::disconnect, null, message.flow());
+        message.handler().accept(payload.msg(), ctx);
+        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));
     }
 }

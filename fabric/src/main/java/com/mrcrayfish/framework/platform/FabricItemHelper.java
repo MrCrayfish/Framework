@@ -11,7 +11,7 @@ public class FabricItemHelper implements IItemHelper
     @Override
     public boolean isDamageable(ItemStack stack)
     {
-        return stack.getItem().canBeDepleted();
+        return stack.getMaxDamage() > 0;
     }
 
     @Override

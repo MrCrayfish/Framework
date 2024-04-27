@@ -5,6 +5,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import java.util.function.Supplier;
 
@@ -13,6 +15,8 @@ import java.util.function.Supplier;
  */
 public interface FrameworkNetwork
 {
+    Marker CONFIGURATION_MARKER = MarkerFactory.getMarker("FRAMEWORK_CONFIGURATION");
+
     void send(Connection connection, Object message);
 
     void sendToPlayer(Supplier<ServerPlayer> supplier, Object message);

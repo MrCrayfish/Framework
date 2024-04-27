@@ -26,26 +26,32 @@ public class EntityMixin implements ISyncedDataHolder
 
     @Nullable
     @Override
-    public DataHolder frameworkGetDataHolder()
+    @SuppressWarnings("DataFlowIssue")
+    public DataHolder framework$GetDataHolder()
     {
         if(this.frameworkLazyDataHolder == null)
         {
-            this.frameworkLazyDataHolder = new LazyDataHolder(new CompoundTag());
+            Entity entity = (Entity) (Object) this;
+            this.frameworkLazyDataHolder = new LazyDataHolder(new CompoundTag(), entity);
         }
         return this.frameworkLazyDataHolder.get();
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
     private void frameworkOnLoadData(CompoundTag tag, CallbackInfo ci)
     {
-        this.frameworkLazyDataHolder = new LazyDataHolder(tag.getCompound("FrameworkDataHolder"));
+        Entity entity = (Entity) (Object) this;
+        this.frameworkLazyDataHolder = new LazyDataHolder(tag.getCompound("FrameworkDataHolder"), entity);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
     private void frameworkOnSaveData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir)
     {
         if(this.frameworkLazyDataHolder != null)
         {
+            Entity entity = (Entity) (Object) this;
             tag.put("FrameworkDataHolder", this.frameworkLazyDataHolder.serialize());
         }
     }

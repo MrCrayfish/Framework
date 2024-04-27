@@ -6,14 +6,22 @@ import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
+import com.mrcrayfish.framework.network.message.FrameworkPayload;
+import com.mrcrayfish.framework.network.message.PlayMessage;
 import com.mrcrayfish.framework.network.message.configuration.Acknowledge;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -21,7 +29,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -32,10 +39,10 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     private final ResourceLocation id;
     private final int version;
     private boolean optional = false;
-    private final List<FrameworkMessage<?>> playMessages = new ArrayList<>();
-    private final List<BiConsumer<NeoForgeNetwork, IPayloadRegistrar>> playPayloads = new ArrayList<>();
-    private final List<FrameworkMessage<?>> configurationMessages = new ArrayList<>();
-    private final List<BiConsumer<NeoForgeNetwork, IPayloadRegistrar>> configurationPayloads = new ArrayList<>();
+    private final List<FrameworkMessage<?, RegistryFriendlyByteBuf>> playMessages = new ArrayList<>();
+    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads = new ArrayList<>();
+    private final List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages = new ArrayList<>();
+    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads = new ArrayList<>();
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> configurationTasks = new ArrayList<>();
 
     public NeoForgeNetworkBuilder(ResourceLocation id, int version)
@@ -52,38 +59,48 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler)
+    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler)
     {
-        return this.registerPlayMessage(name, messageClass, encoder, decoder, handler, null);
+        return this.registerPlayMessage(name, messageClass, codec, handler, null);
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
+    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
-        ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, name);
-        FrameworkMessage<T> message = new FrameworkMessage<>(messageId, messageClass, encoder, decoder, handler, flow);
+        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
+        StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
+        FrameworkMessage<T, RegistryFriendlyByteBuf> message = new PlayMessage<>(payloadType, messageClass, payloadCodec, handler, flow);
         this.playMessages.add(message);
         this.playPayloads.add((network, registrar) -> {
-            registrar.play(messageId, message::readPayload, (payload, ctx) -> {
+            this.<FrameworkPayload<T>>getPlayFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
                 MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
                 message.handler().accept(payload.msg(), context);
-                context.getReply().ifPresent(msg -> ctx.replyHandler().send(network.encode(msg)));
+                context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
             });
         });
         return this;
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
+    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
+    {
+        return this.registerConfigurationMessage(name, taskClass, codec, handler, messages, PacketFlow.CLIENTBOUND);
+    }
+
+    @Override
+    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages, @Nullable PacketFlow flow)
     {
         this.registerConfigurationAckMessage();
-        ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, name);
-        FrameworkMessage<T> message = new ConfigurationMessage<>(messageId, taskClass, encoder, decoder, handler);
+        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
+        StreamCodec<FriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
+        FrameworkMessage<T, FriendlyByteBuf> message = new ConfigurationMessage<>(payloadType, taskClass, payloadCodec, handler, flow);
         this.configurationMessages.add(message);
         this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
-        ConfigurationTask.Type type = new ConfigurationTask.Type(messageId.toString());
+        ConfigurationTask.Type taskType = new ConfigurationTask.Type(message.type().id().toString());
         this.configurationTasks.add((network, listener) -> {
-            return new NeoForgeConfigurationTask<>(network, listener, type, messages);
+            return new NeoForgeConfigurationTask<>(network, listener, taskType, messages);
         });
         return this;
     }
@@ -92,20 +109,38 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         if(this.configurationMessages.isEmpty())
         {
-            ResourceLocation messageId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
-            FrameworkMessage<Acknowledge> message = new FrameworkMessage<>(messageId, Acknowledge.class, Acknowledge::encode, Acknowledge::decode, Acknowledge::handle, PacketFlow.SERVERBOUND);
+            ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
+            CustomPacketPayload.Type<FrameworkPayload<Acknowledge>> payloadType = new CustomPacketPayload.Type<>(payloadId);
+            StreamCodec<FriendlyByteBuf, FrameworkPayload<Acknowledge>> payloadCodec = FrameworkPayload.codec(payloadType, Acknowledge.STREAM_CODEC);
+            FrameworkMessage<Acknowledge, FriendlyByteBuf> message = new FrameworkMessage<>(payloadType, Acknowledge.class, payloadCodec, Acknowledge::handle, PacketFlow.SERVERBOUND);
             this.configurationMessages.add(message);
             this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
         }
     }
 
-    private <T> BiConsumer<NeoForgeNetwork, IPayloadRegistrar> createConfigurationPayloadConsumer(FrameworkMessage<T> message)
+    private <T> BiConsumer<NeoForgeNetwork, PayloadRegistrar> createConfigurationPayloadConsumer(FrameworkMessage<T, FriendlyByteBuf> message)
     {
-        return (network, registrar) -> registrar.configuration(message.id(), message::readPayload, (payload, ctx) -> {
-            MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
-            message.handler().accept(payload.msg(), context);
-            context.getReply().ifPresent(msg -> ctx.replyHandler().send(network.encode(msg)));
-        });
+        return (network, registrar) -> {
+            this.<FrameworkPayload<T>>getConfigurationFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
+                MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
+                message.handler().accept(payload.msg(), context);
+                context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
+            });
+        };
+    }
+
+    private <T extends CustomPacketPayload> TriFunction<CustomPacketPayload.Type<T>, StreamCodec<RegistryFriendlyByteBuf, T>, IPayloadHandler<T>, PayloadRegistrar> getPlayFunction(PayloadRegistrar registrar, @Nullable PacketFlow flow)
+    {
+        if(flow == PacketFlow.CLIENTBOUND) return registrar::playToClient;
+        if(flow == PacketFlow.SERVERBOUND) return registrar::playToServer;
+        return registrar::playBidirectional;
+    }
+
+    private <T extends CustomPacketPayload> TriFunction<CustomPacketPayload.Type<T>, StreamCodec<FriendlyByteBuf, T>, IPayloadHandler<T>, PayloadRegistrar> getConfigurationFunction(PayloadRegistrar registrar, @Nullable PacketFlow flow)
+    {
+        if(flow == PacketFlow.CLIENTBOUND) return registrar::configurationToClient;
+        if(flow == PacketFlow.SERVERBOUND) return registrar::configurationToServer;
+        return registrar::configurationBidirectional;
     }
 
     public FrameworkNetwork build()

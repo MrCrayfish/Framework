@@ -3,13 +3,13 @@ package com.mrcrayfish.framework.network.message.configuration;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
+import com.mrcrayfish.framework.network.FrameworkCodecs;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -20,36 +20,11 @@ import java.util.function.Consumer;
  */
 public record S2CSyncedEntityData(Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> keyMap)
 {
-    public static void encode(S2CSyncedEntityData message, FriendlyByteBuf buffer)
-    {
-        buffer.writeInt(message.keyMap().size());
-        message.keyMap().forEach((classId, value) -> {
-            buffer.writeResourceLocation(classId);
-            buffer.writeVarInt(value.size());
-            value.forEach(pair -> {
-                buffer.writeResourceLocation(pair.getKey());
-                buffer.writeVarInt(pair.getValue());
-            });
-        });
-    }
-
-    public static S2CSyncedEntityData decode(FriendlyByteBuf buffer)
-    {
-        int keySize = buffer.readInt();
-        Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> keyMap = new HashMap<>();
-        for(int i = 0; i < keySize; i++)
-        {
-            ResourceLocation classId = buffer.readResourceLocation();
-            int entrySize = buffer.readVarInt();
-            for(int j = 0; j < entrySize; j++)
-            {
-                ResourceLocation keyId = buffer.readResourceLocation();
-                int id = buffer.readVarInt();
-                keyMap.computeIfAbsent(classId, c -> new ArrayList<>()).add(Pair.of(keyId, id));
-            }
-        }
-        return new S2CSyncedEntityData(keyMap);
-    }
+    public static final StreamCodec<FriendlyByteBuf, S2CSyncedEntityData> STREAM_CODEC = StreamCodec.composite(
+        FrameworkCodecs.ENTITY_DATA_KEYS,
+        S2CSyncedEntityData::keyMap,
+        S2CSyncedEntityData::new
+    );
 
     public static FrameworkResponse handle(S2CSyncedEntityData message, Consumer<Runnable> executor)
     {

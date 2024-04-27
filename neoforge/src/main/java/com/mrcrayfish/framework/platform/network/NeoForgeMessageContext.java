@@ -3,8 +3,7 @@ package com.mrcrayfish.framework.platform.network;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.function.Consumer;
 
@@ -16,18 +15,11 @@ public class NeoForgeMessageContext extends MessageContext
     private final Consumer<Runnable> executor;
     private final Consumer<Component> disconnector;
 
-    public NeoForgeMessageContext(PlayPayloadContext context, PacketFlow flow)
+    public NeoForgeMessageContext(IPayloadContext context, PacketFlow flow)
     {
-        super(flow, context.player().orElse(null));
-        this.executor = context.workHandler()::execute;
-        this.disconnector = context.packetHandler()::disconnect;
-    }
-
-    public NeoForgeMessageContext(ConfigurationPayloadContext context, PacketFlow flow)
-    {
-        super(flow, context.player().orElse(null));
-        this.executor = context.workHandler()::execute;
-        this.disconnector = context.packetHandler()::disconnect;
+        super(flow, context.player());
+        this.executor = context::enqueueWork;
+        this.disconnector = context.connection()::disconnect;
     }
 
     @Override

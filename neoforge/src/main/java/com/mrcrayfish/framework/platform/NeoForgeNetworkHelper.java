@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.platform;
 
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.platform.network.NeoForgeNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
@@ -24,10 +25,10 @@ public class NeoForgeNetworkHelper implements INetworkHelper
     }
 
     @Override
-    public OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data)
+    public <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data)
     {
         AbstractContainerMenu oldMenu = player.containerMenu;
-        player.openMenu(provider, data);
+        player.openMenu(provider, buf -> data.codec().decode(buf));
         AbstractContainerMenu newMenu = player.containerMenu;
         return oldMenu != newMenu ? OptionalInt.of(player.containerCounter) : OptionalInt.empty();
     }

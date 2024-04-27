@@ -10,7 +10,7 @@
         "sources": "${mod_source}"
     },
     "license": "${mod_license}",
-    "icon": "framework_icon.png",
+    "icon": "assets/${mod_id}/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
@@ -26,10 +26,10 @@
         "framework.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.14",
+        "fabricloader": ">=0.15",
         "fabric": "*",
         "minecraft": "${minecraft_version}",
-        "java": ">=17"
+        "java": ">=21"
     },
     "suggests": {
         "another-mod": "*"

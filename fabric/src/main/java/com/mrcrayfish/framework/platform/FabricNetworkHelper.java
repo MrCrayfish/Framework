@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.platform;
 
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.platform.network.FabricNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
@@ -29,14 +30,14 @@ public class FabricNetworkHelper implements INetworkHelper
     }
 
     @Override
-    public OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data)
+    public <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data)
     {
-        return player.openMenu(new ExtendedScreenHandlerFactory()
+        return player.openMenu(new ExtendedScreenHandlerFactory<D>()
         {
             @Override
-            public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buffer)
+            public D getScreenOpeningData(ServerPlayer player)
             {
-                data.accept(buffer);
+                return data;
             }
 
             @Override

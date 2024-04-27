@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.platform.network;
 
-import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
@@ -8,22 +7,29 @@ import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
+import com.mrcrayfish.framework.network.message.FrameworkPayload;
+import com.mrcrayfish.framework.network.message.PlayMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -41,6 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -52,14 +59,15 @@ public final class FabricNetwork implements FrameworkNetwork
 {
     final ResourceLocation id;
     final int protocolVersion;
-    final List<FrameworkMessage<?>> playMessages;
-    final List<FrameworkMessage<?>> configurationMessages;
-    final Map<Class<?>, FrameworkMessage<?>> classToMessage;
+    final List<PlayMessage<?>> playMessages;
+    final List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages;
+    final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> classToMessage;
     final List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks;
+    final FrameworkMessage pingMessage;
     private MinecraftServer server;
     private boolean active = false;
 
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<FrameworkMessage<?>> playMessages, List<FrameworkMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
+    public FabricNetwork(ResourceLocation id, int protocolVersion, List<PlayMessage<?>> playMessages, List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
@@ -67,6 +75,7 @@ public final class FabricNetwork implements FrameworkNetwork
         this.configurationMessages = configurationMessages;
         this.configurationTasks = configurationTasks;
         this.classToMessage = createClassMap(playMessages, configurationMessages);
+        this.pingMessage = this.classToMessage.get(Ping.class);
         this.setup();
     }
 
@@ -74,45 +83,39 @@ public final class FabricNetwork implements FrameworkNetwork
     {
         this.playMessages.forEach(message -> {
             if(message.flow() == PacketFlow.CLIENTBOUND || message.flow() == null) {
-                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                    ClientPlayNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, sender) -> {
-                        FabricClientNetworkHandler.receivePlay(message, this, client, handler, buf, sender);
-                    });
-                });
+                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> this.registerPlayS2C(message));
             }
             if(message.flow() == PacketFlow.SERVERBOUND || message.flow() == null) {
-                ServerPlayNetworking.registerGlobalReceiver(message.id(), (server1, player, handler, buf, responseSender) -> {
-                    FabricServerNetworkHandler.receivePlay(message, this, server1, player, handler, buf, responseSender);
-                });
+                this.registerPlayC2S(message);
             }
         });
 
         // Ping lets the client know that this network is also running on the server.
         // If no ping is received, it's most likely the mod is not installed on the server.
         EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-            ResourceLocation id = FrameworkNetworkBuilder.createMessageId(this.id, "ping");
-            ClientConfigurationNetworking.registerGlobalReceiver(id, (client, handler, buf, responseSender) -> {
-                this.active = true;
+            PayloadTypeRegistry.configurationS2C().register(this.pingMessage.type(), this.pingMessage.codec());
+            PayloadTypeRegistry.configurationC2S().register(this.pingMessage.type(), this.pingMessage.codec());
+            ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
+                ClientConfigurationNetworking.registerReceiver(this.pingMessage.type(), (payload, context) -> {
+                    this.active = true;
+                });
             });
-            ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            ClientPlayConnectionEvents.DISCONNECT.register((handler1, client1) -> {
                 this.active = false;
             });
         });
 
-        this.configurationMessages.forEach(message -> {
-            if(message.flow() == PacketFlow.CLIENTBOUND || message.flow() == null) {
-                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-                    ClientConfigurationNetworking.registerGlobalReceiver(message.id(), (client, handler, buf, responseSender) -> {
-                        FabricClientNetworkHandler.receiveConfiguration(message, this, client, handler, buf, responseSender);
-                    });
-                });
-            }
-            if(message.flow() == PacketFlow.SERVERBOUND || message.flow() == null) {
-                ServerConfigurationNetworking.registerGlobalReceiver(message.id(), (server1, handler, buf, responseSender) -> {
-                    FabricServerNetworkHandler.receiveConfiguration(message, this, server1, handler, buf, responseSender);
-                });
-            }
+        // Register client bound and bidirectional messages on physical client
+        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+            this.configurationMessages.stream()
+                .filter(message -> message.flow() == null || message.flow() == PacketFlow.CLIENTBOUND)
+                .forEach(this::registerConfigurationS2C);
         });
+
+        // Register server bound and bidirectional messages on client/server
+        this.configurationMessages.stream()
+            .filter(message -> message.flow() == null || message.flow() == PacketFlow.SERVERBOUND)
+            .forEach(this::registerConfigurationC2S);
 
         // Add configuration tasks
         ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
@@ -131,32 +134,84 @@ public final class FabricNetwork implements FrameworkNetwork
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             this.server = null;
         });
+
+        // TODO investigate
+        /*C2SPlayChannelEvents.REGISTER.register((handler, sender, client, channels) -> {
+            channels.stream().
+        });*/
+    }
+
+    private <T> void registerPlayS2C(PlayMessage<T> message)
+    {
+        PayloadTypeRegistry.playS2C().register(message.type(), message.codec());
+        Optional.ofNullable(message.flow()).ifPresent(flow ->
+            PayloadTypeRegistry.playC2S().register(message.type(), message.codec())
+        );
+        ClientPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+            FabricClientNetworkHandler.receivePlay(message, payload, this, context);
+        });
+    }
+
+    private <T> void registerPlayC2S(PlayMessage<T> message)
+    {
+        PayloadTypeRegistry.playC2S().register(message.type(), message.codec());
+        Optional.ofNullable(message.flow()).ifPresent(flow ->
+            PayloadTypeRegistry.playS2C().register(message.type(), message.codec())
+        );
+        ServerPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+            FabricServerNetworkHandler.receivePlay(message, payload, this, context);
+        });
+    }
+
+    private <T> void registerConfigurationS2C(FrameworkMessage<T, FriendlyByteBuf> message)
+    {
+        if(message == this.pingMessage)
+            return;
+        PayloadTypeRegistry.configurationS2C().register(message.type(), message.codec());
+        Optional.ofNullable(message.flow()).ifPresent(flow ->
+            PayloadTypeRegistry.configurationC2S().register(message.type(), message.codec())
+        );
+        ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
+            ClientConfigurationNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+                FabricClientNetworkHandler.receiveConfiguration(message, payload, this, context);
+            });
+        });
+    }
+
+    private <T> void registerConfigurationC2S(FrameworkMessage<T, FriendlyByteBuf> message)
+    {
+        if(message == this.pingMessage)
+            return;
+        PayloadTypeRegistry.configurationC2S().register(message.type(), message.codec());
+        Optional.ofNullable(message.flow()).ifPresent(flow ->
+            PayloadTypeRegistry.configurationS2C().register(message.type(), message.codec())
+        );
+        ServerConfigurationNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+            FabricServerNetworkHandler.receiveConfiguration(message, payload, this, context);
+        });
     }
 
     @Override
     public void send(Connection connection, Object message)
     {
-        FriendlyByteBuf buf = this.encode(message);
         switch(connection.getSending())
         {
-            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.id(message), buf));
-            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.id(message), buf));
+            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.encode(message)));
+            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.encode(message)));
         }
     }
 
     @Override
     public void sendToPlayer(Supplier<ServerPlayer> supplier, Object message)
     {
-        FriendlyByteBuf buf = this.encode(message);
-        ServerPlayNetworking.send(supplier.get(), this.id(message), buf);
+        ServerPlayNetworking.send(supplier.get(), this.encode(message));
     }
 
     @Override
     public void sendToTrackingEntity(Supplier<Entity> supplier, Object message)
     {
         Entity entity = supplier.get();
-        FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
         ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
     }
 
@@ -185,8 +240,7 @@ public final class FabricNetwork implements FrameworkNetwork
     public void sendToTrackingChunk(Supplier<LevelChunk> supplier, Object message)
     {
         LevelChunk chunk = supplier.get();
-        FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
         ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
     }
 
@@ -196,23 +250,20 @@ public final class FabricNetwork implements FrameworkNetwork
         LevelLocation location = supplier.get();
         Level level = location.level();
         Vec3 pos = location.pos();
-        FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
         this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
     @Override
     public void sendToServer(Object message)
     {
-        FriendlyByteBuf buf = this.encode(message);
-        ClientPlayNetworking.send(this.id(message), buf);
+        ClientPlayNetworking.send(this.encode(message));
     }
 
     @Override
     public void sendToAll(Object message)
     {
-        FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id(message), buf);
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
         this.server.getPlayerList().broadcastAll(packet);
     }
 
@@ -222,24 +273,17 @@ public final class FabricNetwork implements FrameworkNetwork
         return EnvironmentHelper.getEnvironment() != Environment.CLIENT || this.active;
     }
 
-    ResourceLocation id(Object message)
-    {
-        return this.classToMessage.get(message.getClass()).id();
-    }
-
     @SuppressWarnings({"rawtypes", "unchecked"})
-    FriendlyByteBuf encode(Object message)
+    <T> FrameworkPayload<T> encode(Object message)
     {
         FrameworkMessage msg = this.classToMessage.get(message.getClass());
-        Preconditions.checkNotNull(msg);
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        msg.encoder().accept(message, buf);
-        return buf;
+        if(msg == null) throw new IllegalArgumentException("Unregistered message: " + message.getClass().getName());
+        return msg.writePayload(message);
     }
 
-    private static <T extends FrameworkMessage<?>> Map<Class<?>, T> createClassMap(Collection<T> a, Collection<T> b)
+    private static Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> createClassMap(Collection<PlayMessage<?>> a, List<FrameworkMessage<?, FriendlyByteBuf>> b)
     {
-        Object2ObjectMap<Class<?>, T> map = new Object2ObjectArrayMap<>();
+        Object2ObjectMap<Class<?>, FrameworkMessage<?, ?>> map = new Object2ObjectArrayMap<>();
         a.forEach(msg -> map.put(msg.messageClass(), msg));
         b.forEach(msg -> map.put(msg.messageClass(), msg));
         return Collections.unmodifiableMap(map);
@@ -250,6 +294,9 @@ public final class FabricNetwork implements FrameworkNetwork
      */
     record Ping()
     {
+        private static final Ping INSTANCE = new Ping();
+        public static final StreamCodec<FriendlyByteBuf, Ping> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+
         public static void encode(Ping message, FriendlyByteBuf buffer) {}
 
         public static Ping decode(FriendlyByteBuf buffer)

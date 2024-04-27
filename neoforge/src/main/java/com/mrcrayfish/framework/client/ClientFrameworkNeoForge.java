@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.event.InputEvents;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.common.NeoForge;
 /**
  * Author: MrCrayfish
  */
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientFrameworkNeoForge
 {
     @SubscribeEvent

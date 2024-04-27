@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish
@@ -15,13 +16,13 @@ import java.util.concurrent.Executor;
 public class FabricMessageContext extends MessageContext
 {
     private final Executor executor;
-    private final Connection connection;
+    private final Consumer<Component> disconnect;
 
-    public FabricMessageContext(Executor executor, Connection connection, @Nullable Player player, PacketFlow flow)
+    public FabricMessageContext(Executor executor, Consumer<Component> disconnect, @Nullable Player player, PacketFlow flow)
     {
         super(flow, player);
         this.executor = executor;
-        this.connection = connection;
+        this.disconnect = disconnect;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class FabricMessageContext extends MessageContext
     @Override
     public void disconnect(Component reason)
     {
-        this.connection.disconnect(reason);
+        this.disconnect.accept(reason);
     }
 
     @Override

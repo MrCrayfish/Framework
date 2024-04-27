@@ -3,8 +3,10 @@ package com.mrcrayfish.framework.network.message.configuration;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
+import com.mrcrayfish.framework.network.FrameworkCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CountDownLatch;
@@ -15,6 +17,14 @@ import java.util.function.Consumer;
  */
 public record S2CConfigData(ResourceLocation key, byte[] data)
 {
+    public static final StreamCodec<FriendlyByteBuf, S2CConfigData> STREAM_CODEC = StreamCodec.composite(
+        ResourceLocation.STREAM_CODEC,
+        S2CConfigData::key,
+        FrameworkCodecs.BYTE_ARRAY,
+        S2CConfigData::data,
+        S2CConfigData::new
+    );
+
     public static void encode(S2CConfigData message, FriendlyByteBuf buffer)
     {
         buffer.writeResourceLocation(message.key);

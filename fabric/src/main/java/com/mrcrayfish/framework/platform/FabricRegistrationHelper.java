@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
@@ -14,6 +15,8 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -107,9 +110,9 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     }
 
     @Override
-    public <T extends AbstractContainerMenu> MenuType<T> createMenuTypeWithData(TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
+    public <T extends AbstractContainerMenu, D extends IMenuData<D>> MenuType<T> createMenuTypeWithData(StreamCodec<RegistryFriendlyByteBuf, D> codec, TriFunction<Integer, Inventory, D, T> function)
     {
-        return new ExtendedScreenHandlerType<>(function::apply);
+        return new ExtendedScreenHandlerType<>(function::apply, codec);
     }
 
     @Override

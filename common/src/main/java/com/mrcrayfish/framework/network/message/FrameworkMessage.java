@@ -2,48 +2,46 @@ package com.mrcrayfish.framework.network.message;
 
 import com.mrcrayfish.framework.api.network.MessageContext;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Author: MrCrayfish
  */
-public class FrameworkMessage<T>
+public class FrameworkMessage<T, B extends FriendlyByteBuf>
 {
-    private final ResourceLocation id;
+    private final CustomPacketPayload.Type<FrameworkPayload<T>> type;
     private final Class<T> messageClass;
-    private final BiConsumer<T, FriendlyByteBuf> encoder;
-    private final Function<FriendlyByteBuf, T> decoder;
+    private final StreamCodec<B, FrameworkPayload<T>> codec;
     private final BiConsumer<T, MessageContext> handler;
     private final @Nullable PacketFlow flow;
 
-    public FrameworkMessage(ResourceLocation id, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
+    public FrameworkMessage(CustomPacketPayload.Type<FrameworkPayload<T>> type, Class<T> messageClass, StreamCodec<B, FrameworkPayload<T>> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
-        this.id = id;
+        this.type = type;
         this.messageClass = messageClass;
-        this.encoder = encoder;
-        this.decoder = decoder;
+        this.codec = codec;
         this.handler = handler;
         this.flow = flow;
     }
 
-    public FrameworkPayload<T> readPayload(FriendlyByteBuf buf)
+    /*public FrameworkPayload<T> readPayload(FriendlyByteBuf buf)
     {
-        return new FrameworkPayload<>(this.id, this.decoder.apply(buf), this.encoder);
-    }
+        return new FrameworkPayload<>(this.type, this.codec.decode(buf));
+    }*/
 
     public FrameworkPayload<T> writePayload(T msg)
     {
-        return new FrameworkPayload<>(this.id, msg, this.encoder);
+        return new FrameworkPayload<>(this.type, msg);
     }
 
-    public ResourceLocation id()
+    public CustomPacketPayload.Type<FrameworkPayload<T>> type()
     {
-        return this.id;
+        return this.type;
     }
 
     public Class<T> messageClass()
@@ -51,14 +49,9 @@ public class FrameworkMessage<T>
         return this.messageClass;
     }
 
-    public BiConsumer<T, FriendlyByteBuf> encoder()
+    public StreamCodec<B, FrameworkPayload<T>> codec()
     {
-        return this.encoder;
-    }
-
-    public Function<FriendlyByteBuf, T> decoder()
-    {
-        return this.decoder;
+        return this.codec;
     }
 
     public BiConsumer<T, MessageContext> handler()

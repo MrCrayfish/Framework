@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
@@ -8,6 +9,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
@@ -157,9 +160,9 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
         return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuType(function));
     }
 
-    public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuTypeWithData(ResourceLocation id, TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
+    public static <T extends AbstractContainerMenu, D extends IMenuData<D>> RegistryEntry<MenuType<T>> menuTypeWithData(ResourceLocation id, StreamCodec<RegistryFriendlyByteBuf, D> codec, TriFunction<Integer, Inventory, D, T> function)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(function));
+        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(codec, function));
     }
 
     public static <T extends MobEffect> RegistryEntry<T> mobEffect(ResourceLocation id, Supplier<T> supplier)
