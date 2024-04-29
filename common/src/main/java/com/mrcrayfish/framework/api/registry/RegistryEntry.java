@@ -13,6 +13,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.StatFormatter;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -42,11 +44,11 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public sealed class RegistryEntry<T> permits BlockRegistryEntry
+public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
-    private final Registry<?> registry;
-    private final ResourceLocation id;
-    private final Supplier<T> supplier;
+    protected final Registry<?> registry;
+    protected final ResourceLocation id;
+    protected final Supplier<T> supplier;
 
     RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
     {
@@ -133,6 +135,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
             consumer.accept(builder);
             return builder.build();
         });
+    }
+
+    public static RegistryEntry<ResourceLocation> customStat(ResourceLocation id, StatFormatter formatter)
+    {
+        return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
