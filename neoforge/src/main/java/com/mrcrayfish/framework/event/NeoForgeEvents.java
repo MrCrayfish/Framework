@@ -4,13 +4,12 @@ import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
@@ -18,6 +17,10 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
  * Author: MrCrayfish
@@ -25,29 +28,27 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 public class NeoForgeEvents
 {
     @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent event)
+    public void onServerTickPre(ServerTickEvent.Pre event)
     {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_SERVER.post().handle(event.getServer());
-        }
-        else
-        {
-            TickEvents.END_SERVER.post().handle(event.getServer());
-        }
+        TickEvents.START_SERVER.post().handle(event.getServer());
     }
 
     @SubscribeEvent
-    public void onLevelTick(TickEvent.LevelTickEvent event)
+    public void onServerTickPost(ServerTickEvent.Post event)
     {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_LEVEL.post().handle(event.level);
-        }
-        else
-        {
-            TickEvents.END_LEVEL.post().handle(event.level);
-        }
+        TickEvents.END_SERVER.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onLevelTickPre(LevelTickEvent.Pre event)
+    {
+        TickEvents.START_LEVEL.post().handle(event.getLevel());
+    }
+
+    @SubscribeEvent
+    public void onLevelTickPost(LevelTickEvent.Post event)
+    {
+        TickEvents.END_LEVEL.post().handle(event.getLevel());
     }
 
     @SubscribeEvent
@@ -146,22 +147,24 @@ public class NeoForgeEvents
     }
 
     @SubscribeEvent
-    public void onLivingTick(LivingEvent.LivingTickEvent event)
+    public void onLivingTick(EntityTickEvent.Pre event)
     {
-        TickEvents.START_LIVING_ENTITY.post().handle(event.getEntity());
+        if(event.getEntity() instanceof LivingEntity living)
+        {
+            TickEvents.START_LIVING_ENTITY.post().handle(living);
+        }
     }
 
     @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event)
+    public void onPlayerTickPre(PlayerTickEvent.Pre event)
     {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_PLAYER.post().handle(event.player);
-        }
-        else
-        {
-            TickEvents.END_PLAYER.post().handle(event.player);
-        }
+        TickEvents.START_PLAYER.post().handle(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public void onPlayerTickPost(PlayerTickEvent.Post event)
+    {
+        TickEvents.END_PLAYER.post().handle(event.getEntity());
     }
 
     @SubscribeEvent

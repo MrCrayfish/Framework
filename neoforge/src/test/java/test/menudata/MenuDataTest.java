@@ -1,14 +1,9 @@
 package test.menudata;
 
-import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -22,12 +17,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.checkerframework.checker.units.qual.C;
 
 /**
  * Author: MrCrayfish
@@ -36,19 +28,11 @@ import org.checkerframework.checker.units.qual.C;
 @RegistryContainer
 public class MenuDataTest
 {
-    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(new ResourceLocation("data_loader_test", "test_menu"), TestMenu.CustomData.STREAM_CODEC, TestMenu::new);
+    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(new ResourceLocation("menu_data_test", "test_menu"), TestMenu.CustomData.STREAM_CODEC, TestMenu::new);
 
-    public MenuDataTest(IEventBus bus)
+    public MenuDataTest()
     {
-        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-            bus.addListener(this::onClientSetup);
-        });
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
-    }
-
-    private void onClientSetup(FMLClientSetupEvent event)
-    {
-        event.enqueueWork(() -> MenuScreens.register(TEST_MENU.get(), TestScreen::new));
     }
 
     private void onRegisterCommands(RegisterCommandsEvent event)
@@ -63,21 +47,6 @@ public class MenuDataTest
         }));
     }
 
-    public static class TestScreen extends AbstractContainerScreen<TestMenu>
-    {
-        public TestScreen(TestMenu menu, Inventory playerInventory, Component title)
-        {
-            super(menu, playerInventory, title);
-        }
-
-        @Override
-        protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
-        {
-            graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFF);
-            graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFF);
-        }
-    }
-
     public static class TestMenu extends AbstractContainerMenu
     {
         private final int count;
@@ -90,9 +59,9 @@ public class MenuDataTest
             System.out.println(this.message);
         }
 
-        private TestMenu(int p_38852_, Inventory playerInventory, int count, String message)
+        private TestMenu(int windowId, Inventory playerInventory, int count, String message)
         {
-            super(TEST_MENU.get(), p_38852_);
+            super(TEST_MENU.get(), windowId);
             this.count = count;
             this.message = message;
         }

@@ -9,11 +9,12 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.event.TickEvent;
 
 import java.util.List;
 
@@ -41,16 +42,15 @@ public class ClientNeoForgeEvents
     }
 
     @SubscribeEvent
-    public void onRenderTick(TickEvent.ClientTickEvent event)
+    public void onClientTickPre(ClientTickEvent.Pre event)
     {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_CLIENT.post().handle();
-        }
-        else
-        {
-            TickEvents.END_CLIENT.post().handle();
-        }
+        TickEvents.START_CLIENT.post().handle();
+    }
+
+    @SubscribeEvent
+    public void onClientTickPost(ClientTickEvent.Post event)
+    {
+        TickEvents.END_CLIENT.post().handle();
     }
 
     @SubscribeEvent
@@ -77,16 +77,15 @@ public class ClientNeoForgeEvents
     }
 
     @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent event)
+    public void onRenderFramePre(RenderFrameEvent.Pre event)
     {
-        if(event.phase == TickEvent.Phase.START)
-        {
-            TickEvents.START_RENDER.post().handle(event.renderTickTime);
-        }
-        else
-        {
-            TickEvents.END_RENDER.post().handle(event.renderTickTime);
-        }
+        TickEvents.START_RENDER.post().handle(event.getPartialTick());
+    }
+
+    @SubscribeEvent
+    public void onRenderFramePost(RenderFrameEvent.Post event)
+    {
+        TickEvents.END_RENDER.post().handle(event.getPartialTick());
     }
 
     @SubscribeEvent
