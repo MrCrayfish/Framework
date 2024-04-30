@@ -74,7 +74,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
         this.playMessages.add(message);
         this.playPayloads.add((network, registrar) -> {
             this.<FrameworkPayload<T>>getPlayFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
-                MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
+                MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow(), ctx.player());
                 message.handler().accept(payload.msg(), context);
                 context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
             });
@@ -122,7 +122,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         return (network, registrar) -> {
             this.<FrameworkPayload<T>>getConfigurationFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
-                MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow());
+                MessageContext context = new NeoForgeMessageContext(ctx, ctx.flow(), null);
                 message.handler().accept(payload.msg(), context);
                 context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
             });
