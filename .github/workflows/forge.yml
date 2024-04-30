@@ -1,8 +1,8 @@
-name: Build and Sign Mod
+name: Build and Sign Mod (Forge)
 on:
   push:
     paths:
-      - 'release_build'
+      - 'release_build_forge'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -62,14 +62,13 @@ jobs:
         GPR_KEY: ${{ secrets.GPR_TOKEN }}
         SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         SIGNING_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      run: ./gradlew build publish
+      run: ./gradlew :forge:build :forge:publish
     - name: Stop Gradle
       run: ./gradlew --stop
     - name: Construct artifact files
       id: artifacts
       run: |
-        echo "fabric=fabric/build/libs/${{ steps.mod_id.outputs.value }}-fabric-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}.jar" >> "$GITHUB_OUTPUT"
-        echo "neoforge=neoforge/build/libs/${{ steps.mod_id.outputs.value }}-neoforge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-signed.jar" >> "$GITHUB_OUTPUT"
+        echo "forge=forge/build/libs/${{ steps.mod_id.outputs.value }}-forge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-signed.jar" >> "$GITHUB_OUTPUT"
     - name: Import GPG
       env:
         SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
@@ -84,19 +83,11 @@ jobs:
         SIGNING_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       if: ${{ env.SIGNING_PASSPHRASE != '' }}
       run: |
-        gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.fabric }}
-        gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.neoforge }}
-    - name: Upload Fabric Artifacts
+        gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.forge }}
+    - name: Upload Forge Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: '${{ steps.mod_id.outputs.value }}-fabric-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}'
+        name: '${{ steps.mod_id.outputs.value }}-forge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}'
         path: |
-          ${{ steps.artifacts.outputs.fabric }}
-          ${{ steps.artifacts.outputs.fabric }}.asc
-    - name: Upload NeoForge Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: '${{ steps.mod_id.outputs.value }}-neoforge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}'
-        path: |
-          ${{ steps.artifacts.outputs.neoforge }}
-          ${{ steps.artifacts.outputs.neoforge }}.asc
+          ${{ steps.artifacts.outputs.forge }}
+          ${{ steps.artifacts.outputs.forge }}.asc
