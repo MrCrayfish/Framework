@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -31,7 +32,7 @@ public class NetworkTest implements ModInitializer
     {
         testPlayChannel = FrameworkAPI
                 .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
-                .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle)
+                .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle, PacketFlow.CLIENTBOUND)
                 .optional()
                 .build();
 
