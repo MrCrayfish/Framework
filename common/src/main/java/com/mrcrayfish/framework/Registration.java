@@ -23,21 +23,22 @@ import java.util.stream.Collectors;
 public final class Registration
 {
     private static final Map<ResourceLocation, Integer> REGISTRATION_PRIORITY = Util.make(new HashMap<>(), map -> {
-        map.put(Registries.SOUND_EVENT.location(), 0);
-        map.put(Registries.BLOCK.location(), 1);
-        map.put(Registries.ITEM.location(), 2);
-        map.put(Registries.FLUID.location(), 3);
-        map.put(Registries.MOB_EFFECT.location(), 4);
-        map.put(Registries.POTION.location(), 5);
-        map.put(Registries.ENCHANTMENT.location(), 6);
-        map.put(Registries.ENTITY_TYPE.location(), 7);
-        map.put(Registries.BLOCK_ENTITY_TYPE.location(), 8);
+        map.put(Registries.ATTRIBUTE.location(), 0);
+        map.put(Registries.SOUND_EVENT.location(), 1);
+        map.put(Registries.FLUID.location(), 2);
+        map.put(Registries.MOB_EFFECT.location(), 3);
+        map.put(Registries.BLOCK.location(), 4);
+        map.put(Registries.ENCHANTMENT.location(), 5);
+        map.put(Registries.ENTITY_TYPE.location(), 6);
+        map.put(Registries.ITEM.location(), 7);
+        map.put(Registries.POTION.location(), 8);
         map.put(Registries.PARTICLE_TYPE.location(), 9);
-        map.put(Registries.MENU.location(), 10);
-        map.put(Registries.RECIPE_TYPE.location(), 11);
-        map.put(Registries.RECIPE_SERIALIZER.location(), 12);
-        map.put(Registries.ATTRIBUTE.location(), 13);
-        map.put(Registries.COMMAND_ARGUMENT_TYPE.location(), 14);
+        map.put(Registries.BLOCK_ENTITY_TYPE.location(), 10);
+        map.put(Registries.CUSTOM_STAT.location(), 11);
+        map.put(Registries.MENU.location(), 12);
+        map.put(Registries.RECIPE_TYPE.location(), 13);
+        map.put(Registries.RECIPE_SERIALIZER.location(), 14);
+        map.put(Registries.COMMAND_ARGUMENT_TYPE.location(), 15);
     });
 
     private static final Map<ResourceLocation, List<RegistryEntry<?>>> ENTRY_MAP = new HashMap<>();
