@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.api.network;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish

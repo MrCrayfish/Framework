@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.api.config;
 
 import com.mrcrayfish.framework.api.Environment;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**

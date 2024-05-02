@@ -6,7 +6,7 @@ import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;

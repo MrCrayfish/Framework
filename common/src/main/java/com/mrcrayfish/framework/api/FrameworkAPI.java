@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -42,7 +43,7 @@ public class FrameworkAPI
 
     /**
      * Opens a menu with the ability to provide custom data to clients. The menu type of the menu must
-     * be an extended version as registered with {@link RegistryEntry#menuTypeWithData(ResourceLocation, TriFunction)}
+     * be an extended version as registered with {@link RegistryEntry#menuTypeWithData(ResourceLocation, StreamCodec, TriFunction)}
      * or an error will occur on the client.
      *
      * @param player   the player opening the menu
