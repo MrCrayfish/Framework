@@ -42,7 +42,6 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
-    testImplementation sourceSets.main.output
 }
 
 tasks.register('signJar', PotentiallySignJar) {

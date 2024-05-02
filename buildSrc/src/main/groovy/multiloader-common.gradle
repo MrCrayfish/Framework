@@ -41,6 +41,7 @@ configurations {
 
 dependencies {
     implementation 'org.jetbrains:annotations:24.1.0'
+    testImplementation 'org.jetbrains:annotations:24.1.0'
 }
 
 // Declare capabilities on the outgoing configurations.
