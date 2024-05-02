@@ -74,14 +74,15 @@ dependencies {
     testCompileOnly project(":common")
 }
 
-// Copying the same exclusion from neoforge seems to fix test mods and module issues
-Spec<Task> notForge = { Task it -> !it.name.startsWith("forge") && !it.name.contains("Test") } as Spec<Task>
-
-tasks.withType(JavaCompile).matching(notForge).configureEach {
+tasks.withType(JavaCompile).configureEach {
     source(project(":common").sourceSets.main.allSource)
 }
 
-tasks.withType(ProcessResources).matching(notForge).configureEach {
+tasks.named("sourcesJar", Jar) {
+    from(project(":common").sourceSets.main.allSource)
+}
+
+tasks.named('processResources', ProcessResources).configure {
     from project(":common").sourceSets.main.resources
 }
 

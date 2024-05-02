@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.entity.sync;
 
 import com.mrcrayfish.framework.Constants;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,15 +58,15 @@ public class ForgeSyncedEntityDataHandler
         }
 
         @Override
-        public ListTag serializeNBT()
+        public ListTag serializeNBT(HolderLookup.Provider provider)
         {
-            return this.holder.serialize();
+            return this.holder.serialize(provider);
         }
 
         @Override
-        public void deserializeNBT(ListTag listTag)
+        public void deserializeNBT(HolderLookup.Provider provider, ListTag tab)
         {
-            this.holder.deserialize(listTag);
+            this.holder.deserialize(tab, provider);
         }
 
         @Nonnull

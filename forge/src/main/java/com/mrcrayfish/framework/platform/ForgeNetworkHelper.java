@@ -1,9 +1,11 @@
 package com.mrcrayfish.framework.platform;
 
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.platform.network.ForgeNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -24,10 +26,10 @@ public class ForgeNetworkHelper implements INetworkHelper
     }
 
     @Override
-    public OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data)
+    public <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data)
     {
         AbstractContainerMenu oldMenu = player.containerMenu;
-        player.openMenu(provider, data);
+        player.openMenu(provider, buf -> data.codec().encode(RegistryFriendlyByteBuf.decorator(player.level().registryAccess()).apply(buf), data));
         AbstractContainerMenu newMenu = player.containerMenu;
         return oldMenu != newMenu ? OptionalInt.of(player.containerCounter) : OptionalInt.empty();
     }

@@ -1,6 +1,7 @@
 package test.menudata;
 
 import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,7 +9,10 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -33,7 +37,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @RegistryContainer
 public class MenuDataTest
 {
-    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(new ResourceLocation("data_loader_test", "test_menu"), TestMenu::new);
+    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(new ResourceLocation("data_loader_test", "test_menu"), CustomData.STREAM_CODEC, TestMenu::new);
 
     public MenuDataTest()
     {
@@ -55,10 +59,7 @@ public class MenuDataTest
             if(context.getSource().source instanceof ServerPlayer player) {
                 FrameworkAPI.openMenuWithData(player, new SimpleMenuProvider((windowId, playerInventory, player1) -> {
                     return new TestMenu(windowId, playerInventory, 1, "Test");
-                }, Component.literal("Hello")), buffer -> {
-                    buffer.writeInt(5);
-                    buffer.writeUtf("Hello from the server!");
-                });
+                }, Component.literal("Hello")), new CustomData(5, "Hello from the server!"));
             }
             return 1;
         }));
@@ -84,9 +85,9 @@ public class MenuDataTest
         private final int count;
         private final String message;
 
-        private TestMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
+        private TestMenu(int windowId, Inventory playerInventory, CustomData data)
         {
-            this(windowId, playerInventory, buffer.readInt(), buffer.readUtf());
+            this(windowId, playerInventory, data.count, data.message);
             System.out.println(this.count);
             System.out.println(this.message);
         }
@@ -118,6 +119,23 @@ public class MenuDataTest
         public String getMessage()
         {
             return this.message;
+        }
+    }
+
+    public record CustomData(int count, String message) implements IMenuData<CustomData>
+    {
+        public static final StreamCodec<RegistryFriendlyByteBuf, CustomData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            CustomData::count,
+            ByteBufCodecs.STRING_UTF8,
+            CustomData::message,
+            CustomData::new
+        );
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, CustomData> codec()
+        {
+            return STREAM_CODEC;
         }
     }
 }

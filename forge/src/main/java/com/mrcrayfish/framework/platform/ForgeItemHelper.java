@@ -11,7 +11,7 @@ public class ForgeItemHelper implements IItemHelper
     @Override
     public boolean isDamageable(ItemStack stack)
     {
-        return stack.getItem().isDamageable(stack);
+        return stack.getMaxDamage() > 0;
     }
 
     @Override

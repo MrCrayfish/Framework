@@ -1,7 +1,11 @@
 package com.mrcrayfish.framework.platform.network;
 
+import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
+import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,12 +16,18 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.network.GatherLoginConfigurationTasksEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.ConnectionType;
 import net.minecraftforge.network.NetworkContext;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.SimpleChannel;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,16 +37,38 @@ import java.util.function.Supplier;
 public final class ForgeNetwork implements FrameworkNetwork
 {
     private final SimpleChannel channel;
+    private @Nullable RegistryAccess access = null;
 
-    public ForgeNetwork(SimpleChannel channel, List<Function<SimpleChannel, ConfigurationTask>> tasks)
+    public ForgeNetwork(ChannelBuilder builder, List<BiConsumer<Supplier<RegistryAccess>, SimpleChannel>> playMessages, List<Consumer<SimpleChannel>> configurationMessages, List<Function<SimpleChannel, ConfigurationTask>> tasks)
     {
-        this.channel = channel;
+        this.channel = builder.simpleChannel();
+        playMessages.forEach(c -> c.accept(this::getRegistryAccess, this.channel));
+        configurationMessages.forEach(c -> c.accept(this.channel));
         MinecraftForge.EVENT_BUS.addListener((GatherLoginConfigurationTasksEvent event) -> {
             NetworkContext context = NetworkContext.get(event.getConnection());
             if(context.getType() == ConnectionType.MODDED) {
                 tasks.forEach(f -> event.addTask(f.apply(this.channel)));
             }
         });
+        MinecraftForge.EVENT_BUS.addListener((ServerStartingEvent event) -> {
+            this.access = event.getServer().registryAccess();
+        });
+        MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
+            this.access = null;
+        });
+    }
+
+    public RegistryAccess getRegistryAccess()
+    {
+        if(this.access != null)
+            return access;
+        RegistryAccess local = EnvironmentHelper.callOn(Environment.CLIENT, () -> () -> {
+            Minecraft mc = Minecraft.getInstance();
+            return mc.level != null ? mc.level.registryAccess() : null;
+        });
+        if(local != null)
+            return local;
+        throw new RuntimeException("Failed to retrieve registry access");
     }
 
     @Override

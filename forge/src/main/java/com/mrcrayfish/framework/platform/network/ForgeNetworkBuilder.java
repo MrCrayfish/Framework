@@ -7,8 +7,11 @@ import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.network.message.configuration.Acknowledge;
 import net.minecraft.Util;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
@@ -38,7 +41,7 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     private final ResourceLocation id;
     private final int version;
     private boolean optional = false;
-    private final List<Consumer<SimpleChannel>> playMessages = new ArrayList<>();
+    private final List<BiConsumer<Supplier<RegistryAccess>, SimpleChannel>> playMessages = new ArrayList<>();
     private final List<Consumer<SimpleChannel>> configurationMessages = new ArrayList<>();
     private final List<Function<SimpleChannel, ConfigurationTask>> configurationTasks = new ArrayList<>();
 
@@ -56,19 +59,19 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler)
+    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler)
     {
-        return this.registerPlayMessage(name, messageClass, encoder, decoder, handler, null);
+        return this.registerPlayMessage(name, messageClass, codec, handler, null);
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
+    public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
         NetworkDirection direction = DIRECTION_MAPPER.get(flow);
-        this.playMessages.add(channel -> channel
+        this.playMessages.add((access, channel) -> channel
             .messageBuilder(messageClass, direction)
-            .encoder(encoder)
-            .decoder(decoder)
+            .encoder((msg, buf) -> codec.encode(RegistryFriendlyByteBuf.decorator(access.get()).apply(buf), msg))
+            .decoder(buf -> codec.decode(RegistryFriendlyByteBuf.decorator(access.get()).apply(buf)))
             .consumerNetworkThread((msg, ctx) -> {
                 PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                 MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
@@ -79,13 +82,19 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     }
 
     @Override
-    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
+    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages)
+    {
+        return this.registerConfigurationMessage(name, taskClass, codec, handler, messages, null);
+    }
+
+    @Override
+    public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiFunction<T, Consumer<Runnable>, FrameworkResponse> handler, Supplier<List<T>> messages, @Nullable PacketFlow flow)
     {
         this.registerConfigurationAckMessage();
         this.configurationMessages.add(channel -> channel
             .messageBuilder(taskClass, NetworkDirection.PLAY_TO_CLIENT)
-            .encoder(encoder)
-            .decoder(decoder)
+            .encoder((msg, buf) -> codec.encode(buf, msg))
+            .decoder(codec::decode)
             .consumerNetworkThread((msg, ctx) -> {
                 PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                 MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
@@ -109,8 +118,8 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
         {
             this.configurationMessages.add(channel -> channel
                 .messageBuilder(Acknowledge.class, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(Acknowledge::encode)
-                .decoder(Acknowledge::decode)
+                .encoder((msg, buf) -> Acknowledge.STREAM_CODEC.encode(buf, msg))
+                .decoder(Acknowledge.STREAM_CODEC::decode)
                 .consumerNetworkThread((msg, ctx) -> {
                     PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                     MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
@@ -123,9 +132,6 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         ChannelBuilder builder = ChannelBuilder.named(this.id).networkProtocolVersion(this.version);
         if(this.optional) builder.optional();
-        SimpleChannel channel = builder.simpleChannel();
-        this.playMessages.forEach(c -> c.accept(channel));
-        this.configurationMessages.forEach(c -> c.accept(channel));
-        return new ForgeNetwork(channel, this.configurationTasks);
+        return new ForgeNetwork(builder, this.playMessages, this.configurationMessages, this.configurationTasks);
     }
 }

@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
@@ -9,6 +10,8 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -67,9 +70,12 @@ public class ForgeRegistrationHelper implements IRegistrationHelper
     }
 
     @Override
-    public <T extends AbstractContainerMenu> MenuType<T> createMenuTypeWithData(TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
+    public <T extends AbstractContainerMenu, D extends IMenuData<D>> MenuType<T> createMenuTypeWithData(StreamCodec<RegistryFriendlyByteBuf, D> codec, TriFunction<Integer, Inventory, D, T> function)
     {
-        return new MenuType<>((IContainerFactory<T>) function::apply, FeatureFlags.DEFAULT_FLAGS);
+        return new MenuType<>((IContainerFactory<T>) (windowId, inv, data) -> {
+            RegistryFriendlyByteBuf buf = RegistryFriendlyByteBuf.decorator(inv.player.registryAccess()).apply(data);
+            return function.apply(windowId, inv, codec.decode(buf));
+        }, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override

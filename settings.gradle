@@ -25,4 +25,4 @@ plugins {
 }
 
 rootProject.name = 'Framework'
-include("common", "fabric", "neoforge") // TODO add back "forge"
+include("common", "fabric", "neoforge", "forge")
