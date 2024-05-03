@@ -6,6 +6,15 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
 }
 
+sourceSets {
+    frameworkTest {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += test.compileClasspath
+        runtimeClasspath += test.runtimeClasspath
+    }
+}
+
 minecraft {
     mappings channel: 'official', version: minecraft_version
     reobf = false
@@ -18,41 +27,25 @@ minecraft {
 
     runs {
         configureEach {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
+            ideaModule "${rootProject.name}.${project.name}.frameworkTest"
             property 'forge.logging.markers', 'REGISTRIES,SCAN,LOADING'
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 framework {
-                    source sourceSets.main
-                    source project(":common").sourceSets.main
+                    source sourceSets.frameworkTest
                 }
             }
         }
-        def client = client {
+        client {
+            workingDirectory project.file('runs/client')
             taskName "Client"
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-        clientTest {
-            parent client
-            taskName "TestClient"
-            ideaModule "${rootProject.name}.${project.name}.test"
-            mods {
-                framework {
-                    source sourceSets.test
-                }
-            }
         }
         server {
+            workingDirectory project.file('runs/server')
             taskName "Server"
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
-        }
-        data {
-            taskName "Data"
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
 }

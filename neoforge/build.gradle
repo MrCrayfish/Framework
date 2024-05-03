@@ -13,7 +13,7 @@ if (at.exists()) {
 sourceSets {
     test {
         runs {
-            modIdentifier 'framework_test'
+            modIdentifier 'frameworkTest'
         }
     }
 }

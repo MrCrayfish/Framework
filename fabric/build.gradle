@@ -4,7 +4,7 @@ plugins {
 }
 
 sourceSets {
-    testMod {
+    frameworkTest {
         compileClasspath += main.compileClasspath
         runtimeClasspath += main.runtimeClasspath
         compileClasspath += test.compileClasspath
@@ -24,9 +24,6 @@ dependencies {
     library include("org.reflections:reflections:0.10.2") {
         setTransitive(false)
     }
-
-    testModImplementation sourceSets.main.output
-    testModImplementation sourceSets.test.output
 }
 
 loom {
@@ -40,17 +37,14 @@ loom {
             setConfigName("Fabric Client")
             ideConfigGenerated(true)
             runDir("runs/client")
-        }
-        testModClient {
-            inherit client
-            setConfigName("Fabric Test Client")
-            setSource(sourceSets.testMod)
+            setSource(sourceSets.frameworkTest)
         }
         server {
             server()
             setConfigName("Fabric Server")
             ideConfigGenerated(true)
             runDir("runs/server")
+            setSource(sourceSets.frameworkTest)
         }
     }
 }
