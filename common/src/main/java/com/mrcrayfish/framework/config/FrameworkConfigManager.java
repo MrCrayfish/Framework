@@ -140,6 +140,15 @@ public class FrameworkConfigManager
     // Unloads all synced configs since they should no longer be accessible
     public void onClientDisconnect(@Nullable Connection connection)
     {
+        // Fixes a case where joining integrated server fails. The normal server stopping events
+        // are not called. However, the client disconnect event is called.
+        MinecraftServer server = this.currentServer.get();
+        if(server != null)
+        {
+            this.unloadServerConfigs(server);
+            this.currentServer = new WeakReference<>(null);
+        }
+
         if(connection != null && !connection.isMemoryConnection()) // Run only if disconnected from remote server
         {
             Constants.LOG.info("Unloading synced configs from server");
@@ -398,7 +407,6 @@ public class FrameworkConfigManager
                     });
                 }
             }
-            this.preventNextChangeCallback = false;
         }
 
         public boolean isCorrect(UnmodifiableConfig config)
