@@ -194,13 +194,11 @@ public class FrameworkConfigManager
         }
         catch(ParsingException e)
         {
-            Constants.LOG.error("Received malformed config data");
-            e.printStackTrace();
+            Constants.LOG.error("Received malformed config data", e);
         }
         catch(Exception e)
         {
-            Constants.LOG.error("An exception was thrown when processing config data: {}", e.toString());
-            e.printStackTrace();
+            Constants.LOG.error("An exception was thrown when processing config data", e);
         }
         return false;
     }
@@ -261,7 +259,7 @@ public class FrameworkConfigManager
         private final CommentedConfig comments;
         @Nullable
         private UnmodifiableConfig config;
-        private boolean preventNextChangeCallback;
+        private boolean correcting;
 
         private FrameworkConfigImpl(ConfigScanData data)
         {
@@ -380,7 +378,7 @@ public class FrameworkConfigManager
         private void changeCallback()
         {
             Thread.currentThread().setContextClassLoader(this.classLoader);
-            if(!this.preventNextChangeCallback && this.config != null && !this.isReadOnly())
+            if(!this.correcting && this.config != null && !this.isReadOnly())
             {
                 ConfigHelper.loadConfig(this.config);
                 this.correct(this.config);
@@ -428,11 +426,13 @@ public class FrameworkConfigManager
         {
             if(config instanceof Config && !this.isCorrect(config))
             {
+                this.correcting = true;
                 ConfigHelper.createBackup(config);
                 this.spec.correct((Config) config);
                 if(config instanceof CommentedConfig c)
                     c.putAllComments(this.comments);
                 ConfigHelper.saveConfig(config);
+                this.correcting = false;
             }
         }
 
