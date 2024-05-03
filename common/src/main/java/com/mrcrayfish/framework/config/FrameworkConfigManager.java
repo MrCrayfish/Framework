@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.Environment;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.config.AbstractProperty;
 import com.mrcrayfish.framework.api.config.ConfigProperty;
@@ -23,13 +24,12 @@ import com.mrcrayfish.framework.api.config.FrameworkConfig;
 import com.mrcrayfish.framework.api.config.event.FrameworkConfigEvents;
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.ConfigHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -38,11 +38,12 @@ import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -80,6 +81,7 @@ public class FrameworkConfigManager
     }
 
     private final Map<ResourceLocation, FrameworkConfigImpl> configs;
+    private WeakReference<MinecraftServer> currentServer = new WeakReference<>(null);
 
     private FrameworkConfigManager()
     {
@@ -121,8 +123,9 @@ public class FrameworkConfigManager
 
     public boolean processConfigData(S2CConfigData message)
     {
-        // If local server, accept immediately since config is already loaded
-        if(this.isLocalServer())
+        // If integrated server, don't process data since it's already loaded
+        MinecraftServer server = this.currentServer.get();
+        if(server != null && !server.isDedicatedServer())
             return true;
 
         Constants.LOG.info("Loading synced config from server: " + message.key());
@@ -132,12 +135,6 @@ public class FrameworkConfigManager
             return entry.loadFromData(message.data());
         }
         return false;
-    }
-    
-    private boolean isLocalServer()
-    {
-        // Weird looking but just ensures client classes aren't loaded a dedicated server
-        return Boolean.TRUE.equals(EnvironmentHelper.callOn(Environment.CLIENT, () -> () -> Minecraft.getInstance().isLocalServer()));
     }
 
     // Unloads all synced configs since they should no longer be accessible
@@ -210,6 +207,8 @@ public class FrameworkConfigManager
 
     private void onServerStarting(MinecraftServer server)
     {
+        this.currentServer = new WeakReference<>(server);
+
         Constants.LOG.info("Loading server configs...");
 
         // Create the server config directory
@@ -222,19 +221,20 @@ public class FrameworkConfigManager
             switch(entry.configType)
             {
                 case WORLD, WORLD_SYNC -> entry.load(serverConfig, true);
-                case SERVER, SERVER_SYNC -> entry.load(Services.CONFIG.getConfigPath(), true);
-                case DEDICATED_SERVER ->
-                {
-                    if(EnvironmentHelper.getEnvironment() == Environment.DEDICATED_SERVER)
-                    {
-                        entry.load(Services.CONFIG.getConfigPath(), true);
-                    }
+                case SERVER, SERVER_SYNC, DEDICATED_SERVER -> {
+                    entry.load(Services.CONFIG.getConfigPath(), true);
                 }
             }
         });
     }
 
     private void onServerStopped(MinecraftServer server)
+    {
+        this.currentServer = new WeakReference<>(null);
+        this.unloadServerConfigs(server);
+    }
+
+    private void unloadServerConfigs(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
         this.configs.values().stream().filter(config -> {
@@ -306,7 +306,7 @@ public class FrameworkConfigManager
         public void load(@Nullable Path configDir, boolean watch)
         {
             Optional<Environment> env = this.getType().getEnv();
-            if(env.isPresent() && !EnvironmentHelper.getEnvironment().equals(env.get()))
+            if(env.isPresent() && !FrameworkAPI.getEnvironment().equals(env.get()))
                 return;
             Preconditions.checkState(this.config == null, "Config is already loaded. Unload before loading again.");
             UnmodifiableConfig config = this.createConfig(configDir);
@@ -385,15 +385,16 @@ public class FrameworkConfigManager
                 ConfigHelper.loadConfig(this.config);
                 this.correct(this.config);
                 this.allProperties.forEach(AbstractProperty::invalidateCache);
-                EnvironmentHelper.submitOn(EnvironmentHelper.getEnvironment(), () -> () -> {
+                // Send reload events
+                TaskRunner.submitOn(this.configType.getEnv().orElse(FrameworkAPI.getEnvironment()), () -> () -> {
                     FrameworkConfigEvents.RELOAD.post().handle(this.source);
                 });
                 // Send updates to clients if server exists
-                EnvironmentHelper.submitOn(LogicalEnvironment.SERVER, () -> () -> {
-                    if(this.getType().isSync()) {
+                if(this.configType.isServer() && this.configType.isSync()) {
+                    TaskRunner.submitOn(LogicalEnvironment.SERVER, () -> () -> {
                         Network.getPlayChannel().sendToAll(new S2CSyncConfigData(this.getName(), this.getData()));
-                    }
-                });
+                    });
+                }
             }
             this.preventNextChangeCallback = false;
         }

@@ -56,4 +56,9 @@ public class FrameworkAPI
         // TODO needs to check the data
         return Services.NETWORK.openMenuWithData(player, provider, data);
     }
+
+    public static Environment getEnvironment()
+    {
+        return Services.PLATFORM.getEnvironment();
+    }
 }

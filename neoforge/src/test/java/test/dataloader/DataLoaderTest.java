@@ -6,7 +6,7 @@ import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.api.serialize.DataType;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
 import com.mrcrayfish.framework.client.resources.IResourceSupplier;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,7 +32,7 @@ public class DataLoaderTest
 
     public DataLoaderTest(IEventBus bus)
     {
-        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
             FrameworkClientAPI.registerDataLoader(new CustomLoader());
         });
     }

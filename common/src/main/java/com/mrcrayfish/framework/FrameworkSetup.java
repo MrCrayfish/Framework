@@ -1,10 +1,11 @@
 package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.LogicalEnvironment;
+import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.platform.Services;
@@ -61,10 +62,10 @@ public class FrameworkSetup
     {
         Network.init();
         ServerEvents.STARTED.register(server -> {
-            EnvironmentHelper.setExecutor(LogicalEnvironment.SERVER, server);
+            TaskRunner.setExecutor(LogicalEnvironment.SERVER, server);
         });
-        ServerEvents.STOPPING.register(server -> {
-            EnvironmentHelper.setExecutor(LogicalEnvironment.SERVER, null);
+        ServerEvents.STOPPED.register(server -> {
+            TaskRunner.setExecutor(LogicalEnvironment.SERVER, null);
         });
     }
 }

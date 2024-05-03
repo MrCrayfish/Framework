@@ -3,7 +3,8 @@ package com.mrcrayfish.framework.platform.network;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
+import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
@@ -23,8 +24,8 @@ import net.minecraftforge.network.ConnectionType;
 import net.minecraftforge.network.NetworkContext;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.SimpleChannel;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -54,21 +55,16 @@ public final class ForgeNetwork implements FrameworkNetwork
             this.access = event.getServer().registryAccess();
         });
         MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
-            this.access = null;
+            this.access = null; // TODO test if called when error
         });
     }
 
     public RegistryAccess getRegistryAccess()
     {
-        if(this.access != null)
-            return access;
-        RegistryAccess local = EnvironmentHelper.callOn(Environment.CLIENT, () -> () -> {
+        return Utils.or(this.access, TaskRunner.callIf(Environment.CLIENT, () -> () -> {
             Minecraft mc = Minecraft.getInstance();
             return mc.level != null ? mc.level.registryAccess() : null;
-        });
-        if(local != null)
-            return local;
-        throw new RuntimeException("Failed to retrieve registry access");
+        })).orElseThrow(() -> new RuntimeException("Failed to retrieve registry access"));
     }
 
     @Override

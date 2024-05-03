@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.LogicalEnvironment;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import net.minecraft.client.Minecraft;
 
 /**
@@ -11,6 +11,6 @@ public class ClientBootstrap
 {
     public static void init()
     {
-        EnvironmentHelper.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
+        TaskRunner.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
     }
 }

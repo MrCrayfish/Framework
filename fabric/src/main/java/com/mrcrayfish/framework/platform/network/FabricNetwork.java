@@ -1,14 +1,15 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.Environment;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
-import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.LevelLocation;
-import com.mrcrayfish.framework.api.util.EnvironmentHelper;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
 import com.mrcrayfish.framework.network.message.PlayMessage;
+import com.mrcrayfish.framework.platform.Services;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents;
@@ -19,17 +20,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -83,7 +81,7 @@ public final class FabricNetwork implements FrameworkNetwork
     {
         this.playMessages.forEach(message -> {
             if(message.flow() == PacketFlow.CLIENTBOUND || message.flow() == null) {
-                EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> this.registerPlayS2C(message));
+                this.registerPlayS2C(message);
             }
             if(message.flow() == PacketFlow.SERVERBOUND || message.flow() == null) {
                 this.registerPlayC2S(message);
@@ -92,9 +90,9 @@ public final class FabricNetwork implements FrameworkNetwork
 
         // Ping lets the client know that this network is also running on the server.
         // If no ping is received, it's most likely the mod is not installed on the server.
-        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-            PayloadTypeRegistry.configurationS2C().register(this.pingMessage.type(), this.pingMessage.codec());
-            PayloadTypeRegistry.configurationC2S().register(this.pingMessage.type(), this.pingMessage.codec());
+        PayloadTypeRegistry.configurationS2C().register(this.pingMessage.type(), this.pingMessage.codec());
+        PayloadTypeRegistry.configurationC2S().register(this.pingMessage.type(), this.pingMessage.codec());
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
             ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
                 ClientConfigurationNetworking.registerReceiver(this.pingMessage.type(), (payload, context) -> {
                     this.active = true;
@@ -106,11 +104,9 @@ public final class FabricNetwork implements FrameworkNetwork
         });
 
         // Register client bound and bidirectional messages on physical client
-        EnvironmentHelper.runOn(Environment.CLIENT, () -> () -> {
-            this.configurationMessages.stream()
-                .filter(message -> message.flow() == null || message.flow() == PacketFlow.CLIENTBOUND)
-                .forEach(this::registerConfigurationS2C);
-        });
+        this.configurationMessages.stream()
+            .filter(message -> message.flow() == null || message.flow() == PacketFlow.CLIENTBOUND)
+            .forEach(this::registerConfigurationS2C);
 
         // Register server bound and bidirectional messages on client/server
         this.configurationMessages.stream()
@@ -134,11 +130,6 @@ public final class FabricNetwork implements FrameworkNetwork
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             this.server = null;
         });
-
-        // TODO investigate
-        /*C2SPlayChannelEvents.REGISTER.register((handler, sender, client, channels) -> {
-            channels.stream().
-        });*/
     }
 
     private <T> void registerPlayS2C(PlayMessage<T> message)
@@ -147,8 +138,10 @@ public final class FabricNetwork implements FrameworkNetwork
         Optional.ofNullable(message.flow()).ifPresent(flow ->
             PayloadTypeRegistry.playC2S().register(message.type(), message.codec())
         );
-        ClientPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
-            FabricClientNetworkHandler.receivePlay(message, payload, this, context);
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
+            ClientPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+                FabricClientNetworkHandler.receivePlay(message, payload, this, context);
+            });
         });
     }
 
@@ -171,9 +164,11 @@ public final class FabricNetwork implements FrameworkNetwork
         Optional.ofNullable(message.flow()).ifPresent(flow ->
             PayloadTypeRegistry.configurationC2S().register(message.type(), message.codec())
         );
-        ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
-            ClientConfigurationNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
-                FabricClientNetworkHandler.receiveConfiguration(message, payload, this, context);
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
+            ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
+                ClientConfigurationNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
+                    FabricClientNetworkHandler.receiveConfiguration(message, payload, this, context);
+                });
             });
         });
     }
@@ -270,7 +265,7 @@ public final class FabricNetwork implements FrameworkNetwork
     @Override
     public boolean isActive(Connection connection)
     {
-        return EnvironmentHelper.getEnvironment() != Environment.CLIENT || this.active;
+        return !FrameworkAPI.getEnvironment().isClient() || this.active;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
