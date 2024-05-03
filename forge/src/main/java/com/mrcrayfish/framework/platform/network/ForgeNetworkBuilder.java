@@ -130,8 +130,6 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
 
     public FrameworkNetwork build()
     {
-        ChannelBuilder builder = ChannelBuilder.named(this.id).networkProtocolVersion(this.version);
-        if(this.optional) builder.optional();
-        return new ForgeNetwork(builder, this.playMessages, this.configurationMessages, this.configurationTasks);
+        return new ForgeNetwork(this.id, this.version, this.optional, this.playMessages, this.configurationMessages, this.configurationTasks);
     }
 }

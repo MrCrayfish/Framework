@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.entity.Entity;
@@ -40,9 +41,9 @@ public final class ForgeNetwork implements FrameworkNetwork
     private final SimpleChannel channel;
     private @Nullable RegistryAccess access = null;
 
-    public ForgeNetwork(ChannelBuilder builder, List<BiConsumer<Supplier<RegistryAccess>, SimpleChannel>> playMessages, List<Consumer<SimpleChannel>> configurationMessages, List<Function<SimpleChannel, ConfigurationTask>> tasks)
+    public ForgeNetwork(ResourceLocation id, int version, boolean optional, List<BiConsumer<Supplier<RegistryAccess>, SimpleChannel>> playMessages, List<Consumer<SimpleChannel>> configurationMessages, List<Function<SimpleChannel, ConfigurationTask>> tasks)
     {
-        this.channel = builder.simpleChannel();
+        this.channel = this.createChannel(id, version, optional);
         playMessages.forEach(c -> c.accept(this::getRegistryAccess, this.channel));
         configurationMessages.forEach(c -> c.accept(this.channel));
         MinecraftForge.EVENT_BUS.addListener((GatherLoginConfigurationTasksEvent event) -> {
@@ -59,7 +60,14 @@ public final class ForgeNetwork implements FrameworkNetwork
         });
     }
 
-    public RegistryAccess getRegistryAccess()
+    private SimpleChannel createChannel(ResourceLocation id, int version, boolean optional)
+    {
+        ChannelBuilder builder = ChannelBuilder.named(id).networkProtocolVersion(version);
+        if(optional) builder.optional();
+        return builder.simpleChannel();
+    }
+
+    private RegistryAccess getRegistryAccess()
     {
         return Utils.or(this.access, TaskRunner.callIf(Environment.CLIENT, () -> () -> {
             Minecraft mc = Minecraft.getInstance();
