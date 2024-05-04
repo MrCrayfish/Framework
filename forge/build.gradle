@@ -34,7 +34,8 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 framework {
-                    source sourceSets.frameworkTest
+                    source sourceSets.main
+                    source sourceSets.test
                 }
             }
         }
