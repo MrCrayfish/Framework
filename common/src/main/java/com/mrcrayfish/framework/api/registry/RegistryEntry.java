@@ -5,16 +5,15 @@ import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -58,12 +57,20 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     }
 
     private T instance;
+    private Holder<T> holder;
 
     public T get()
     {
         if(this.instance == null)
             throw new IllegalStateException("Entry has not been created yet");
         return this.instance;
+    }
+
+    public Holder<T> holder()
+    {
+        if(this.holder == null)
+            throw new IllegalStateException("Entry has not been created yet");
+        return this.holder;
     }
 
     protected T create()
@@ -87,6 +94,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     protected void invalidate()
     {
         this.instance = null;
+        this.holder = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,6 +104,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
             this.invalidate();
             return this.create();
         });
+        this.holder = (Holder<T>) this.registry.getHolder(this.id).orElseThrow();
     }
 
     public static <T extends Attribute> RegistryEntry<T> attribute(ResourceLocation id, Supplier<T> supplier)
