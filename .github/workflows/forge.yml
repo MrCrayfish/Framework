@@ -54,6 +54,9 @@ jobs:
         echo "KEYSTORE=${{ steps.load_keystore.outputs.filePath }}" >> $GITHUB_ENV 
         echo "KEYSTORE_ALIAS=${{ secrets.MRCRAYFISH_JKS_ALIAS }}" >> $GITHUB_ENV
         echo "KEYSTORE_PASS=${{ secrets.MRCRAYFISH_JKS_PASSPHRASE }}" >> $GITHUB_ENV
+    - name: Set Target Modloader
+      run: |
+        echo "TARGET_LOADER=forge" >> $GITHUB_ENV
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Build and Publish
