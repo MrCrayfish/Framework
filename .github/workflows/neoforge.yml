@@ -54,9 +54,6 @@ jobs:
         echo "KEYSTORE=${{ steps.load_keystore.outputs.filePath }}" >> $GITHUB_ENV 
         echo "KEYSTORE_ALIAS=${{ secrets.MRCRAYFISH_JKS_ALIAS }}" >> $GITHUB_ENV
         echo "KEYSTORE_PASS=${{ secrets.MRCRAYFISH_JKS_PASSPHRASE }}" >> $GITHUB_ENV
-    - name: Set Target Modloader
-      run: |
-        echo "TARGET_LOADER=neoforge" >> $GITHUB_ENV
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: Build and Publish
@@ -65,6 +62,7 @@ jobs:
         GPR_KEY: ${{ secrets.GPR_TOKEN }}
         SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         SIGNING_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        TARGET_LOADER: "neoforge"
       run: ./gradlew :neoforge:build :neoforge:publish
     - name: Stop Gradle
       run: ./gradlew --stop
