@@ -120,7 +120,7 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             artifactId base.archivesName.get()
-            artifact jar
+            artifact source: jar, classifier: ""
             artifact sourcesJar
             pom.withXml {
                 def depsNode = asNode().appendNode('dependencies')
