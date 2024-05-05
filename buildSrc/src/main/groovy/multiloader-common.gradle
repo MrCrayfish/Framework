@@ -120,17 +120,18 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             artifactId base.archivesName.get()
-            artifact source: jar, classifier: ""
-            artifact sourcesJar
+            from components.java
+
+            // Exclude these from the published pom since it causes errors
+            def excludedGroups = [
+                "net.minecraftforge",
+                "net.sf.jopt-simple"
+            ]
             pom.withXml {
-                def depsNode = asNode().appendNode('dependencies')
-                [this.configurations.library].each {
-                    it.allDependencies.each {
-                        def depNode = depsNode.appendNode('dependency')
-                        depNode.appendNode('groupId', it.group)
-                        depNode.appendNode('artifactId', it.name)
-                        depNode.appendNode('version', it.version)
-                    }
+                asNode().dependencies.'*'.findAll() {
+                    excludedGroups.contains(it.groupId.text())
+                }.each() {
+                    it.parent().remove(it)
                 }
             }
         }
