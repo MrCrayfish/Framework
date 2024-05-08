@@ -14,10 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Author: MrCrayfish
  */
-public record S2CSyncConfigData(ResourceLocation id, byte[] data) implements CustomPacketPayload
+public record S2CSyncConfigData(ResourceLocation id, byte[] data)
 {
-    public static final Type<S2CSyncConfigData> TYPE = new Type<>(Utils.rl("sync_config_data"));
-
     public static final StreamCodec<RegistryFriendlyByteBuf, S2CSyncConfigData> STREAM_CODEC = StreamCodec.composite(
         ResourceLocation.STREAM_CODEC,
         S2CSyncConfigData::id,
@@ -30,11 +28,5 @@ public record S2CSyncConfigData(ResourceLocation id, byte[] data) implements Cus
     {
         context.execute(() -> ClientPlayHandler.handleSyncConfigData(context, message));
         context.setHandled(true);
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type()
-    {
-        return TYPE;
     }
 }

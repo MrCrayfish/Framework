@@ -1,12 +1,10 @@
 package com.mrcrayfish.framework.platform.network;
 
-import com.google.common.collect.EnumBiMap;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.network.message.configuration.Acknowledge;
-import net.minecraft.Util;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,7 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
-import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.SimpleChannel;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +30,6 @@ import java.util.function.Supplier;
  */
 public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
 {
-    private static final EnumBiMap<PacketFlow, NetworkDirection> DIRECTION_MAPPER = Util.make(EnumBiMap.create(PacketFlow.class, NetworkDirection.class), map -> {
-        map.put(PacketFlow.CLIENTBOUND, NetworkDirection.PLAY_TO_CLIENT);
-        map.put(PacketFlow.SERVERBOUND, NetworkDirection.PLAY_TO_SERVER);
-    });
-
     private final ResourceLocation id;
     private final int version;
     private boolean optional = false;
@@ -67,17 +59,15 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
-        NetworkDirection direction = DIRECTION_MAPPER.get(flow);
         this.playMessages.add((access, channel) -> channel
-            .messageBuilder(messageClass, direction)
-            .encoder((msg, buf) -> codec.encode(RegistryFriendlyByteBuf.decorator(access.get()).apply(buf), msg))
-            .decoder(buf -> codec.decode(RegistryFriendlyByteBuf.decorator(access.get()).apply(buf)))
-            .consumerNetworkThread((msg, ctx) -> {
-                PacketFlow receivingFlow = ctx.getConnection().getReceiving();
-                MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
-                handler.accept(msg, context);
-                context.getReply().ifPresent(reply -> channel.reply(reply, ctx));
-            }).add());
+            .play().flow(flow, registry -> {
+                registry.add(messageClass, codec, (msg, ctx) -> {
+                    PacketFlow receivingFlow = ctx.getConnection().getReceiving();
+                    MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
+                    handler.accept(msg, context);
+                    context.getReply().ifPresent(reply -> channel.reply(reply, ctx));
+                });
+            }));
         return this;
     }
 
@@ -92,20 +82,19 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         this.registerConfigurationAckMessage();
         this.configurationMessages.add(channel -> channel
-            .messageBuilder(taskClass, NetworkDirection.PLAY_TO_CLIENT)
-            .encoder((msg, buf) -> codec.encode(buf, msg))
-            .decoder(codec::decode)
-            .consumerNetworkThread((msg, ctx) -> {
-                PacketFlow receivingFlow = ctx.getConnection().getReceiving();
-                MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
-                FrameworkResponse response = handler.apply(msg, context::execute);
-                if(response.isError()) {
-                    context.disconnect(Component.literal("Connection closed - " + response.message()));
-                    return;
-                }
-                context.setHandled(true);
-                channel.reply(new Acknowledge(), ctx);
-            }).add());
+            .configuration().flow(flow, registry -> {
+                registry.add(taskClass, codec, (msg, ctx) -> {
+                    PacketFlow receivingFlow = ctx.getConnection().getReceiving();
+                    MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
+                    FrameworkResponse response = handler.apply(msg, context::execute);
+                    if(response.isError()) {
+                        context.disconnect(Component.literal("Connection closed - " + response.message()));
+                        return;
+                    }
+                    context.setHandled(true);
+                    channel.reply(new Acknowledge(), ctx);
+                });
+            }));
         ResourceLocation taskId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         ConfigurationTask.Type type = new ConfigurationTask.Type(taskId.toString());
         this.configurationTasks.add(channel -> new ForgeConfigurationTask<>(channel, type, messages));
