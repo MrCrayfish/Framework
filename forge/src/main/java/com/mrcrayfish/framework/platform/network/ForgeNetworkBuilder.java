@@ -60,14 +60,16 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
         this.playMessages.add((access, channel) -> channel
-            .play().flow(flow, registry -> {
+            .play()
+            .flow(flow, registry -> {
                 registry.add(messageClass, codec, (msg, ctx) -> {
                     PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                     MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
                     handler.accept(msg, context);
                     context.getReply().ifPresent(reply -> channel.reply(reply, ctx));
                 });
-            }));
+            })
+        );
         return this;
     }
 
@@ -82,7 +84,8 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         this.registerConfigurationAckMessage();
         this.configurationMessages.add(channel -> channel
-            .configuration().flow(flow, registry -> {
+            .configuration()
+            .flow(flow, registry -> {
                 registry.add(taskClass, codec, (msg, ctx) -> {
                     PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                     MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
@@ -94,7 +97,8 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
                     context.setHandled(true);
                     channel.reply(new Acknowledge(), ctx);
                 });
-            }));
+            })
+        );
         ResourceLocation taskId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         ConfigurationTask.Type type = new ConfigurationTask.Type(taskId.toString());
         this.configurationTasks.add(channel -> new ForgeConfigurationTask<>(channel, type, messages));
@@ -106,14 +110,14 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
         if(this.configurationMessages.isEmpty())
         {
             this.configurationMessages.add(channel -> channel
-                .messageBuilder(Acknowledge.class, NetworkDirection.PLAY_TO_SERVER)
-                .encoder((msg, buf) -> Acknowledge.STREAM_CODEC.encode(buf, msg))
-                .decoder(Acknowledge.STREAM_CODEC::decode)
-                .consumerNetworkThread((msg, ctx) -> {
+                .configuration()
+                .serverbound()
+                .add(Acknowledge.class, Acknowledge.STREAM_CODEC, (msg, ctx) -> {
                     PacketFlow receivingFlow = ctx.getConnection().getReceiving();
                     MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
                     Acknowledge.handle(msg, context);
-                }).add());
+                })
+            );
         }
     }
 
