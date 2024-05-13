@@ -60,13 +60,14 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
     {
         this.playMessages.add((access, channel) -> channel
-            .play()
-            .flow(flow, registry -> {
-                registry.add(messageClass, codec, (msg, ctx) -> {
-                    PacketFlow receivingFlow = ctx.getConnection().getReceiving();
-                    MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
-                    handler.accept(msg, context);
-                    context.getReply().ifPresent(reply -> channel.reply(reply, ctx));
+            .play(protocol -> {
+                protocol.flow(flow, registry -> {
+                    registry.add(messageClass, codec, (msg, ctx) -> {
+                        PacketFlow receivingFlow = ctx.getConnection().getReceiving();
+                        MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
+                        handler.accept(msg, context);
+                        context.getReply().ifPresent(reply -> channel.reply(reply, ctx));
+                    });
                 });
             })
         );
@@ -84,18 +85,19 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         this.registerConfigurationAckMessage();
         this.configurationMessages.add(channel -> channel
-            .configuration()
-            .flow(flow, registry -> {
-                registry.add(taskClass, codec, (msg, ctx) -> {
-                    PacketFlow receivingFlow = ctx.getConnection().getReceiving();
-                    MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
-                    FrameworkResponse response = handler.apply(msg, context::execute);
-                    if(response.isError()) {
-                        context.disconnect(Component.literal("Connection closed - " + response.message()));
-                        return;
-                    }
-                    context.setHandled(true);
-                    channel.reply(new Acknowledge(), ctx);
+            .configuration(protocol -> {
+                protocol.flow(flow, registry -> {
+                    registry.add(taskClass, codec, (msg, ctx) -> {
+                        PacketFlow receivingFlow = ctx.getConnection().getReceiving();
+                        MessageContext context = new ForgeMessageContext(ctx, receivingFlow);
+                        FrameworkResponse response = handler.apply(msg, context::execute);
+                        if(response.isError()) {
+                            context.disconnect(Component.literal("Connection closed - " + response.message()));
+                            return;
+                        }
+                        context.setHandled(true);
+                        channel.reply(new Acknowledge(), ctx);
+                    });
                 });
             })
         );
