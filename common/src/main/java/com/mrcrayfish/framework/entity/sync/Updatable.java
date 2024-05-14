@@ -5,6 +5,8 @@ package com.mrcrayfish.framework.entity.sync;
  */
 public class Updatable
 {
+    public static final Updatable NULL = new Updatable(null);
+
     private final DataEntry<?, ?> entry;
 
     Updatable(DataEntry<?, ?> entry)

@@ -41,7 +41,7 @@ public class S2CUpdateEntityData extends PlayMessage<S2CUpdateEntityData>
         List<DataEntry<?, ?>> entries = new ArrayList<>();
         for(int i = 0; i < size; i++)
         {
-            entries.add(DataEntry.read(buffer));
+            entries.add(DataEntry.createClientEntry(buffer));
         }
         return new S2CUpdateEntityData(entityId, entries);
     }

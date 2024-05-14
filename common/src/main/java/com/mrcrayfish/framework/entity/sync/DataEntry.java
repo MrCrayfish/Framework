@@ -69,7 +69,7 @@ public class DataEntry<E extends Entity, T>
         this.key.serializer().write(buffer, this.value);
     }
 
-    public static DataEntry<?, ?> read(FriendlyByteBuf buffer)
+    public static DataEntry<?, ?> createClientEntry(FriendlyByteBuf buffer)
     {
         SyncedDataKey<?, ?> key = SyncedEntityData.instance().getKey(buffer.readVarInt());
         Validate.notNull(key, "Synced key does not exist for id");
@@ -80,7 +80,7 @@ public class DataEntry<E extends Entity, T>
 
     private void readValue(FriendlyByteBuf buffer)
     {
-        this.value = this.getKey().serializer().read(buffer);
+        this.value = this.getKey().serializer().read(Updatable.NULL, buffer);
     }
 
     Tag writeValue()
@@ -90,6 +90,6 @@ public class DataEntry<E extends Entity, T>
 
     void readValue(Tag nbt)
     {
-        this.value = this.key.serializer().read(nbt);
+        this.value = this.key.serializer().read(new Updatable(this), nbt);
     }
 }
