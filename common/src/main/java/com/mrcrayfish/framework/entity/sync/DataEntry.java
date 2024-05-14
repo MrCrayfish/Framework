@@ -5,20 +5,23 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
  */
 public class DataEntry<E extends Entity, T>
 {
+    private final DataHolder holder;
     private final SyncedDataKey<E, T> key;
     private T value;
     private boolean dirty;
 
-    DataEntry(SyncedDataKey<E, T> key)
+    DataEntry(@Nullable DataHolder holder, SyncedDataKey<E, T> key)
     {
+        this.holder = holder;
         this.key = key;
-        this.value = key.defaultValueSupplier().get();
+        this.value = key.defaultValueSupplier().apply(new Updatable(this));
     }
 
     SyncedDataKey<E, T> getKey()
@@ -34,7 +37,19 @@ public class DataEntry<E extends Entity, T>
     void setValue(T value, boolean dirty)
     {
         this.value = value;
-        this.dirty = dirty;
+        if(dirty)
+        {
+            this.markDirty();
+        }
+    }
+
+    public void markDirty()
+    {
+        this.dirty = true;
+        if(this.holder != null)
+        {
+            this.holder.markDirty();
+        }
     }
 
     boolean isDirty()
@@ -58,7 +73,7 @@ public class DataEntry<E extends Entity, T>
     {
         SyncedDataKey<?, ?> key = SyncedEntityData.instance().getKey(buffer.readVarInt());
         Validate.notNull(key, "Synced key does not exist for id");
-        DataEntry<?, ?> entry = new DataEntry<>(key);
+        DataEntry<?, ?> entry = new DataEntry<>(null, key);
         entry.readValue(buffer);
         return entry;
     }

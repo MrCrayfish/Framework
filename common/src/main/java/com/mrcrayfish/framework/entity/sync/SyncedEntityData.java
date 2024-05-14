@@ -14,8 +14,6 @@ import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -34,11 +32,11 @@ import org.slf4j.MarkerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -182,7 +180,7 @@ public final class SyncedEntityData
             throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
-        return holder != null ? holder.get(key) : key.defaultValueSupplier().get();
+        return Objects.requireNonNullElse(holder, DataHolder.UNIVERSAL).get(key);
     }
 
     public <E extends Entity, T> void updateClientEntry(Entity entity, DataEntry<E, T> entry)
@@ -214,6 +212,11 @@ public final class SyncedEntityData
     public Set<SyncedDataKey<?, ?>> getKeys()
     {
         return ImmutableSet.copyOf(this.registeredDataKeys);
+    }
+
+    void markDirty()
+    {
+        this.dirty = true;
     }
 
     @Nullable
