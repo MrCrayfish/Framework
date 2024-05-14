@@ -19,18 +19,19 @@ import java.util.stream.Collectors;
  */
 public class DataHolder
 {
+    public static final DataHolder UNIVERSAL = new DataHolder();
+
     Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
     private boolean dirty = false;
 
     @SuppressWarnings("unchecked")
     <E extends Entity, T> boolean set(E entity, SyncedDataKey<?, ?> key, T value)
     {
-        DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, DataEntry::new);
+        DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2));
         if(!entry.getValue().equals(value))
         {
             boolean dirty = !entity.level().isClientSide() && entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE;
             entry.setValue(value, dirty);
-            this.dirty = dirty;
             return true;
         }
         return false;
@@ -40,10 +41,19 @@ public class DataHolder
     @SuppressWarnings("unchecked")
     <E extends Entity, T> T get(SyncedDataKey<E, T> key)
     {
-        return (T) this.dataMap.computeIfAbsent(key, DataEntry::new).getValue();
+        return (T) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2)).getValue();
     }
 
-    boolean isDirty()
+    public void markDirty()
+    {
+        this.dirty = true;
+        if(this != UNIVERSAL)
+        {
+            SyncedEntityData.instance().markDirty();
+        }
+    }
+
+    public boolean isDirty()
     {
         return this.dirty;
     }
@@ -103,7 +113,7 @@ public class DataHolder
             if(syncedDataKey == null || !syncedDataKey.save())
                 return;
 
-            DataEntry<?, ?> entry = new DataEntry<>(syncedDataKey);
+            DataEntry<?, ?> entry = new DataEntry<>(this, syncedDataKey);
             entry.readValue(value);
             this.dataMap.put(syncedDataKey, entry);
         });

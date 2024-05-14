@@ -1,18 +1,20 @@
 package com.mrcrayfish.framework.api.sync;
 
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
+import com.mrcrayfish.framework.entity.sync.Updatable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
-public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, ResourceLocation> pairKey, ResourceLocation id, SyncedClassKey<E> classKey, IDataSerializer<T> serializer, Supplier<T> defaultValueSupplier, boolean save, boolean persistent, SyncMode syncMode)
+public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, ResourceLocation> pairKey, ResourceLocation id, SyncedClassKey<E> classKey, IDataSerializer<T> serializer, Function<Updatable, T> defaultValueSupplier, boolean save, boolean persistent, SyncMode syncMode)
 {
     public void setValue(E entity, T value)
     {
@@ -94,7 +96,7 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
         private final SyncedClassKey<E> classKey;
         private final IDataSerializer<T> serializer;
         private ResourceLocation id;
-        private Supplier<T> defaultValueSupplier;
+        private Function<Updatable, T> defaultValueSupplier;
         private boolean save = false;
         private boolean persistent = true;
         private SyncMode syncMode = SyncMode.ALL;
@@ -146,6 +148,15 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
          * Sets the default value supplier for the synced key. This is a required property.
          */
         public Builder<E, T> defaultValueSupplier(Supplier<T> defaultValueSupplier)
+        {
+            this.defaultValueSupplier = holder -> defaultValueSupplier.get();
+            return this;
+        }
+
+        /**
+         * Sets the default value supplier for the synced key. This is a required property.
+         */
+        public Builder<E, T> defaultValueSupplier(Function<Updatable, T> defaultValueSupplier)
         {
             this.defaultValueSupplier = defaultValueSupplier;
             return this;
