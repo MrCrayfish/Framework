@@ -21,3 +21,6 @@ build
 # other
 eclipse
 run
+fabric/runs
+forge/runs
+neoforge/runs
