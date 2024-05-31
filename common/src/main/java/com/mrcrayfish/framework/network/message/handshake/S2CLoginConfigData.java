@@ -45,10 +45,16 @@ public class S2CLoginConfigData extends HandshakeMessage<S2CLoginConfigData>
     public void handle(S2CLoginConfigData message, MessageContext context)
     {
         Constants.LOG.debug("Received config data from server");
+        boolean[] failed = new boolean[1];
         CountDownLatch block = new CountDownLatch(1);
         context.execute(() -> {
-            if(!FrameworkConfigManager.getInstance().processConfigData(message)) {
-                context.getNetworkManager().disconnect(Component.translatable("configured.gui.handshake_process_failed"));
+            try {
+                if(!FrameworkConfigManager.getInstance().processConfigData(message)) {
+                    failed[0] = true;
+                }
+            } catch (Exception e) {
+                failed[0] = true;
+                Constants.LOG.error("Failed to process config data from server: %s".formatted(message.key), e);
             }
             block.countDown();
         });
@@ -59,6 +65,10 @@ public class S2CLoginConfigData extends HandshakeMessage<S2CLoginConfigData>
         catch(InterruptedException e)
         {
             e.printStackTrace();
+        }
+        if(failed[0])
+        {
+            context.getNetworkManager().disconnect(Component.translatable("framework.gui.process_config_fail", message.key.toString()));
         }
         context.setHandled(true);
         context.reply(new Acknowledge());
