@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 @RegistryContainer
 public class RegistryTest
 {
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
     public static final RegistryEntry<ResourceLocation> CUSTOM_AWESOME_STAT = RegistryEntry.customStat(new ResourceLocation("registry_test", "awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<GameEvent> CUSTOM_GAME_EVENT = RegistryEntry.gameEvent(new ResourceLocation("registry_test", "awesome_game_event"));
 
