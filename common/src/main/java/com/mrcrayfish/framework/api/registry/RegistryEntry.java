@@ -157,12 +157,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 
     public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id)
     {
-        return new RegistryEntry<>(BuiltInRegistries.GAME_EVENT, id, () -> new GameEvent(GameEvent.DEFAULT_NOTIFICATION_RADIUS));
+        return new RegistryEntry<>(BuiltInRegistries.GAME_EVENT, id, () -> new GameEvent(id.toString(), GameEvent.DEFAULT_NOTIFICATION_RADIUS));
     }
 
     public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id, int notifyRadius)
     {
-        return new RegistryEntry<>(BuiltInRegistries.GAME_EVENT, id, () -> new GameEvent(notifyRadius));
+        return new RegistryEntry<>(BuiltInRegistries.GAME_EVENT, id, () -> new GameEvent(id.toString(), notifyRadius));
     }
 
     public static <T extends Item> RegistryEntry<T> item(ResourceLocation id, Supplier<T> supplier)
