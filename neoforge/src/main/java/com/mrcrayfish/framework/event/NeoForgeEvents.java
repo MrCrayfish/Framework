@@ -7,10 +7,11 @@ import com.mrcrayfish.framework.api.event.TickEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -106,11 +107,11 @@ public class NeoForgeEvents
     }
 
     @SubscribeEvent
-    public void onPickupItem(EntityItemPickupEvent event)
+    public void onPickupItem(ItemEntityPickupEvent.Pre event)
     {
-        if(PlayerEvents.PICKUP_ITEM.post().handle(event.getEntity(), event.getItem()))
+        if(PlayerEvents.PICKUP_ITEM.post().handle(event.getPlayer(), event.getItemEntity()))
         {
-            event.setCanceled(true);
+            event.setCanPickup(TriState.FALSE);
         }
     }
 
