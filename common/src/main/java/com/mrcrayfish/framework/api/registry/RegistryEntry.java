@@ -7,6 +7,7 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -39,6 +40,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * Author: MrCrayfish
@@ -149,6 +151,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     public static RegistryEntry<ResourceLocation> customStat(ResourceLocation id, StatFormatter formatter)
     {
         return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
+    }
+
+    public static <T> RegistryEntry<DataComponentType<T>> dataComponentType(ResourceLocation id, UnaryOperator<DataComponentType.Builder<T>> operator)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.DATA_COMPONENT_TYPE, id, () -> operator.apply(DataComponentType.builder()).build());
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
