@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.entity.sync;
 
+import com.mrcrayfish.framework.api.sync.SyncSignal;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.Validate;
@@ -15,14 +15,19 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DataEntry<E extends Entity, T>
 {
+    private final SyncSignal signal;
+    private final DataHolder holder;
     private final SyncedDataKey<E, T> key;
     private T value;
     private boolean dirty;
 
-    DataEntry(SyncedDataKey<E, T> key)
+    DataEntry(DataHolder holder, SyncedDataKey<E, T> key)
     {
+        this.holder = holder;
         this.key = key;
         this.value = key.defaultValueSupplier().get();
+        this.signal = new SyncSignal(this::markDirty);
+        this.updateSignal(this.value);
     }
 
     SyncedDataKey<E, T> getKey()
@@ -37,8 +42,15 @@ public class DataEntry<E extends Entity, T>
 
     void setValue(T value, boolean dirty)
     {
+        this.updateSignal(value);
         this.value = value;
         this.dirty = dirty;
+    }
+
+    void markDirty()
+    {
+        this.dirty = true;
+        this.holder.markDirty();
     }
 
     boolean isDirty()
@@ -62,7 +74,7 @@ public class DataEntry<E extends Entity, T>
     {
         SyncedDataKey<?, ?> key = SyncedEntityData.instance().getKey(buffer.readVarInt());
         Validate.notNull(key, "Synced key does not exist for id");
-        DataEntry<?, ?> entry = new DataEntry<>(key);
+        DataEntry<?, ?> entry = new DataEntry<>(null, key);
         entry.readValue(buffer);
         return entry;
     }
@@ -81,5 +93,13 @@ public class DataEntry<E extends Entity, T>
     void readValue(@Nullable Tag tag, HolderLookup.Provider provider)
     {
         this.value = this.key.serializer().getTagReader().apply(tag, provider);
+    }
+
+    private void updateSignal(T value)
+    {
+        if(value instanceof SyncSignal.Consumer consumer)
+        {
+            consumer.accept(this.signal);
+        }
     }
 }

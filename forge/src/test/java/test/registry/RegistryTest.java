@@ -9,15 +9,18 @@ import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -92,7 +95,8 @@ public class RegistryTest
     public static final RegistryEntry<RecipeType<AwesomeRecipe>> MY_AWESOME_RECIPE_TYPE = RegistryEntry.recipeType(rl("awesome_recipe_type"));
     public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), AwesomeRecipe.AwesomeSerializer::new);
     public static final RegistryEntry<SoundEvent> MY_AWESOME_SOUND_EVENT = RegistryEntry.soundEvent(rl("awesome_sound_event"), id -> () -> SoundEvent.createVariableRangeEvent(id));
-    
+    public static final RegistryEntry<DataComponentType<Integer>> SIMPLE_COUNTER = RegistryEntry.dataComponentType(rl("simple_counter"), builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
     public RegistryTest()
     {
         MinecraftForge.EVENT_BUS.addListener(this::onLeftClickBlock);

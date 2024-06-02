@@ -14,8 +14,6 @@ import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -34,7 +32,6 @@ import org.slf4j.MarkerFactory;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +81,7 @@ public final class SyncedEntityData
     private final Int2ReferenceMap<SyncedDataKey<?, ?>> syncedIdToKey = new Int2ReferenceOpenHashMap<>();
 
     private final AtomicInteger nextIdTracker = new AtomicInteger();
-    private final List<Entity> dirtyEntities = new ArrayList<>();
+    private final Set<Entity> dirtyEntities = new HashSet<>();
     private boolean dirty = false;
 
     private SyncedEntityData()
@@ -388,5 +385,11 @@ public final class SyncedEntityData
             map.computeIfAbsent(key.classKey().id(), c -> new ArrayList<>()).add(Pair.of(key.id(), id));
         });
         return List.of(new S2CSyncedEntityData(map));
+    }
+
+    void markDirty(Entity entity)
+    {
+        this.dirty = true;
+        this.dirtyEntities.add(entity);
     }
 }

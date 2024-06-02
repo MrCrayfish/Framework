@@ -32,6 +32,7 @@ public class LazyDataHolder
     {
         DataHolder newHolder = new DataHolder();
         newHolder.deserialize(this.data.getList("Keys", Tag.TAG_COMPOUND), this.entity.registryAccess());
+        newHolder.setup(this.entity);
         return newHolder;
     }
 

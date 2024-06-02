@@ -16,6 +16,6 @@ public class NeoForgeEntityHelper implements IEntityHelper
     @Nullable
     public DataHolder getDataHolder(Entity entity, boolean old)
     {
-        return entity.getData(FrameworkNeoForge.DATA_HOLDER);
+        return entity.getData(FrameworkNeoForge.DATA_HOLDER).setup(entity);
     }
 }

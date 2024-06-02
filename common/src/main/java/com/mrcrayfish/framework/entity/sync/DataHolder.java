@@ -3,14 +3,13 @@ package com.mrcrayfish.framework.entity.sync;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +22,22 @@ import java.util.stream.Collectors;
 public class DataHolder
 {
     Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
-    private boolean dirty = false;
+    private Entity entity;
+    private boolean dirty;
+
+    public DataHolder setup(Entity entity)
+    {
+        if(this.entity == null)
+        {
+            this.entity = entity;
+        }
+        return this;
+    }
 
     @SuppressWarnings("unchecked")
     <E extends Entity, T> boolean set(E entity, SyncedDataKey<?, ?> key, T value)
     {
-        DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, DataEntry::new);
+        DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2));
         if(!entry.getValue().equals(value))
         {
             boolean dirty = !entity.level().isClientSide() && entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE;
@@ -43,7 +52,16 @@ public class DataHolder
     @SuppressWarnings("unchecked")
     <E extends Entity, T> T get(SyncedDataKey<E, T> key)
     {
-        return (T) this.dataMap.computeIfAbsent(key, DataEntry::new).getValue();
+        return (T) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2)).getValue();
+    }
+
+    void markDirty()
+    {
+        this.dirty = true;
+        if(this.entity != null && !this.entity.level().isClientSide() && !this.entity.isRemoved())
+        {
+            SyncedEntityData.instance().markDirty(this.entity);
+        }
     }
 
     boolean isDirty()
@@ -106,7 +124,7 @@ public class DataHolder
             if(syncedDataKey == null || !syncedDataKey.save())
                 return;
 
-            DataEntry<?, ?> entry = new DataEntry<>(syncedDataKey);
+            DataEntry<?, ?> entry = new DataEntry<>(this, syncedDataKey);
             entry.readValue(value, provider);
             this.dataMap.put(syncedDataKey, entry);
         });
