@@ -140,15 +140,6 @@ public class FrameworkConfigManager
     // Unloads all synced configs since they should no longer be accessible
     public void onClientDisconnect(@Nullable Connection connection)
     {
-        // Fixes a case where joining integrated server fails. The normal server stopping events
-        // are not called. However, the client disconnect event is called.
-        MinecraftServer server = this.currentServer.get();
-        if(server != null)
-        {
-            this.unloadServerConfigs(server);
-            this.currentServer = new WeakReference<>(null);
-        }
-
         if(connection != null && !connection.isMemoryConnection()) // Run only if disconnected from remote server
         {
             Constants.LOG.info("Unloading synced configs from server");
@@ -317,7 +308,7 @@ public class FrameworkConfigManager
                 return;
             if(this.config != null)
             {
-                Constants.LOG.error("Trying to load the config '{}' although it's already loaded. This should not happen!", this.getName());
+                Constants.LOG.error("Attempting to load the config '{}', however it is already loaded. This should not happen, however it will simply be reloaded.", this.getName());
                 this.unload(true);
             }
             UnmodifiableConfig config = this.createConfig(configDir);
