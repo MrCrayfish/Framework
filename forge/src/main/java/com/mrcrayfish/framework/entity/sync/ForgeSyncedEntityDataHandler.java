@@ -49,11 +49,13 @@ public class ForgeSyncedEntityDataHandler
 
     public static class Provider implements ICapabilitySerializable<ListTag>
     {
+        final Entity entity;
         final DataHolder holder;
         final LazyOptional<DataHolder> optional;
 
         public Provider(Entity entity)
         {
+            this.entity = entity;
             this.holder = new DataHolder().setup(entity);
             this.optional = LazyOptional.of(() -> this.holder);
         }
@@ -64,15 +66,29 @@ public class ForgeSyncedEntityDataHandler
         }
 
         @Override
+        public ListTag serializeNBT()
+        {
+            // Temp until Forge fixes the issue: https://github.com/MinecraftForge/MinecraftForge/issues/9998
+            return this.holder.serialize(this.entity.registryAccess());
+        }
+
+        @Override
         public ListTag serializeNBT(HolderLookup.Provider provider)
         {
             return this.holder.serialize(provider);
         }
 
         @Override
-        public void deserializeNBT(HolderLookup.Provider provider, ListTag tab)
+        public void deserializeNBT(ListTag tag)
         {
-            this.holder.deserialize(tab, provider);
+            // Temp until Forge fixes the issue: https://github.com/MinecraftForge/MinecraftForge/issues/9998
+            this.holder.deserialize(tag, this.entity.registryAccess());
+        }
+
+        @Override
+        public void deserializeNBT(HolderLookup.Provider provider, ListTag tag)
+        {
+            this.holder.deserialize(tag, provider);
         }
 
         @Nonnull
