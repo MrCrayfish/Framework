@@ -18,8 +18,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    library include("com.electronwill.night-config:core:3.6.6")
-    library include("com.electronwill.night-config:toml:3.6.6")
+    library include("com.electronwill.night-config:core:3.7.1")
+    library include("com.electronwill.night-config:toml:3.7.1")
     library include("org.javassist:javassist:3.29.2-GA")
     library include("org.reflections:reflections:0.10.2") {
         setTransitive(false)

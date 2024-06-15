@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.client;
 
-import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
+import com.mrcrayfish.framework.util.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -19,7 +19,7 @@ import java.util.concurrent.Executor;
  */
 public class ClientFrameworkFabric implements ClientModInitializer
 {
-    public static final ResourceLocation OPEN_MODEL_ID = new ResourceLocation(Constants.MOD_ID, "open_model");
+    public static final ResourceLocation OPEN_MODEL_ID = Utils.rl("open_model");
 
     @Override
     public void onInitializeClient()
@@ -31,7 +31,7 @@ public class ClientFrameworkFabric implements ClientModInitializer
             @Override
             public ResourceLocation getFabricId()
             {
-                return new ResourceLocation(Constants.MOD_ID, "json_data_manager");
+                return Utils.rl("json_data_manager");
             }
 
             @Override

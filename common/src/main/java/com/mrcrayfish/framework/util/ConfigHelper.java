@@ -89,7 +89,7 @@ public class ConfigHelper
                 FileWatcher.defaultInstance().setWatch(path, callback);
                 Constants.LOG.debug("Watching config: " + path);
             }
-            catch(IOException e)
+            catch(Exception e)
             {
                 Constants.LOG.debug("Failed to watch config: " + path, e);
                 throw new RuntimeException(e);

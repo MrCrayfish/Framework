@@ -499,7 +499,7 @@ public class FrameworkConfigManager
 
         public ResourceLocation getName()
         {
-            return new ResourceLocation(this.id, this.name);
+            return ResourceLocation.fromNamespaceAndPath(this.id, this.name);
         }
 
         public ConfigType getType()

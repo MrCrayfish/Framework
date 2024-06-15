@@ -12,8 +12,8 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.resources.ResourceLocation;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,8 +32,8 @@ public class FabricOpenBlockModel extends BlockModel
     }
 
     @Override
-    public BakedModel bake(ModelBaker baker, BlockModel model, Function<Material, TextureAtlasSprite> function, ModelState state, ResourceLocation location, boolean bl)
+    public BakedModel bake(ModelBaker baker, BlockModel model, Function<Material, TextureAtlasSprite> function, ModelState state, boolean bl)
     {
-        return new FabricBakedOpenModel(super.bake(baker, model, function, state, location, bl), this.data);
+        return new FabricBakedOpenModel(super.bake(baker, model, function, state, bl), this.data);
     }
 }

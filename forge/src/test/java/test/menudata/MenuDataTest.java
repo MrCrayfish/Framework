@@ -37,7 +37,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @RegistryContainer
 public class MenuDataTest
 {
-    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(new ResourceLocation("data_loader_test", "test_menu"), CustomData.STREAM_CODEC, TestMenu::new);
+    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(ResourceLocation.fromNamespaceAndPath("data_loader_test", "test_menu"), CustomData.STREAM_CODEC, TestMenu::new);
 
     public MenuDataTest()
     {

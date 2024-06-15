@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Constructor;
@@ -26,7 +27,7 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getBakedModel(ResourceLocation location)
+    public BakedModel getBakedModel(ModelResourceLocation location)
     {
         ModelManager manager = Minecraft.getInstance().getModelManager();
         return manager.bakedRegistry.getOrDefault(location, manager.getMissingModel());

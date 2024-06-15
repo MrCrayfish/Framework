@@ -18,8 +18,8 @@ public class OpenModelTest implements ModInitializer
     @Override
     public void onInitialize()
     {
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("framework_test", "open_model"), OPEN_MODEL_BLOCK);
-        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation("framework_test", "open_model"), new BlockItem(OPEN_MODEL_BLOCK, new Item.Properties()));
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation("framework_test", "child_open_model"), CHILD_OPEN_MODEL_BLOCK);
+        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath("framework_test", "open_model"), OPEN_MODEL_BLOCK);
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath("framework_test", "open_model"), new BlockItem(OPEN_MODEL_BLOCK, new Item.Properties()));
+        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath("framework_test", "child_open_model"), CHILD_OPEN_MODEL_BLOCK);
     }
 }

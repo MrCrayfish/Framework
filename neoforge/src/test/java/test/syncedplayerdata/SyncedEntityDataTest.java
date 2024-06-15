@@ -37,7 +37,7 @@ public class SyncedEntityDataTest
     private BlockPos lastClickedPos = BlockPos.ZERO;
 
     private static final SyncedDataKey<Player, Boolean> TOUCHED_GRASS = SyncedDataKey.builder(SyncedClassKey.PLAYER, Serializers.BOOLEAN)
-            .id(new ResourceLocation("synced_entity_data_test", "touched_grass"))
+            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "touched_grass"))
             .defaultValueSupplier(() -> false)
             .resetOnDeath()
             .saveToFile()
@@ -45,14 +45,14 @@ public class SyncedEntityDataTest
             .build();
 
     private static final SyncedDataKey<Animal, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.ANIMAL, Serializers.INTEGER)
-            .id(new ResourceLocation("synced_entity_data_test", "hit_count"))
+            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "hit_count"))
             .defaultValueSupplier(() -> 0)
             .saveToFile()
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
             .build();
 
     private static final SyncedDataKey<Zombie, TestCounter> STRIKE_COUNT = SyncedDataKey.builder(SyncedClassKey.ZOMBIE, TestCounter.SERIALIZER)
-        .id(new ResourceLocation("synced_entity_data_test", "strike_count"))
+        .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "strike_count"))
         .defaultValueSupplier(() -> new TestCounter(0))
         .saveToFile()
         .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)

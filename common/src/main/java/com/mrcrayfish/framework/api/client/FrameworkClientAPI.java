@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.JsonDataManager;
 import com.mrcrayfish.framework.client.model.OpenModelHelper;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -24,18 +25,18 @@ public class FrameworkClientAPI
     }
 
     /**
-     * A helper method to access custom data from an Open Model via a Resource Location. Be
+     * A helper method to access custom data from an Open Model via a Model Resource Location. Be
      * aware if the model is reloaded and this data is being cached in any way, invalidate it and
      * retrieve the data again. This method returns a DataObject even if the model doesn't have any
      * custom data or the model doesn't exist, however the object will be empty.
      *
-     * @param modelLocation the location of the model
+     * @param location the location of the model
      * @return a data object containing the custom data or an empty object
      */
-    public static DataObject getOpenModelData(ResourceLocation modelLocation)
+    public static DataObject getOpenModelData(ModelResourceLocation location)
     {
         // Internal code, do not call these directly since they may break in a future update.
-        return OpenModelHelper.getData(modelLocation);
+        return OpenModelHelper.getData(location);
     }
 
     /**

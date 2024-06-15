@@ -130,7 +130,7 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
          */
         public Builder<E, T> id(String id)
         {
-            this.id = new ResourceLocation(id);
+            this.id = ResourceLocation.parse(id);
             return this;
         }
 

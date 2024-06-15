@@ -25,10 +25,10 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @RegistryContainer
 public class RegistryTest
 {
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
-    public static final RegistryEntry<ResourceLocation> CUSTOM_AWESOME_STAT = RegistryEntry.customStat(new ResourceLocation("registry_test", "awesome_stat"), StatFormatter.DEFAULT);
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(ResourceLocation.fromNamespaceAndPath("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+    public static final RegistryEntry<ResourceLocation> CUSTOM_AWESOME_STAT = RegistryEntry.customStat(ResourceLocation.fromNamespaceAndPath("registry_test", "awesome_stat"), StatFormatter.DEFAULT);
 
-    public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(new ResourceLocation("registry_test", "tab"), builder -> {
+    public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(ResourceLocation.fromNamespaceAndPath("registry_test", "tab"), builder -> {
         builder.title(Component.literal("Creative tabs are pretty cool!"));
         builder.icon(() -> new ItemStack(Items.STICK));
         builder.displayItems((params, output) -> {

@@ -5,6 +5,7 @@ import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -19,9 +20,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class OpenModelHelper
 {
-    public static DataObject getData(ResourceLocation modelLocation)
+    public static DataObject getData(ModelResourceLocation location)
     {
-        BakedModel model = ClientServices.CLIENT.getBakedModel(modelLocation);
+        BakedModel model = ClientServices.CLIENT.getBakedModel(location);
         return model instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
     }
 

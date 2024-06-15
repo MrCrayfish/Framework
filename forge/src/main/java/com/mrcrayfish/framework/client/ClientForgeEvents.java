@@ -81,11 +81,11 @@ public class ClientForgeEvents
     {
         if(event.phase == TickEvent.Phase.START)
         {
-            TickEvents.START_RENDER.post().handle(event.renderTickTime);
+            TickEvents.START_RENDER.post().handle(event.getTimer());
         }
         else
         {
-            TickEvents.END_RENDER.post().handle(event.renderTickTime);
+            TickEvents.END_RENDER.post().handle(event.getTimer());
         }
     }
 

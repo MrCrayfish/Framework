@@ -158,9 +158,9 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.DATA_COMPONENT_TYPE, id, () -> operator.apply(DataComponentType.builder()).build());
     }
 
-    public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
+    public static <T> RegistryEntry<DataComponentType<T>> enchantmentEffectComponentType(ResourceLocation id, UnaryOperator<DataComponentType.Builder<T>> operator)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT, id, supplier);
+        return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, id, () -> operator.apply(DataComponentType.builder()).build());
     }
 
     public static <T extends EntityType<?>> RegistryEntry<T> entityType(ResourceLocation id, Supplier<T> supplier)

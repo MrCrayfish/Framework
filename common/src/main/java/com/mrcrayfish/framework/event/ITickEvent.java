@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.event;
 
 import com.mrcrayfish.framework.api.event.IFrameworkEvent;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -23,12 +24,12 @@ public interface ITickEvent extends IFrameworkEvent
 
     interface StartRender extends ITickEvent
     {
-        void handle(float partialTick);
+        void handle(DeltaTracker timer);
     }
 
     interface EndRender extends ITickEvent
     {
-        void handle(float partialTick);
+        void handle(DeltaTracker timer);
     }
 
     interface StartServer extends ITickEvent

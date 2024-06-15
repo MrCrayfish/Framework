@@ -43,9 +43,9 @@ public class OpenModelGeometry extends ElementsModel
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides)
     {
-        return new ForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides, modelLocation), this.data);
+        return new ForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides), this.data);
     }
 
     @Override

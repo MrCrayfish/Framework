@@ -23,8 +23,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 @RegistryContainer
 public class OpenModelDataTest
 {
-    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("open_model_data_test", "test_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-    public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(new ResourceLocation("open_model_data_test", "test_item"), () -> new Item(new Item.Properties()));
+    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_item"), () -> new Item(new Item.Properties()));
 
     public OpenModelDataTest(IEventBus bus)
     {

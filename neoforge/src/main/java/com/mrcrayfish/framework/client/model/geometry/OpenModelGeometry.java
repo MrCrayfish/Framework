@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.NeoForgeBakedOpenModel;
 import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
+import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -44,9 +45,9 @@ public class OpenModelGeometry extends ElementsModel
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides)
     {
-        return new NeoForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides, modelLocation), this.data);
+        return new NeoForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides), this.data);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class OpenModelGeometry extends ElementsModel
         @SubscribeEvent
         public static void onModelRegister(ModelEvent.RegisterGeometryLoaders event)
         {
-            event.register(new ResourceLocation(Constants.MOD_ID, "open_model"), new Loader());
+            event.register(Utils.rl("open_model"), new Loader());
         }
     }
 }

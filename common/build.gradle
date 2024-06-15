@@ -13,8 +13,8 @@ minecraft {
 
 dependencies {
     compileOnly "org.spongepowered:mixin:0.8.5"
-    library "com.electronwill.night-config:core:3.6.6"
-    library "com.electronwill.night-config:toml:3.6.6"
+    library "com.electronwill.night-config:core:3.7.1"
+    library "com.electronwill.night-config:toml:3.7.1"
 }
 
 configurations {

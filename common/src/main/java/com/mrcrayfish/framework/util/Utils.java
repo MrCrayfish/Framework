@@ -13,7 +13,7 @@ public class Utils
 {
     public static ResourceLocation rl(String name)
     {
-        return new ResourceLocation(Constants.MOD_ID, name);
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, name);
     }
 
     public static <T> Optional<T> or(T a, T b)

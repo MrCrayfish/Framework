@@ -43,7 +43,7 @@ public class DataLoaderTest
         public ResourceLocation getLocation()
         {
             ResourceLocation key = BuiltInRegistries.ITEM.getKey(this.item.get());
-            return new ResourceLocation(key.getNamespace(), "custom_data/" + key.getPath() + ".json");
+            return ResourceLocation.fromNamespaceAndPath(key.getNamespace(), "custom_data/" + key.getPath() + ".json");
         }
     }
 

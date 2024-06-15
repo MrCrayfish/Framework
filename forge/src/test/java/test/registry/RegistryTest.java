@@ -40,6 +40,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -67,7 +68,7 @@ public class RegistryTest
 {
     private static ResourceLocation rl(String name)
     {
-        return new ResourceLocation("registry_test", name);
+        return ResourceLocation.fromNamespaceAndPath("registry_test", name);
     }
 
     // TODO eventually move all to common
@@ -85,7 +86,6 @@ public class RegistryTest
         });
     });
     public static final RegistryEntry<ResourceLocation> MY_AWESOME_CUSTOM_STAT = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
-    public static final RegistryEntry<AwesomeEnchantment> MY_AWESOME_ENCHANTMENT = RegistryEntry.enchantment(rl("awesome_enchantment"), AwesomeEnchantment::new);
     public static final RegistryEntry<EntityType<Creeper>> MY_AWESOME_ENTITY_TYPE = RegistryEntry.entityType(rl("awesome_entity"), () -> EntityType.Builder.of(Creeper::new, MobCategory.AMBIENT).build("awesome_entity"));
     //public static final RegistryEntry<ResourceLocation> MY_AWESOME_FLUID = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<Item> MY_AWESOME_ITEM = RegistryEntry.item(rl("awesome_item"), () -> new Item(new Item.Properties().food(new FoodProperties.Builder().nutrition(10).build())));
@@ -138,14 +138,6 @@ public class RegistryTest
         }
     }
 
-    public static class AwesomeEnchantment extends Enchantment
-    {
-        public AwesomeEnchantment()
-        {
-            super(new EnchantmentDefinition(ItemTags.BEDS, Optional.empty(), 1, 3, new Cost(1, 1), new Cost(2, 2), 1, FeatureFlagSet.of(), new EquipmentSlot[]{}));
-        }
-    }
-
     public static class AwesomeMobEffect extends MobEffect
     {
         protected AwesomeMobEffect()
@@ -154,16 +146,16 @@ public class RegistryTest
         }
     }
 
-    public static class AwesomeRecipe implements Recipe<Container>
+    public static class AwesomeRecipe implements Recipe<CraftingInput>
     {
         @Override
-        public boolean matches(Container container, Level level)
+        public boolean matches(CraftingInput input, Level level)
         {
             return true;
         }
 
         @Override
-        public ItemStack assemble(Container p_44001_, HolderLookup.Provider p_332698_)
+        public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider)
         {
             return ItemStack.EMPTY;
         }

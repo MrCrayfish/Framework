@@ -9,6 +9,7 @@ import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
 import com.mrcrayfish.framework.network.message.configuration.S2CSyncedEntityData;
 import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
+import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,12 +24,12 @@ public class Network
 
     public static void init()
     {
-        configurationChannel = FrameworkAPI.createNetworkBuilder(new ResourceLocation(Constants.MOD_ID, "configuration"), 1)
+        configurationChannel = FrameworkAPI.createNetworkBuilder(Utils.rl("configuration"), 1)
             .registerConfigurationMessage("config_data", S2CConfigData.class, S2CConfigData.STREAM_CODEC, S2CConfigData::handle, () -> FrameworkConfigManager.getInstance().getConfigurationMessages())
             .registerConfigurationMessage("synced_entity_data", S2CSyncedEntityData.class, S2CSyncedEntityData.STREAM_CODEC, S2CSyncedEntityData::handle, () -> SyncedEntityData.instance().getConfigurationMessages())
             .optional()
             .build();
-        playChannel = FrameworkAPI.createNetworkBuilder(new ResourceLocation(Constants.MOD_ID, "play"), 1)
+        playChannel = FrameworkAPI.createNetworkBuilder(Utils.rl("play"), 1)
             .registerPlayMessage("update_entity_data", S2CUpdateEntityData.class, S2CUpdateEntityData.STREAM_CODEC, S2CUpdateEntityData::handle, PacketFlow.CLIENTBOUND)
             .registerPlayMessage("sync_config_data", S2CSyncConfigData.class, S2CSyncConfigData.STREAM_CODEC, S2CSyncConfigData::handle, PacketFlow.CLIENTBOUND)
             .optional()

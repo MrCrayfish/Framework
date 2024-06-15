@@ -31,7 +31,7 @@ public final class Registration
         list.add(Registries.FLUID.location());
         list.add(Registries.MOB_EFFECT.location());
         list.add(Registries.BLOCK.location());
-        list.add(Registries.ENCHANTMENT.location());
+        list.add(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.location());
         list.add(Registries.ENTITY_TYPE.location());
         list.add(Registries.ITEM.location());
         list.add(Registries.POTION.location());

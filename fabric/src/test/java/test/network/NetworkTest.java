@@ -31,13 +31,13 @@ public class NetworkTest implements ModInitializer
     public void onInitialize()
     {
         testPlayChannel = FrameworkAPI
-                .createNetworkBuilder(new ResourceLocation("network_test", "play"), 1)
+                .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "play"), 1)
                 .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle, PacketFlow.CLIENTBOUND)
                 .optional()
                 .build();
 
         testConfigurationChannel = FrameworkAPI
-                .createNetworkBuilder(new ResourceLocation("network_test", "configuration"), 1)
+                .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
                 .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
                 .build();
 

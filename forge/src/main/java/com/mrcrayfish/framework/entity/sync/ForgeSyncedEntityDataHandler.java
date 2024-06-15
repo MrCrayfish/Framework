@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.entity.sync;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
@@ -39,7 +40,7 @@ public class ForgeSyncedEntityDataHandler
         if(SyncedEntityData.instance().hasSyncedDataKey(event.getObject()))
         {
             Provider provider = new Provider(event.getObject());
-            event.addCapability(new ResourceLocation(Constants.MOD_ID, "synced_entity_data"), provider);
+            event.addCapability(Utils.rl("synced_entity_data"), provider);
             if(!(event.getObject() instanceof ServerPlayer)) // Don't add invalidate to server player since it's persistent
             {
                 event.addListener(provider::invalidate);
@@ -66,23 +67,9 @@ public class ForgeSyncedEntityDataHandler
         }
 
         @Override
-        public ListTag serializeNBT()
-        {
-            // Temp until Forge fixes the issue: https://github.com/MinecraftForge/MinecraftForge/issues/9998
-            return this.holder.serialize(this.entity.registryAccess());
-        }
-
-        @Override
         public ListTag serializeNBT(HolderLookup.Provider provider)
         {
             return this.holder.serialize(provider);
-        }
-
-        @Override
-        public void deserializeNBT(ListTag tag)
-        {
-            // Temp until Forge fixes the issue: https://github.com/MinecraftForge/MinecraftForge/issues/9998
-            this.holder.deserialize(tag, this.entity.registryAccess());
         }
 
         @Override

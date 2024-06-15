@@ -34,6 +34,6 @@ public interface FrameworkNetworkBuilder
 
     static ResourceLocation createMessageId(ResourceLocation id, String name)
     {
-        return new ResourceLocation(id.getNamespace(), id.getPath() + "/" + name);
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + "/" + name);
     }
 }
