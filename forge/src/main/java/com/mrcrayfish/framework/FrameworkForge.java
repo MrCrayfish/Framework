@@ -42,11 +42,6 @@ public class FrameworkForge
         bus.addListener(this::onLoadComplete);
         bus.addListener(this::onRegister);
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            bus.addListener(this::onClientSetup);
-            bus.addListener(ClientFrameworkForge::registerKeyMappings);
-            bus.addListener(ClientFrameworkForge::registerReloadListener);
-        });
         FrameworkSetup.run();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
 
@@ -63,11 +58,6 @@ public class FrameworkForge
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
         event.enqueueWork(FrameworkSetup::init);
-    }
-
-    private void onClientSetup(FMLClientSetupEvent event)
-    {
-        event.enqueueWork(ClientFrameworkForge::init);
     }
 
     private void onRegister(RegisterEvent event)

@@ -57,6 +57,10 @@ public class FrameworkAPI
         return Services.NETWORK.openMenuWithData(player, provider, data);
     }
 
+    /**
+     *
+     * @return
+     */
     public static Environment getEnvironment()
     {
         return Services.PLATFORM.getEnvironment();

@@ -22,10 +22,15 @@ public interface IClientHelper
     BlockElement deserializeBlockElement(JsonElement element, JsonDeserializationContext context);
 
     /**
-     * Gets a BakedModel in the ModelManager using a normal ResourceLocation
+     * Gets a BakedModel in the ModelManager using a ModelResourceLocation
      *
      * @param location the identifier of the baked model
      * @return the baked model or missing model if location doesn't exist
      */
     BakedModel getBakedModel(ModelResourceLocation location);
+
+    /**
+     * @return The platform specific variant for registering standalone models.
+     */
+    String getStandaloneModelVariant();
 }

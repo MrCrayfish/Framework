@@ -27,4 +27,10 @@ public class ForgeClientHelper implements IClientHelper
     {
         return Minecraft.getInstance().getModelManager().getModel(location);
     }
+
+    @Override
+    public String getStandaloneModelVariant()
+    {
+        return "";
+    }
 }

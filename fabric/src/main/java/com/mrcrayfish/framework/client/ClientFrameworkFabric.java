@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.util.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -25,22 +26,17 @@ public class ClientFrameworkFabric implements ClientModInitializer
     public void onInitializeClient()
     {
         ClientBootstrap.init();
-
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener()
-        {
+        ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
-            public ResourceLocation getFabricId()
-            {
+            public ResourceLocation getFabricId() {
                 return Utils.rl("json_data_manager");
             }
-
             @Override
-            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2, Executor executor, Executor executor2)
-            {
+            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2, Executor executor, Executor executor2) {
                 return JsonDataManager.getInstance().reload(preparationBarrier, resourceManager, profilerFiller, profilerFiller2, executor, executor2);
             }
         });
-
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             FrameworkData.setLoaded();
         });

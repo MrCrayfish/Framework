@@ -13,13 +13,15 @@
         ],
         "client": [
             "test.dataloader.DataLoaderTest",
-            "test.openmodeldata.ClientOpenModelDataTest"
+            "test.openmodeldata.ClientOpenModelDataTest",
+            "test.standalonemodel.StandaloneModelTest"
         ]
     },
     "custom": {
         "framework": {
             "containers": [
-                "test.registry"
+                "test.registry",
+                "test.standalonemodel"
             ],
             "configs": [
                 "test.config.ConfigTest"

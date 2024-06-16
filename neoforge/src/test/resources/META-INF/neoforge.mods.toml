@@ -51,6 +51,13 @@ displayName="Menu Data Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="standalone_model_test"
+version="0.1.0"
+displayName="Standalone Model Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.synced_entity_data_test]]
 modId="framework"
 type="required"
@@ -80,6 +87,13 @@ ordering="NONE"
 side="BOTH"
 
 [[dependencies.data_loader_test]]
+modId="framework"
+type="required"
+versionRange="[0.2.4,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.standalone_model_test]]
 modId="framework"
 type="required"
 versionRange="[0.2.4,)"
