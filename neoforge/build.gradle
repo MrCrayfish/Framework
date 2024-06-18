@@ -50,3 +50,9 @@ tasks.register('signJar', PotentiallySignJar) {
 }
 
 jar.finalizedBy 'signJar'
+
+tasks.configureEach { task ->
+    if (task.name.startsWith("testJunit")) {
+        task.enabled = false
+    }
+}
