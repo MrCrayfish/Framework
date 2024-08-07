@@ -16,5 +16,15 @@ pluginManagement {
     }
 }
 
+def includeModloader(String name) {
+    // If building with Github Actions, only include loader we want!
+    String targetLoader = Boolean.getBoolean("CI") ?: System.getenv("TARGET_LOADER")
+    if(targetLoader == null || targetLoader == name) {
+        include(name)
+    }
+}
+
 rootProject.name = 'Framework'
-include("Common", "Fabric", "Forge")
+include("common")
+includeModloader("forge")
+includeModloader("fabric")

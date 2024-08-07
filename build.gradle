@@ -6,6 +6,8 @@ subprojects {
     java.withSourcesJar()
     java.withJavadocJar()
 
+    version = "${minecraft_version}-${mod_version}"
+
     configurations {
         library
     }
@@ -63,7 +65,7 @@ subprojects {
 
 task incrementBuild {
     doLast {
-        int version = file('/release_build').text.toInteger()
-        file('/release_build').text = version + 1
+        int version = file('/release_build_common').text.toInteger()
+        file('/release_build_common').text = version + 1
     }
 }
