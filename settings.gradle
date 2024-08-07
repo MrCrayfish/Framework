@@ -17,4 +17,4 @@ pluginManagement {
 }
 
 rootProject.name = 'Framework'
-include("Common", "Fabric", "Forge")
+include("common", "fabric", "forge")
