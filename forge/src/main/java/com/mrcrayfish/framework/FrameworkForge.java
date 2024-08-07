@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
 import com.mrcrayfish.framework.event.ForgeEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stats;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;

@@ -10,6 +10,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.StatFormatter;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -19,6 +20,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -36,11 +38,11 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public sealed class RegistryEntry<T> permits BlockRegistryEntry
+public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
-    private final Registry<?> registry;
-    private final ResourceLocation id;
-    private final Supplier<T> supplier;
+    protected final Registry<?> registry;
+    protected final ResourceLocation id;
+    protected final Supplier<T> supplier;
 
     RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
     {
@@ -120,6 +122,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
         return new RegistryEntry<>(Registry.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
     }
 
+    public static RegistryEntry<ResourceLocation> customStat(ResourceLocation id, StatFormatter formatter)
+    {
+        return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
+    }
+
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(Registry.ENCHANTMENT, id, supplier);
@@ -168,6 +175,16 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry
     public static <T extends RecipeType<?>> RegistryEntry<T> recipeType(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(Registry.RECIPE_TYPE, id, supplier);
+    }
+
+    public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(ResourceLocation id)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<>() {
+            @Override
+            public String toString() {
+                return id.getPath();
+            }
+        });
     }
 
     public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(ResourceLocation id, Supplier<T> supplier)
