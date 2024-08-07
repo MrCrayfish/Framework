@@ -1,9 +1,10 @@
 package test.menudata;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.Commands;
@@ -72,11 +73,11 @@ public class MenuDataTest
         }
 
         @Override
-        protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
+        protected void renderBg(PoseStack poseStack, float partialTick, int mouseX, int mouseY)
         {
-            this.renderBackground(graphics);
-            graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFF);
-            graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFF);
+            this.renderBackground(poseStack);
+            GuiComponent.drawString(poseStack, this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFF);
+            GuiComponent.drawString(poseStack, this.font, this.menu.getMessage(), 0, 20, 0xFFFFFF);
         }
     }
 
