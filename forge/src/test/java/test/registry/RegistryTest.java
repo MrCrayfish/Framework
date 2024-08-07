@@ -48,7 +48,7 @@ public class RegistryTest
             return;
 
         player.awardStat(CUSTOM_AWESOME_STAT.get());
-        player.level().gameEvent(CUSTOM_GAME_EVENT.get(), event.getPos(), new GameEvent.Context(player, null));
+        player.getLevel().gameEvent(CUSTOM_GAME_EVENT.get(), event.getPos(), new GameEvent.Context(player, null));
     }
 
     private void onGameEvent(VanillaGameEvent event)
