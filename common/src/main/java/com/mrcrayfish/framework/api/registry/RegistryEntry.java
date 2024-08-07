@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
 
@@ -124,7 +125,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 
     public static RegistryEntry<ResourceLocation> customStat(ResourceLocation id, StatFormatter formatter)
     {
-        return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
+        return new CustomStatRegistryEntry(Registry.CUSTOM_STAT, id, formatter);
     }
 
     public static <T extends Enchantment> RegistryEntry<T> enchantment(ResourceLocation id, Supplier<T> supplier)
@@ -140,6 +141,16 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     public static <T extends Fluid> RegistryEntry<T> fluid(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(Registry.FLUID, id, supplier);
+    }
+
+    public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id)
+    {
+        return new RegistryEntry<>(Registry.GAME_EVENT, id, () -> new GameEvent(id.getPath(), GameEvent.DEFAULT_NOTIFICATION_RADIUS));
+    }
+
+    public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id, int notifyRadius)
+    {
+        return new RegistryEntry<>(Registry.GAME_EVENT, id, () -> new GameEvent(id.getPath(), notifyRadius));
     }
 
     public static <T extends Item> RegistryEntry<T> item(ResourceLocation id, Supplier<T> supplier)
@@ -179,7 +190,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 
     public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(ResourceLocation id)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<>() {
+        return new RegistryEntry<>(Registry.RECIPE_TYPE, id, () -> new RecipeType<>() {
             @Override
             public String toString() {
                 return id.getPath();

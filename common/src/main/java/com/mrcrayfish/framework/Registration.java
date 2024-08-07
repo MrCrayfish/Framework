@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,22 +22,24 @@ import java.util.stream.Collectors;
  */
 public final class Registration
 {
-    private static final Map<ResourceLocation, Integer> REGISTRATION_PRIORITY = Util.make(new HashMap<>(), map -> {
-        map.put(Registry.BLOCK_REGISTRY.location(), 0);
-        map.put(Registry.ITEM_REGISTRY.location(), 1);
-        map.put(Registry.FLUID_REGISTRY.location(), 2);
-        map.put(Registry.MOB_EFFECT_REGISTRY.location(), 3);
-        map.put(Registry.SOUND_EVENT_REGISTRY.location(), 4);
-        map.put(Registry.POTION_REGISTRY.location(), 5);
-        map.put(Registry.ENCHANTMENT_REGISTRY.location(), 6);
-        map.put(Registry.ENTITY_TYPE_REGISTRY.location(), 7);
-        map.put(Registry.BLOCK_ENTITY_TYPE_REGISTRY.location(), 8);
-        map.put(Registry.PARTICLE_TYPE_REGISTRY.location(), 9);
-        map.put(Registry.MENU_REGISTRY.location(), 10);
-        map.put(Registry.RECIPE_TYPE_REGISTRY.location(), 11);
-        map.put(Registry.RECIPE_SERIALIZER_REGISTRY.location(), 12);
-        map.put(Registry.ATTRIBUTE_REGISTRY.location(), 13);
-        map.put(Registry.COMMAND_ARGUMENT_TYPE_REGISTRY.location(), 14);
+    private static final List<ResourceLocation> REGISTRATION_PRIORITY = Util.make(new LinkedList<>(), list -> {
+        list.add(Registry.ATTRIBUTE_REGISTRY.location());
+        list.add(Registry.GAME_EVENT_REGISTRY.location());
+        list.add(Registry.SOUND_EVENT_REGISTRY.location());
+        list.add(Registry.FLUID_REGISTRY.location());
+        list.add(Registry.MOB_EFFECT_REGISTRY.location());
+        list.add(Registry.BLOCK_REGISTRY.location());
+        list.add(Registry.ENCHANTMENT_REGISTRY.location());
+        list.add(Registry.ENTITY_TYPE_REGISTRY.location());
+        list.add(Registry.ITEM_REGISTRY.location());
+        list.add(Registry.POTION_REGISTRY.location());
+        list.add(Registry.PARTICLE_TYPE_REGISTRY.location());
+        list.add(Registry.BLOCK_ENTITY_TYPE_REGISTRY.location());
+        list.add(Registry.CUSTOM_STAT_REGISTRY.location());
+        list.add(Registry.MENU_REGISTRY.location());
+        list.add(Registry.RECIPE_TYPE_REGISTRY.location());
+        list.add(Registry.RECIPE_SERIALIZER_REGISTRY.location());
+        list.add(Registry.COMMAND_ARGUMENT_TYPE_REGISTRY.location());
     });
 
     private static final Map<ResourceLocation, List<RegistryEntry<?>>> ENTRY_MAP = new HashMap<>();
@@ -57,7 +60,10 @@ public final class Registration
     {
         return ENTRY_MAP.values().stream()
                 .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(entry -> REGISTRATION_PRIORITY.getOrDefault(entry.getRegistry().key().location(), 1000)))
+                .sorted(Comparator.comparing(entry -> {
+                    int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistry().key().location());
+                    return index != -1 ? index : 1000;
+                }))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }
