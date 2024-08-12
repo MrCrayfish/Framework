@@ -52,11 +52,11 @@ public class OpenModelGeometry extends ElementsModel
         return new ForgeBakedOpenModel(super.bake(context, bakery, spriteGetter, modelState, overrides, modelLocation), this.data);
     }
 
-    @Override
+    /*@Override
     public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors)
     {
         return this.model.getMaterials(modelGetter, missingTextureErrors);
-    }
+    }*/
 
     @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class Loader implements IGeometryLoader<ElementsModel>
