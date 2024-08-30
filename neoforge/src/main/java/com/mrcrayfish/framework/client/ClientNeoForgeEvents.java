@@ -5,6 +5,7 @@ import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.InputEvents;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,6 +27,7 @@ public class ClientNeoForgeEvents
     @SubscribeEvent
     public void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event)
     {
+        FrameworkConfigManager.getInstance().loadDefaultSyncConfigsIfUnloaded();
         ClientConnectionEvents.LOGGING_IN.post().handle(event.getPlayer(), event.getMultiPlayerGameMode(), event.getConnection());
     }
 
