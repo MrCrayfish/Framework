@@ -27,9 +27,6 @@ public class NeoForgeNetworkHelper implements INetworkHelper
     @Override
     public <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data)
     {
-        AbstractContainerMenu oldMenu = player.containerMenu;
-        player.openMenu(provider, buf -> data.codec().encode(buf, data));
-        AbstractContainerMenu newMenu = player.containerMenu;
-        return oldMenu != newMenu ? OptionalInt.of(player.containerCounter) : OptionalInt.empty();
+        return player.openMenu(provider, buf -> data.codec().encode(buf, data));
     }
 }
