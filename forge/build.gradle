@@ -1,23 +1,23 @@
 import net.minecraftforge.gradle.common.tasks.SignJar
+import org.apache.commons.io.FilenameUtils
 
 plugins {
-    id 'java'
-    id 'eclipse'
+    id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle'
+    id 'org.spongepowered.mixin'
 }
 
-archivesBaseName = "${mod_id}-forge"
-version = "${minecraft_version}-${mod_version}"
+base {
+    archivesName = "${mod_id}-forge"
+}
 
 minecraft {
     mappings channel: 'official', version: minecraft_version
+    copyIdeResources = true
 
-    if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
-        // This location is hardcoded in Forge and can not be changed.
-        // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
         accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-        project.logger.debug('Forge Access Transformers are enabled for this project.')
     }
 
     runs {
@@ -81,17 +81,13 @@ dependencies {
     testCompileOnly project(":common")
 }
 
-tasks.withType(JavaCompile) {
+Spec<Task> notForge = { Task it -> !it.name.startsWith("forge") && !it.name.contains("Test") } as Spec<Task>
+
+tasks.withType(JavaCompile).matching(notForge).configureEach {
     source(project(":common").sourceSets.main.allSource)
 }
-
-processResources {
+tasks.withType(ProcessResources).matching(notForge).configureEach {
     from project(":common").sourceSets.main.resources
-    inputs.property "version", project.version
-
-    filesMatching("META-INF/mods.toml") {
-        expand project.properties
-    }
 }
 
 jar.finalizedBy('reobfJar')
@@ -146,14 +142,17 @@ signing {
     sign publishing.publications.mavenJava
 }
 
-task signJar(type: SignJar, dependsOn: jar) {
+tasks.register('signJar', SignJar) {
+    dependsOn jar
     onlyIf {
-        hasProperty('keyStore') || System.getenv("KEYSTORE")
+        project.hasProperty('keyStore') || System.getenv("KEYSTORE")
     }
     keyStore = findProperty('keyStore') ?: System.getenv("KEYSTORE")
     alias = findProperty('keyStoreAlias') ?: System.getenv("KEYSTORE_ALIAS")
     storePass = findProperty('keyStorePass') ?: System.getenv("KEYSTORE_PASS")
-    inputFile = outputFile = jar.archiveFile
+    inputFile = jar.archiveFile
+    def name = FilenameUtils.removeExtension(jar.archiveFile.get().getAsFile().getName());
+    outputFile = layout.buildDirectory.file("libs/%s-signed.jar".formatted(name));
 }
 
 jar.finalizedBy 'signJar'

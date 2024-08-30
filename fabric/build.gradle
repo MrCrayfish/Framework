@@ -1,11 +1,13 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
-    id 'maven-publish'
+    id 'java'
     id 'idea'
+    id 'maven-publish'
+    id 'fabric-loom'
 }
 
-archivesBaseName = "${mod_id}-fabric"
-version = "${minecraft_version}-${mod_version}"
+base {
+    archivesName = "${mod_id}-fabric"
+}
 
 sourceSets {
     testMod {
@@ -69,17 +71,20 @@ jar {
     from(file("LICENSE_Reflections"))
 }
 
-processResources {
-    from project(":common").sourceSets.main.resources
-    inputs.property "version", project.version
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
-    filesMatching("fabric.mod.json") {
-        expand project.properties
-    }
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":common").sourceSets.main.allSource)
 }
 
-tasks.withType(JavaCompile) {
-    source(project(":common").sourceSets.main.allSource)
+processResources {
+    from project(":common").sourceSets.main.resources
 }
 
 publishing {
