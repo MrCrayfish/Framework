@@ -32,7 +32,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -100,7 +99,7 @@ public class FabricNetwork implements FrameworkNetwork
             });
             // Sends the login messages to client when they are connecting
             ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
-                this.sendHandshakeMessages(sender, handler.connection.isMemoryConnection());
+                this.sendHandshakeMessages(synchronizer, server, sender, handler.connection.isMemoryConnection());
             });
             ServerLoginNetworking.registerGlobalReceiver(this.id, (server, handler, understood, buf, synchronizer, responseSender) -> {
                 FabricServerNetworkHandler.receiveHandshake(this, server, handler, understood, buf, synchronizer, responseSender);
@@ -233,18 +232,17 @@ public class FabricNetwork implements FrameworkNetwork
         return buf;
     }
 
-    private void sendHandshakeMessages(PacketSender sender, boolean isLocal)
+    private void sendHandshakeMessages(ServerLoginNetworking.LoginSynchronizer synchronizer, MinecraftServer server, PacketSender sender, boolean isLocal)
     {
-        this.classToHandshakeMessage.values().forEach(fabricMessage ->
-        {
-            Optional.ofNullable(fabricMessage.getMessages()).ifPresent(messages ->
-            {
-                messages.apply(isLocal).forEach(pair ->
-                {
-                    FriendlyByteBuf buf = PacketByteBufs.create();
-                    buf.writeInt(fabricMessage.getIndex());
-                    this.encodeLoginMessage(pair.getValue(), buf);
-                    sender.sendPacket(this.id, buf);
+        this.classToHandshakeMessage.values().forEach(fabricMessage -> {
+            Optional.ofNullable(fabricMessage.getMessages()).ifPresent(messages -> {
+                messages.apply(isLocal).forEach(pair -> {
+                    synchronizer.waitFor(server.submit(() -> {
+                        FriendlyByteBuf buf = PacketByteBufs.create();
+                        buf.writeInt(fabricMessage.getIndex());
+                        this.encodeLoginMessage(pair.getValue(), buf);
+                        sender.sendPacket(this.id, buf);
+                    }));
                 });
             });
         });
