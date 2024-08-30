@@ -237,6 +237,21 @@ public class FrameworkConfigManager
         }).forEach(entry -> entry.unload(true));
     }
 
+    /**
+     * Fallback if connecting to a vanilla server. Waits until login event, if the sync configs are
+     * unloaded, we can assume the server didn't send anything and just load the default configs.
+     */
+    public void loadDefaultSyncConfigsIfUnloaded()
+    {
+        this.configs.values().stream().filter(config -> {
+            return config.getType().isSync();
+        }).forEach(config -> {
+            if(!config.isLoaded()) {
+                config.loadWithDefaults();
+            }
+        });
+    }
+
     public static final class FrameworkConfigImpl
     {
         private final Object source;
@@ -337,6 +352,18 @@ public class FrameworkConfigManager
                 this.unload(false);
                 return false;
             }
+        }
+
+        private void loadWithDefaults()
+        {
+            this.unload(false);
+            Constants.LOG.info("Loading default config for {}", this.getName());
+            CommentedConfig commentedConfig = CommentedConfig.inMemory();
+            this.correct(commentedConfig);
+            UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
+            this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
+            this.config = config;
+            FrameworkConfigEvents.LOAD.post().handle(this.source);
         }
 
         public UnmodifiableConfig createConfig(@Nullable Path configDir)
