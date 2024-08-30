@@ -65,6 +65,11 @@ loom {
             ideConfigGenerated(true)
             runDir("run")
         }
+        testServer {
+            inherit server
+            setConfigName("Fabric Test Server")
+            setSource(sourceSets.testMod)
+        }
     }
 }
 
