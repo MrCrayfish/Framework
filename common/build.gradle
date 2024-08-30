@@ -9,6 +9,16 @@ minecraft {
     if (aw.exists()) {
         accessWideners(aw)
     }
+    runs {
+        client {
+            client()
+            displayName("Vanilla Client")
+        }
+        server {
+            server()
+            displayName("Vanilla Server")
+        }
+    }
 }
 
 dependencies {
