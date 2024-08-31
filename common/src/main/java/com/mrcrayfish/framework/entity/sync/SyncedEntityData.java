@@ -30,7 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

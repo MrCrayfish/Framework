@@ -39,7 +39,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;

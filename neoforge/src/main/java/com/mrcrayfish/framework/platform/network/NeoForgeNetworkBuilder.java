@@ -15,7 +15,7 @@ import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;

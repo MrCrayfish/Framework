@@ -3,8 +3,7 @@ package com.mrcrayfish.framework.client.model;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish

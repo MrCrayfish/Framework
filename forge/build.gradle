@@ -1,23 +1,19 @@
 import net.minecraftforge.gradle.common.tasks.SignJar
+import org.apache.commons.io.FilenameUtils
 
 plugins {
-    id 'java'
-    id 'eclipse'
-    id 'maven-publish'
+    id 'multiloader-loader'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
-}
-
-base {
-    archivesName = "${mod_id}-forge"
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
 minecraft {
     mappings channel: 'official', version: minecraft_version
-
     copyIdeResources = true
 
-    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformer = at
     }
 
     runs {
@@ -63,87 +59,23 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
-configurations {
-    implementation.extendsFrom library
-}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compileOnly project(":common")
-    testCompileOnly project(":common")
-}
-
-// Copying the same exclusion from neoforge seems to fix test mods and module issues
-Spec<Task> notForge = { Task it -> !it.name.startsWith("forge") && !it.name.contains("Test") } as Spec<Task>
-
-tasks.withType(JavaCompile).matching(notForge).configureEach {
-    source(project(":common").sourceSets.main.allSource)
-}
-
-tasks.withType(ProcessResources).matching(notForge).configureEach {
-    from project(":common").sourceSets.main.resources
 }
 
 jar.finalizedBy('reobfJar')
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId project.group
-            artifactId project.archivesBaseName
-            version project.version
-
-            artifact jar
-            artifact sourcesJar
-
-            pom.withXml {
-                def depsNode = asNode().appendNode('dependencies')
-                [this.configurations.library].each {
-                    it.allDependencies.each {
-                        def depNode = depsNode.appendNode('dependency')
-                        depNode.appendNode('groupId', it.group)
-                        depNode.appendNode('artifactId', it.name)
-                        depNode.appendNode('version', it.version)
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        if (System.getenv("CI")) {
-            maven {
-                name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/MrCrayfish/Maven"
-                credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
-                    password = project.findProperty("gpr.key") ?: System.getenv("GPR_KEY")
-                }
-            }
-        } else {
-            maven {
-                url "file://" + System.getenv("LOCAL_MAVEN")
-            }
-        }
-    }
-}
-
-signing {
-    if (System.getenv("SIGNING_KEY")) {
-        def signingKey = System.getenv("SIGNING_KEY")
-        def signingPassword = System.getenv("SIGNING_PASSPHRASE")
-        useInMemoryPgpKeys(signingKey, signingPassword)
-    }
-    sign publishing.publications.mavenJava
-}
-
-task signJar(type: SignJar, dependsOn: jar) {
+tasks.register('signJar', SignJar) {
+    dependsOn jar
     onlyIf {
-        hasProperty('keyStore') || System.getenv("KEYSTORE")
+        project.hasProperty('keyStore') || System.getenv("KEYSTORE")
     }
     keyStore = findProperty('keyStore') ?: System.getenv("KEYSTORE")
     alias = findProperty('keyStoreAlias') ?: System.getenv("KEYSTORE_ALIAS")
     storePass = findProperty('keyStorePass') ?: System.getenv("KEYSTORE_PASS")
-    inputFile = outputFile = jar.archiveFile
+    inputFile = jar.archiveFile
+    def name = FilenameUtils.removeExtension(jar.archiveFile.get().getAsFile().getName());
+    outputFile = layout.buildDirectory.file("libs/%s-signed.jar".formatted(name));
 }
 
 jar.finalizedBy 'signJar'
@@ -154,3 +86,6 @@ sourceSets.each {
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
 }
+
+// Fixes forge appending "_mapped_" in POM
+fg.component(publishing.publications.named("mavenJava").get() as MavenPublication)

@@ -3,7 +3,7 @@ package com.mrcrayfish.framework.api.serialize;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**

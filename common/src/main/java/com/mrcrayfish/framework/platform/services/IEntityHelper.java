@@ -3,7 +3,7 @@ package com.mrcrayfish.framework.platform.services;
 import com.mrcrayfish.framework.entity.sync.DataHolder;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish

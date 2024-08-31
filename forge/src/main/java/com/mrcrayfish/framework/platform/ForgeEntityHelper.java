@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
 import com.mrcrayfish.framework.platform.services.IEntityHelper;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish

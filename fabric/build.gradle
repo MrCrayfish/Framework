@@ -1,12 +1,6 @@
 plugins {
-    id 'java'
-    id 'idea'
-    id 'maven-publish'
-    id 'fabric-loom' version '1.2-SNAPSHOT'
-}
-
-base {
-    archivesName = "${mod_id}-fabric"
+    id 'multiloader-loader'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
 }
 
 sourceSets {
@@ -18,10 +12,6 @@ sourceSets {
     }
 }
 
-configurations {
-    implementation.extendsFrom library
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
@@ -29,23 +19,21 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
-    library include("com.electronwill.night-config:core:3.6.6")
-    library include("com.electronwill.night-config:toml:3.6.6")
-    library include("org.javassist:javassist:3.29.2-GA")
-    library include("org.reflections:reflections:0.10.2") {
+    implementation include("com.electronwill.night-config:core:3.6.6")
+    implementation include("com.electronwill.night-config:toml:3.6.6")
+    implementation include("org.javassist:javassist:3.29.2-GA")
+    implementation include("org.reflections:reflections:0.10.2") {
         transitive = false
     }
-
-    implementation project(":common")
 
     testModImplementation sourceSets.main.output
     testModImplementation sourceSets.test.output
 }
 
 loom {
-    if(file("src/main/resources/${mod_id}.accesswidener").exists()) {
-        accessWidenerPath.set(file("src/main/resources/${mod_id}.accesswidener"))
+    def aw = file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
     }
     runs {
         client {
@@ -77,71 +65,3 @@ jar {
     from(file("LICENSE_Javassist"))
     from(file("LICENSE_Reflections"))
 }
-
-tasks.withType(JavaCompile) {
-    source(project(":common").sourceSets.main.allSource)
-}
-
-processResources {
-    from project(":common").sourceSets.main.resources
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand project.properties
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId project.group
-            artifactId project.archivesBaseName
-            version project.version
-
-            artifact remapJar
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-
-            pom.withXml {
-                def depsNode = asNode().appendNode('dependencies')
-                [this.configurations.library].each {
-                    it.allDependencies.each {
-                        def depNode = depsNode.appendNode('dependency')
-                        depNode.appendNode('groupId', it.group)
-                        depNode.appendNode('artifactId', it.name)
-                        depNode.appendNode('version', it.version)
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        if (System.getenv("CI")) {
-            maven {
-                name = "GitHubPackages"
-                url = "https://maven.pkg.github.com/MrCrayfish/Maven"
-                credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
-                    password = project.findProperty("gpr.key") ?: System.getenv("GPR_KEY")
-                }
-            }
-        } else {
-            maven {
-                url "file://" + System.getenv("LOCAL_MAVEN")
-            }
-        }
-    }
-}
-
-signing {
-    if (System.getenv("SIGNING_KEY")) {
-        def signingKey = System.getenv("SIGNING_KEY")
-        def signingPassword = System.getenv("SIGNING_PASSPHRASE")
-        useInMemoryPgpKeys(signingKey, signingPassword)
-    }
-    sign publishing.publications.mavenJava
-}
-
-loom.disableDeprecatedPomGeneration(publishing.publications.mavenJava)

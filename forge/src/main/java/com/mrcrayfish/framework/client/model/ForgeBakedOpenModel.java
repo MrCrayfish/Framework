@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.api.serialize.DataObject;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraftforge.client.model.BakedModelWrapper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
