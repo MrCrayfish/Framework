@@ -301,11 +301,14 @@ public final class SyncedEntityData
         if(newHolder == null)
             return;
 
-        Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>(oldHolder.dataMap);
-        if(respawn)
-        {
-            dataMap.entrySet().removeIf(entry -> !entry.getKey().persistent());
-        }
+        Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
+        oldHolder.dataMap.forEach((key, entry) -> {
+            if(respawn || key.persistent()) {
+                DataEntry<?, ?> newEntry = new DataEntry<>(newHolder, key);
+                newEntry.readValue(entry.writeValue());
+                dataMap.put(key, newEntry);
+            }
+        });
         newHolder.dataMap = dataMap;
     }
 
