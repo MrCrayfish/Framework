@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -295,11 +296,12 @@ public final class SyncedEntityData
         if(newHolder == null)
             return;
 
+        RegistryAccess access = newPlayer.registryAccess();
         Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
         oldHolder.dataMap.forEach((key, entry) -> {
             if(respawn || key.persistent()) {
                 DataEntry<?, ?> newEntry = new DataEntry<>(newHolder, key);
-                newEntry.readValue(entry.writeValue());
+                newEntry.readValue(entry.writeValue(access), access);
                 dataMap.put(key, newEntry);
             }
         });
