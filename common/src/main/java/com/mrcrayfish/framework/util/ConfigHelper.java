@@ -119,4 +119,12 @@ public class ConfigHelper
         TomlFormat.instance().createWriter().write(config, stream);
         return stream.toByteArray();
     }
+
+    public static void closeConfig(UnmodifiableConfig config)
+    {
+        if(config instanceof FileConfig fc)
+        {
+            fc.close();
+        }
+    }
 }
