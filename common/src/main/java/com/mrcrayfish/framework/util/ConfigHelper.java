@@ -47,6 +47,7 @@ public class ConfigHelper
             Path path = fileConfig.getNioPath();
             try
             {
+                Constants.LOG.info("Unwatching config: " + fileConfig.getNioPath());
                 FileWatcher.defaultInstance().removeWatch(path);
             }
             catch(RuntimeException e)
@@ -111,9 +112,9 @@ public class ConfigHelper
 
     public static byte[] getBytes(UnmodifiableConfig config)
     {
-        if(config instanceof FileConfig fc)
+        if(config instanceof FileConfig fileConfig)
         {
-            return readBytes(fc.getNioPath());
+            return readBytes(fileConfig.getNioPath());
         }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         TomlFormat.instance().createWriter().write(config, stream);
@@ -122,9 +123,10 @@ public class ConfigHelper
 
     public static void closeConfig(UnmodifiableConfig config)
     {
-        if(config instanceof FileConfig fc)
+        if(config instanceof FileConfig fileConfig)
         {
-            fc.close();
+            Constants.LOG.info("Closing config: " + fileConfig.getNioPath());
+            fileConfig.close();
         }
     }
 }

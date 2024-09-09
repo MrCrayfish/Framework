@@ -235,6 +235,14 @@ public class FrameworkConfigManager
             // Only unload server configs since were on client
             return config.getType().isServer();
         }).forEach(entry -> entry.unload(true));
+
+        if(server.isDedicatedServer())
+        {
+            Constants.LOG.info("Checking if all Framework configs unloaded...");
+            this.configs.forEach((location, config) -> {
+                Constants.LOG.info("Is '{}' unloaded: {}", config.getFileName(), config.config == null);
+            });
+        }
     }
 
     /**
