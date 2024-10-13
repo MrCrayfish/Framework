@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -175,8 +174,16 @@ public final class SyncedEntityData
             Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
             throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
+
+        // Get the value form the holder
         DataHolder holder = this.getDataHolder(entity);
-        return Objects.requireNonNullElse(holder, DataHolder.UNIVERSAL).get(key);
+        if(holder != null)
+        {
+            return holder.get(key);
+        }
+
+        // Fallback to default value.
+        return key.defaultValueSupplier().apply(new Updatable(null));
     }
 
     public <E extends Entity, T> void updateClientEntry(Entity entity, DataEntry<E, T> entry)

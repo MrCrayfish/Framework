@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
  */
 public class DataHolder
 {
-    public static final DataHolder UNIVERSAL = new DataHolder();
-
     Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
     private Entity entity;
     private boolean pendingSync = false;
