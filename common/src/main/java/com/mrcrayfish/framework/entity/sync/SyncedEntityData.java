@@ -82,8 +82,8 @@ public final class SyncedEntityData
     private final Int2ReferenceMap<SyncedDataKey<?, ?>> syncedIdToKey = new Int2ReferenceOpenHashMap<>();
 
     private final AtomicInteger nextIdTracker = new AtomicInteger();
-    private final List<Entity> dirtyEntities = new ArrayList<>();
-    private boolean dirty = false;
+    private final Set<Entity> pendingEntitiesForSync = new HashSet<>();
+    private boolean needsSync = false;
 
     private SyncedEntityData()
     {
@@ -154,13 +154,9 @@ public final class SyncedEntityData
             throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
         }
         DataHolder holder = this.getDataHolder(entity);
-        if(holder != null && holder.set(entity, key, value))
+        if(holder != null)
         {
-            if(!entity.level().isClientSide())
-            {
-                this.dirty = true;
-                this.dirtyEntities.add(entity);
-            }
+            holder.set(key, value);
         }
     }
 
@@ -214,9 +210,13 @@ public final class SyncedEntityData
         return ImmutableSet.copyOf(this.registeredDataKeys);
     }
 
-    void markDirty()
+    void markForSync(Entity entity)
     {
-        this.dirty = true;
+        if(!entity.level().isClientSide())
+        {
+            this.needsSync = true;
+            this.pendingEntitiesForSync.add(entity);
+        }
     }
 
     @Nullable
@@ -262,7 +262,7 @@ public final class SyncedEntityData
             DataHolder holder = this.getDataHolder(target);
             if(holder != null)
             {
-                List<DataEntry<?, ?>> entries = holder.gatherAll();
+                List<DataEntry<?, ?>> entries = holder.gatherAllTrackingDataEntries();
                 entries.removeIf(entry -> !entry.getKey().syncMode().isTracking());
                 if(!entries.isEmpty())
                 {
@@ -279,7 +279,7 @@ public final class SyncedEntityData
             DataHolder holder = this.getDataHolder(player);
             if(holder != null)
             {
-                List<DataEntry<?, ?>> entries = holder.gatherAll();
+                List<DataEntry<?, ?>> entries = holder.gatherAllTrackingDataEntries();
                 if(!entries.isEmpty())
                 {
                     Network.getPlayChannel().sendToPlayer(() -> (ServerPlayer) player, new S2CUpdateEntityData(player.getId(), entries));
@@ -314,22 +314,26 @@ public final class SyncedEntityData
 
     private void onServerTickEnd(MinecraftServer server)
     {
-        if(!this.dirty)
+        if(!this.needsSync)
             return;
 
-        if(this.dirtyEntities.isEmpty())
+        if(this.pendingEntitiesForSync.isEmpty())
         {
-            this.dirty = false;
+            this.needsSync = false;
             return;
         }
 
-        for(Entity entity : this.dirtyEntities)
+        for(Entity entity : this.pendingEntitiesForSync)
         {
-            DataHolder holder = this.getDataHolder(entity);
-            if(holder == null || !holder.isDirty())
+            // Don't sync entities that are removed
+            if(entity.isRemoved())
                 continue;
 
-            List<DataEntry<?, ?>> entries = holder.gatherDirty();
+            DataHolder holder = this.getDataHolder(entity);
+            if(holder == null || !holder.isPendingSync())
+                continue;
+
+            List<DataEntry<?, ?>> entries = holder.gatherPendingSyncDataEntries();
             if(entries.isEmpty())
                 continue;
 
@@ -344,10 +348,10 @@ public final class SyncedEntityData
             {
                 Network.getPlayChannel().sendToTracking(() -> entity, new S2CUpdateEntityData(entity.getId(), trackingEntries));
             }
-            holder.clean();
+            holder.clearSync();
         }
-        this.dirtyEntities.clear();
-        this.dirty = false;
+        this.pendingEntitiesForSync.clear();
+        this.needsSync = false;
     }
 
     public boolean updateMappings(S2CSyncedEntityData message)

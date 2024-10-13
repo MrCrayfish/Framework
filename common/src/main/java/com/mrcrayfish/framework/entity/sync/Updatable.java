@@ -3,6 +3,8 @@ package com.mrcrayfish.framework.entity.sync;
 /**
  * Author: MrCrayfish
  */
+// Removed in favour of SyncedObject and SyncSignal
+@Deprecated(forRemoval = true, since = "0.7.9")
 public class Updatable
 {
     public static final Updatable NULL = new Updatable(null);
@@ -21,7 +23,7 @@ public class Updatable
     {
         if(this.entry != null)
         {
-            this.entry.markDirty();
+            this.entry.markForSync();
         }
     }
 }

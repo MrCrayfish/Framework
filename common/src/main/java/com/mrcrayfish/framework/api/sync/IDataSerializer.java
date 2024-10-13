@@ -11,18 +11,18 @@ public interface IDataSerializer<T>
 {
     void write(FriendlyByteBuf buf, T value);
 
-    @Deprecated(forRemoval = true, since = "0.7.6")
     T read(FriendlyByteBuf buf);
 
+    @Deprecated(forRemoval = true, since = "0.7.9")
     default T read(Updatable updatable, FriendlyByteBuf buf) {
         return read(buf);
     }
 
     Tag write(T value);
 
-    @Deprecated(forRemoval = true, since = "0.7.6")
     T read(Tag nbt);
 
+    @Deprecated(forRemoval = true, since = "0.7.9")
     default T read(Updatable updatable, Tag nbt) {
         return read(nbt);
     }

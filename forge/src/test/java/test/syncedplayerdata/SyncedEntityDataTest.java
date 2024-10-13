@@ -1,13 +1,21 @@
 package test.syncedplayerdata;
 
 import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.sync.IDataSerializer;
 import com.mrcrayfish.framework.api.sync.Serializers;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
+import com.mrcrayfish.framework.api.sync.SyncedObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,6 +50,13 @@ public class SyncedEntityDataTest
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
             .build();
 
+    private static final SyncedDataKey<Zombie, TestCounter> STRIKE_COUNT = SyncedDataKey.builder(SyncedClassKey.ZOMBIE, TestCounter.SERIALIZER)
+        .id(new ResourceLocation("synced_entity_data_test", "strike_count"))
+        .defaultValueSupplier(() -> new TestCounter(0))
+        .saveToFile()
+        .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
+        .build();
+
     public SyncedEntityDataTest()
     {
         MinecraftForge.EVENT_BUS.addListener(this::onTouchBlock);
@@ -54,6 +69,7 @@ public class SyncedEntityDataTest
         event.enqueueWork(() -> {
             FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
             FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
+            FrameworkAPI.registerSyncedDataKey(STRIKE_COUNT);
         });
     }
 
@@ -89,6 +105,71 @@ public class SyncedEntityDataTest
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
             event.getEntity().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+        }
+
+        if(event.getTarget() instanceof Zombie zombie && !zombie.level().isClientSide())
+        {
+            TestCounter counter = STRIKE_COUNT.getValue(zombie);
+            counter.increment();
+            event.getEntity().displayClientMessage(Component.literal("This zombie has been hit " + counter.getCount() + " times!"), true);
+        }
+    }
+
+    private static class TestCounter extends SyncedObject
+    {
+        public static final IDataSerializer<TestCounter> SERIALIZER = new IDataSerializer<>()
+        {
+            @Override
+            public void write(FriendlyByteBuf buf, TestCounter counter)
+            {
+                buf.writeVarInt(counter.count);
+            }
+
+            @Override
+            public TestCounter read(FriendlyByteBuf buf)
+            {
+                return new TestCounter(buf.readVarInt());
+            }
+
+            @Override
+            public Tag write(TestCounter counter)
+            {
+                return IntTag.valueOf(counter.count);
+            }
+
+            @Override
+            public TestCounter read(Tag tag)
+            {
+                return new TestCounter(((IntTag) tag).getAsInt());
+            }
+        };
+
+        private int count;
+
+        public TestCounter(int count)
+        {
+            this.count = count;
+        }
+
+        public void increment()
+        {
+            this.count++;
+            this.markDirty();
+        }
+
+        public int getCount()
+        {
+            return count;
+        }
+
+        private Tag write(HolderLookup.Provider provider)
+        {
+            return IntTag.valueOf(this.count);
+        }
+
+        private static TestCounter read(Tag tag, HolderLookup.Provider provider)
+        {
+            return new TestCounter(((IntTag) tag).getAsInt());
         }
     }
 }

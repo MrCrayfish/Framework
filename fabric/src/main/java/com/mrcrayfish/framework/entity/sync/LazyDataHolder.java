@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.entity.sync;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity;
 
 /**
  * Author: MrCrayfish
@@ -16,18 +17,19 @@ public class LazyDataHolder
         this.data = data;
     }
 
-    public DataHolder get()
+    public DataHolder get(Entity entity)
     {
         if(this.holder == null)
         {
-            this.holder = this.create();
+            this.holder = this.create(entity);
         }
         return this.holder;
     }
 
-    private DataHolder create()
+    private DataHolder create(Entity entity)
     {
         DataHolder newHolder = new DataHolder();
+        newHolder.setup(entity);
         newHolder.deserialize(this.data.getList("Keys", Tag.TAG_COMPOUND));
         return newHolder;
     }

@@ -75,6 +75,11 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
             this.self = self;
         }
 
+        public boolean willSync()
+        {
+            return this != NONE;
+        }
+
         public boolean isTracking()
         {
             return this.tracking;
@@ -156,6 +161,7 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
         /**
          * Sets the default value supplier for the synced key. This is a required property.
          */
+        @Deprecated(forRemoval = true, since = "0.7.9")
         public Builder<E, T> defaultValueSupplier(Function<Updatable, T> defaultValueSupplier)
         {
             this.defaultValueSupplier = defaultValueSupplier;

@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.entity.sync;
 
+import com.mrcrayfish.framework.api.sync.SyncSignal;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,16 +13,19 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DataEntry<E extends Entity, T>
 {
+    private final SyncSignal signal;
     private final DataHolder holder;
     private final SyncedDataKey<E, T> key;
     private T value;
-    private boolean dirty;
+    private boolean pendingSync;
 
     DataEntry(@Nullable DataHolder holder, SyncedDataKey<E, T> key)
     {
         this.holder = holder;
         this.key = key;
         this.value = key.defaultValueSupplier().apply(new Updatable(this));
+        this.signal = new SyncSignal(this::markForSync);
+        this.updateSignal(this.value);
     }
 
     SyncedDataKey<E, T> getKey()
@@ -34,32 +38,30 @@ public class DataEntry<E extends Entity, T>
         return this.value;
     }
 
-    void setValue(T value, boolean dirty)
+    void setValue(T value)
     {
+        this.updateSignal(value);
         this.value = value;
-        if(dirty)
+        this.markForSync();
+    }
+
+    public void markForSync()
+    {
+        if(this.holder != null && this.holder.canSync() && this.key.syncMode().willSync())
         {
-            this.markDirty();
+            this.pendingSync = true;
+            this.holder.markForSync();
         }
     }
 
-    public void markDirty()
+    boolean isPendingSync()
     {
-        this.dirty = true;
-        if(this.holder != null)
-        {
-            this.holder.markDirty();
-        }
+        return this.pendingSync;
     }
 
-    boolean isDirty()
+    void clearSync()
     {
-        return this.dirty;
-    }
-
-    void clean()
-    {
-        this.dirty = false;
+        this.pendingSync = false;
     }
 
     public void write(FriendlyByteBuf buffer)
@@ -91,5 +93,13 @@ public class DataEntry<E extends Entity, T>
     void readValue(Tag nbt)
     {
         this.value = this.key.serializer().read(new Updatable(this), nbt);
+    }
+
+    private void updateSignal(T value)
+    {
+        if(value instanceof SyncSignal.Consumer consumer)
+        {
+            consumer.accept(this.signal);
+        }
     }
 }

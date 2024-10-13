@@ -37,7 +37,7 @@ public class ForgeSyncedEntityDataHandler
     {
         if(SyncedEntityData.instance().hasSyncedDataKey(event.getObject()))
         {
-            Provider provider = new Provider();
+            Provider provider = new Provider(event.getObject());
             event.addCapability(new ResourceLocation(Constants.MOD_ID, "synced_entity_data"), provider);
             if(!(event.getObject() instanceof ServerPlayer)) // Don't add invalidate to server player since it's persistent
             {
@@ -50,6 +50,11 @@ public class ForgeSyncedEntityDataHandler
     {
         final DataHolder holder = new DataHolder();
         final LazyOptional<DataHolder> optional = LazyOptional.of(() -> this.holder);
+
+        public Provider(Entity entity)
+        {
+            this.holder.setup(entity);
+        }
 
         public void invalidate()
         {
