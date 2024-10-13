@@ -32,7 +32,7 @@ public class EntityMixin implements ISyncedDataHolder
         {
             this.frameworkLazyDataHolder = new LazyDataHolder(new CompoundTag());
         }
-        return this.frameworkLazyDataHolder.get();
+        return this.frameworkLazyDataHolder.get((Entity) (Object) this);
     }
 
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
