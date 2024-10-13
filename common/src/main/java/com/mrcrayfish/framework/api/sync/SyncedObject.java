@@ -11,7 +11,7 @@ public abstract class SyncedObject implements SyncSignal.Consumer
     private SyncSignal signal;
 
     @Override
-    public void accept(SyncSignal signal)
+    public void accept(@Nullable SyncSignal signal)
     {
         this.signal = signal;
     }

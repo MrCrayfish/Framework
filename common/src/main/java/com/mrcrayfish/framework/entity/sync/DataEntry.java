@@ -27,7 +27,7 @@ public class DataEntry<E extends Entity, T>
         this.key = key;
         this.value = key.defaultValueSupplier().get();
         this.signal = new SyncSignal(this::markForSync);
-        this.updateSignal(this.value);
+        this.updateSignal();
     }
 
     SyncedDataKey<E, T> getKey()
@@ -42,8 +42,9 @@ public class DataEntry<E extends Entity, T>
 
     void setValue(T value)
     {
-        this.updateSignal(value);
+        this.removeSignal();
         this.value = value;
+        this.updateSignal();
         this.markForSync();
     }
 
@@ -97,14 +98,24 @@ public class DataEntry<E extends Entity, T>
 
     void readValue(@Nullable Tag tag, HolderLookup.Provider provider)
     {
+        this.removeSignal();
         this.value = this.key.serializer().getTagReader().apply(tag, provider);
+        this.updateSignal();
     }
 
-    private void updateSignal(T value)
+    private void updateSignal()
     {
-        if(value instanceof SyncSignal.Consumer consumer)
+        if(this.value instanceof SyncSignal.Consumer consumer)
         {
             consumer.accept(this.signal);
+        }
+    }
+
+    private void removeSignal()
+    {
+        if(this.value instanceof SyncSignal.Consumer consumer)
+        {
+            consumer.accept(null);
         }
     }
 }
