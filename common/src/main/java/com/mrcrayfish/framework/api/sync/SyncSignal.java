@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.api.sync;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Author: MrCrayfish
  */
@@ -19,6 +21,6 @@ public final class SyncSignal
 
     public interface Consumer
     {
-        void accept(SyncSignal signal);
+        void accept(@Nullable SyncSignal signal);
     }
 }
