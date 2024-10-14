@@ -71,6 +71,14 @@ public class ConfigHelper
         }
     }
 
+    public static void closeConfig(UnmodifiableConfig config)
+    {
+        if(config instanceof FileConfig fc)
+        {
+            fc.close();
+        }
+    }
+
     public static void saveConfig(UnmodifiableConfig config)
     {
         if(config instanceof FileConfig fileConfig)
