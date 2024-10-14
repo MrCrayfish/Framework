@@ -395,6 +395,7 @@ public class FrameworkConfigManager
                 {
                     ConfigHelper.unwatchConfig(this.config);
                 }
+                ConfigHelper.closeConfig(this.config);
                 this.config = null;
                 if(sendEvent)
                 {
