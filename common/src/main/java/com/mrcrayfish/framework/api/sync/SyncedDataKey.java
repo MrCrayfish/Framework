@@ -76,6 +76,11 @@ public record SyncedDataKey<E extends Entity, T>(Pair<ResourceLocation, Resource
             this.self = self;
         }
 
+        public boolean willSync()
+        {
+            return this != NONE;
+        }
+
         public boolean isTracking()
         {
             return this.tracking;

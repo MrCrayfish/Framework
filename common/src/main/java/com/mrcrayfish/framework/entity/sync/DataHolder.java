@@ -23,7 +23,7 @@ public class DataHolder
 {
     Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
     private Entity entity;
-    private boolean dirty;
+    private boolean pendingSync;
 
     public DataHolder setup(Entity entity)
     {
@@ -35,14 +35,12 @@ public class DataHolder
     }
 
     @SuppressWarnings("unchecked")
-    <E extends Entity, T> boolean set(E entity, SyncedDataKey<?, ?> key, T value)
+    <E extends Entity, T> boolean set(SyncedDataKey<?, ?> key, T value)
     {
         DataEntry<E, T> entry = (DataEntry<E, T>) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2));
         if(!entry.getValue().equals(value))
         {
-            boolean dirty = !entity.level().isClientSide() && entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE;
-            entry.setValue(value, dirty);
-            this.dirty = dirty;
+            entry.setValue(value);
             return true;
         }
         return false;
@@ -55,34 +53,35 @@ public class DataHolder
         return (T) this.dataMap.computeIfAbsent(key, key2 -> new DataEntry<>(this, key2)).getValue();
     }
 
-    void markDirty()
+    boolean markForSync()
     {
-        this.dirty = true;
-        if(this.entity != null && !this.entity.level().isClientSide() && !this.entity.isRemoved())
+        if(SyncedEntityData.instance().markForSync(this.entity))
         {
-            SyncedEntityData.instance().markDirty(this.entity);
+            this.pendingSync = true;
+            return true;
         }
+        return false;
     }
 
-    boolean isDirty()
+    boolean isPendingSync()
     {
-        return this.dirty;
+        return this.pendingSync;
     }
 
-    void clean()
+    void clearSync()
     {
-        this.dirty = false;
-        this.dataMap.forEach((key, entry) -> entry.clean());
+        this.pendingSync = false;
+        this.dataMap.forEach((key, entry) -> entry.clearSync());
     }
 
-    List<DataEntry<?, ?>> gatherDirty()
+    List<DataEntry<?, ?>> gatherPendingSyncDataEntries()
     {
-        return this.dataMap.values().stream().filter(DataEntry::isDirty).filter(entry -> entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE).collect(Collectors.toList());
+        return this.dataMap.values().stream().filter(DataEntry::isPendingSync).filter(entry -> entry.getKey().syncMode().willSync()).collect(Collectors.toList());
     }
 
-    List<DataEntry<?, ?>> gatherAll()
+    List<DataEntry<?, ?>> gatherAllTrackingDataEntries()
     {
-        return this.dataMap.values().stream().filter(entry -> entry.getKey().syncMode() != SyncedDataKey.SyncMode.NONE).collect(Collectors.toList());
+        return this.dataMap.values().stream().filter(entry -> entry.getKey().syncMode().willSync()).collect(Collectors.toList());
     }
 
     public ListTag serialize(HolderLookup.Provider provider)

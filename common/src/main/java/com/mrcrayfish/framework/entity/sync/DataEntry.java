@@ -19,14 +19,14 @@ public class DataEntry<E extends Entity, T>
     private final DataHolder holder;
     private final SyncedDataKey<E, T> key;
     private T value;
-    private boolean dirty;
+    private boolean pendingSync;
 
     DataEntry(DataHolder holder, SyncedDataKey<E, T> key)
     {
         this.holder = holder;
         this.key = key;
         this.value = key.defaultValueSupplier().get();
-        this.signal = new SyncSignal(this::markDirty);
+        this.signal = new SyncSignal(this::markForSync);
         this.updateSignal(this.value);
     }
 
@@ -40,27 +40,32 @@ public class DataEntry<E extends Entity, T>
         return this.value;
     }
 
-    void setValue(T value, boolean dirty)
+    void setValue(T value)
     {
         this.updateSignal(value);
         this.value = value;
-        this.dirty = dirty;
+        this.markForSync();
     }
 
-    void markDirty()
+    public void markForSync()
     {
-        this.dirty = true;
-        this.holder.markDirty();
+        if(this.key.syncMode().willSync())
+        {
+            if(this.holder != null && this.holder.markForSync())
+            {
+                this.pendingSync = true;
+            }
+        }
     }
 
-    boolean isDirty()
+    boolean isPendingSync()
     {
-        return this.dirty;
+        return this.pendingSync;
     }
 
-    void clean()
+    void clearSync()
     {
-        this.dirty = false;
+        this.pendingSync = false;
     }
 
     public void write(RegistryFriendlyByteBuf buffer)
