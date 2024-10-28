@@ -340,6 +340,7 @@ public class FrameworkConfigManager
 
         public boolean loadFromData(byte[] data)
         {
+            Preconditions.checkState(EnvironmentHelper.getEnvironment().isClient(), "Configs can only be loaded from data on the client");
             this.unload(false);
             try
             {
