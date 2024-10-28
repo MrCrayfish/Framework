@@ -13,6 +13,13 @@ authors="MrCrayfish"
 description="A library providing powerful utilities for developers"
 
 [[mods]]
+modId="config_test"
+version="0.1.0"
+displayName="Config Test"
+authors="MrCrayfish"
+description=""
+
+[[mods]]
 modId="synced_entity_data_test"
 version="0.1.0"
 displayName="Synced Player Data Test"
@@ -78,6 +85,13 @@ description=""
     modId="minecraft"
     mandatory=true
     versionRange="[1.19.2,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.config_test]]
+    modId="framework"
+    mandatory=true
+    versionRange="[0.1.0,)"
     ordering="NONE"
     side="BOTH"
 
