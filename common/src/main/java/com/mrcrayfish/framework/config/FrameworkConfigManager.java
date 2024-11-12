@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -275,9 +277,8 @@ public class FrameworkConfigManager
         private final ConfigSpec spec;
         private final ClassLoader classLoader;
         private final CommentedConfig comments;
-        @Nullable
-        private UnmodifiableConfig config;
-        private boolean correcting;
+        private @Nullable UnmodifiableConfig config;
+        private final Lock lock;
 
         private FrameworkConfigImpl(ConfigScanData data)
         {
@@ -297,6 +298,7 @@ public class FrameworkConfigManager
             this.spec = createSpec(this.allProperties);
             this.comments = createComments(this.spec, data.getComments());
             this.classLoader = Thread.currentThread().getContextClassLoader();
+            this.lock = new ReentrantLock();
 
             // Load non-server configs immediately
             if(!this.configType.isServer())
@@ -329,11 +331,13 @@ public class FrameworkConfigManager
                 Constants.LOG.error("Attempting to load the config '{}', however it is already loaded. This should not happen, however it will simply be reloaded.", this.getName());
                 this.unload(true);
             }
-            UnmodifiableConfig config = this.createConfig(configDir);
-            ConfigHelper.loadConfig(config);
-            this.correct(config);
-            this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
-            this.config = config;
+            this.lock(() -> {
+                UnmodifiableConfig config = this.createConfig(configDir);
+                ConfigHelper.loadConfig(config);
+                this.correct(config);
+                this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
+                this.config = config;
+            });
             if(!this.readOnly && this.configType != ConfigType.MEMORY && watch)
             {
                 ConfigWatcher.get().watch(this.config, this::changeCallback);
@@ -342,7 +346,7 @@ public class FrameworkConfigManager
 
         public boolean loadFromData(byte[] data)
         {
-            Preconditions.checkState(EnvironmentHelper.getEnvironment().isClient(), "Configs can only be loaded from data on the client");
+            Preconditions.checkState(FrameworkAPI.getEnvironment().isClient(), "Configs can only be loaded from data on the client");
             this.unload(false);
             try
             {
@@ -351,9 +355,11 @@ public class FrameworkConfigManager
                 if(!this.spec.isCorrect(commentedConfig)) // The server should be sending correct configs
                     return false;
                 this.correct(commentedConfig);
-                UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
-                this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
-                this.config = config;
+                this.lock(() -> {
+                    UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
+                    this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
+                    this.config = config;
+                });
                 FrameworkConfigEvents.LOAD.post().handle(this.source);
                 return true;
             }
@@ -374,11 +380,13 @@ public class FrameworkConfigManager
         {
             this.unload(false);
             Constants.LOG.info("Loading default config for {}", this.getName());
-            CommentedConfig commentedConfig = CommentedConfig.inMemory();
-            this.correct(commentedConfig);
-            UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
-            this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
-            this.config = config;
+            this.lock(() -> {
+                CommentedConfig commentedConfig = CommentedConfig.inMemory();
+                this.correct(commentedConfig);
+                UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
+                this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
+                this.config = config;
+            });
             FrameworkConfigEvents.LOAD.post().handle(this.source);
         }
 
@@ -396,13 +404,14 @@ public class FrameworkConfigManager
         {
             if(this.config != null)
             {
-                this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
-                if(!this.readOnly && this.configType != ConfigType.MEMORY)
-                {
-                    ConfigWatcher.get().unwatch(this.config);
-                }
-                ConfigHelper.closeConfig(this.config);
-                this.config = null;
+                this.lock(() -> {
+                    this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
+                    if(!this.readOnly && this.configType != ConfigType.MEMORY) {
+                        ConfigWatcher.get().unwatch(this.config);
+                    }
+                    ConfigHelper.closeConfig(this.config);
+                    this.config = null;
+                });
                 if(sendEvent)
                 {
                     Constants.LOG.info("Sending config unload event for {}", this.getFileName());
@@ -414,11 +423,13 @@ public class FrameworkConfigManager
         private void changeCallback()
         {
             Thread.currentThread().setContextClassLoader(this.classLoader);
-            if(!this.correcting && this.config != null && !this.isReadOnly())
+            if(this.config != null && !this.isReadOnly())
             {
-                ConfigHelper.loadConfig(this.config);
-                this.correct(this.config);
-                this.allProperties.forEach(AbstractProperty::invalidateCache);
+                this.lock(() -> {
+                    ConfigHelper.loadConfig(this.config);
+                    this.correct(this.config);
+                    this.allProperties.forEach(AbstractProperty::invalidateCache);
+                });
                 // Send reload events
                 TaskRunner.submitOn(this.configType.getEnv().orElse(FrameworkAPI.getEnvironment()), () -> () -> {
                     FrameworkConfigEvents.RELOAD.post().handle(this.source);
@@ -461,13 +472,11 @@ public class FrameworkConfigManager
         {
             if(config instanceof Config && !this.isCorrect(config))
             {
-                this.correcting = true;
                 ConfigHelper.createBackup(config);
                 this.spec.correct((Config) config);
                 if(config instanceof CommentedConfig c)
                     c.putAllComments(this.comments);
                 ConfigHelper.saveConfig(config);
-                this.correcting = false;
             }
         }
 
@@ -527,6 +536,19 @@ public class FrameworkConfigManager
             this.allProperties.forEach(property -> tempConfig.set(property.getPath(), property.getDefaultValue()));
             ConfigHelper.saveConfig(tempConfig);
             tempConfig.close();
+        }
+
+        private void lock(Runnable runnable)
+        {
+            this.lock.lock();
+            try
+            {
+                runnable.run();
+            }
+            finally
+            {
+                this.lock.unlock();
+            }
         }
 
         public ResourceLocation getName()
