@@ -40,22 +40,6 @@ public class ConfigHelper
         }
     }
 
-    public static void unwatchConfig(UnmodifiableConfig config)
-    {
-        if(config instanceof FileConfig fileConfig)
-        {
-            Path path = fileConfig.getNioPath();
-            try
-            {
-                FileWatcher.defaultInstance().removeWatch(path);
-            }
-            catch(RuntimeException e)
-            {
-                Constants.LOG.debug("Failed to unwatch config: " + path, e);
-            }
-        }
-    }
-
     public static void loadConfig(UnmodifiableConfig config)
     {
         if(config instanceof FileConfig fileConfig)
@@ -84,24 +68,6 @@ public class ConfigHelper
         if(config instanceof FileConfig fileConfig)
         {
             fileConfig.save();
-        }
-    }
-
-    public static void watchConfig(UnmodifiableConfig config, Runnable callback)
-    {
-        if(config instanceof FileConfig fileConfig)
-        {
-            Path path = fileConfig.getNioPath();
-            try
-            {
-                FileWatcher.defaultInstance().setWatch(path, callback);
-                Constants.LOG.debug("Watching config: " + path);
-            }
-            catch(IOException e)
-            {
-                Constants.LOG.debug("Failed to watch config: " + path, e);
-                throw new RuntimeException(e);
-            }
         }
     }
 

@@ -7,6 +7,8 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileConfig;
+import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.core.io.ParsingException;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Preconditions;
@@ -245,6 +247,7 @@ public class FrameworkConfigManager
             // Only unload server configs since were on client
             return config.getType().isServer();
         }).forEach(entry -> entry.unload(true));
+        Constants.LOG.info("Finished unloading server configs");
     }
 
     /**
@@ -331,7 +334,7 @@ public class FrameworkConfigManager
             this.config = config;
             if(!this.readOnly && this.configType != ConfigType.MEMORY && watch)
             {
-                ConfigHelper.watchConfig(config, this::changeCallback);
+                ConfigWatcher.get().watch(this.config, this::changeCallback);
             }
         }
 
@@ -393,7 +396,7 @@ public class FrameworkConfigManager
                 this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
                 if(!this.readOnly && this.configType != ConfigType.MEMORY)
                 {
-                    ConfigHelper.unwatchConfig(this.config);
+                    ConfigWatcher.get().unwatch(this.config);
                 }
                 ConfigHelper.closeConfig(this.config);
                 this.config = null;

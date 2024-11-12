@@ -4,7 +4,9 @@ import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.GameShuttingDownEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
@@ -186,5 +188,11 @@ public class ForgeEvents
     public void onServerStopped(ServerStoppedEvent event)
     {
         ServerEvents.STOPPED.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onShuttingDown(GameShuttingDownEvent event)
+    {
+        ConfigWatcher.get().stop();
     }
 }

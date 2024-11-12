@@ -4,8 +4,10 @@ import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -186,5 +188,11 @@ public class NeoForgeEvents
     public void onServerStopped(ServerStoppedEvent event)
     {
         ServerEvents.STOPPED.post().handle(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onShuttingDown(GameShuttingDownEvent event)
+    {
+        ConfigWatcher.get().stop();
     }
 }
