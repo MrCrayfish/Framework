@@ -36,7 +36,7 @@ public class ConfigWatcher
                 this.fileWatcher.setWatch(path, changeCallback);
                 Constants.LOG.debug("Started watching config: " + path);
             }
-            catch(IOException e)
+            catch(Exception e)
             {
                 Constants.LOG.debug("Failed to watch config: " + path, e);
                 throw new RuntimeException(e);
@@ -68,7 +68,7 @@ public class ConfigWatcher
             Constants.LOG.debug("Stopping config watcher");
             this.fileWatcher.stop();
         }
-        catch(IOException e)
+        catch(Exception e)
         {
             throw new RuntimeException(e);
         }
