@@ -1,7 +1,8 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.FrameworkData;
-import com.mrcrayfish.framework.util.Utils;
+import com.mrcrayfish.framework.api.event.InputEvents;
+import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -39,6 +40,9 @@ public class ClientFrameworkFabric implements ClientModInitializer
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             FrameworkData.setLoaded();
+        });
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            ConfigWatcher.get().stop();
         });
     }
 }

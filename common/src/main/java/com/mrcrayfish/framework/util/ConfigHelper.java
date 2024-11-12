@@ -40,22 +40,6 @@ public class ConfigHelper
         }
     }
 
-    public static void unwatchConfig(UnmodifiableConfig config)
-    {
-        if(config instanceof FileConfig fileConfig)
-        {
-            Path path = fileConfig.getNioPath();
-            try
-            {
-                FileWatcher.defaultInstance().removeWatch(path);
-            }
-            catch(RuntimeException e)
-            {
-                Constants.LOG.debug("Failed to unwatch config: " + path, e);
-            }
-        }
-    }
-
     public static void loadConfig(UnmodifiableConfig config)
     {
         if(config instanceof FileConfig fileConfig)
