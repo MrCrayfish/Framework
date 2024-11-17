@@ -1,4 +1,7 @@
 {
     "loader": "framework:open_model",
-    "parent": "framework_test:block/test_block"
+    "parent": "framework_test:block/test_block",
+    "data": {
+        "tint": 4294901760
+    }
 }
