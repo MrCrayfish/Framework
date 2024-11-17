@@ -22,7 +22,7 @@ public abstract sealed class DataEntry permits DataObject, DataArray, DataString
     /**
      * @return A unique identifier for this entry. Lazily initialized
      */
-    public UUID getId()
+    public final UUID getId()
     {
         if(this.id == null)
         {
@@ -55,7 +55,6 @@ public abstract sealed class DataEntry permits DataObject, DataArray, DataString
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             if(primitive.isString())
             {
-                // TODO parse hex (0x...) as number
                 return new DataString(primitive.getAsString());
             }
             else if(primitive.isNumber())
