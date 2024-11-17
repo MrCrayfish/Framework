@@ -47,6 +47,14 @@ public final class DataNumber extends DataEntry
     }
 
     /**
+     * @return This data number as a long
+     */
+    public long asLong()
+    {
+        return this.value.longValue();
+    }
+
+    /**
      * @return This data number as a float
      */
     public float asFloat()
