@@ -29,7 +29,9 @@ import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -57,10 +59,10 @@ public class ForgeRegistrationHelper implements IRegistrationHelper
     }
 
     @Override
-    @SuppressWarnings({"ConstantConditions", "NullableProblems"})
+    @SuppressWarnings({"ConstantConditions"})
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
-        return BlockEntityType.Builder.of(function::apply, validBlocksSupplier.get()).build(null);
+        return new BlockEntityType<>(function::apply, Set.of(validBlocksSupplier.get()));
     }
 
     @Override

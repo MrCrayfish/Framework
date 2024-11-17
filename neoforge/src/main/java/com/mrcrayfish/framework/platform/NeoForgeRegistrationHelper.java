@@ -57,10 +57,10 @@ public class NeoForgeRegistrationHelper implements IRegistrationHelper
     }
 
     @Override
-    @SuppressWarnings({"ConstantConditions", "NullableProblems"})
+    @SuppressWarnings({"ConstantConditions"})
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
-        return BlockEntityType.Builder.of(function::apply, validBlocksSupplier.get()).build(null);
+        return new BlockEntityType<>(function::apply, validBlocksSupplier.get());
     }
 
     @Override

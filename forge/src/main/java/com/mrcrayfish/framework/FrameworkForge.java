@@ -35,13 +35,12 @@ public class FrameworkForge
 {
     public static final Logger LOGGER = LogManager.getLogger("Framework");
 
-    public FrameworkForge()
+    public FrameworkForge(FMLJavaModLoadingContext context)
     {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus bus = context.getModEventBus();
         bus.addListener(this::onCommonSetup);
         bus.addListener(this::onLoadComplete);
         bus.addListener(this::onRegister);
-        bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         FrameworkSetup.run();
         MinecraftForge.EVENT_BUS.register(new ForgeEvents());
 
@@ -49,7 +48,7 @@ public class FrameworkForge
         // However, if Framework is installed on the server, the client version must match.
         ModList.get().getModContainerById(Constants.MOD_ID).ifPresent(container -> {
             String modVersion = container.getModInfo().getVersion().toString();
-            ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> modVersion, (remoteVersion, fromServer) -> {
+            context.registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> modVersion, (remoteVersion, fromServer) -> {
                 return fromServer && (remoteVersion == null || remoteVersion.equals(modVersion));
             }));
         });
@@ -62,11 +61,10 @@ public class FrameworkForge
 
     private void onRegister(RegisterEvent event)
     {
-        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction()
-        {
+        System.out.println(event.getRegistryKey());
+        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction() {
             @Override
-            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
-            {
+            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier) {
                 event.register(registry.key(), name, supplier);
             }
         }));

@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.serialize;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -182,6 +183,18 @@ public final class DataObject extends DataEntry
             return new DataObject(element.getAsJsonObject());
         }
         return null;
+    }
+
+    /**
+     * Converts a Json Element into a Data Object. This method will return null if the Json Element
+     * is not a Json Object.
+     *
+     * @param element the json element to convert, which must be a json object
+     * @return a data object representation of the json element or null if unable to convert
+     */
+    public static DataObject convertNonNull(@Nullable JsonElement element)
+    {
+        return MoreObjects.firstNonNull(convert(element), EMPTY);
     }
 
     private static ImmutableMap<String, DataEntry> construct(JsonObject object)

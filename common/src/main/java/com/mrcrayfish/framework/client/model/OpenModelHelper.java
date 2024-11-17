@@ -1,11 +1,13 @@
 package com.mrcrayfish.framework.client.model;
 
+import com.google.common.base.MoreObjects;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -34,19 +36,21 @@ public class OpenModelHelper
 
     public static DataObject getData(Item item)
     {
-        BakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
-        return model instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
+        ResourceLocation location = item.components().get(DataComponents.ITEM_MODEL);
+        if(location != null)
+        {
+            BakedModel model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.inventory(location));
+            if(model instanceof IOpenModel openModel)
+            {
+                return openModel.getData();
+            }
+        }
+        return DataObject.EMPTY;
     }
 
     public static DataObject getData(ItemStack stack, @Nullable Level level, @Nullable LivingEntity entity, int seed)
     {
-        BakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(stack.getItem());
-        if(model != null)
-        {
-            ClientLevel clientLevel = level instanceof ClientLevel ? (ClientLevel) level : null;
-            BakedModel overrideModel = model.getOverrides().resolve(model, stack, clientLevel, entity, seed);
-            return overrideModel instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
-        }
-        return DataObject.EMPTY;
+        BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, level, entity, seed);
+        return model instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
     }
 }

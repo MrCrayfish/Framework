@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(AbstractContainerScreen.class)
 public class AbstractContainerScreenMixin
 {
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableDepthTest()V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
     private void frameworkAfterDrawBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci, int left, int top)
     {
         ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle((AbstractContainerScreen<?>) (Object) this, graphics, mouseX, mouseY);

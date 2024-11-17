@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.mrcrayfish.framework.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "ModelDiscoveryMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

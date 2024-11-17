@@ -55,6 +55,7 @@ public abstract sealed class DataEntry permits DataObject, DataArray, DataString
             JsonPrimitive primitive = element.getAsJsonPrimitive();
             if(primitive.isString())
             {
+                // TODO parse hex (0x...) as number
                 return new DataString(primitive.getAsString());
             }
             else if(primitive.isNumber())

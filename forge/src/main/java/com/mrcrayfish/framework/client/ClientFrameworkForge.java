@@ -36,9 +36,10 @@ public final class ClientFrameworkForge
         event.registerReloadListener(JsonDataManager.getInstance());
     }
 
-    @SubscribeEvent
-    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event)
+    // TODO reimplement when possible
+    /*@SubscribeEvent
+    public static void registerAdditionalModels(ModelEvent event)
     {
         StandaloneModelManager.getInstance().load(event::register);
-    }
+    }*/
 }

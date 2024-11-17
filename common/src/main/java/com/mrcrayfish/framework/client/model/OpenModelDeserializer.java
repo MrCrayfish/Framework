@@ -27,28 +27,21 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
      * Reads the bl
      */
     @Override
-    public List<BlockElement> getElements(JsonDeserializationContext context, JsonObject object)
+    public List<BlockElement> getElements(JsonDeserializationContext context, JsonObject object) throws JsonParseException
     {
-        try
+        List<BlockElement> list = new ArrayList<>();
+        for(JsonElement element : GsonHelper.getAsJsonArray(object, "components", new JsonArray()))
         {
-            List<BlockElement> list = new ArrayList<>();
-            for(JsonElement element : GsonHelper.getAsJsonArray(object, "components", new JsonArray()))
-            {
-                list.add(this.readBlockElement(element, context));
-            }
-            return list;
+            list.add(this.readBlockElement(element, context));
         }
-        catch(Exception e)
-        {
-            throw new JsonParseException(e);
-        }
+        return list;
     }
 
     /**
      * Reads a block element without restrictions on the size and rotation angle.
      */
     @SuppressWarnings("ConstantConditions")
-    private BlockElement readBlockElement(JsonElement element, JsonDeserializationContext context) throws Exception
+    private BlockElement readBlockElement(JsonElement element, JsonDeserializationContext context)
     {
         JsonObject object = element.getAsJsonObject();
 
@@ -70,6 +63,6 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
         // Read vanilla element and construct new element with custom properties
         BlockElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
         BlockElementRotation r = e.rotation != null ? new BlockElementRotation(e.rotation.origin(), e.rotation.axis(), angle, e.rotation.rescale()) : null;
-        return new BlockElement(from, to, e.faces, r, e.shade);
+        return new BlockElement(from, to, e.faces, r, e.shade, e.lightEmission);
     }
 }

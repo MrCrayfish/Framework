@@ -2,7 +2,7 @@ import net.neoforged.gradle.common.tasks.PotentiallySignJar
 
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.gradle.userdev' version '7.0.158'
+    id 'net.neoforged.gradle.userdev' version '7.0.168'
 }
 
 def at = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -11,9 +11,11 @@ if (at.exists()) {
 }
 
 sourceSets {
-    test {
+    testmod {
+        runtimeClasspath += main.runtimeClasspath;
+        compileClasspath += main.compileClasspath;
         runs {
-            modIdentifier 'frameworkTest'
+            modIdentifier 'testmod'
         }
     }
 }
@@ -21,12 +23,14 @@ sourceSets {
 runs {
     configureEach {
         modSource project.sourceSets.main
-        modSource project.sourceSets.test
+        modSource project.sourceSets.testmod
     }
     client {
+        modSource project.sourceSets.main
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
     }
     server {
+        modSource project.sourceSets.main
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         programArgument '--nogui'
     }
@@ -50,9 +54,3 @@ tasks.register('signJar', PotentiallySignJar) {
 }
 
 jar.finalizedBy 'signJar'
-
-tasks.configureEach { task ->
-    if (task.name.startsWith("testJunit")) {
-        task.enabled = false
-    }
-}

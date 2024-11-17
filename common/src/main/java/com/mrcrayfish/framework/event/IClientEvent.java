@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.event;
 
 import com.mrcrayfish.framework.api.event.IFrameworkEvent;
-import net.minecraft.client.player.Input;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -12,6 +12,6 @@ public interface IClientEvent extends IFrameworkEvent
     @FunctionalInterface
     interface PlayerInputUpdate extends IClientEvent
     {
-        void handle(Player player, Input input);
+        void handle(Player player, ClientInput input);
     }
 }

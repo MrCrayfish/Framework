@@ -1,14 +1,12 @@
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.8-SNAPSHOT'
 }
 
 sourceSets {
-    frameworkTest {
+    testmod {
         compileClasspath += main.compileClasspath
         runtimeClasspath += main.runtimeClasspath
-        compileClasspath += test.compileClasspath
-        runtimeClasspath += test.runtimeClasspath
     }
 }
 
@@ -37,14 +35,14 @@ loom {
             setConfigName("Fabric Client")
             ideConfigGenerated(true)
             runDir("runs/client")
-            setSource(sourceSets.frameworkTest)
+            setSource(sourceSets.testmod)
         }
         server {
             server()
             setConfigName("Fabric Server")
             ideConfigGenerated(true)
             runDir("runs/server")
-            setSource(sourceSets.frameworkTest)
+            setSource(sourceSets.testmod)
         }
     }
 }

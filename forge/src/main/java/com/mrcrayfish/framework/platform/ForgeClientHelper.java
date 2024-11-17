@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class ForgeClientHelper implements IClientHelper
 {
+    public static final String STANDALONE_VARIANT = "framework_standalone";
     private static final BlockElement.Deserializer BLOCK_PART_DESERIALIZER = new BlockElement.Deserializer();
 
     @Override
@@ -31,6 +32,6 @@ public class ForgeClientHelper implements IClientHelper
     @Override
     public String getStandaloneModelVariant()
     {
-        return "";
+        return STANDALONE_VARIANT;
     }
 }

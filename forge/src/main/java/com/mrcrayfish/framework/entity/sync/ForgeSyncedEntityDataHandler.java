@@ -5,21 +5,19 @@ import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
@@ -27,12 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID)
 public class ForgeSyncedEntityDataHandler
 {
-    public static final Capability<DataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
-
-    public static void registerCapabilities(RegisterCapabilitiesEvent event)
-    {
-        event.register(DataHolder.class);
-    }
+    public static final Capability<ForgeDataHolder> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event)
@@ -51,13 +44,13 @@ public class ForgeSyncedEntityDataHandler
     public static class Provider implements ICapabilitySerializable<ListTag>
     {
         final Entity entity;
-        final DataHolder holder;
-        final LazyOptional<DataHolder> optional;
+        final ForgeDataHolder holder;
+        final LazyOptional<ForgeDataHolder> optional;
 
         public Provider(Entity entity)
         {
             this.entity = entity;
-            this.holder = new DataHolder().setup(entity);
+            this.holder = new ForgeDataHolder().setup(entity);
             this.optional = LazyOptional.of(() -> this.holder);
         }
 

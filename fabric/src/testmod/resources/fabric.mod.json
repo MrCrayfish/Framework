@@ -1,0 +1,31 @@
+{
+    "schemaVersion": 1,
+    "id": "framework_test",
+    "version": "0.1.0",
+    "name": "Framework Tests",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "test.network.NetworkTest",
+            "test.openmodel.OpenModelTest",
+            "test.openmodeldata.OpenModelDataTest",
+            "test.syncedentitydata.SyncedEntityDataTest"
+        ],
+        "client": [
+            "test.dataloader.DataLoaderTest",
+            "test.openmodeldata.ClientOpenModelDataTest",
+            "test.standalonemodel.StandaloneModelTest"
+        ]
+    },
+    "custom": {
+        "framework": {
+            "containers": [
+                "test"
+            ],
+            "configs": [
+                "test.config.ConfigTest"
+            ]
+        }
+    }
+}
+  

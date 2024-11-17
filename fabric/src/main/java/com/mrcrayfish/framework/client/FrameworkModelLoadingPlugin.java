@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 public class FrameworkModelLoadingPlugin implements ModelLoadingPlugin
 {
     @Override
-    public void onInitializeModelLoader(Context context)
+    public void initialize(Context context)
     {
         StandaloneModelManager.getInstance().load(location -> {
             context.addModels(location.id());

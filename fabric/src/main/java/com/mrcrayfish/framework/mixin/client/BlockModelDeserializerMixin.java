@@ -36,7 +36,7 @@ public class BlockModelDeserializerMixin
     {
         if(this.isFrameworkOpenModel(object))
         {
-            cir.setReturnValue(new FabricOpenBlockModel(resourceLocation, elements, materials, ambientOcc, light, transforms, overrides, DataObject.convert(object.get("data"))));
+            cir.setReturnValue(new FabricOpenBlockModel(resourceLocation, elements, materials, ambientOcc, light, transforms, overrides, DataObject.convertNonNull(object.get("data"))));
         }
     }
 
