@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.api.serialize;
 
+import com.google.gson.internal.LazilyParsedNumber;
+
 /**
  * Author: MrCrayfish
  */
@@ -10,7 +12,22 @@ public final class DataNumber extends DataEntry
     DataNumber(Number value)
     {
         super(DataType.NUMBER);
-        this.value = value;
+        // Optimise value since LazilyParsedNumber will parse every call
+        if(value instanceof LazilyParsedNumber parsed)
+        {
+            if(parsed.toString().contains("."))
+            {
+                this.value = parsed.doubleValue();
+            }
+            else
+            {
+                this.value = parsed.longValue();
+            }
+        }
+        else
+        {
+            this.value = value;
+        }
     }
 
     /**
