@@ -4,7 +4,8 @@
     "package": "com.mrcrayfish.framework.mixin",
     "compatibilityLevel": "JAVA_21",
     "client": [
-        "ModelDiscoveryMixin"
+        "ModelDiscoveryMixin",
+        "BlockModelMixin"
     ],
     "injectors": {
         "defaultRequire": 1
