@@ -31,7 +31,7 @@ public abstract class ModelDiscoveryMixin
 
     // TODO axe once Forge adds back in RegisterAdditional event
     @Inject(method = "listMandatoryModels", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void onGatherModels(CallbackInfoReturnable<Set<ModelResourceLocation>> ci, Set<ModelResourceLocation> set)
+    private static void onGatherModels(CallbackInfoReturnable<Set<ModelResourceLocation>> ci, Set<ModelResourceLocation> set)
     {
         StandaloneModelManager.getInstance().load(set::add);
     }
