@@ -12,9 +12,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
@@ -24,31 +24,35 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @RegistryContainer
 public class OpenModelDataTest
 {
-    private static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test_block"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
-    private static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(rl("test_item"), Item::new, new Item.Properties());
+    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test_block"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(rl("test_item"), Item::new, new Item.Properties());
 
     public OpenModelDataTest(FMLJavaModLoadingContext context)
     {
         IEventBus bus = context.getModEventBus();
-        bus.addListener(this::onClientSetup);
+        bus.addListener(this::onRegisterBlockColors);
+        bus.addListener(this::onRegisterItemColors);
     }
 
-    private void onClientSetup(FMLClientSetupEvent event)
+    private void onRegisterBlockColors(RegisterColorHandlersEvent.Block event)
     {
-        Minecraft.getInstance().getBlockColors().register((state, getter, pos, index) -> {
+        event.register((state, getter, pos, index) -> {
             DataObject object = FrameworkClientAPI.getOpenModelData(state);
             if(object.has("tint", DataType.NUMBER)) {
                 return object.getDataNumber("tint").asInt();
             }
-            return 0;
+            return -1;
         }, TEST_BLOCK.get());
+    }
 
-        Minecraft.getInstance().getItemColors().register((stack, index) -> {
+    private void onRegisterItemColors(RegisterColorHandlersEvent.Item event)
+    {
+        event.register((stack, index) -> {
             DataObject object = FrameworkClientAPI.getOpenModelData(stack.getItem());
             if(object.get("tint") instanceof DataNumber number) {
                 return number.asInt();
             }
-            return 0;
+            return -1;
         }, TEST_ITEM.get(), TEST_BLOCK.get());
     }
 
