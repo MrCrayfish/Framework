@@ -61,7 +61,6 @@ public class FrameworkForge
 
     private void onRegister(RegisterEvent event)
     {
-        System.out.println(event.getRegistryKey());
         Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction() {
             @Override
             public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier) {
