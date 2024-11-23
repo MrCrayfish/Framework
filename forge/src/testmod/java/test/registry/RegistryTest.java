@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -46,6 +47,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -94,6 +97,7 @@ public class RegistryTest
     public static final RegistryEntry<MobEffect> MY_AWESOME_MOB_EFFECT = RegistryEntry.mobEffect(rl("awesome_mob_effect"), AwesomeMobEffect::new);
     public static final RegistryEntry<SimpleParticleType> MY_AWESOME_PARTICLE_TYPE = RegistryEntry.particleType(rl("awesome_particle_type"), () -> new SimpleParticleType(false));
     public static final RegistryEntry<Potion> MY_AWESOME_POTION = RegistryEntry.potion(rl("awesome_potion"), () -> new Potion("awesome_potion", new MobEffectInstance(MY_AWESOME_MOB_EFFECT.holder(), 1)));
+    public static final RegistryEntry<RecipeDisplay.Type<AwesomeRecipeDisplay>> MY_AWESOME_RECIPE_DISPLAY = RegistryEntry.recipeDisplay(rl("awesome_recipe_display"), () -> AwesomeRecipeDisplay.TYPE);
     public static final RegistryEntry<RecipeBookCategory> MY_AWESOME_RECIPE_BOOK_CATEGORY = RegistryEntry.recipeBookCategory(rl("awesome_recipe_book_category"));
     public static final RegistryEntry<RecipeType<AwesomeRecipe>> MY_AWESOME_RECIPE_TYPE = RegistryEntry.recipeType(rl("awesome_recipe_type"));
     public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), AwesomeRecipe.AwesomeSerializer::new);
@@ -204,6 +208,40 @@ public class RegistryTest
             {
                 return STREAM_CODEC;
             }
+        }
+    }
+
+    public record AwesomeRecipeDisplay(SlotDisplay result, SlotDisplay craftingStation) implements RecipeDisplay
+    {
+        private static final Type<AwesomeRecipeDisplay> TYPE = new Type<>(RecordCodecBuilder.mapCodec(builder -> {
+            return builder.group(
+                SlotDisplay.CODEC.fieldOf("result").forGetter(AwesomeRecipeDisplay::result),
+                SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(AwesomeRecipeDisplay::craftingStation)
+            ).apply(builder, AwesomeRecipeDisplay::new);
+        }), StreamCodec.composite(
+            SlotDisplay.STREAM_CODEC,
+            AwesomeRecipeDisplay::result,
+            SlotDisplay.STREAM_CODEC,
+            AwesomeRecipeDisplay::craftingStation,
+            AwesomeRecipeDisplay::new
+        ));
+
+        @Override
+        public SlotDisplay result()
+        {
+            return this.result;
+        }
+
+        @Override
+        public SlotDisplay craftingStation()
+        {
+            return this.craftingStation;
+        }
+
+        @Override
+        public Type<AwesomeRecipeDisplay> type()
+        {
+            return TYPE;
         }
     }
 }

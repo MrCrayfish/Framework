@@ -32,6 +32,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -125,7 +126,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         }, t -> null);
     }
 
-    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceLocation id, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties properties)
+    public static <T extends Block> RegistryEntry<T> blockWithItem(ResourceLocation id, Function<BlockBehaviour.Properties, T> blockFunction, BlockBehaviour.Properties properties)
     {
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
             return blockFunction.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
@@ -219,6 +220,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     public static <T extends Potion> RegistryEntry<T> potion(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(BuiltInRegistries.POTION, id, supplier);
+    }
+
+    public static <T extends RecipeDisplay, D extends RecipeDisplay.Type<T>> RegistryEntry<D> recipeDisplay(ResourceLocation id, Supplier<D> supplier)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_DISPLAY, id, supplier);
     }
 
     public static RegistryEntry<RecipeBookCategory> recipeBookCategory(ResourceLocation id)
