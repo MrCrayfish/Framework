@@ -2,51 +2,61 @@ package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish
  */
 public abstract class MessageContext
 {
-    private final PacketFlow flow;
-    private final @Nullable Player player;
+    private final @Nullable PacketFlow flow;
+    private final Executor executor;
+    private final Consumer<Component> disconnect;
+    private final Consumer<Boolean> handled;
     private Object reply;
 
-    public MessageContext(PacketFlow flow, @Nullable Player player)
+    public MessageContext(@Nullable PacketFlow flow, Executor executor, Consumer<Component> disconnect, Consumer<Boolean> handled)
     {
         this.flow = flow;
-        this.player = player;
+        this.executor = executor;
+        this.disconnect = disconnect;
+        this.handled = handled;
     }
 
     @Nullable
-    public PacketFlow getFlow()
+    public final PacketFlow getFlow()
     {
         return this.flow;
     }
 
-    public void reply(Object reply)
+    public final void execute(Runnable runnable)
+    {
+        this.executor.execute(runnable);
+    }
+
+    public final void disconnect(Component reason)
+    {
+        this.disconnect.accept(Component.literal("Connection closed - ").append(reason));
+    }
+
+    public final void reply(Object reply)
     {
         this.reply = reply;
     }
 
-    public Optional<Object> getReply()
+    public final Optional<Object> getReply()
     {
         return Optional.ofNullable(this.reply);
     }
 
-    public Optional<Player> getPlayer()
+    // Forge/NeoForge
+    public final void setHandled(boolean handled)
     {
-        return Optional.ofNullable(this.player);
+        this.handled.accept(handled);
     }
-
-    public abstract void setHandled(boolean handled);
-
-    public abstract void execute(Runnable runnable);
-
-    public abstract void disconnect(Component reason);
 }

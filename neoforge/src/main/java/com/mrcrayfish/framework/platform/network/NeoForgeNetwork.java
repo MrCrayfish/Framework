@@ -3,8 +3,12 @@ package com.mrcrayfish.framework.platform.network;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
+import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.PlayMessageContext;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
+import com.mrcrayfish.framework.network.message.PlayMessage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.SectionPos;
@@ -49,10 +53,10 @@ public final class NeoForgeNetwork implements FrameworkNetwork
     private final boolean optional;
     private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads;
     private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads;
-    private final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> classToMessage;
+    private final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext>> classToMessage;
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks;
 
-    public NeoForgeNetwork(ResourceLocation id, int version, boolean optional, Collection<FrameworkMessage<?, RegistryFriendlyByteBuf>> playMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads, List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
+    public NeoForgeNetwork(ResourceLocation id, int version, boolean optional, Collection<PlayMessage<?>> playMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads, List<ConfigurationMessage<?>> configurationMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
     {
         this.id = id;
         this.version = version;
@@ -77,7 +81,7 @@ public final class NeoForgeNetwork implements FrameworkNetwork
     @SuppressWarnings("unchecked")
     public <T> FrameworkPayload<T> encode(T message)
     {
-        FrameworkMessage<T, ? extends FriendlyByteBuf> msg = (FrameworkMessage<T, ? extends FriendlyByteBuf>) this.classToMessage.get(message.getClass());
+        FrameworkMessage<T, ? extends FriendlyByteBuf, ? extends MessageContext> msg = (FrameworkMessage<T, ? extends FriendlyByteBuf, ? extends MessageContext>) this.classToMessage.get(message.getClass());
         if(msg == null) throw new IllegalArgumentException("Unregistered message: " + message.getClass().getName());
         return msg.writePayload(message);
     }
@@ -169,12 +173,12 @@ public final class NeoForgeNetwork implements FrameworkNetwork
     {
         if(connection.getPacketListener() instanceof ServerCommonPacketListener listener)
         {
-            FrameworkMessage<?, ? extends FriendlyByteBuf> msg = this.classToMessage.values().stream().findAny().orElse(null);
+            FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext> msg = this.classToMessage.values().stream().findAny().orElse(null);
             return msg != null && listener.hasChannel(msg.type());
         }
         else if(connection.getPacketListener() instanceof ClientCommonPacketListener listener)
         {
-            FrameworkMessage<?, ? extends FriendlyByteBuf> msg = this.classToMessage.values().stream().findAny().orElse(null);
+            FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext> msg = this.classToMessage.values().stream().findAny().orElse(null);
             return msg != null && listener.hasChannel(msg.type());
         }
         return false;
@@ -195,9 +199,9 @@ public final class NeoForgeNetwork implements FrameworkNetwork
         return this.id.equals(that.id);
     }
 
-    private static Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> createClassMap(Collection<FrameworkMessage<?, RegistryFriendlyByteBuf>> a, List<FrameworkMessage<?, FriendlyByteBuf>> b)
+    private static Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext>> createClassMap(Collection<PlayMessage<?>> a, List<ConfigurationMessage<?>> b)
     {
-        Object2ObjectMap<Class<?>, FrameworkMessage<?, ?>> map = new Object2ObjectArrayMap<>();
+        Object2ObjectMap<Class<?>, FrameworkMessage<?, ?, ?>> map = new Object2ObjectArrayMap<>();
         a.forEach(msg -> map.put(msg.messageClass(), msg));
         b.forEach(msg -> map.put(msg.messageClass(), msg));
         return Collections.unmodifiableMap(map);

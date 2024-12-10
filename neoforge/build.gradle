@@ -26,11 +26,9 @@ runs {
         modSource project.sourceSets.testmod
     }
     client {
-        modSource project.sourceSets.main
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
     }
     server {
-        modSource project.sourceSets.main
         systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         programArgument '--nogui'
     }

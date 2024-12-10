@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.network.message;
 
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.PlayMessageContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,9 +14,9 @@ import java.util.function.BiConsumer;
 /**
  * Author: MrCrayfish
  */
-public class PlayMessage<T> extends FrameworkMessage<T, RegistryFriendlyByteBuf>
+public class PlayMessage<T> extends FrameworkMessage<T, RegistryFriendlyByteBuf, PlayMessageContext>
 {
-    public PlayMessage(CustomPacketPayload.Type<FrameworkPayload<T>> type, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
+    public PlayMessage(CustomPacketPayload.Type<FrameworkPayload<T>> type, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> codec, BiConsumer<T, PlayMessageContext> handler, @Nullable PacketFlow flow)
     {
         super(type, messageClass, codec, handler, flow);
     }

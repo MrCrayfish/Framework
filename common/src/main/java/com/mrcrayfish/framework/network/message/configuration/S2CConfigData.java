@@ -1,9 +1,11 @@
 package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -38,33 +40,36 @@ public record S2CConfigData(ResourceLocation key, byte[] data)
         return new S2CConfigData(key, data);
     }
 
-    public static FrameworkResponse handle(S2CConfigData message, Consumer<Runnable> executor)
+    public static void handle(S2CConfigData message, ConfigurationMessageContext context)
     {
-        Constants.LOG.debug("Received config data from server");
+        Constants.LOG.debug(ConfigurationMessage.MARKER, "Receiving config data from server: '{}'", message.key());
         boolean[] failed = new boolean[1];
         CountDownLatch block = new CountDownLatch(1);
-        executor.accept(() -> {
+        context.execute(() -> {
             try {
                 if(!FrameworkConfigManager.getInstance().processConfigData(message)) {
                     failed[0] = true;
                 }
             } catch (Exception e) {
                 failed[0] = true;
+                Constants.LOG.error(ConfigurationMessage.MARKER, "Fatal error when trying to process sync config", e);
             }
             block.countDown();
         });
+
+        // Wait for processing to finish
         try
         {
             block.await();
         }
-        catch(InterruptedException e)
+        catch(InterruptedException ignored)
         {
-            e.printStackTrace();
+            failed[0] = true;
         }
+
         if(failed[0])
         {
-            return FrameworkResponse.error(Component.translatable("configured.gui.handshake_process_failed").getString());
+            context.disconnect(Component.translatable("framework.gui.sync_config_failed"));
         }
-        return FrameworkResponse.SUCCESS;
     }
 }

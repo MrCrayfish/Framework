@@ -78,9 +78,9 @@ public class RegistryTest
 
     // TODO eventually move all to common
     public static final RegistryEntry<Attribute> MY_AWESOME_ATTRIBUTE = RegistryEntry.attribute(rl("awesome_attribute"), () -> new RangedAttribute("attribute.registry_test.generic.awesome", 0, 0, 1));
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.block(rl("awesome_block"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK_WITH_ITEM = RegistryEntry.blockWithItem(rl("awesome_block_with_item"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
-    public static final RegistryEntry<Block> MY_AWESOME_BLOCK_WITH_CUSTOM_ITEM = RegistryEntry.blockWithItem(rl("awesome_block_with_custom_item"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS), BlockItem::new, new Item.Properties().stacksTo(1));
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.block(rl("awesome_block"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK_WITH_ITEM = RegistryEntry.blockWithItem(rl("awesome_block_with_item"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+    public static final RegistryEntry<Block> MY_AWESOME_BLOCK_WITH_CUSTOM_ITEM = RegistryEntry.blockWithItem(rl("awesome_block_with_custom_item"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS), BlockItem::new, () -> new Item.Properties().stacksTo(1));
     public static final RegistryEntry<BlockEntityType<AwesomeBlockEntity>> MY_AWESOME_BLOCK_ENTITY = RegistryEntry.blockEntity(rl("awesome_block_entity"), AwesomeBlockEntity::new, () -> new Block[]{MY_AWESOME_BLOCK.get()});
     public static final RegistryEntry<SingletonArgumentInfo<AwesomeArgument>> MY_AWESOME_COMMAND_ARGUMENT_TYPE = RegistryEntry.commandArgumentType(rl("awesome_command_argument_type"), AwesomeArgument.class, () -> SingletonArgumentInfo.contextFree(AwesomeArgument::awesome));
     public static final RegistryEntry<CreativeModeTab> MY_AWESOME_CREATIVE_TAB = RegistryEntry.creativeModeTab(rl("tab"), builder -> {
@@ -93,7 +93,7 @@ public class RegistryTest
     public static final RegistryEntry<ResourceLocation> MY_AWESOME_CUSTOM_STAT = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<EntityType<Creeper>> MY_AWESOME_ENTITY_TYPE = RegistryEntry.entityType(rl("awesome_entity"), () -> EntityType.Builder.of(Creeper::new, MobCategory.AMBIENT));
     //public static final RegistryEntry<ResourceLocation> MY_AWESOME_FLUID = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
-    public static final RegistryEntry<Item> MY_AWESOME_ITEM = RegistryEntry.item(rl("awesome_item"), Item::new, new Item.Properties().food(new FoodProperties.Builder().nutrition(10).build()));
+    public static final RegistryEntry<Item> MY_AWESOME_ITEM = RegistryEntry.item(rl("awesome_item"), Item::new, () -> new Item.Properties().food(new FoodProperties.Builder().nutrition(10).build()));
     public static final RegistryEntry<MobEffect> MY_AWESOME_MOB_EFFECT = RegistryEntry.mobEffect(rl("awesome_mob_effect"), AwesomeMobEffect::new);
     public static final RegistryEntry<SimpleParticleType> MY_AWESOME_PARTICLE_TYPE = RegistryEntry.particleType(rl("awesome_particle_type"), () -> new SimpleParticleType(false));
     public static final RegistryEntry<Potion> MY_AWESOME_POTION = RegistryEntry.potion(rl("awesome_potion"), () -> new Potion("awesome_potion", new MobEffectInstance(MY_AWESOME_MOB_EFFECT.holder(), 1)));

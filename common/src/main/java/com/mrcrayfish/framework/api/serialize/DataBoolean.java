@@ -1,5 +1,8 @@
 package com.mrcrayfish.framework.api.serialize;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 /**
  * Author: MrCrayfish
  */
@@ -22,5 +25,11 @@ public final class DataBoolean extends DataEntry
     public boolean asBoolean()
     {
         return this.value;
+    }
+
+    @Override
+    protected JsonElement toJson()
+    {
+        return new JsonPrimitive(this.value);
     }
 }

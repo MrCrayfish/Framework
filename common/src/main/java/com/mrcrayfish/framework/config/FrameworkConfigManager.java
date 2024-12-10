@@ -132,7 +132,7 @@ public class FrameworkConfigManager
         if(server != null && !server.isDedicatedServer())
             return true;
 
-        Constants.LOG.info("Loading synced config from server: " + message.key());
+        Constants.LOG.info("Loading synced config from server: '{}'", message.key());
         FrameworkConfigImpl entry = this.configs.get(message.key());
         if(entry != null && entry.getType().isSync())
         {

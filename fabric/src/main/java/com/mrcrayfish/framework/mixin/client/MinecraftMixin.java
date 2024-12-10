@@ -46,7 +46,7 @@ public class MinecraftMixin
         }
     }
 
-    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getAbilities()Lnet/minecraft/world/entity/player/Abilities;"), allow = 1, cancellable = true)
+    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"), allow = 1, cancellable = true)
     private void frameworkOnPick(CallbackInfo ci)
     {
         if(InputEvents.CLICK.post().handle(false, false, true, InteractionHand.MAIN_HAND))

@@ -39,8 +39,8 @@ public class StandaloneModelTest implements ClientModInitializer
         return ResourceLocation.fromNamespaceAndPath("framework_test", name);
     }
 
-    public static final Supplier<BakedModel> CUSTOM_MODEL = FrameworkClientAPI.registerStandaloneModel(FrameworkClientAPI.createModelResourceLocation(rl("special/custom_model")));
-    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("standalone_model"), TestBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final Supplier<BakedModel> CUSTOM_MODEL = FrameworkClientAPI.registerStandaloneModel(rl("special/custom_model"));
+    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("standalone_model"), TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final RegistryEntry<BlockEntityType<TestBlockEntity>> TEST_BLOCK_ENTITY = RegistryEntry.blockEntity(rl("standalone_model"), TestBlockEntity::new, () -> new Block[]{TEST_BLOCK.get()});
 
     @Override
@@ -59,7 +59,7 @@ public class StandaloneModelTest implements ClientModInitializer
         @Override
         protected RenderShape getRenderShape(BlockState state)
         {
-            return RenderShape.ENTITYBLOCK_ANIMATED;
+            return RenderShape.MODEL;
         }
 
         @Nullable

@@ -12,15 +12,15 @@ import java.util.function.BiConsumer;
 /**
  * Author: MrCrayfish
  */
-public class FrameworkMessage<T, B extends FriendlyByteBuf>
+public class FrameworkMessage<T, B extends FriendlyByteBuf, C extends MessageContext>
 {
     private final CustomPacketPayload.Type<FrameworkPayload<T>> type;
     private final Class<T> messageClass;
     private final StreamCodec<B, FrameworkPayload<T>> codec;
-    private final BiConsumer<T, MessageContext> handler;
+    private final BiConsumer<T, C> handler;
     private final @Nullable PacketFlow flow;
 
-    public FrameworkMessage(CustomPacketPayload.Type<FrameworkPayload<T>> type, Class<T> messageClass, StreamCodec<B, FrameworkPayload<T>> codec, BiConsumer<T, MessageContext> handler, @Nullable PacketFlow flow)
+    public FrameworkMessage(CustomPacketPayload.Type<FrameworkPayload<T>> type, Class<T> messageClass, StreamCodec<B, FrameworkPayload<T>> codec, BiConsumer<T, C> handler, @Nullable PacketFlow flow)
     {
         this.type = type;
         this.messageClass = messageClass;
@@ -54,7 +54,7 @@ public class FrameworkMessage<T, B extends FriendlyByteBuf>
         return this.codec;
     }
 
-    public BiConsumer<T, MessageContext> handler()
+    public BiConsumer<T, C> handler()
     {
         return this.handler;
     }

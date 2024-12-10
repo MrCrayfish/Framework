@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.platform.network;
 
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.PlayMessageContext;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
 import com.mrcrayfish.framework.network.message.PlayMessage;
@@ -23,15 +26,15 @@ public class FabricClientNetworkHandler
     public static <T> void receivePlay(PlayMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ClientPlayNetworking.Context context)
     {
         Minecraft minecraft = context.client();
-        MessageContext ctx = new FabricMessageContext(minecraft, context.responseSender()::disconnect, minecraft.player, message.flow());
+        PlayMessageContext ctx = new PlayMessageContext(message.flow(), minecraft, context.responseSender()::disconnect, b -> {}, minecraft.player);
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createC2SPacket(network.encode(msg))));
     }
 
-    public static <T> void receiveConfiguration(FrameworkMessage<T, FriendlyByteBuf> message, FrameworkPayload<T> payload, FabricNetwork network, ClientConfigurationNetworking.Context context)
+    public static <T> void receiveConfiguration(ConfigurationMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ClientConfigurationNetworking.Context context)
     {
         Minecraft minecraft = Minecraft.getInstance();
-        MessageContext ctx = new FabricMessageContext(minecraft, context.responseSender()::disconnect, null, message.flow());
+        ConfigurationMessageContext ctx = new ConfigurationMessageContext(message.flow(), minecraft, context.responseSender()::disconnect, b -> {}, id -> {});
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createC2SPacket(network.encode(msg))));
     }

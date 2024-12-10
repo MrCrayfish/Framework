@@ -4,7 +4,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -27,10 +26,5 @@ public interface IClientHelper
      * @param location the identifier of the baked model
      * @return the baked model or missing model if location doesn't exist
      */
-    BakedModel getBakedModel(ModelResourceLocation location);
-
-    /**
-     * @return The platform specific variant for registering standalone models.
-     */
-    String getStandaloneModelVariant();
+    BakedModel getStandaloneBakedModel(ResourceLocation location);
 }

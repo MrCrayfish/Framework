@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.serialize;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import java.util.function.Consumer;
 
@@ -56,6 +57,14 @@ public final class DataArray extends DataEntry
     public ImmutableList<DataEntry> values()
     {
         return this.values;
+    }
+
+    @Override
+    protected JsonElement toJson()
+    {
+        JsonArray array = new JsonArray();
+        this.values.forEach(entry -> array.add(entry.toJson()));
+        return array;
     }
 
     private static ImmutableList<DataEntry> construct(JsonArray array)

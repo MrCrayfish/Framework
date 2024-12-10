@@ -3,12 +3,10 @@ package com.mrcrayfish.framework.platform;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
-import net.fabricmc.fabric.impl.client.model.loading.ModelLoadingConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Constructor;
@@ -28,16 +26,10 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getBakedModel(ModelResourceLocation location)
+    public BakedModel getStandaloneBakedModel(ResourceLocation location)
     {
         ModelManager manager = Minecraft.getInstance().getModelManager();
-        return manager.bakedRegistry.getOrDefault(location, manager.getMissingModel());
-    }
-
-    @Override
-    public String getStandaloneModelVariant()
-    {
-        return ModelLoadingConstants.RESOURCE_SPECIAL_VARIANT;
+        return manager.getModel(location);
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

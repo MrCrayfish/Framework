@@ -1,0 +1,17 @@
+{
+    "model": {
+        "type": "framework:model",
+        "model": {
+            "type": "minecraft:model",
+            "model": "framework_test:item/test_model",
+            "tints": [
+                {
+                    "type": "framework_test:tint"
+                }
+            ]
+        },
+        "data": {
+            "tint": 4294901760
+        }
+    }
+}

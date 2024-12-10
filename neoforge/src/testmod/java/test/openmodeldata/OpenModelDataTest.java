@@ -3,7 +3,6 @@ package test.openmodeldata;
 import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
-import com.mrcrayfish.framework.api.serialize.DataNumber;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.api.serialize.DataType;
 import net.minecraft.client.Minecraft;
@@ -16,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 /**
  * Author: MrCrayfish
@@ -24,33 +24,31 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 @RegistryContainer
 public class OpenModelDataTest
 {
-    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.block(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_block"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.block(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_block"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_block"), properties -> {
         return new BlockItem(TEST_BLOCK.get(), properties);
-    }, new Item.Properties());
-    public static final RegistryEntry<Item> TEST_MODEL = RegistryEntry.item(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_model"), Item::new, new Item.Properties());
+    }, Item.Properties::new);
+    public static final RegistryEntry<Item> TEST_MODEL = RegistryEntry.item(ResourceLocation.fromNamespaceAndPath("open_model_data_test", "test_model"), Item::new, () -> new Item.Properties());
 
     public OpenModelDataTest(IEventBus bus)
     {
-        bus.addListener(this::onClientSetup);
+        bus.addListener(this::onRegisterBlockColors);
+        bus.addListener(this::onRegisterItemTintSource);
     }
 
-    private void onClientSetup(FMLClientSetupEvent event)
+    private void onRegisterBlockColors(RegisterColorHandlersEvent.Block event)
     {
-        Minecraft.getInstance().getBlockColors().register((state, getter, pos, index) -> {
+        event.register((state, getter, pos, index) -> {
             DataObject object = FrameworkClientAPI.getOpenModelData(state);
             if(object.has("tint", DataType.NUMBER)) {
                 return object.getDataNumber("tint").asInt();
             }
-            return 0;
+            return 0xFFFFFF;
         }, TEST_BLOCK.get());
+    }
 
-        Minecraft.getInstance().getItemColors().register((stack, index) -> {
-            DataObject object = FrameworkClientAPI.getOpenModelData(stack.getItem());
-            if(object.get("tint") instanceof DataNumber number) {
-                return number.asInt();
-            }
-            return 0;
-        }, TEST_ITEM.get(), TEST_BLOCK.get());
+    private void onRegisterItemTintSource(RegisterColorHandlersEvent.ItemTintSources event)
+    {
+        event.register(TestTintSource.ID, TestTintSource.MAP_CODEC);
     }
 }

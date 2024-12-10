@@ -2,6 +2,7 @@ package test.network;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
@@ -83,10 +84,10 @@ public class NetworkTest
         private static final TestConfiguration INSTANCE = new TestConfiguration();
         public static final StreamCodec<FriendlyByteBuf, TestConfiguration> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-        public static FrameworkResponse handle(TestConfiguration message, Consumer<Runnable> executor)
+        public static void handle(TestConfiguration message, ConfigurationMessageContext context)
         {
             Constants.LOG.debug(MARKER, "Received test configuration message!");
-            return FrameworkResponse.SUCCESS;
+            context.setHandled(true);
         }
     }
 }

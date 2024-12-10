@@ -23,14 +23,9 @@ public class NeoForgeClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getBakedModel(ModelResourceLocation location)
+    public BakedModel getStandaloneBakedModel(ResourceLocation location)
     {
-        return Minecraft.getInstance().getModelManager().getModel(location);
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(location);
     }
 
-    @Override
-    public String getStandaloneModelVariant()
-    {
-        return ModelResourceLocation.STANDALONE_VARIANT;
-    }
 }

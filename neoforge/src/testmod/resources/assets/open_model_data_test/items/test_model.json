@@ -1,0 +1,17 @@
+{
+    "model": {
+        "type": "framework:open_model",
+        "model": {
+            "type": "minecraft:model",
+            "model": "open_model_data_test:item/test_model",
+            "tints": [
+                {
+                    "type": "open_model_data_test:tint"
+                }
+            ]
+        },
+        "data": {
+            "tint": 4294901760
+        }
+    }
+}

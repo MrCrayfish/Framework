@@ -4,6 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.ClientFrameworkFabric;
 import com.mrcrayfish.framework.client.model.FabricOpenBlockModel;
@@ -11,6 +12,8 @@ import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,12 +34,12 @@ public class BlockModelDeserializerMixin
     // Unfortunately Fabric doesn't have any way to create custom loaders
 
     @SuppressWarnings("unchecked")
-    @Inject(method = "deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockModel;", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext jsonDeserializationContext, CallbackInfoReturnable<BlockModel> cir, JsonObject object, List elements, String string, Map materials, Boolean ambientOcc, ItemTransforms transforms, List overrides, BlockModel.GuiLight light, ResourceLocation resourceLocation)
+    @Inject(method = "deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockModel;", at = @At(value = "RETURN"), cancellable = true)
+    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext jsonDeserializationContext, CallbackInfoReturnable<BlockModel> cir, @Local JsonObject object, @Local List<BlockElement> elements, @Local String parent, @Local TextureSlots.Data textures, @Local Boolean ambientOcc, @Local ItemTransforms transforms, @Local UnbakedModel.GuiLight light, @Local ResourceLocation id)
     {
         if(this.isFrameworkOpenModel(object))
         {
-            cir.setReturnValue(new FabricOpenBlockModel(resourceLocation, elements, materials, ambientOcc, light, transforms, overrides, DataObject.convertNonNull(object.get("data"))));
+            cir.setReturnValue(new FabricOpenBlockModel(id, elements, textures, ambientOcc, light, transforms, DataObject.convertNonNull(object.get("data"))));
         }
     }
 

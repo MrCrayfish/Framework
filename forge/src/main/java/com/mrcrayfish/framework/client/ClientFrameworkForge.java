@@ -37,9 +37,9 @@ public final class ClientFrameworkForge
     }
 
     // TODO reimplement when possible
-    /*@SubscribeEvent
+    @SubscribeEvent
     public static void registerAdditionalModels(ModelEvent event)
     {
         StandaloneModelManager.getInstance().load(event::register);
-    }*/
+    }
 }

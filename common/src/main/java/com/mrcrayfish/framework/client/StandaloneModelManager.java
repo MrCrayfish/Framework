@@ -3,6 +3,7 @@ package com.mrcrayfish.framework.client;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collections;
@@ -27,18 +28,18 @@ public final class StandaloneModelManager
         return instance;
     }
 
-    private final Set<ModelResourceLocation> models = Collections.synchronizedSet(new LinkedHashSet<>());
+    private final Set<ResourceLocation> models = Collections.synchronizedSet(new LinkedHashSet<>());
 
     private StandaloneModelManager() {}
 
-    public void register(ModelResourceLocation location)
+    public void register(ResourceLocation location)
     {
         if(FrameworkData.isLoaded())
             throw new IllegalStateException("Standalone models can only be registered during client initialization");
         this.models.add(location);
     }
 
-    public void load(Consumer<ModelResourceLocation> consumer)
+    public void load(Consumer<ResourceLocation> consumer)
     {
         this.models.forEach(location -> {
             Constants.LOG.debug("Registering standalone model: {}", location);

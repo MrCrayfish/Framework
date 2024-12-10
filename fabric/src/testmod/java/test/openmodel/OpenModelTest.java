@@ -20,8 +20,8 @@ public class OpenModelTest implements ModInitializer
         return ResourceLocation.fromNamespaceAndPath("framework_test", name);
     }
 
-    public static final RegistryEntry<Block> OPEN_MODEL_BLOCK = RegistryEntry.blockWithItem(rl("open_model"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
-    public static final RegistryEntry<Block> CHILD_OPEN_MODEL_BLOCK = RegistryEntry.block(rl("child_open_model"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final RegistryEntry<Block> OPEN_MODEL_BLOCK = RegistryEntry.blockWithItem(rl("open_model"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final RegistryEntry<Block> CHILD_OPEN_MODEL_BLOCK = RegistryEntry.block(rl("child_open_model"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
 
     @Override
     public void onInitialize()

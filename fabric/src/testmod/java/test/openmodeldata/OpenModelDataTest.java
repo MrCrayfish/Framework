@@ -19,8 +19,8 @@ public class OpenModelDataTest implements ModInitializer
         return ResourceLocation.fromNamespaceAndPath("framework_test", name);
     }
 
-    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test_block"), Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
-    public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(rl("test_model"), Item::new, new Item.Properties());
+    public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test_block"), Block::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
+    public static final RegistryEntry<Item> TEST_ITEM = RegistryEntry.item(rl("test_model"), Item::new, () -> new Item.Properties());
 
     @Override
     public void onInitialize()

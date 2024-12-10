@@ -376,7 +376,7 @@ public final class SyncedEntityData
         if(!missingKeys.isEmpty())
         {
             String keys = missingKeys.stream().map(Object::toString).collect(Collectors.joining(",", "[", "]"));
-            Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Received unknown synced keys: {}", keys);
+            Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Received unknown synced entity keys: {}", keys);
         }
 
         return missingKeys.isEmpty();

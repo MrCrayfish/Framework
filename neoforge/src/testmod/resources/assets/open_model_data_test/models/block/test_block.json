@@ -7,7 +7,7 @@
 		"2": "block/furnace_top"
 	},
 	"data": {
-		"tint": 4294967295
+		"tint": 16711680
 	},
 	"components": [
 		{

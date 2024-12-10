@@ -2,12 +2,14 @@ package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.event.InputEvents;
+import com.mrcrayfish.framework.client.model.FrameworkItemModel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -40,5 +42,11 @@ public final class ClientFrameworkNeoForge
     private static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event)
     {
         StandaloneModelManager.getInstance().load(event::register);
+    }
+
+    @SubscribeEvent
+    private static void onRegisterItemModels(RegisterItemModelsEvent event)
+    {
+        event.register(FrameworkItemModel.ID, FrameworkItemModel.Unbaked.MAP_CODEC);
     }
 }

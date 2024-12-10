@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.api.serialize;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.LazilyParsedNumber;
 
 /**
@@ -68,5 +70,11 @@ public final class DataNumber extends DataEntry
     public double asDouble()
     {
         return this.value.doubleValue();
+    }
+
+    @Override
+    protected JsonElement toJson()
+    {
+        return new JsonPrimitive(this.value);
     }
 }

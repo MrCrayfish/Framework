@@ -3,7 +3,6 @@ package com.mrcrayfish.framework.client.model.geometry;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.math.Transformation;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.NeoForgeBakedOpenModel;
@@ -11,78 +10,43 @@ import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.core.Direction;
+import net.minecraft.util.context.ContextMap;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.model.IModelBuilder;
-import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
-import net.neoforged.neoforge.client.model.geometry.SimpleUnbakedGeometry;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
+import net.neoforged.neoforge.client.model.DelegateUnbakedModel;
+import net.neoforged.neoforge.client.model.UnbakedModelLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Author: MrCrayfish
  */
-public class OpenModelGeometry extends SimpleUnbakedGeometry<OpenModelGeometry>
+public class OpenModelGeometry extends DelegateUnbakedModel
 {
-    private final List<BlockElement> elements;
-    private final BlockModel model;
     private final DataObject data;
 
     public OpenModelGeometry(BlockModel model, @Nullable DataObject data)
     {
-        this.elements = model.getElements();
-        this.model = model;
+        super(model);
         this.data = data;
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, List<ItemOverride> overrides)
+    public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState state, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms transforms, ContextMap properties)
     {
-        return new NeoForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState, overrides), this.data);
-    }
-
-    @Override
-    public void resolveDependencies(UnbakedModel.Resolver modelGetter, IGeometryBakingContext context)
-    {
-        this.model.resolveDependencies(modelGetter);
-    }
-
-    @Override
-    protected void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState)
-    {
-        Transformation rootTransform = owner.getRootTransform();
-        if(!rootTransform.isIdentity())
-            modelState = UnbakedGeometryHelper.composeRootTransformIntoModelState(modelState, rootTransform);
-        ModelState finalModelState = modelState;
-        this.elements.forEach(element -> {
-            element.faces.forEach((side, face) -> {
-                TextureAtlasSprite sprite = spriteGetter.apply(owner.getMaterial(face.texture()));
-                if(face.cullForDirection() == null) {
-                    modelBuilder.addUnculledFace(BlockModel.bakeFace(element, face, sprite, side, finalModelState));
-                } else {
-                    Direction direction = Direction.rotate(finalModelState.getRotation().getMatrix(), face.cullForDirection());
-                    modelBuilder.addCulledFace(direction, BlockModel.bakeFace(element, face, sprite, side, finalModelState));
-                }
-            });
-        });
+        return new NeoForgeBakedOpenModel(super.bake(textures, baker, state, useAmbientOcclusion, usesBlockLight, transforms, properties), this.data);
     }
 
     @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class Loader implements IGeometryLoader<OpenModelGeometry>
+    public static class Loader implements UnbakedModelLoader<OpenModelGeometry>
     {
         @Override
         public OpenModelGeometry read(JsonObject object, JsonDeserializationContext context) throws JsonParseException
@@ -91,7 +55,7 @@ public class OpenModelGeometry extends SimpleUnbakedGeometry<OpenModelGeometry>
         }
 
         @SubscribeEvent
-        public static void onModelRegister(ModelEvent.RegisterGeometryLoaders event)
+        public static void onModelRegister(ModelEvent.RegisterLoaders event)
         {
             event.register(Utils.rl("open_model"), new Loader());
         }

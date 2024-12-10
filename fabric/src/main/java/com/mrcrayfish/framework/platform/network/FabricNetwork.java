@@ -2,10 +2,13 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.LevelLocation;
+import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.api.util.TaskRunner;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
 import com.mrcrayfish.framework.network.message.PlayMessage;
@@ -58,14 +61,15 @@ public final class FabricNetwork implements FrameworkNetwork
     final ResourceLocation id;
     final int protocolVersion;
     final List<PlayMessage<?>> playMessages;
-    final List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages;
-    final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> classToMessage;
+    final List<ConfigurationMessage<?>> configurationMessages;
+    final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext>> classToMessage;
     final List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks;
-    final FrameworkMessage pingMessage;
+    final ConfigurationMessage<Ping> pingMessage;
     private MinecraftServer server;
     private boolean active = false;
 
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<PlayMessage<?>> playMessages, List<FrameworkMessage<?, FriendlyByteBuf>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
+    @SuppressWarnings("unchecked")
+    public FabricNetwork(ResourceLocation id, int protocolVersion, List<PlayMessage<?>> playMessages, List<ConfigurationMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
@@ -73,7 +77,9 @@ public final class FabricNetwork implements FrameworkNetwork
         this.configurationMessages = configurationMessages;
         this.configurationTasks = configurationTasks;
         this.classToMessage = createClassMap(playMessages, configurationMessages);
-        this.pingMessage = this.classToMessage.get(Ping.class);
+        this.pingMessage = this.configurationMessages.stream().filter(msg -> msg.messageClass() == Ping.class).findFirst()
+            .map(msg -> (ConfigurationMessage<Ping>) msg)
+            .orElseThrow(() -> new RuntimeException("Failed to setup Fabric network. Missing Ping configuration message"));
         this.setup();
     }
 
@@ -156,7 +162,7 @@ public final class FabricNetwork implements FrameworkNetwork
         });
     }
 
-    private <T> void registerConfigurationS2C(FrameworkMessage<T, FriendlyByteBuf> message)
+    private <T> void registerConfigurationS2C(ConfigurationMessage<T> message)
     {
         if(message == this.pingMessage)
             return;
@@ -173,7 +179,7 @@ public final class FabricNetwork implements FrameworkNetwork
         });
     }
 
-    private <T> void registerConfigurationC2S(FrameworkMessage<T, FriendlyByteBuf> message)
+    private <T> void registerConfigurationC2S(ConfigurationMessage<T> message)
     {
         if(message == this.pingMessage)
             return;
@@ -276,9 +282,9 @@ public final class FabricNetwork implements FrameworkNetwork
         return msg.writePayload(message);
     }
 
-    private static Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf>> createClassMap(Collection<PlayMessage<?>> a, List<FrameworkMessage<?, FriendlyByteBuf>> b)
+    private static Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext>> createClassMap(Collection<PlayMessage<?>> a, List<ConfigurationMessage<?>> b)
     {
-        Object2ObjectMap<Class<?>, FrameworkMessage<?, ?>> map = new Object2ObjectArrayMap<>();
+        Object2ObjectMap<Class<?>, FrameworkMessage<?, ?, ?>> map = new Object2ObjectArrayMap<>();
         a.forEach(msg -> map.put(msg.messageClass(), msg));
         b.forEach(msg -> map.put(msg.messageClass(), msg));
         return Collections.unmodifiableMap(map);
@@ -289,7 +295,7 @@ public final class FabricNetwork implements FrameworkNetwork
      */
     record Ping()
     {
-        private static final Ping INSTANCE = new Ping();
+        public static final Ping INSTANCE = new Ping();
         public static final StreamCodec<FriendlyByteBuf, Ping> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         public static void encode(Ping message, FriendlyByteBuf buffer) {}
@@ -299,9 +305,9 @@ public final class FabricNetwork implements FrameworkNetwork
             return new Ping();
         }
 
-        public static FrameworkResponse handle(Ping message, Consumer<Runnable> executor)
+        public static void handle(Ping message, ConfigurationMessageContext context)
         {
-            return FrameworkResponse.success();
+            context.setHandled(true);
         }
     }
 }

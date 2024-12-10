@@ -1,11 +1,13 @@
 package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
@@ -26,12 +28,12 @@ public record S2CSyncedEntityData(Map<ResourceLocation, List<Pair<ResourceLocati
         S2CSyncedEntityData::new
     );
 
-    public static FrameworkResponse handle(S2CSyncedEntityData message, Consumer<Runnable> executor)
+    public static void handle(S2CSyncedEntityData message, ConfigurationMessageContext context)
     {
-        Constants.LOG.debug(ConfigurationMessage.MARKER, "Received synced key mappings from server");
+        Constants.LOG.debug(ConfigurationMessage.MARKER, "Receiving synced entity keys from server");
         boolean[] failed = new boolean[1];
         CountDownLatch block = new CountDownLatch(1);
-        executor.accept(() -> {
+        context.execute(() -> {
             if(!SyncedEntityData.instance().updateMappings(message)) {
                 failed[0] = true;
             }
@@ -43,13 +45,12 @@ public record S2CSyncedEntityData(Map<ResourceLocation, List<Pair<ResourceLocati
         }
         catch(InterruptedException e)
         {
-            e.printStackTrace();
+            failed[0] = true;
         }
         if(failed[0])
         {
-            return FrameworkResponse.error("[Framework] Received unknown synced data keys. See logs for more details.");
+            context.disconnect(Component.translatable("framework.gui.sync_entity_data_failed"));
         }
-        return FrameworkResponse.SUCCESS;
     }
 
     public Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> getKeyMap()

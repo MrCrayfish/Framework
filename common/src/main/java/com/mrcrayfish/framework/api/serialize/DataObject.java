@@ -4,6 +4,9 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.ExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -15,6 +18,8 @@ import java.util.function.BiConsumer;
  */
 public final class DataObject extends DataEntry
 {
+    public static final Codec<DataObject> CODEC = ExtraCodecs.JSON.xmap(DataObject::convertNonNull, DataObject::toJson);
+
     public static final DataObject EMPTY = new DataObject(ImmutableMap.of());
 
     private final ImmutableMap<String, DataEntry> children;
@@ -166,6 +171,14 @@ public final class DataObject extends DataEntry
     public DataBoolean getDataBoolean(String key)
     {
         return (DataBoolean) this.children.get(key);
+    }
+
+    @Override
+    protected JsonObject toJson()
+    {
+        JsonObject object = new JsonObject();
+        this.children.forEach((key, entry) -> object.add(key, entry.toJson()));
+        return object;
     }
 
     /**

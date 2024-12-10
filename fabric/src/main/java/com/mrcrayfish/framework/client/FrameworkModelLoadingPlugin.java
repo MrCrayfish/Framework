@@ -10,8 +10,6 @@ public class FrameworkModelLoadingPlugin implements ModelLoadingPlugin
     @Override
     public void initialize(Context context)
     {
-        StandaloneModelManager.getInstance().load(location -> {
-            context.addModels(location.id());
-        });
+        StandaloneModelManager.getInstance().load(context::addModels);
     }
 }

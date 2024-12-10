@@ -1,0 +1,6 @@
+{
+    "model": {
+        "type": "minecraft:model",
+        "model": "open_model_test:item/child_open_model"
+    }
+}

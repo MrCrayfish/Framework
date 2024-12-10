@@ -1,20 +1,20 @@
 package com.mrcrayfish.framework.client.model;
 
 import com.mrcrayfish.framework.api.serialize.DataObject;
-import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.DelegateBakedModel;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
  */
-public class FabricBakedOpenModel extends ForwardingBakedModel implements IOpenModel
+public class FabricBakedOpenModel extends DelegateBakedModel implements IOpenModel
 {
     private final DataObject data;
 
     public FabricBakedOpenModel(BakedModel originalModel, @Nullable DataObject data)
     {
-        this.wrapped = originalModel;
+        super(originalModel);
         this.data = data;
     }
 

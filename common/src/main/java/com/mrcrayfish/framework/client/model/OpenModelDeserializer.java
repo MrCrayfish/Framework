@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.util.GsonHelper;
 import org.joml.Vector3f;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 

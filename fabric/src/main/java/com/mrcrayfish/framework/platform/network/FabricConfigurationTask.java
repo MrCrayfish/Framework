@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
+import com.mrcrayfish.framework.network.message.configuration.FinishedConfigurationTask;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -22,14 +23,16 @@ public class FabricConfigurationTask<T> implements ConfigurationTask
     private final ServerConfigurationPacketListenerImpl listener;
     private final Type type;
     private final Supplier<List<T>> messages;
+    private final boolean completeImmediately;
 
-    public FabricConfigurationTask(ResourceLocation id, FabricNetwork network, ServerConfigurationPacketListenerImpl listener, Type type, Supplier<List<T>> messages)
+    public FabricConfigurationTask(ResourceLocation id, FabricNetwork network, ServerConfigurationPacketListenerImpl listener, Type type, Supplier<List<T>> messages, boolean completeImmediately)
     {
         this.id = id;
         this.network = network;
         this.listener = listener;
         this.type = type;
         this.messages = messages;
+        this.completeImmediately = completeImmediately;
     }
 
     @Override
@@ -39,7 +42,13 @@ public class FabricConfigurationTask<T> implements ConfigurationTask
         this.messages.get().forEach(msg -> {
             consumer.accept(ServerPlayNetworking.createS2CPacket(this.network.encode(msg)));
         });
-        // TODO look into adding option to allow configuration message to accept a response instead of completed after send
+        if(!this.completeImmediately)
+        {
+            consumer.accept(ServerPlayNetworking.createS2CPacket(
+                this.network.encode(new FinishedConfigurationTask(this.type, FinishedConfigurationTask.Action.AWAIT))
+            ));
+            return;
+        }
         this.listener.completeTask(this.type);
     }
 

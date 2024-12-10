@@ -24,14 +24,9 @@ public class ForgeClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getBakedModel(ModelResourceLocation location)
+    public BakedModel getStandaloneBakedModel(ResourceLocation location)
     {
-        return Minecraft.getInstance().getModelManager().getModel(location);
+        return Minecraft.getInstance().getModelManager().getModels(location);
     }
 
-    @Override
-    public String getStandaloneModelVariant()
-    {
-        return STANDALONE_VARIANT;
-    }
 }

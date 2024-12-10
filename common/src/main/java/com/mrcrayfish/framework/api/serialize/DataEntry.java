@@ -39,6 +39,12 @@ public abstract sealed class DataEntry permits DataObject, DataArray, DataString
         return this.type;
     }
 
+    /**
+     * Converts the DataEntry to a JsonElement. Internal only
+     * @return a json element
+     */
+    protected abstract JsonElement toJson();
+
     @Nullable
     static DataEntry convertElement(JsonElement element)
     {

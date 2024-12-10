@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.api.serialize;
 
+import com.google.gson.JsonPrimitive;
+
 /**
  * Author: MrCrayfish
  */
@@ -19,5 +21,11 @@ public final class DataString extends DataEntry
     public String asString()
     {
         return this.value;
+    }
+
+    @Override
+    protected JsonPrimitive toJson()
+    {
+        return new JsonPrimitive(this.value);
     }
 }

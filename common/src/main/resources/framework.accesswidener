@@ -6,3 +6,4 @@ accessible field net/minecraft/server/network/ServerLoginPacketListenerImpl conn
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/client/multiplayer/ClientHandshakePacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
+accessible method net/minecraft/client/renderer/block/model/BlockModel getElements ()Ljava/util/List;

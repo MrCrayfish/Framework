@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.platform.network;
 
+import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.network.PlayMessageContext;
+import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
 import com.mrcrayfish.framework.network.message.PlayMessage;
@@ -11,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 
 /**
@@ -21,15 +25,16 @@ public class FabricServerNetworkHandler
     static <T> void receivePlay(PlayMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ServerPlayNetworking.Context context)
     {
         ServerPlayer player = context.player();
-        MessageContext ctx = new FabricMessageContext(player.server, context.responseSender()::disconnect, player, message.flow());
+        PlayMessageContext ctx = new PlayMessageContext(message.flow(), player.server, context.responseSender()::disconnect, b -> {}, player);
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));
     }
 
-    public static <T> void receiveConfiguration(FrameworkMessage<T, FriendlyByteBuf> message, FrameworkPayload<T> payload, FabricNetwork network, ServerConfigurationNetworking.Context context)
+    public static <T> void receiveConfiguration(ConfigurationMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ServerConfigurationNetworking.Context context)
     {
-        // TODO check
-        MessageContext ctx = new FabricMessageContext(null, context.responseSender()::disconnect, null, message.flow());
+        ConfigurationMessageContext ctx = new ConfigurationMessageContext(message.flow(), context.server(), context.responseSender()::disconnect, b -> {}, s -> {
+            context.networkHandler().completeTask(new ConfigurationTask.Type(s));
+        });
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));
     }

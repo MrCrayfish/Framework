@@ -3,56 +3,45 @@ package com.mrcrayfish.framework.client.model.geometry;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.math.Transformation;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.ForgeBakedOpenModel;
 import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
-import com.mrcrayfish.framework.util.Utils;
-import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.model.IModelBuilder;
+import net.minecraftforge.client.model.ElementsModel;
 import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.client.model.geometry.SimpleUnbakedGeometry;
-import net.minecraftforge.client.model.geometry.UnbakedGeometryHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.function.Function;
-
 /**
  * Author: MrCrayfish
  */
-public class OpenModelGeometry extends SimpleUnbakedGeometry<OpenModelGeometry>
+public class OpenModelGeometry extends ElementsModel
 {
-    private final List<BlockElement> elements;
     private final BlockModel model;
     private final DataObject data;
 
+    @SuppressWarnings("DataFlowIssue")
     public OpenModelGeometry(BlockModel model, @Nullable DataObject data)
     {
-        this.elements = model.getElements();
+        super(model.getElements());
         this.model = model;
         this.data = data;
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState)
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, TextureSlots textures, ModelState modelState)
     {
-        return new ForgeBakedOpenModel(super.bake(context, baker, spriteGetter, modelState), this.data);
+        return new ForgeBakedOpenModel(super.bake(context, baker, textures, modelState), this.data);
     }
 
     @Override
@@ -61,7 +50,7 @@ public class OpenModelGeometry extends SimpleUnbakedGeometry<OpenModelGeometry>
         this.model.resolveDependencies(modelGetter);
     }
 
-    @Override
+    /*@Override
     protected void addQuads(IGeometryBakingContext owner, IModelBuilder<?> modelBuilder, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState)
     {
         Transformation rootTransform = owner.getRootTransform();
@@ -79,10 +68,10 @@ public class OpenModelGeometry extends SimpleUnbakedGeometry<OpenModelGeometry>
                 }
             });
         });
-    }
+    }*/
 
     @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class Loader implements IGeometryLoader<OpenModelGeometry>
+    public static class Loader implements IGeometryLoader<ElementsModel>
     {
         @Override
         public OpenModelGeometry read(JsonObject object, JsonDeserializationContext context) throws JsonParseException
