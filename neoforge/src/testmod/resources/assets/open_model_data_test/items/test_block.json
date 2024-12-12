@@ -1,6 +1,6 @@
 {
     "model": {
-        "type": "framework:open_model",
+        "type": "framework:model",
         "model": {
             "type": "minecraft:model",
             "model": "open_model_data_test:item/test_block",
