@@ -25,14 +25,14 @@ public class FrameworkModelProvider implements DataProvider
     private final PackOutput.PathProvider blockstates;
     private final PackOutput.PathProvider items;
     private final PackOutput.PathProvider models;
-    private final FrameworkGenerator.Factory<? extends FrameworkGenerator> generator;
+    private final FrameworkGenerator.Factory<? extends FrameworkGenerator>[] generators;
 
-    public FrameworkModelProvider(PackOutput output, FrameworkGenerator.Factory<? extends FrameworkGenerator> generator)
+    public FrameworkModelProvider(PackOutput output, FrameworkGenerator.Factory<? extends FrameworkGenerator> ... generators)
     {
         this.blockstates = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "blockstates");
         this.items = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "items");
         this.models = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models");
-        this.generator = generator;
+        this.generators = generators;
     }
 
     @Override
@@ -42,7 +42,8 @@ public class FrameworkModelProvider implements DataProvider
         Map<Block, BlockStateGenerator> generators = new HashMap<>();
         Map<Item, ClientItem> clientItems = new HashMap<>();
         Map<ResourceLocation, ModelInstance> models = new HashMap<>();
-        this.generator.apply(generators, clientItems, models).generate();
+        for(FrameworkGenerator.Factory<? extends FrameworkGenerator> generator : this.generators)
+            generator.apply(generators, clientItems, models).generate();
         return CompletableFuture.allOf(
             DataProvider.saveAll(output, Supplier::get, block -> {
                 return this.blockstates.json(block.builtInRegistryHolder().key().location());
@@ -57,6 +58,6 @@ public class FrameworkModelProvider implements DataProvider
     @Override
     public String getName()
     {
-        return "Models";
+        return "Model Definitions";
     }
 }
