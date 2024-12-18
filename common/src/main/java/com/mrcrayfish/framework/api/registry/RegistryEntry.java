@@ -133,7 +133,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
             return blockFactory.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
         }, t -> {
-            return new BlockItem(t, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id)));
+            return new BlockItem(t, new Item.Properties().useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id)));
         });
     }
 
@@ -144,7 +144,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
             return blockFactory.apply(blockProperties.setId(ResourceKey.create(Registries.BLOCK, id)));
         }, t -> {
             Item.Properties itemProperties = itemPropertiesFactory.get();
-            return itemFactory.apply(t, itemProperties.setId(ResourceKey.create(Registries.ITEM, id)));
+            return itemFactory.apply(t, itemProperties.useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id)));
         });
     }
 
