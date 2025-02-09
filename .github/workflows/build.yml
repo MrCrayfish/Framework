@@ -88,14 +88,20 @@ jobs:
           echo "fabric=fabric/build/libs/${{ steps.mod_id.outputs.value }}-fabric-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-release.jar" >> "$GITHUB_OUTPUT"
       - name: Create Changelog Files
         run: |
+          echo "" > CHANGELOG.txt
           echo "### Technical Changelog:" >> RELEASE_BODY.md
-          latest_tag=$(git describe --tags --abbrev=0)
-          previous_tag=$(git describe --tags --abbrev=0 --exclude=$latest_tag)
-          git log "$previous_tag..$latest_tag^" --oneline --pretty="- %s (%H)" >> RELEASE_BODY.md
+          tag_count=$(git tag | wc -l)
+          if [ "$tag_count" -ge 2 ]; then
+            latest_tag=$(git describe --tags --abbrev=0)
+            previous_tag=$(git describe --tags --abbrev=0 --exclude=$latest_tag)
+            git log "$previous_tag..$latest_tag^" --oneline --pretty="- %s (%H)" >> RELEASE_BODY.md
+            git log "$previous_tag..$latest_tag^" --oneline --pretty="%s" >> CHANGELOG.txt
+          else
+            echo "No changes"
+          fi
           echo "### Download:" >> RELEASE_BODY.md
           echo "- Official Website: https://mrcrayfish.com/mods/${{ steps.mod_id.outputs.value }}" >> RELEASE_BODY.md
-          echo "- CurseForge: https://curseforge.com/minecraft/mc-mods/controllable" >> RELEASE_BODY.md
-          git log "$previous_tag..$latest_tag^" --oneline --pretty="%s" > CHANGELOG.txt
+          echo "- CurseForge: https://curseforge.com/minecraft/mc-mods/framework" >> RELEASE_BODY.md
       - name: Import GPG
         env:
           SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
