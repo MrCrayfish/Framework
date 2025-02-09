@@ -7,8 +7,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -33,9 +33,9 @@ public final class ClientFrameworkNeoForge
     }
 
     @SubscribeEvent
-    private static void registerReloadListener(RegisterClientReloadListenersEvent event)
+    private static void registerReloadListener(AddClientReloadListenersEvent event)
     {
-        event.registerReloadListener(JsonDataManager.getInstance());
+        event.addListener(JsonDataManager.ID, JsonDataManager.getInstance());
     }
 
     @SubscribeEvent

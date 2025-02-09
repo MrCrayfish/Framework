@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
 import com.mrcrayfish.framework.client.resources.IResourceSupplier;
+import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -26,6 +27,7 @@ import java.util.Optional;
  */
 public final class JsonDataManager extends SimplePreparableReloadListener<List<Pair<IDataLoader<IResourceSupplier>, List<Pair<IResourceSupplier, DataObject>>>>>
 {
+    public static final ResourceLocation ID = Utils.rl("json_data_manager");
     private static final Gson GSON = (new GsonBuilder()).create();
 
     private static JsonDataManager instance;
