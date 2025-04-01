@@ -15,16 +15,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record FrameworkStandaloneModel(QuadCollection quads, boolean useAmbientOcclusion, TextureAtlasSprite particleIcon, RenderType renderType, DataObject data) implements BlockModelPart, IOpenModel
+public record FrameworkBakedModel(QuadCollection quads, boolean useAmbientOcclusion, TextureAtlasSprite particleIcon, RenderType renderType, DataObject data) implements BlockModelPart, IOpenModel
 {
-    public static final FrameworkModelBaker<FrameworkStandaloneModel> BAKER = (location, model, baker) -> {
+    public static final FrameworkModelBaker<FrameworkBakedModel> BAKER = (model, baker) -> {
         boolean ambientOcclusion = model.getTopAmbientOcclusion();
         TextureSlots textureSlots = model.getTopTextureSlots();
         QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, Variant.SimpleModelState.DEFAULT.asModelState());
         TextureAtlasSprite particle = model.resolveParticleSprite(textureSlots, baker);
         RenderType renderType = ClientServices.CLIENT.getRenderType(model);
         DataObject data = model.wrapped() instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
-        return new FrameworkStandaloneModel(quads, ambientOcclusion, particle, renderType, data);
+        return new FrameworkBakedModel(quads, ambientOcclusion, particle, renderType, data);
     };
 
     @Override

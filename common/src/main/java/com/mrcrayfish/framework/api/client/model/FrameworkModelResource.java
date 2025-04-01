@@ -9,13 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class FrameworkModelResource<T>
 {
-    /**
-     * Baker for vanilla's SimpleModelWrapper. Use {@link #createVanilla(ResourceLocation)} to create a resource.
-     */
-    public static final FrameworkModelBaker<SimpleModelWrapper> SIMPLE_MODEL_BAKER = (location, model, baker) -> {
-        return SimpleModelWrapper.bake(baker, location, Variant.SimpleModelState.DEFAULT.asModelState());
-    };
-
     private final ResourceLocation location;
     private final FrameworkModelBaker<T> baker;
     private T cachedModel;
@@ -93,10 +86,10 @@ public abstract class FrameworkModelResource<T>
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
      */
-    public static FrameworkModelResource<FrameworkStandaloneModel> create(ResourceLocation location)
+    public static FrameworkModelResource<FrameworkBakedModel> create(ResourceLocation location)
     {
         // Internal code, do not call services directly since they may change at any time.
-        return createCustom(location, FrameworkStandaloneModel.BAKER);
+        return createCustom(location, FrameworkBakedModel.BAKER);
     }
 
     /**
@@ -111,7 +104,9 @@ public abstract class FrameworkModelResource<T>
     public static FrameworkModelResource<SimpleModelWrapper> createVanilla(ResourceLocation location)
     {
         // Internal code, do not call services directly since they may change at any time.
-        return createCustom(location, SIMPLE_MODEL_BAKER);
+        return createCustom(location, (model, baker) -> {
+            return SimpleModelWrapper.bake(baker, location, Variant.SimpleModelState.DEFAULT.asModelState());
+        });
     }
 
     /**

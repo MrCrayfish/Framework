@@ -13,7 +13,7 @@ public class NeoForgeModelResource<T> extends FrameworkModelResource<T>
     {
         super(location, baker);
         this.key = new StandaloneModelKey<>(location);
-        this.baker = (model, vanillaBaker) -> baker.bake(location, model, vanillaBaker);
+        this.baker = baker::bake;
     }
 
     public StandaloneModelKey<T> standaloneKey()

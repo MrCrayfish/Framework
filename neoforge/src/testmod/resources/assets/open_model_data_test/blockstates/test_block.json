@@ -1,5 +1,8 @@
 {
-    "variants": {
-        "": { "model": "open_model_data_test:block/test_block" }
+  "variants": {
+    "": {
+      "type": "framework:model",
+      "model": "open_model_data_test:block/test_block"
     }
+  }
 }

@@ -3,8 +3,8 @@ package test.standalonemodel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
+import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
-import com.mrcrayfish.framework.api.client.model.FrameworkStandaloneModel;
 import com.mrcrayfish.framework.api.client.model.renderer.StandaloneModelRenderer;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
@@ -25,7 +25,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InitializeClientRegistriesEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -40,7 +39,7 @@ public class StandaloneModelTest
         return ResourceLocation.fromNamespaceAndPath("standalone_model_test", name);
     }
 
-    public static final FrameworkModelResource<FrameworkStandaloneModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
+    public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
     public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test"), TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final RegistryEntry<BlockEntityType<TestBlockEntity>> TEST_BLOCK_ENTITY = RegistryEntry.blockEntity(rl("test"), TestBlockEntity::new, () -> new Block[]{TEST_BLOCK.get()});
 

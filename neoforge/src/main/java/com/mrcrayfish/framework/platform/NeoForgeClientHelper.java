@@ -5,7 +5,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
-import com.mrcrayfish.framework.api.client.model.FrameworkStandaloneModel;
+import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
@@ -55,7 +55,7 @@ public class NeoForgeClientHelper implements IClientHelper
     {
         return MoreObjects.firstNonNull(switch(part) {
             case SimpleModelWrapper wrapper -> wrapper.renderType();
-            case FrameworkStandaloneModel model -> model.renderType();
+            case FrameworkBakedModel model -> model.renderType();
             default -> null;
         }, RenderType.solid());
     }

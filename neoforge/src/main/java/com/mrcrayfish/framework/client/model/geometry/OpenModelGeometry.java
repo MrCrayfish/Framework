@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.serialize.DataObject;
+import com.mrcrayfish.framework.client.model.IOpenModel;
 import com.mrcrayfish.framework.client.model.OpenBlockModel;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.util.context.ContextMap;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Author: MrCrayfish
  */
-public class OpenModelGeometry extends DelegateUnbakedModel
+public class OpenModelGeometry extends DelegateUnbakedModel implements IOpenModel
 {
     private final DataObject data;
 
@@ -29,6 +30,7 @@ public class OpenModelGeometry extends DelegateUnbakedModel
         this.data = data;
     }
 
+    @Override
     public DataObject getData()
     {
         return this.data;

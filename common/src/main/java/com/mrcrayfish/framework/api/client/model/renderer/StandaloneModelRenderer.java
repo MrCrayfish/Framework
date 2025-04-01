@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.api.client.model.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mrcrayfish.framework.api.client.model.FrameworkStandaloneModel;
+import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -31,7 +31,7 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    public static void draw(FrameworkStandaloneModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
+    public static void draw(FrameworkBakedModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
         VertexConsumer consumer = source.getBuffer(getSheet(model.renderType()));
         for(Direction direction : DIRECTIONS)
