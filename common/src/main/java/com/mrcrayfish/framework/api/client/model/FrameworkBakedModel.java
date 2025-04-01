@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,7 @@ public record FrameworkBakedModel(QuadCollection quads, boolean useAmbientOcclus
     public static final FrameworkModelBaker<FrameworkBakedModel> BAKER = (model, baker) -> {
         boolean ambientOcclusion = model.getTopAmbientOcclusion();
         TextureSlots textureSlots = model.getTopTextureSlots();
-        QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, Variant.SimpleModelState.DEFAULT.asModelState());
+        QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, BlockModelRotation.X0_Y0);
         TextureAtlasSprite particle = model.resolveParticleSprite(textureSlots, baker);
         RenderType renderType = ClientServices.CLIENT.getRenderType(model);
         DataObject data = model.wrapped() instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;

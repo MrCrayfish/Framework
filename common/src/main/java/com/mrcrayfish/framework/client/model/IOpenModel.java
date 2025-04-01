@@ -8,4 +8,9 @@ import com.mrcrayfish.framework.api.serialize.DataObject;
 public interface IOpenModel
 {
     DataObject getData();
+
+    static DataObject getData(Object obj)
+    {
+        return obj instanceof IOpenModel model ? model.getData() : DataObject.EMPTY;
+    }
 }
