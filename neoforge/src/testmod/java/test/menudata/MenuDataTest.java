@@ -38,7 +38,7 @@ public class MenuDataTest
     private void onRegisterCommands(RegisterCommandsEvent event)
     {
         event.getDispatcher().register(Commands.literal("data_menu_test:open").executes(context -> {
-            if(context.getSource().source instanceof ServerPlayer player) {
+            if(context.getSource().getEntity() instanceof ServerPlayer player) {
                 FrameworkAPI.openMenuWithData(player, new SimpleMenuProvider((windowId, playerInventory, player1) -> {
                     return new TestMenu(windowId, playerInventory, 1, "Test");
                 }, Component.literal("Hello")), new TestMenu.CustomData(5, "Hello from the server!"));
