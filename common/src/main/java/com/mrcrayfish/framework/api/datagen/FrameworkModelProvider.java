@@ -1,8 +1,10 @@
 package com.mrcrayfish.framework.api.datagen;
 
 import com.google.common.annotations.Beta;
-import net.minecraft.client.data.models.blockstates.BlockStateGenerator;
+import com.google.common.collect.Maps;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.data.models.model.ModelInstance;
+import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -39,15 +41,15 @@ public class FrameworkModelProvider implements DataProvider
     @SuppressWarnings("deprecation")
     public CompletableFuture<?> run(CachedOutput output)
     {
-        Map<Block, BlockStateGenerator> generators = new HashMap<>();
+        Map<Block, BlockModelDefinitionGenerator> generators = new HashMap<>();
         Map<Item, ClientItem> clientItems = new HashMap<>();
         Map<ResourceLocation, ModelInstance> models = new HashMap<>();
         for(FrameworkGenerator.Factory<? extends FrameworkGenerator> generator : this.generators)
             generator.apply(generators, clientItems, models).generate();
         return CompletableFuture.allOf(
-            DataProvider.saveAll(output, Supplier::get, block -> {
+            DataProvider.saveAll(output, BlockModelDefinition.CODEC, block -> {
                 return this.blockstates.json(block.builtInRegistryHolder().key().location());
-            }, generators),
+            }, Maps.transformValues(generators, BlockModelDefinitionGenerator::create)),
             DataProvider.saveAll(output, ClientItem.CODEC, item -> {
                 return this.items.json(item.builtInRegistryHolder().key().location());
             }, clientItems),

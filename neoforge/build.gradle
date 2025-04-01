@@ -2,7 +2,7 @@ import net.neoforged.gradle.common.tasks.PotentiallySignJar
 
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.gradle.userdev' version '7.0.168'
+    id 'net.neoforged.gradle.userdev'
 }
 
 def at = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -52,3 +52,10 @@ tasks.register('signJar', PotentiallySignJar) {
 }
 
 jar.finalizedBy 'signJar'
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

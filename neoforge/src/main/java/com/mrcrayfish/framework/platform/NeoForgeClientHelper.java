@@ -1,13 +1,22 @@
 package com.mrcrayfish.framework.platform;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
+import com.mrcrayfish.framework.api.client.model.FrameworkStandaloneModel;
+import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.RenderTypeGroup;
+import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
 
 /**
  * Author: MrCrayfish
@@ -23,9 +32,31 @@ public class NeoForgeClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getStandaloneBakedModel(ResourceLocation location)
+    public <T> T getStandaloneModel(FrameworkModelResource<T> resource)
     {
-        return Minecraft.getInstance().getModelManager().getStandaloneModel(location);
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(((NeoForgeModelResource<T>) resource).standaloneKey());
     }
 
+    @Override
+    public <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker)
+    {
+        return new NeoForgeModelResource<>(id, baker);
+    }
+
+    @Override
+    public RenderType getRenderType(ResolvedModel model)
+    {
+        RenderTypeGroup group = model.getTopAdditionalProperties().getOptional(NeoForgeModelProperties.RENDER_TYPE);
+        return group != null && !group.isEmpty() ? group.block() : RenderType.solid();
+    }
+
+    @Override
+    public RenderType getRenderType(BlockModelPart part)
+    {
+        return MoreObjects.firstNonNull(switch(part) {
+            case SimpleModelWrapper wrapper -> wrapper.renderType();
+            case FrameworkStandaloneModel model -> model.renderType();
+            default -> null;
+        }, RenderType.solid());
+    }
 }

@@ -10,6 +10,8 @@ import com.mrcrayfish.framework.util.GsonUtils;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementRotation;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.SimpleUnbakedGeometry;
+import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraft.util.GsonHelper;
 import org.joml.Vector3f;
 
@@ -22,20 +24,21 @@ import java.util.List;
  */
 public class OpenModelDeserializer extends BlockModel.Deserializer
 {
+    // TODO investigate if not needed and can merge into OpenBlockModel
     public static final OpenModelDeserializer INSTANCE = new OpenModelDeserializer();
 
     /**
      * Reads the bl
      */
     @Override
-    public List<BlockElement> getElements(JsonDeserializationContext context, JsonObject object) throws JsonParseException
+    public UnbakedGeometry getElements(JsonDeserializationContext context, JsonObject object) throws JsonParseException
     {
         List<BlockElement> list = new ArrayList<>();
         for(JsonElement element : GsonHelper.getAsJsonArray(object, "components", new JsonArray()))
         {
             list.add(this.readBlockElement(element, context));
         }
-        return list;
+        return new SimpleUnbakedGeometry(list);
     }
 
     /**
@@ -63,7 +66,7 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
 
         // Read vanilla element and construct new element with custom properties
         BlockElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
-        BlockElementRotation r = e.rotation != null ? new BlockElementRotation(e.rotation.origin(), e.rotation.axis(), angle, e.rotation.rescale()) : null;
-        return new BlockElement(from, to, e.faces, r, e.shade, e.lightEmission);
+        BlockElementRotation r = e.rotation() != null ? new BlockElementRotation(e.rotation().origin(), e.rotation().axis(), angle, e.rotation().rescale()) : null;
+        return new BlockElement(from, to, e.faces(), r, e.shade(), e.lightEmission());
     }
 }

@@ -7,6 +7,10 @@ import com.mrcrayfish.framework.event.IClientEvent;
  */
 public class ClientEvents
 {
+    public static final FrameworkEvent<IClientEvent.ClientRegistryInitialization> CLIENT_REGISTRY_INITIALIZATION = new FrameworkEvent<>(listeners -> () -> {
+        listeners.forEach(IClientEvent.ClientRegistryInitialization::handle);
+    });
+
     public static final FrameworkEvent<IClientEvent.PlayerInputUpdate> PLAYER_INPUT_UPDATE = new FrameworkEvent<>(listeners -> (player, input) -> {
         listeners.forEach(listener -> listener.handle(player, input));
     });

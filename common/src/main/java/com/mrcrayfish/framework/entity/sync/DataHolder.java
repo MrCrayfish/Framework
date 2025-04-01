@@ -107,8 +107,16 @@ public class DataHolder
         listTag.forEach(entryTag ->
         {
             CompoundTag keyTag = (CompoundTag) entryTag;
-            ResourceLocation classKey = ResourceLocation.tryParse(keyTag.getString("ClassKey"));
-            ResourceLocation dataKey = ResourceLocation.tryParse(keyTag.getString("DataKey"));
+            Optional<String> rawClassKey = keyTag.getString("ClassKey");
+            if(rawClassKey.isEmpty())
+                return;
+
+            Optional<String> rawDataKey = keyTag.getString("DataKey");
+            if(rawDataKey.isEmpty())
+                return;
+
+            ResourceLocation classKey = ResourceLocation.tryParse(rawClassKey.get());
+            ResourceLocation dataKey = ResourceLocation.tryParse(rawDataKey.get());
             Tag value = keyTag.get("Value");
 
             SyncedClassKey<?> syncedClassKey = SyncedEntityData.instance().getClassKey(classKey);

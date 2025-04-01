@@ -2,12 +2,9 @@ package com.mrcrayfish.framework.platform;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelKey;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -26,10 +23,12 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public BakedModel getStandaloneBakedModel(ResourceLocation location)
+    public <T> T getStandaloneModel(FrameworkModelKey<T> key)
     {
-        ModelManager manager = Minecraft.getInstance().getModelManager();
-        return manager.getModel(location);
+        // TODO update with fabric api is reimplements.
+        /*ModelManager manager = Minecraft.getInstance().getModelManager();
+        return manager.getModel(location);*/
+        return null;
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

@@ -1,12 +1,8 @@
 package com.mrcrayfish.framework.api.datagen;
 
 import com.google.common.annotations.Beta;
-import net.minecraft.client.data.models.blockstates.BlockStateGenerator;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelInstance;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.resources.ResourceLocation;
@@ -21,11 +17,11 @@ import java.util.Map;
 @Beta
 public abstract class FrameworkGenerator
 {
-    protected final Map<Block, BlockStateGenerator> generators;
+    protected final Map<Block, BlockModelDefinitionGenerator> generators;
     protected final Map<Item, ClientItem> items;
     protected final Map<ResourceLocation, ModelInstance> models;
 
-    public FrameworkGenerator(Map<Block, BlockStateGenerator> generators, Map<Item, ClientItem> items, Map<ResourceLocation, ModelInstance> models)
+    public FrameworkGenerator(Map<Block, BlockModelDefinitionGenerator> generators, Map<Item, ClientItem> items, Map<ResourceLocation, ModelInstance> models)
     {
         this.generators = generators;
         this.items = items;
@@ -71,6 +67,6 @@ public abstract class FrameworkGenerator
     @FunctionalInterface
     public interface Factory<T extends FrameworkGenerator>
     {
-         T apply(Map<Block, BlockStateGenerator> generators, Map<Item, ClientItem> clientItems, Map<ResourceLocation, ModelInstance> models);
+         T apply(Map<Block, BlockModelDefinitionGenerator> generators, Map<Item, ClientItem> clientItems, Map<ResourceLocation, ModelInstance> models);
     }
 }

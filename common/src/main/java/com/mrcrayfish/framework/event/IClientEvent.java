@@ -14,4 +14,10 @@ public interface IClientEvent extends IFrameworkEvent
     {
         void handle(Player player, ClientInput input);
     }
+
+    @FunctionalInterface
+    interface ClientRegistryInitialization extends IClientEvent
+    {
+        void handle();
+    }
 }

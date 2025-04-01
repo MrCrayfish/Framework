@@ -21,7 +21,9 @@ import net.minecraft.world.entity.animal.horse.Mule;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
 import net.minecraft.world.entity.animal.horse.TraderLlama;
 import net.minecraft.world.entity.animal.horse.ZombieHorse;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.sniffer.Sniffer;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
@@ -70,6 +72,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
         return this.entityClass.getName().hashCode();
     }
 
+    // TODO check for 1.21.5 mobs
     public static final SyncedClassKey<AbstractArrow> ABSTRACT_ARROW = new SyncedClassKey<>(AbstractArrow.class, ResourceLocation.withDefaultNamespace("abstract_arrow"));
     public static final SyncedClassKey<AbstractChestedHorse> ABSTRACT_CHESTED_HORSE = new SyncedClassKey<>(AbstractChestedHorse.class, ResourceLocation.withDefaultNamespace("abstract_chested_horse"));
     public static final SyncedClassKey<AbstractFish> ABSTRACT_FISH = new SyncedClassKey<>(AbstractFish.class, ResourceLocation.withDefaultNamespace("abstract_fish"));
@@ -83,6 +86,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<AbstractSchoolingFish> ABSTRACT_SCHOOLING_FISH = new SyncedClassKey<>(AbstractSchoolingFish.class, ResourceLocation.withDefaultNamespace("abstract_schooling_fish"));
     public static final SyncedClassKey<AbstractSkeleton> ABSTRACT_SKELETON = new SyncedClassKey<>(AbstractSkeleton.class, ResourceLocation.withDefaultNamespace("abstract_skeleton"));
     public static final SyncedClassKey<AbstractVillager> ABSTRACT_VILLAGER = new SyncedClassKey<>(AbstractVillager.class, ResourceLocation.withDefaultNamespace("abstract_villager"));
+    public static final SyncedClassKey<AbstractThrownPotion> ABSTRACT_THROWN_POTION = new SyncedClassKey<>(AbstractThrownPotion.class, ResourceLocation.withDefaultNamespace("abstract_thrown_potion"));
     public static final SyncedClassKey<AgeableMob> AGEABLE_MOB = new SyncedClassKey<>(AgeableMob.class, ResourceLocation.withDefaultNamespace("ageable_mob"));
     public static final SyncedClassKey<Allay> ALLAY = new SyncedClassKey<>(Allay.class, ResourceLocation.withDefaultNamespace("allay"));
     public static final SyncedClassKey<AmbientCreature> AMBIENT_CREATURE = new SyncedClassKey<>(AmbientCreature.class, ResourceLocation.withDefaultNamespace("ambient_creature"));
@@ -210,8 +214,8 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<ThrownEgg> THROWN_EGG = new SyncedClassKey<>(ThrownEgg.class, ResourceLocation.withDefaultNamespace("thrown_egg"));
     public static final SyncedClassKey<ThrownEnderpearl> THROWN_ENDERPEARL = new SyncedClassKey<>(ThrownEnderpearl.class, ResourceLocation.withDefaultNamespace("thrown_enderpearl"));
     public static final SyncedClassKey<ThrownExperienceBottle> THROWN_EXPERIENCE_BOTTLE = new SyncedClassKey<>(ThrownExperienceBottle.class, ResourceLocation.withDefaultNamespace("thrown_experience_bottle"));
-    public static final SyncedClassKey<ThrownPotion> THROWN_POTION = new SyncedClassKey<>(ThrownPotion.class, ResourceLocation.withDefaultNamespace("thrown_potion"));
-    public static final SyncedClassKey<ThrownTrident> THROWN_TRIDENT = new SyncedClassKey<>(ThrownTrident.class, ResourceLocation.withDefaultNamespace("thrown_trident"));
+    public static final SyncedClassKey<ThrownLingeringPotion> THROWN_LINGERING_POTION = new SyncedClassKey<>(ThrownLingeringPotion.class, ResourceLocation.withDefaultNamespace("thrown_lingering_potion"));
+    public static final SyncedClassKey<ThrownSplashPotion> THROWN_SPLASH_POTION = new SyncedClassKey<>(ThrownSplashPotion.class, ResourceLocation.withDefaultNamespace("thrown_splash_potion"));
     public static final SyncedClassKey<TraderLlama> TRADER_LLAMA = new SyncedClassKey<>(TraderLlama.class, ResourceLocation.withDefaultNamespace("trader_llama"));
     public static final SyncedClassKey<TropicalFish> TROPICAL_FISH = new SyncedClassKey<>(TropicalFish.class, ResourceLocation.withDefaultNamespace("tropical_fish"));
     public static final SyncedClassKey<Turtle> TURTLE = new SyncedClassKey<>(Turtle.class, ResourceLocation.withDefaultNamespace("turtle"));

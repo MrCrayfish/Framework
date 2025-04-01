@@ -150,7 +150,7 @@ public class SyncedEntityDataTest
 
         private static TestCounter read(Tag tag, HolderLookup.Provider provider)
         {
-            return new TestCounter(((IntTag) tag).getAsInt());
+            return new TestCounter(((IntTag) tag).intValue());
         }
     }
 }

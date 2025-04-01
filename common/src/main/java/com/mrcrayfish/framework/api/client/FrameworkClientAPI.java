@@ -1,29 +1,24 @@
 package com.mrcrayfish.framework.api.client;
 
+import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.JsonDataManager;
-import com.mrcrayfish.framework.client.StandaloneModelManager;
 import com.mrcrayfish.framework.client.model.OpenModelHelper;
+import com.mrcrayfish.framework.client.model.StandaloneModelManager;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
-import com.mrcrayfish.framework.platform.ClientServices;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
 public class FrameworkClientAPI
 {
+    /**
+     *
+     * @param loader
+     */
     public static synchronized void registerDataLoader(IDataLoader<?> loader)
     {
         JsonDataManager.getInstance().addLoader(loader);
@@ -80,41 +75,18 @@ public class FrameworkClientAPI
     }
 
     /**
-     * Gets the standalone BakedModel for the given ResourceLocation. If no model is found for the given
-     * key, the missing model will be returned. If the standalone model uses the Open Model loader,
-     * you can cast the model to an {@link com.mrcrayfish.framework.client.model.IOpenModel} to
-     * retrieve any custom data.
-     *
-     * @param location the location of the model
-     * @return A baked model or the missing model if not found
-     */
-    public static BakedModel getStandaloneBakedModel(ResourceLocation location)
-    {
-        // Internal code, do not call services directly since they may change at any time.
-        return ClientServices.CLIENT.getStandaloneBakedModel(location);
-    }
-
-    /**
-     * Registers a standalone baked model that is not bound to any block or item, and can simply be
+     * Registers a standalone model that is not bound to any block or item, and can simply be
      * retrieved after resources have been loaded with the returned supplier. Registration must be
      * done during client initialization. Any calls to this method after the game has started will
-     * throw an IllegalStateException. If the standalone model uses the Open Model loader, you can
-     * cast the baked model to an {@link com.mrcrayfish.framework.client.model.IOpenModel} to
+     * throw an IllegalStateException. If the standalone model is an Open Model, you can cast
+     * the standalone model to an {@link com.mrcrayfish.framework.client.model.IOpenModel} to
      * retrieve any custom data.
      *
-     * @param location the location of the model in the assets
-     * @return A supplier that returns a baked model. Throws IllegalStateException if called too early.
+     * @param resource the model key used to reference the standalone model
      */
-    public static Supplier<BakedModel> registerStandaloneModel(ResourceLocation location)
+    public static synchronized <T> void registerStandaloneModel(FrameworkModelResource<T> resource)
     {
-        // Internal code, do not call these directly since they may change at any time.
-        StandaloneModelManager.getInstance().register(location);
-        return () -> {
-            //noinspection ConstantValue
-            if(Minecraft.getInstance().getModelManager().getMissingModel() == null)
-                throw new IllegalStateException("Models have not loaded yet");
-            // Internal code, do not call services directly since they may change at any time.
-            return ClientServices.CLIENT.getStandaloneBakedModel(location);
-        };
+        // Internal code, do not call these directly since they may break in a future update.
+        StandaloneModelManager.getInstance().register(resource);
     }
 }

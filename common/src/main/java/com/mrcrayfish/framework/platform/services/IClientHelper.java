@@ -2,8 +2,12 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -23,8 +27,21 @@ public interface IClientHelper
     /**
      * Gets a BakedModel in the ModelManager using a ModelResourceLocation
      *
-     * @param location the identifier of the baked model
+     * @param key the identifier of the baked model
      * @return the baked model or missing model if location doesn't exist
      */
-    BakedModel getStandaloneBakedModel(ResourceLocation location);
+    <T> T getStandaloneModel(FrameworkModelResource<T> key);
+
+    /**
+     *
+     * @param id
+     * @param baker
+     * @return
+     * @param <T>
+     */
+    <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker);
+
+    RenderType getRenderType(ResolvedModel model);
+
+    RenderType getRenderType(BlockModelPart part);
 }

@@ -1,17 +1,23 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
+import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.InputEvents;
+import com.mrcrayfish.framework.client.model.FrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;
+import com.mrcrayfish.framework.client.model.NeoForgeFrameworkBlockStateModel;
+import com.mrcrayfish.framework.client.model.StandaloneModelManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelBaker;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.function.BiConsumer;
 
 /**
  * Author: MrCrayfish
@@ -39,14 +45,29 @@ public final class ClientFrameworkNeoForge
     }
 
     @SubscribeEvent
-    private static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event)
+    private static void onRegisterAdditionalModels(ModelEvent.RegisterStandalone event)
     {
-        StandaloneModelManager.getInstance().load(event::register);
+        StandaloneModelManager.getInstance().load(resource -> {
+            resource.clearCache(); // Make sure models are reset
+            registerStandaloneModel(event::register, (NeoForgeModelResource<?>) resource);
+        });
+    }
+
+    // Fighting generics one method at a time
+    private static <T> void registerStandaloneModel(BiConsumer<StandaloneModelKey<T>, StandaloneModelBaker<T>> consumer, NeoForgeModelResource<T> key)
+    {
+        consumer.accept(key.standaloneKey(), key.modelBaker());
     }
 
     @SubscribeEvent
     private static void onRegisterItemModels(RegisterItemModelsEvent event)
     {
         event.register(FrameworkItemModel.ID, FrameworkItemModel.Unbaked.MAP_CODEC);
+    }
+
+    @SubscribeEvent
+    private static void onRegisterItemModels(RegisterBlockStateModels event)
+    {
+        event.registerModel(FrameworkBlockStateModel.ID, NeoForgeFrameworkBlockStateModel.Unbaked.MAP_CODEC);
     }
 }

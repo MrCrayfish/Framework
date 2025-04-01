@@ -10,6 +10,7 @@ public class FrameworkModelLoadingPlugin implements ModelLoadingPlugin
     @Override
     public void initialize(Context context)
     {
-        StandaloneModelManager.getInstance().load(context::addModels);
+        // TODO not possible in Fabric yet.
+        //StandaloneModelManager.getInstance().load(context::addModels);
     }
 }

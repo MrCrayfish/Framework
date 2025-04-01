@@ -2,7 +2,7 @@ import org.apache.commons.io.FilenameUtils
 
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom' version '1.8-SNAPSHOT'
+    id 'fabric-loom'
 }
 
 sourceSets {
