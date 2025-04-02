@@ -1,29 +1,18 @@
 package com.mrcrayfish.framework.mixin.client;
 
 import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.ClientFrameworkFabric;
-import com.mrcrayfish.framework.client.model.FabricOpenBlockModel;
 import com.mrcrayfish.framework.client.model.OpenModelDeserializer;
-import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.block.model.TextureSlots;
-import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Author: MrCrayfish
@@ -32,27 +21,26 @@ import java.util.Map;
 public class BlockModelDeserializerMixin
 {
     // Unfortunately Fabric doesn't have any way to create custom loaders
-
-    @SuppressWarnings("unchecked")
-    @Inject(method = "deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockModel;", at = @At(value = "RETURN"), cancellable = true)
-    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext jsonDeserializationContext, CallbackInfoReturnable<BlockModel> cir, @Local JsonObject object, @Local List<BlockElement> elements, @Local String parent, @Local TextureSlots.Data textures, @Local Boolean ambientOcc, @Local ItemTransforms transforms, @Local UnbakedModel.GuiLight light, @Local ResourceLocation id)
+    /*@Inject(method = "deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Lnet/minecraft/client/renderer/block/model/BlockModel;", at = @At(value = "RETURN"), cancellable = true)
+    private void frameworkCreateBlockModel(JsonElement element, Type type, JsonDeserializationContext context, CallbackInfoReturnable<BlockModel> cir, @Local JsonObject jsonObject, @Local UnbakedGeometry unbakedGeometry, @Local TextureSlots.Data data, @Local Boolean boolean_, @Local UnbakedModel.GuiLight guiLight, @Local ItemTransforms itemTransforms, @Local ResourceLocation resourceLocation)
     {
-        if(this.isFrameworkOpenModel(object))
+        if(this.isFrameworkOpenModel(jsonObject))
         {
-            cir.setReturnValue(new FabricOpenBlockModel(id, elements, textures, ambientOcc, light, transforms, DataObject.convertNonNull(object.get("data"))));
+            cir.setReturnValue(new OpenBlockModel(unbakedGeometry, guiLight, boolean_, itemTransforms, data, resourceLocation, DataObject.convertNonNull(jsonObject.get("data"))));
         }
-    }
+    }*/
 
-    @Inject(method = "getElements", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void frameworkOpenModelLoadElements(JsonDeserializationContext context, JsonObject object, CallbackInfoReturnable<List<BlockElement>> cir)
+    @Inject(method = "getElements", at = @At(value = "HEAD"), cancellable = true)
+    private void frameworkOpenModelLoadElements(JsonDeserializationContext context, JsonObject object, CallbackInfoReturnable<UnbakedGeometry> cir)
     {
-        if(this.isFrameworkOpenModel(object))
+        if(this.isOpenModel(object))
         {
             cir.setReturnValue(OpenModelDeserializer.INSTANCE.getElements(context, object));
         }
     }
     
-    private boolean isFrameworkOpenModel(JsonObject object)
+    @Unique
+    private boolean isOpenModel(JsonObject object)
     {
         if(object.has("loader") && object.get("loader").isJsonPrimitive())
         {

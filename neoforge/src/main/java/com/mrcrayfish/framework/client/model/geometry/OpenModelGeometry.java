@@ -36,12 +36,6 @@ public class OpenModelGeometry extends DelegateUnbakedModel implements IOpenMode
         return this.data;
     }
 
-    /*@Override
-    public BakedModel bake(TextureSlots textureSlots, ModelBaker baker, ModelState state, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms transforms, ContextMap properties)
-    {
-        return new NeoForgeBakedOpenModel(super.bake(textureSlots, baker, state, useAmbientOcclusion, usesBlockLight, transforms, properties), this.data);
-    }*/
-
     @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class Loader implements UnbakedModelLoader<OpenModelGeometry>
     {

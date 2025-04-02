@@ -2,9 +2,15 @@ package com.mrcrayfish.framework.platform;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
-import com.mrcrayfish.framework.api.client.model.FrameworkModelKey;
+import com.mrcrayfish.framework.api.client.model.FabricModelResource;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
+import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -23,12 +29,27 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public <T> T getStandaloneModel(FrameworkModelKey<T> key)
+    public <T> T getStandaloneModel(FrameworkModelResource<T> key)
     {
-        // TODO update with fabric api is reimplements.
-        /*ModelManager manager = Minecraft.getInstance().getModelManager();
-        return manager.getModel(location);*/
         return null;
+    }
+
+    @Override
+    public <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker)
+    {
+        return new FabricModelResource<>(id, baker);
+    }
+
+    @Override
+    public RenderType getRenderType(ResolvedModel model)
+    {
+        return RenderType.solid();
+    }
+
+    @Override
+    public RenderType getRenderType(BlockModelPart part)
+    {
+        return RenderType.solid();
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()
