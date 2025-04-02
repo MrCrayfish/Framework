@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -15,7 +15,6 @@ import net.fabricmc.loader.api.metadata.CustomValue;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,15 +27,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.function.TriFunction;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,18 +47,50 @@ import java.util.stream.Collectors;
  */
 public class FabricRegistrationHelper implements IRegistrationHelper
 {
-    @Override
-    public List<RegistryEntry<?>> getAllRegistryEntries()
+    private final Set<Class<?>> registryClasses = new HashSet<>();
+    private boolean loadedRegistryClasses;
+
+    public <T> List<T> getRegistryObjects(Class<T> objectType)
     {
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages(this.getScanPackages())
-                .addScanners(Scanners.TypesAnnotated));
-        Set<Class<?>> containerClass = reflections.getTypesAnnotatedWith(RegistryContainer.class);
-        return containerClass.stream()
-                .map(ReflectionUtils::findRegistryEntriesInClass)
-                .flatMap(Collection::stream)
+        if(!this.loadedRegistryClasses)
+        {
+            // Set up reflections to only look in specified packages
+            Reflections reflections = new Reflections(new ConfigurationBuilder()
+                    .forPackages(this.getScanPackages())
+                    .addScanners(Scanners.TypesAnnotated));
+
+            String annotationClassName = RegistryContainer.class.getName();
+            String annotationDescriptor = RegistryContainer.class.descriptorString();
+
+            // Check classes annotated with RegistryContainer that they can be loaded
+            Map<String, Set<String>> store = reflections.getStore().get(Scanners.TypesAnnotated.name());
+            store.forEach((annotation, classes) ->
+            {
+                if(!annotationClassName.equals(annotation))
+                    return;
+
+                for(String registryClass : classes)
+                {
+                    // Get annotation data
+                    Map<String, String> data = this.readAnnotationData(registryClass, annotationDescriptor);
+
+                    // Prevent loading if clientOnly but env is dedicated server
+                    boolean clientOnly = Boolean.parseBoolean(data.getOrDefault("clientOnly", "false"));
+                    if(clientOnly && !FrameworkAPI.getEnvironment().isClient())
+                        continue;
+
+                    // Finally add as valid class to load
+                    this.registryClasses.add(ReflectionUtils.getClass(registryClass));
+                }
+            });
+
+            this.loadedRegistryClasses = true;
+        }
+        return this.registryClasses.stream()
+                .flatMap(holderClass -> ReflectionUtils.findPublicStaticObjects(objectType, holderClass).stream())
                 .collect(Collectors.toList());
     }
+
 
     private String[] getScanPackages()
     {
@@ -98,6 +131,24 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         return Collections.emptyList();
     }
 
+    public Map<String, String> readAnnotationData(String className, String annotationDescriptor)
+    {
+        Map<String, String> data = new HashMap<>();
+        try(InputStream is = ClassLoader.getSystemResourceAsStream(className.replace('.', '/') + ".class"))
+        {
+            if(is != null)
+            {
+                ClassReader reader = new ClassReader(is);
+                reader.accept(new AnnotationDataCollector(annotationDescriptor, data), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+            }
+        }
+        catch(IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return data;
+    }
+
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
@@ -128,5 +179,35 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     public CreativeModeTab.Builder createCreativeModeTabBuilder()
     {
         return FabricItemGroup.builder();
+    }
+
+    private static class AnnotationDataCollector extends ClassVisitor
+    {
+        private final String targetDescriptor;
+        private final Map<String, String> data;
+
+        private AnnotationDataCollector(String targetDescriptor, Map<String, String> data)
+        {
+            super(Opcodes.ASM9);
+            this.targetDescriptor = targetDescriptor;
+            this.data = data;
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible)
+        {
+            if(descriptor.equals(this.targetDescriptor))
+            {
+                return new AnnotationVisitor(this.api)
+                {
+                    @Override
+                    public void visit(String name, Object value)
+                    {
+                        AnnotationDataCollector.this.data.put(name, value.toString());
+                    }
+                };
+            }
+            return null;
+        }
     }
 }

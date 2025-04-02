@@ -1,15 +1,14 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,20 +38,23 @@ import java.util.stream.Collectors;
  */
 public class NeoForgeRegistrationHelper implements IRegistrationHelper
 {
-    public static final Type ENTRY_CONTAINER = Type.getType(RegistryContainer.class);
+    public static final Type REGISTRY_CONTAINER_TYPE = Type.getType(RegistryContainer.class);
 
     @Override
-    public List<RegistryEntry<?>> getAllRegistryEntries()
+    public <T> List<T> getRegistryObjects(Class<T> objectType)
     {
         return ModList.get().getAllScanData().stream()
                 .map(ModFileScanData::getAnnotations)
                 .flatMap(Collection::stream)
-                .filter(a -> ENTRY_CONTAINER.equals(a.annotationType()))
                 .filter(a -> a.targetType() == ElementType.TYPE)
+                .filter(a -> REGISTRY_CONTAINER_TYPE.equals(a.annotationType()))
+                .filter(a -> {
+                    boolean clientOnly = (boolean) a.annotationData().getOrDefault("clientOnly", false);
+                    return !clientOnly || FrameworkAPI.getEnvironment().isClient();
+                })
                 .map(ModFileScanData.AnnotationData::memberName)
                 .map(ReflectionUtils::getClass)
-                .map(ReflectionUtils::findRegistryEntriesInClass)
-                .flatMap(Collection::stream)
+                .flatMap(holderClass -> ReflectionUtils.findPublicStaticObjects(objectType, holderClass).stream())
                 .collect(Collectors.toList());
     }
 

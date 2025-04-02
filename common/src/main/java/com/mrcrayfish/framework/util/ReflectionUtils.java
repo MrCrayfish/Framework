@@ -1,7 +1,5 @@
 package com.mrcrayfish.framework.util;
 
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -24,24 +22,25 @@ public class ReflectionUtils
         }
     }
 
-    public static List<RegistryEntry<?>> findRegistryEntriesInClass(Class<?> targetClass)
+    public static <T> List<T> findPublicStaticObjects(Class<T> objectClass, Class<?> holderClass)
     {
-        List<RegistryEntry<?>> entries = new ArrayList<>();
-        Field[] fields = targetClass.getDeclaredFields();
+        List<T> entries = new ArrayList<>();
+        Field[] fields = holderClass.getDeclaredFields();
         for(Field field : fields)
         {
-            if(field.getType() != RegistryEntry.class)
+            if(!objectClass.isAssignableFrom(field.getType()))
                 continue;
 
             if(!Modifier.isPublic(field.getModifiers()))
-                throw new RuntimeException("Unable to access RegistryEntry due to non-public modifier");
+                throw new RuntimeException("Unable to access field due to non-public modifier: " + field.getName());
 
             if(!Modifier.isStatic(field.getModifiers()))
-                throw new RuntimeException("Unable to access RegistryEntry due to non-static modifier");
+                throw new RuntimeException("Unable to access field due to non-static modifier: " + field.getName());
 
             try
             {
-                entries.add((RegistryEntry<?>) field.get(null));
+                //noinspection unchecked
+                entries.add((T) field.get(null));
             }
             catch(IllegalAccessException e)
             {

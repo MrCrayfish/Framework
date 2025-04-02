@@ -48,7 +48,7 @@ public final class Registration
 
     public static void init()
     {
-        Services.REGISTRATION.getAllRegistryEntries().forEach(entry -> {
+        Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
             ENTRY_MAP.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
         });
     }
