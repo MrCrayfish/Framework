@@ -1,6 +1,8 @@
 package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.FrameworkData;
+import com.mrcrayfish.framework.api.LogicalEnvironment;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;
 import com.mrcrayfish.framework.config.ConfigWatcher;
 import com.mrcrayfish.framework.util.Utils;
@@ -9,6 +11,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -27,7 +30,7 @@ public class ClientFrameworkFabric implements ClientModInitializer
     @Override
     public void onInitializeClient()
     {
-        ClientBootstrap.init();
+        TaskRunner.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
         ItemModels.ID_MAPPER.put(FrameworkItemModel.ID, FrameworkItemModel.Unbaked.MAP_CODEC);
         ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {

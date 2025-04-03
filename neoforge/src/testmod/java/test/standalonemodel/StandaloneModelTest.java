@@ -46,12 +46,6 @@ public class StandaloneModelTest
     public StandaloneModelTest(IEventBus bus)
     {
         bus.addListener(this::onRegisterRenderers);
-        bus.addListener(this::onClientSetup);
-    }
-
-    private void onClientSetup(InitializeClientRegistriesEvent event)
-    {
-        FrameworkClientAPI.registerStandaloneModel(CUSTOM_MODEL);
     }
 
     private void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event)

@@ -73,20 +73,4 @@ public class FrameworkClientAPI
         // Internal code, do not call these directly since they may break in a future update.
         return OpenModelHelper.getData(stack);
     }
-
-    /**
-     * Registers a standalone model that is not bound to any block or item, and can simply be
-     * retrieved after resources have been loaded with the returned supplier. Registration must be
-     * done during client initialization. Any calls to this method after the game has started will
-     * throw an IllegalStateException. If the standalone model is an Open Model, you can cast
-     * the standalone model to an {@link com.mrcrayfish.framework.client.model.IOpenModel} to
-     * retrieve any custom data.
-     *
-     * @param resource the model key used to reference the standalone model
-     */
-    public static synchronized <T> void registerStandaloneModel(FrameworkModelResource<T> resource)
-    {
-        // Internal code, do not call these directly since they may break in a future update.
-        StandaloneModelManager.getInstance().register(resource);
-    }
 }
