@@ -31,11 +31,14 @@ public class ReflectionUtils
             if(!objectClass.isAssignableFrom(field.getType()))
                 continue;
 
-            if(!Modifier.isPublic(field.getModifiers()))
-                throw new RuntimeException("Unable to access field due to non-public modifier: " + field.getName());
+            // Allows non-public fields to be registered
+            field.setAccessible(true);
 
             if(!Modifier.isStatic(field.getModifiers()))
-                throw new RuntimeException("Unable to access field due to non-static modifier: " + field.getName());
+                throw new RuntimeException("Registration objects must be static. Please update the field: " + holderClass.getName() + "." + field.getName());
+
+            if(!Modifier.isFinal(field.getModifiers()))
+                throw new RuntimeException("Registration objects must be final. Please update the field: " + holderClass.getName() + "." + field.getName());
 
             try
             {
