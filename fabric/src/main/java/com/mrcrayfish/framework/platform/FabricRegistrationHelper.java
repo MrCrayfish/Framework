@@ -64,26 +64,21 @@ public class FabricRegistrationHelper implements IRegistrationHelper
 
             // Check classes annotated with RegistryContainer that they can be loaded
             Map<String, Set<String>> store = reflections.getStore().get(Scanners.TypesAnnotated.name());
-            store.forEach((annotation, classes) ->
+            for(String registryClass : store.getOrDefault(annotationClassName, Collections.emptySet()))
             {
-                if(!annotationClassName.equals(annotation))
-                    return;
+                // Get annotation data without loading the class
+                Map<String, Object> data = this.readAnnotationData(registryClass, annotationDescriptor);
 
-                for(String registryClass : classes)
-                {
-                    // Get annotation data
-                    Map<String, String> data = this.readAnnotationData(registryClass, annotationDescriptor);
+                // Prevent searching for fields if clientOnly but env is dedicated server
+                boolean clientOnly = (boolean) data.getOrDefault("clientOnly", false);
+                if(clientOnly && !FrameworkAPI.getEnvironment().isClient())
+                    continue;
 
-                    // Prevent loading if clientOnly but env is dedicated server
-                    boolean clientOnly = Boolean.parseBoolean(data.getOrDefault("clientOnly", "false"));
-                    if(clientOnly && !FrameworkAPI.getEnvironment().isClient())
-                        continue;
+                // Add as valid class and load the class
+                this.registryClasses.add(ReflectionUtils.getClass(registryClass));
+            }
 
-                    // Finally add as valid class to load
-                    this.registryClasses.add(ReflectionUtils.getClass(registryClass));
-                }
-            });
-
+            // Finally mark classes as loaded to prevent
             this.loadedRegistryClasses = true;
         }
         return this.registryClasses.stream()
@@ -131,9 +126,16 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         return Collections.emptyList();
     }
 
-    public Map<String, String> readAnnotationData(String className, String annotationDescriptor)
+    /**
+     * Reads the annotation data of a class without loading the class using ASM.
+     *
+     * @param className            the fully-qualified name of the class. e.g "java.lang.String"
+     * @param annotationDescriptor the descriptor of the annotation
+     * @return a map containing the annotation data
+     */
+    private Map<String, Object> readAnnotationData(String className, String annotationDescriptor)
     {
-        Map<String, String> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         try(InputStream is = ClassLoader.getSystemResourceAsStream(className.replace('.', '/') + ".class"))
         {
             if(is != null)
@@ -184,9 +186,9 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     private static class AnnotationDataCollector extends ClassVisitor
     {
         private final String targetDescriptor;
-        private final Map<String, String> data;
+        private final Map<String, Object> data;
 
-        private AnnotationDataCollector(String targetDescriptor, Map<String, String> data)
+        private AnnotationDataCollector(String targetDescriptor, Map<String, Object> data)
         {
             super(Opcodes.ASM9);
             this.targetDescriptor = targetDescriptor;
@@ -203,7 +205,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
                     @Override
                     public void visit(String name, Object value)
                     {
-                        AnnotationDataCollector.this.data.put(name, value.toString());
+                        AnnotationDataCollector.this.data.put(name, value);
                     }
                 };
             }
