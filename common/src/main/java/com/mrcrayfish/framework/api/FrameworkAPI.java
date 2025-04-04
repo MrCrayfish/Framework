@@ -29,6 +29,7 @@ public class FrameworkAPI
      *
      * @param key the synced data key instance
      */
+    @Deprecated(since = "1.21.5", forRemoval = true)
     public static <E extends Entity, T> void registerSyncedDataKey(SyncedDataKey<E, T> key)
     {
         // Internal code, do not call these directly since they may break in a future update.

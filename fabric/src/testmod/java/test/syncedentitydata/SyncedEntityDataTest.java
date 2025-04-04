@@ -1,6 +1,6 @@
 package test.syncedentitydata;
 
-import com.mrcrayfish.framework.api.FrameworkAPI;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.sync.Serializers;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 
+@RegistryContainer
 public class SyncedEntityDataTest implements ModInitializer
 {
     private BlockPos lastClickedPos = BlockPos.ZERO;
@@ -44,9 +45,6 @@ public class SyncedEntityDataTest implements ModInitializer
     @Override
     public void onInitialize()
     {
-        FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-        FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
-
         AttackEntityCallback.EVENT.register(this::onHitEntity);
         AttackBlockCallback.EVENT.register(this::onTouchBlock);
     }

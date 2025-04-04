@@ -2,8 +2,10 @@ package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
+import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.ClientRegistration;
+import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
@@ -53,6 +55,9 @@ public final class Registration
     {
         Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
             ENTRY_MAP.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
+        });
+        Services.REGISTRATION.getRegistryObjects(SyncedDataKey.class).forEach(key -> {
+            SyncedEntityData.instance().registerDataKey((SyncedDataKey<?, ?>) key);
         });
         TaskRunner.runIf(Environment.CLIENT, () -> ClientRegistration::init);
     }

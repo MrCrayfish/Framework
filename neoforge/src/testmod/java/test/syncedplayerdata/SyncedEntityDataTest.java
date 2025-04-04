@@ -1,11 +1,7 @@
 package test.syncedplayerdata;
 
-import com.mrcrayfish.framework.api.FrameworkAPI;
-import com.mrcrayfish.framework.api.sync.DataSerializer;
-import com.mrcrayfish.framework.api.sync.Serializers;
-import com.mrcrayfish.framework.api.sync.SyncedClassKey;
-import com.mrcrayfish.framework.api.sync.SyncedDataKey;
-import com.mrcrayfish.framework.api.sync.SyncedObject;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
+import com.mrcrayfish.framework.api.sync.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.IntTag;
@@ -23,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -31,6 +26,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 /**
  * Author: MrCrayfish
  */
+@RegistryContainer
 @Mod("synced_entity_data_test")
 public class SyncedEntityDataTest
 {
@@ -62,16 +58,6 @@ public class SyncedEntityDataTest
     {
         NeoForge.EVENT_BUS.addListener(this::onTouchBlock);
         NeoForge.EVENT_BUS.addListener(this::onHitEntity);
-        bus.addListener(this::onCommonSetup);
-    }
-
-    private void onCommonSetup(FMLCommonSetupEvent event)
-    {
-        event.enqueueWork(() -> {
-            FrameworkAPI.registerSyncedDataKey(TOUCHED_GRASS);
-            FrameworkAPI.registerSyncedDataKey(HIT_COUNT);
-            FrameworkAPI.registerSyncedDataKey(STRIKE_COUNT);
-        });
     }
 
     private void onTouchBlock(PlayerInteractEvent.LeftClickBlock event)
