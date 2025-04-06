@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.mrcrayfish.framework.api.event.ClientEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +17,6 @@ public class LocalPlayerMixin
     private void frameworkOnInput(CallbackInfo ci)
     {
         LocalPlayer player = (LocalPlayer) (Object) this;
-        ClientEvents.PLAYER_INPUT_UPDATE.post().handle(player, player.input);
+        FrameworkInputEvents.CLIENT_INPUT_UPDATE.post().handle(player, player.input);
     }
 }

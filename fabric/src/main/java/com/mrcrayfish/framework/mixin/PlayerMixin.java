@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +19,7 @@ public class PlayerMixin
     private void frameworkOnDie(DamageSource source, CallbackInfo ci)
     {
         Player player = (Player) (Object) this;
-        if(PlayerEvents.DEATH.post().handle(player, source))
+        if(FrameworkPlayerEvents.DEATH.post().handle(player, source))
         {
             ci.cancel();
         }
@@ -28,12 +28,12 @@ public class PlayerMixin
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void frameworkOnPreTick(CallbackInfo ci)
     {
-        TickEvents.START_PLAYER.post().handle((Player) (Object) this);
+        FrameworkTickEvents.START_PLAYER.post().handle((Player) (Object) this);
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     private void frameworkOnPostTick(CallbackInfo ci)
     {
-        TickEvents.END_PLAYER.post().handle((Player) (Object) this);
+        FrameworkTickEvents.END_PLAYER.post().handle((Player) (Object) this);
     }
 }

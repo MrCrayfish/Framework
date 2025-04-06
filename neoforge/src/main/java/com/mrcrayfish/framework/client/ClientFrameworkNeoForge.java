@@ -3,13 +3,14 @@ package com.mrcrayfish.framework.client;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
-import com.mrcrayfish.framework.api.event.ClientEvents;
-import com.mrcrayfish.framework.api.event.InputEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.model.FrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;
 import com.mrcrayfish.framework.client.model.NeoForgeFrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.StandaloneModelManager;
+import com.mrcrayfish.framework.platform.Services;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,7 +39,7 @@ public final class ClientFrameworkNeoForge
     @SubscribeEvent
     private static void registerKeyMappings(RegisterKeyMappingsEvent event)
     {
-        InputEvents.REGISTER_KEY_MAPPING.post().handle(event::register);
+        Services.REGISTRATION.getRegistryObjects(KeyMapping.class).forEach(event::register);
     }
 
     @SubscribeEvent

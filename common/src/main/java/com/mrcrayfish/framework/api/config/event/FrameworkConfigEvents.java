@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.api.config.event;
 
 import com.mrcrayfish.framework.api.event.FrameworkEvent;
-import com.mrcrayfish.framework.api.event.IFrameworkEvent;
 
 /**
  * Author: MrCrayfish
@@ -20,17 +19,17 @@ public class FrameworkConfigEvents
         listeners.forEach(listener -> listener.handle(object));
     });
 
-    public interface Load extends IFrameworkEvent
+    public interface Load
     {
         void handle(Object object);
     }
 
-    public interface Unload extends IFrameworkEvent
+    public interface Unload
     {
         void handle(Object object);
     }
 
-    public interface Reload extends IFrameworkEvent
+    public interface Reload
     {
         void handle(Object object);
     }

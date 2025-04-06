@@ -7,8 +7,6 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.FileConfig;
-import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.core.io.ParsingException;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Preconditions;
@@ -24,8 +22,8 @@ import com.mrcrayfish.framework.api.config.ConfigProperty;
 import com.mrcrayfish.framework.api.config.ConfigType;
 import com.mrcrayfish.framework.api.config.FrameworkConfig;
 import com.mrcrayfish.framework.api.config.event.FrameworkConfigEvents;
-import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
-import com.mrcrayfish.framework.api.event.ServerEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
@@ -98,9 +96,9 @@ public class FrameworkConfigManager
         });
         this.configs = ImmutableMap.copyOf(configs);
 
-        ServerEvents.STARTING.register(this::onServerStarting);
-        ServerEvents.STOPPED.register(this::onServerStopped);
-        ClientConnectionEvents.LOGGING_OUT.register(this::onClientDisconnect);
+        FrameworkServerEvents.STARTING.register(this::onServerStarting);
+        FrameworkServerEvents.STOPPED.register(this::onServerStopped);
+        FrameworkClientConnectionEvents.LOGGING_OUT.register(this::onClientDisconnect);
     }
 
     public List<FrameworkConfigImpl> getConfigs()

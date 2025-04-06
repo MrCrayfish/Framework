@@ -7,7 +7,7 @@ import java.util.function.Function;
 /**
  * Author: MrCrayfish
  */
-public final class FrameworkEvent<T extends IFrameworkEvent>
+public final class FrameworkEvent<T>
 {
     private final List<T> listeners = new ArrayList<>();
     private final Function<List<T>, T> invoker;

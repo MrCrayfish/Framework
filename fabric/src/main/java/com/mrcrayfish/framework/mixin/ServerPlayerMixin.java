@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public class ServerPlayerMixin
     private void frameworkOnDie(DamageSource source, CallbackInfo ci)
     {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        if(PlayerEvents.DEATH.post().handle(player, source))
+        if(FrameworkPlayerEvents.DEATH.post().handle(player, source))
         {
             ci.cancel();
         }

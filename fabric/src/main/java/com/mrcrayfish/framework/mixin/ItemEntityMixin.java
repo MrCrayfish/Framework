@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public class ItemEntityMixin
     private void frameworkOnPlayerTouch(Player player, CallbackInfo ci)
     {
         ItemEntity entity = (ItemEntity) (Object) this;
-        if(PlayerEvents.PICKUP_ITEM.post().handle(player, entity))
+        if(FrameworkPlayerEvents.PICKUP_ITEM.post().handle(player, entity))
         {
             ci.cancel();
         }

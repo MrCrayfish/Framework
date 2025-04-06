@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -19,12 +19,12 @@ public class PlayerListMixin
     @Inject(method = "placeNewPlayer", at = @At(value = "TAIL"))
     private void frameworkOnPlayerJoin(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci)
     {
-        PlayerEvents.LOGGED_IN.post().handle(player);
+        FrameworkPlayerEvents.LOGGED_IN.post().handle(player);
     }
 
     @Inject(method = "remove", at = @At(value = "HEAD"))
     private void frameworkOnPlayerLeave(ServerPlayer player, CallbackInfo ci)
     {
-        PlayerEvents.LOGGED_OUT.post().handle(player);
+        FrameworkPlayerEvents.LOGGED_OUT.post().handle(player);
     }
 }

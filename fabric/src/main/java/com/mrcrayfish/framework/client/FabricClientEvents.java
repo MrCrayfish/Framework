@@ -1,8 +1,9 @@
 package com.mrcrayfish.framework.client;
 
-import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
-import com.mrcrayfish.framework.api.event.ScreenEvents;
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -22,35 +23,34 @@ public class FabricClientEvents implements ClientModInitializer
     public void onInitializeClient()
     {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            TickEvents.START_CLIENT.post().handle();
+            FrameworkClientTickEvents.START_CLIENT.post().handle();
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            TickEvents.END_CLIENT.post().handle();
+            FrameworkClientTickEvents.END_CLIENT.post().handle();
         });
         ClientTickEvents.START_WORLD_TICK.register(level -> {
-            TickEvents.START_LEVEL.post().handle(level);
+            FrameworkTickEvents.START_LEVEL.post().handle(level);
         });
         ClientTickEvents.END_WORLD_TICK.register(level -> {
-            TickEvents.END_LEVEL.post().handle(level);
+            FrameworkTickEvents.END_LEVEL.post().handle(level);
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             FrameworkConfigManager.getInstance().loadDefaultSyncConfigsIfUnloaded();
-            ClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
+            FrameworkClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            ClientConnectionEvents.LOGGING_OUT.post().handle(handler.getConnection());
+            FrameworkClientConnectionEvents.LOGGING_OUT.post().handle(handler.getConnection());
         });
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             List<AbstractWidget> widgets = Screens.getButtons(screen);
-            ScreenEvents.INIT.post().handle(screen);
-            ScreenEvents.MODIFY_WIDGETS.post().handle(screen, Collections.unmodifiableList(widgets), widgets::add, widgets::remove);
+            FrameworkScreenEvents.INIT.post().handle(screen, Collections.unmodifiableList(widgets), widgets::add, widgets::remove);
         });
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.beforeRender(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
-                ScreenEvents.BEFORE_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
+                FrameworkScreenEvents.BEFORE_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
             });
             net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
-                ScreenEvents.AFTER_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
+                FrameworkScreenEvents.AFTER_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
             });
         });
     }

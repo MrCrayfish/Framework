@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.mrcrayfish.framework.api.event.InputEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Final;
@@ -25,7 +25,7 @@ public class KeyboardHandlerMixin
     {
         if(windowId == this.minecraft.getWindow().getWindow())
         {
-            InputEvents.KEY.post().handle(key, scanCode, action, modifiers);
+            FrameworkInputEvents.KEY.post().handle(key, scanCode, action, modifiers);
         }
     }
 }

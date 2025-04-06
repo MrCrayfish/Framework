@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.EntityEvents;
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.FrameworkEntityEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +19,7 @@ public class LivingEntityMixin
     private void frameworkOnDie(DamageSource source, CallbackInfo ci)
     {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if(EntityEvents.LIVING_ENTITY_DEATH.post().handle(entity, source))
+        if(FrameworkEntityEvents.LIVING_ENTITY_DEATH.post().handle(entity, source))
         {
             ci.cancel();
         }
@@ -28,6 +28,12 @@ public class LivingEntityMixin
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void frameworkOnPreTick(CallbackInfo ci)
     {
-        TickEvents.START_LIVING_ENTITY.post().handle((LivingEntity) (Object) this);
+        FrameworkTickEvents.START_LIVING_ENTITY.post().handle((LivingEntity) (Object) this);
+    }
+
+    @Inject(method = "tick", at = @At(value = "TAIL"))
+    private void frameworkOnPostTick(CallbackInfo ci)
+    {
+        FrameworkTickEvents.END_LIVING_ENTITY.post().handle((LivingEntity) (Object) this);
     }
 }

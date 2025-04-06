@@ -1,8 +1,7 @@
 package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.LogicalEnvironment;
-import com.mrcrayfish.framework.api.event.ClientEvents;
-import com.mrcrayfish.framework.api.event.ServerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
 import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.api.util.TaskRunner;
@@ -61,10 +60,10 @@ public class FrameworkSetup
     static void init()
     {
         Network.init();
-        ServerEvents.STARTED.register(server -> {
+        FrameworkServerEvents.STARTED.register(server -> {
             TaskRunner.setExecutor(LogicalEnvironment.SERVER, server);
         });
-        ServerEvents.STOPPED.register(server -> {
+        FrameworkServerEvents.STOPPED.register(server -> {
             TaskRunner.setExecutor(LogicalEnvironment.SERVER, null);
         });
     }

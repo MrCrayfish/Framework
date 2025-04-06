@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +20,7 @@ public class ExperienceOrbMixin
         ExperienceOrb orb = (ExperienceOrb) (Object) this;
         if(!orb.level().isClientSide() && player.takeXpDelay == 0)
         {
-            if(PlayerEvents.PICKUP_EXPERIENCE.post().handle(player, orb))
+            if(FrameworkPlayerEvents.PICKUP_EXPERIENCE.post().handle(player, orb))
             {
                 ci.cancel();
             }

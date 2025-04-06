@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,12 +17,12 @@ public class GameRendererMixin
     @Inject(method = "render", at = @At(value = "HEAD"))
     private void frameworkOnPreRender(DeltaTracker timer, boolean bl, CallbackInfo ci)
     {
-        TickEvents.START_RENDER.post().handle(timer);
+        FrameworkClientTickEvents.START_RENDER.post().handle(timer);
     }
 
     @Inject(method = "render", at = @At(value = "TAIL"))
     private void frameworkOnPostRender(DeltaTracker timer, boolean bl, CallbackInfo ci)
     {
-        TickEvents.END_RENDER.post().handle(timer);
+        FrameworkClientTickEvents.END_RENDER.post().handle(timer);
     }
 }

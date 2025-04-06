@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.event;
 
-import com.mrcrayfish.framework.api.event.EntityEvents;
-import com.mrcrayfish.framework.api.event.PlayerEvents;
-import com.mrcrayfish.framework.api.event.ServerEvents;
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.FrameworkEntityEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -21,49 +21,49 @@ public class FabricEvents implements ModInitializer
     public void onInitialize()
     {
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            TickEvents.START_SERVER.post().handle(server);
+            FrameworkTickEvents.START_SERVER.post().handle(server);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            TickEvents.END_SERVER.post().handle(server);
+            FrameworkTickEvents.END_SERVER.post().handle(server);
         });
         ServerTickEvents.START_WORLD_TICK.register(level -> {
-            TickEvents.START_LEVEL.post().handle(level);
+            FrameworkTickEvents.START_LEVEL.post().handle(level);
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {
-            TickEvents.END_LEVEL.post().handle(level);
+            FrameworkTickEvents.END_LEVEL.post().handle(level);
         });
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
-            PlayerEvents.START_TRACKING_ENTITY.post().handle(entity, player);
+            FrameworkPlayerEvents.STARTED_TRACKING_ENTITY.post().handle(entity, player);
         });
         EntityTrackingEvents.STOP_TRACKING.register((entity, player) -> {
-            PlayerEvents.END_TRACKING_ENTITY.post().handle(entity, player);
+            FrameworkPlayerEvents.STOPPED_TRACKING_ENTITY.post().handle(entity, player);
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-            EntityEvents.JOIN_LEVEL.post().handle(entity, level, false);
+            FrameworkEntityEvents.JOIN_LEVEL.post().handle(entity, level, false);
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
-            EntityEvents.LEAVE_LEVEL.post().handle(entity, level);
+            FrameworkEntityEvents.LEAVE_LEVEL.post().handle(entity, level);
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            PlayerEvents.COPY.post().handle(oldPlayer, newPlayer, !alive);
+            FrameworkPlayerEvents.COPY.post().handle(oldPlayer, newPlayer, !alive);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            PlayerEvents.RESPAWN.post().handle(newPlayer, alive);
+            FrameworkPlayerEvents.RESPAWN.post().handle(newPlayer, alive);
         });
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            PlayerEvents.CHANGE_DIMENSION.post().handle(player, origin.dimension(), destination.dimension());
+            FrameworkPlayerEvents.CHANGE_DIMENSION.post().handle(player, origin.dimension(), destination.dimension());
         });
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            ServerEvents.STARTING.post().handle(server);
+            FrameworkServerEvents.STARTING.post().handle(server);
         });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            ServerEvents.STARTED.post().handle(server);
+            FrameworkServerEvents.STARTED.post().handle(server);
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            ServerEvents.STOPPING.post().handle(server);
+            FrameworkServerEvents.STOPPING.post().handle(server);
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            ServerEvents.STOPPED.post().handle(server);
+            FrameworkServerEvents.STOPPED.post().handle(server);
         });
     }
 }

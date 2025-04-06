@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.mixin;
 
-import com.mrcrayfish.framework.api.event.PlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultSlot;
@@ -34,7 +34,7 @@ public class ResultSlotMixin
     {
         if(this.removeCount > 0)
         {
-            PlayerEvents.CRAFT_ITEM.post().handle(this.player, stack, this.craftSlots);
+            FrameworkPlayerEvents.CRAFTED_ITEM.post().handle(this.player, stack, this.craftSlots);
         }
     }
 }

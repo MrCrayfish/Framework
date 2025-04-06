@@ -3,9 +3,9 @@ package com.mrcrayfish.framework.entity.sync;
 import com.google.common.collect.ImmutableSet;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
-import com.mrcrayfish.framework.api.event.EntityEvents;
-import com.mrcrayfish.framework.api.event.PlayerEvents;
-import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.event.FrameworkEntityEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.network.Network;
@@ -87,10 +87,10 @@ public final class SyncedEntityData
 
     private SyncedEntityData()
     {
-        PlayerEvents.START_TRACKING_ENTITY.register(this::onStartTracking);
-        EntityEvents.JOIN_LEVEL.register(this::onEntityJoinWorld);
-        TickEvents.END_SERVER.register(this::onServerTickEnd);
-        PlayerEvents.COPY.register(this::onPlayerClone);
+        FrameworkPlayerEvents.STARTED_TRACKING_ENTITY.register(this::onStartTracking);
+        FrameworkEntityEvents.JOIN_LEVEL.register(this::onEntityJoinWorld);
+        FrameworkTickEvents.END_SERVER.register(this::onServerTickEnd);
+        FrameworkPlayerEvents.COPY.register(this::onPlayerClone);
     }
 
     public static SyncedEntityData instance()
