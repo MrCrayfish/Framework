@@ -1,22 +1,9 @@
 package test.standalonemodel;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import com.mrcrayfish.framework.FrameworkSetup;
-import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
-import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
-import com.mrcrayfish.framework.api.client.model.renderer.StandaloneModelRenderer;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -27,21 +14,19 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
  */
 @RegistryContainer
-public class StandaloneModelTest implements ModInitializer, ClientModInitializer
+public class StandaloneModelTest implements ModInitializer
 {
     private static ResourceLocation rl(String name)
     {
         return ResourceLocation.fromNamespaceAndPath("framework_test", name);
     }
 
-    public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
     public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("standalone_model"), TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final RegistryEntry<BlockEntityType<TestBlockEntity>> TEST_BLOCK_ENTITY = RegistryEntry.blockEntity(rl("standalone_model"), TestBlockEntity::new, () -> new Block[]{TEST_BLOCK.get()});
 
@@ -49,12 +34,6 @@ public class StandaloneModelTest implements ModInitializer, ClientModInitializer
     public void onInitialize()
     {
         FrameworkSetup.run();
-    }
-
-    @Override
-    public void onInitializeClient()
-    {
-        BlockEntityRenderers.register(TEST_BLOCK_ENTITY.get(), TestBlockRenderer::new);
     }
 
     private static class TestBlock extends Block implements EntityBlock
@@ -78,28 +57,11 @@ public class StandaloneModelTest implements ModInitializer, ClientModInitializer
         }
     }
 
-    private static class TestBlockEntity extends BlockEntity
+    static class TestBlockEntity extends BlockEntity
     {
         public TestBlockEntity(BlockPos pos, BlockState state)
         {
             super(TEST_BLOCK_ENTITY.get(), pos, state);
-        }
-    }
-
-    private static class TestBlockRenderer implements BlockEntityRenderer<TestBlockEntity>
-    {
-        public TestBlockRenderer(BlockEntityRendererProvider.Context context) {}
-
-        @Override
-        public void render(TestBlockEntity entity, float partialTick, PoseStack stack, MultiBufferSource source, int light, int overlay, Vec3 camera)
-        {
-            stack.pushPose();
-            stack.translate(0.5, 0, 0.5);
-            stack.mulPose(Axis.YP.rotationDegrees(45));
-            stack.scale(2, 2, 2);
-            stack.translate(-0.5, 0, -0.5);
-            StandaloneModelRenderer.draw(CUSTOM_MODEL.getModel(), stack, source, 1, 1, 1, light, overlay);
-            stack.popPose();
         }
     }
 }
