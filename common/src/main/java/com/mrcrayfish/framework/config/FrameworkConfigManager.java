@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.kinds.Const;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.FrameworkAPI;
@@ -132,9 +133,20 @@ public class FrameworkConfigManager
 
         Constants.LOG.info("Loading synced config from server: '{}'", message.key());
         FrameworkConfigImpl entry = this.configs.get(message.key());
-        if(entry != null && entry.getType().isSync())
+        if(entry != null)
         {
-            return entry.loadFromData(message.data());
+            if(entry.getType().isSync())
+            {
+                return entry.loadFromData(message.data());
+            }
+            else
+            {
+                Constants.LOG.error("Config from server isn't a synced type: {}", message.key());
+            }
+        }
+        else
+        {
+            Constants.LOG.error("Received a config from the server that isn't loadable on the client: {}", message.key());
         }
         return false;
     }
@@ -326,7 +338,7 @@ public class FrameworkConfigManager
                 return;
             if(this.config != null)
             {
-                Constants.LOG.error("Attempting to load the config '{}', however it is already loaded. This should not happen, however it will simply be reloaded.", this.getName());
+                Constants.LOG.warn("Attempting to load the config '{}', however it is already loaded. This should not happen, however it will simply be reloaded.", this.getName());
                 this.unload(true);
             }
             this.lock(() -> {
@@ -350,10 +362,8 @@ public class FrameworkConfigManager
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
                 CommentedConfig commentedConfig = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data));
-                if(!this.spec.isCorrect(commentedConfig)) // The server should be sending correct configs
-                    return false;
-                this.correct(commentedConfig);
                 this.lock(() -> {
+                    this.correct(commentedConfig);
                     UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
                     this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
                     this.config = config;
@@ -470,8 +480,15 @@ public class FrameworkConfigManager
         {
             if(config instanceof Config && !this.isCorrect(config))
             {
+                Constants.LOG.debug("Correcting config: {}", this.id);
                 ConfigHelper.createBackup(config);
-                this.spec.correct((Config) config);
+                this.spec.correct((Config) config, (action, path, incorrectValue, correctedValue) -> {
+                    switch(action) {
+                        case ADD -> Constants.LOG.debug("Adding config value at path '{}' with {}", String.join(".", path), correctedValue);
+                        case REPLACE -> Constants.LOG.debug("Replacing config value at path '{}' from '{}' with '{}'", String.join(".", path), incorrectValue, correctedValue);
+                        case REMOVE -> Constants.LOG.debug("Removing config value at path '{}'", String.join(".", path));
+                    }
+                });
                 if(config instanceof CommentedConfig c)
                     c.putAllComments(this.comments);
                 ConfigHelper.saveConfig(config);
