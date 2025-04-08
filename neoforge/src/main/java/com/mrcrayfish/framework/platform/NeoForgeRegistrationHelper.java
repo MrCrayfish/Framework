@@ -28,7 +28,9 @@ import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,20 +42,29 @@ public class NeoForgeRegistrationHelper implements IRegistrationHelper
 {
     public static final Type REGISTRY_CONTAINER_TYPE = Type.getType(RegistryContainer.class);
 
+    private final Set<Class<?>> registryClasses = new HashSet<>();
+    private boolean loadedRegistryClasses;
+
     @Override
     public <T> List<T> getRegistryObjects(Class<T> objectType)
     {
-        return ModList.get().getAllScanData().stream()
-                .map(ModFileScanData::getAnnotations)
-                .flatMap(Collection::stream)
-                .filter(a -> a.targetType() == ElementType.TYPE)
-                .filter(a -> REGISTRY_CONTAINER_TYPE.equals(a.annotationType()))
-                .filter(a -> {
-                    boolean clientOnly = (boolean) a.annotationData().getOrDefault("clientOnly", false);
-                    return !clientOnly || FrameworkAPI.getEnvironment().isClient();
-                })
-                .map(ModFileScanData.AnnotationData::memberName)
-                .map(ReflectionUtils::getClass)
+        if(!this.loadedRegistryClasses)
+        {
+            ModList.get().getAllScanData().stream()
+                    .map(ModFileScanData::getAnnotations)
+                    .flatMap(Collection::stream)
+                    .filter(a -> a.targetType() == ElementType.TYPE)
+                    .filter(a -> REGISTRY_CONTAINER_TYPE.equals(a.annotationType()))
+                    .filter(a -> {
+                        boolean clientOnly = (boolean) a.annotationData().getOrDefault("clientOnly", false);
+                        return !clientOnly || FrameworkAPI.getEnvironment().isClient();
+                    })
+                    .map(ModFileScanData.AnnotationData::memberName)
+                    .map(ReflectionUtils::getClass)
+                    .forEach(this.registryClasses::add);
+            this.loadedRegistryClasses = true;
+        }
+        return this.registryClasses.stream()
                 .flatMap(holderClass -> ReflectionUtils.findPublicStaticObjects(objectType, holderClass).stream())
                 .collect(Collectors.toList());
     }
