@@ -37,14 +37,10 @@ public class NetworkTest implements ModInitializer
             .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
             .build();
 
-    public NetworkTest()
-    {
-        FrameworkSetup.run();
-    }
-
     @Override
     public void onInitialize()
     {
+        FrameworkSetup.run();
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if(!world.isClientSide()) {
                 TEST_PLAY_CHANNEL.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());

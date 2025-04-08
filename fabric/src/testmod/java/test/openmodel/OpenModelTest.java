@@ -1,5 +1,6 @@
 package test.openmodel;
 
+import com.mrcrayfish.framework.FrameworkSetup;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.fabricmc.api.ModInitializer;
@@ -26,6 +27,6 @@ public class OpenModelTest implements ModInitializer
     @Override
     public void onInitialize()
     {
-
+        FrameworkSetup.run();
     }
 }

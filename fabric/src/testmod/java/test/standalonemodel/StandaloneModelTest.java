@@ -3,12 +3,14 @@ package test.standalonemodel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import com.mrcrayfish.framework.FrameworkSetup;
 import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.api.client.model.renderer.StandaloneModelRenderer;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -32,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * Author: MrCrayfish
  */
 @RegistryContainer
-public class StandaloneModelTest implements ClientModInitializer
+public class StandaloneModelTest implements ModInitializer, ClientModInitializer
 {
     private static ResourceLocation rl(String name)
     {
@@ -42,6 +44,12 @@ public class StandaloneModelTest implements ClientModInitializer
     public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
     public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("standalone_model"), TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));
     public static final RegistryEntry<BlockEntityType<TestBlockEntity>> TEST_BLOCK_ENTITY = RegistryEntry.blockEntity(rl("standalone_model"), TestBlockEntity::new, () -> new Block[]{TEST_BLOCK.get()});
+
+    @Override
+    public void onInitialize()
+    {
+        FrameworkSetup.run();
+    }
 
     @Override
     public void onInitializeClient()

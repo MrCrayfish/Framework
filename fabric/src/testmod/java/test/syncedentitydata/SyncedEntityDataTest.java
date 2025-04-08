@@ -1,5 +1,6 @@
 package test.syncedentitydata;
 
+import com.mrcrayfish.framework.FrameworkSetup;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.sync.Serializers;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
@@ -45,6 +46,7 @@ public class SyncedEntityDataTest implements ModInitializer
     @Override
     public void onInitialize()
     {
+        FrameworkSetup.run();
         AttackEntityCallback.EVENT.register(this::onHitEntity);
         AttackBlockCallback.EVENT.register(this::onTouchBlock);
     }

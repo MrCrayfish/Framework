@@ -39,12 +39,12 @@ public class FrameworkNeoForge
 
     public FrameworkNeoForge(IEventBus bus)
     {
+        FrameworkSetup.run();
         bus.addListener(this::onCommonSetup);
         bus.addListener(this::onLoadComplete);
         bus.addListener(this::onRegister);
         bus.addListener(this::onRegisterPayloadHandler);
         bus.addListener(this::onRegisterGameConfigurations);
-        FrameworkSetup.run();
         NeoForge.EVENT_BUS.register(new NeoForgeEvents());
         ATTACHMENT_TYPES.register(bus);
 
