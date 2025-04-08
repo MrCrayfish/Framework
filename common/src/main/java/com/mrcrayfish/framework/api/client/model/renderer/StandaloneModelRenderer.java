@@ -33,24 +33,20 @@ public class StandaloneModelRenderer
      */
     public static void draw(FrameworkBakedModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
-        VertexConsumer consumer = source.getBuffer(getSheet(model.renderType()));
-        for(Direction direction : DIRECTIONS)
-        {
-            putQuads(stack.last(), consumer, red, green, blue, model.getQuads(direction), light, overlay);
-        }
-        putQuads(stack.last(), consumer, red, green, blue, model.getQuads(null), light, overlay);
+        draw(model.quads(), model.renderType(), stack, source, red, green, blue, light, overlay);
     }
 
     /**
+     * Draws a BlockModelPart into the buffer
      *
-     * @param model
-     * @param stack
-     * @param source
-     * @param red
-     * @param green
-     * @param blue
-     * @param light
-     * @param overlay
+     * @param model the model to draw
+     * @param stack the current PoseStack
+     * @param source a MultiBufferSource instance
+     * @param red the amount of red from 0 to 1. Only applicable if model quads are tinted
+     * @param green the amount of green from 0 to 1. Only applicable if model quads are tinted
+     * @param blue the amount of blue from 0 to 1. Only applicable if model quads are tinted
+     * @param light the lighting for the model
+     * @param overlay the overlay texture for the model
      */
     public static void draw(BlockModelPart model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
@@ -63,15 +59,17 @@ public class StandaloneModelRenderer
     }
 
     /**
+     * Draws a QuadCollection into the buffer
      *
-     * @param collection
-     * @param stack
-     * @param source
-     * @param red
-     * @param green
-     * @param blue
-     * @param light
-     * @param overlay
+     * @param collection the model to draw
+     * @param type the render type of the quads
+     * @param stack the current PoseStack
+     * @param source a MultiBufferSource instance
+     * @param red the amount of red from 0 to 1. Only applicable if model quads are tinted
+     * @param green the amount of green from 0 to 1. Only applicable if model quads are tinted
+     * @param blue the amount of blue from 0 to 1. Only applicable if model quads are tinted
+     * @param light the lighting for the model
+     * @param overlay the overlay texture for the model
      */
     public static void draw(QuadCollection collection, RenderType type, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {

@@ -1,10 +1,8 @@
 package com.mrcrayfish.framework.api.client;
 
-import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.JsonDataManager;
 import com.mrcrayfish.framework.client.model.OpenModelHelper;
-import com.mrcrayfish.framework.client.model.StandaloneModelManager;
 import com.mrcrayfish.framework.client.resources.IDataLoader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,8 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class FrameworkClientAPI
 {
     /**
+     * Registers a data loader
      *
-     * @param loader
+     * @param loader the loader instance
      */
     public static synchronized void registerDataLoader(IDataLoader<?> loader)
     {

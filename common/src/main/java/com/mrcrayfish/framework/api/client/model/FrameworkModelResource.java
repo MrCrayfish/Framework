@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.model;
 
-import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
 import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
 import net.minecraft.client.renderer.block.model.Variant;
@@ -51,11 +50,7 @@ public abstract class FrameworkModelResource<T>
     }
 
     /**
-     * Gets the standalone model for this model resource. The resource must be registered with
-     * {@link com.mrcrayfish.framework.api.client.FrameworkClientAPI#registerStandaloneModel(FrameworkModelResource)}
-     * in order for the model to be loaded, otherwise this method will always return null.
-     *
-     * @return The baked standalone model implementation or null if not found
+     * @return The baked standalone model or null if not found
      */
     @Nullable
     public T getModel()
@@ -79,10 +74,19 @@ public abstract class FrameworkModelResource<T>
     /**
      * Creates a definition for a standalone model resource and is baked by Framework's FrameworkStandaloneModel. This
      * gives access to the {@link com.mrcrayfish.framework.client.model.IOpenModel} interface and allows to retrieve
-     * any custom data. {@link FrameworkModelResource} must be registered using {@link FrameworkClientAPI#registerStandaloneModel(FrameworkModelResource)}
-     * in order for the model to be loaded. Models can be then be retrieved using {@link FrameworkModelResource#getModel()}
-     * once the game has finished loading resources.
-
+     * any custom data.
+     * <p>
+     * {@link FrameworkModelResource} must be registered using a {@link com.mrcrayfish.framework.api.registry.RegistryContainer} and
+     * will allow all custom models to be registered automatically into Framework (see code below). Models can be then be retrieved
+     * using {@link FrameworkModelResource#getModel()} once the game has finished loading resources.
+     *
+     * <pre><code>
+     *      &#64;RegistryContainer
+     *      public final class CustomModels {
+     *          public static final FrameworkModelResource<FrameworkBakedModel> MY_CUSTOM_MODEL = FrameworkModelResource.create(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
+     *      }
+     * </code></pre>
+     *
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
      */
@@ -94,9 +98,18 @@ public abstract class FrameworkModelResource<T>
 
     /**
      * Creates a definition for a standalone model resource and is baked by vanilla's SimpleModelWrapper, which is more
-     * appropriate for universal use. {@link FrameworkModelResource} must be registered using {@link FrameworkClientAPI#registerStandaloneModel(FrameworkModelResource)}
-     * in order for the model to be loaded. Models can be then be retrieved using {@link FrameworkModelResource#getModel()}
-     * once the game has finished loading resources.
+     * appropriate for universal use.
+     * <p>
+     * {@link FrameworkModelResource} must be registered using a {@link com.mrcrayfish.framework.api.registry.RegistryContainer} and
+     * will allow all custom models to be registered automatically into Framework (see code below). Models can be then be retrieved
+     * using {@link FrameworkModelResource#getModel()} once the game has finished loading resources.
+     *
+     * <pre><code>
+     *      &#64;RegistryContainer
+     *      public final class CustomModels {
+     *          public static final FrameworkModelResource<SimpleModelWrapper> MY_CUSTOM_MODEL = FrameworkModelResource.createVanilla(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
+     *      }
+     * </code></pre>
      *
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
@@ -111,9 +124,21 @@ public abstract class FrameworkModelResource<T>
 
     /**
      * Creates a definition for a model resource which contains the model location and the baker used to bake the
-     * model into the provided type T. {@link FrameworkModelResource} must be registered using
-     * {@link FrameworkClientAPI#registerStandaloneModel(FrameworkModelResource)} in order for the model to be loaded. Models can be
-     * then be retrieved using {@link FrameworkModelResource#getModel()} once the game has finished loading resources.
+     * model into the provided type T.
+     * <p>
+     * {@link FrameworkModelResource} must be registered using a {@link com.mrcrayfish.framework.api.registry.RegistryContainer} and
+     * will allow all custom models to be registered automatically into Framework (see code below). Models can be then be retrieved
+     * using {@link FrameworkModelResource#getModel()} once the game has finished loading resources.
+     *
+     * <pre><code>
+     *      &#64;RegistryContainer
+     *      public final class CustomModels {
+     *          public static final FrameworkModelResource<T> MY_CUSTOM_MODEL = FrameworkModelResource.createCustom(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"), (model, baker) -> {
+     *              // Your baking code
+     *              return T;
+     *          });
+     *      }
+     * </code></pre>
      *
      * @param location the location of the model. The path starts from the models directory.
      * @param baker    the baker responsible to bake into the provided type T
