@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 public class FrameworkAPI
 {
     /**
+     * Deprecated: Use a {@link com.mrcrayfish.framework.api.registry.RegistryContainer} instead
+     * <p>
      * Registers a synced data key into Framework's system. This should be called during common setup.
      * An exception will be thrown if this is called after the initialization phase of the game.
      * See {@link SyncedDataKey} for more information.
@@ -36,6 +38,13 @@ public class FrameworkAPI
         SyncedEntityData.instance().registerDataKey(key);
     }
 
+    /**
+     * Creates a new platform compatible network builder
+     *
+     * @param id the id for the network, must be unique
+     * @param version the version of the protocol
+     * @return a new modloader specific FrameworkNetworkBuilder
+     */
     public static FrameworkNetworkBuilder createNetworkBuilder(ResourceLocation id, int version)
     {
         // Internal code, do not call these directly since they may break in a future update.
@@ -59,8 +68,7 @@ public class FrameworkAPI
     }
 
     /**
-     *
-     * @return
+     * @return The current environment, either CLIENT or DEDICATED_SERVER
      */
     public static Environment getEnvironment()
     {
