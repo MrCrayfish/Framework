@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.api.menu.IMenuData;
+import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;

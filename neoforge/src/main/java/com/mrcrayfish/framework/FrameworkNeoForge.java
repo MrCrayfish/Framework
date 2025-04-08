@@ -92,16 +92,17 @@ public class FrameworkNeoForge
 
     private void onRegisterPayloadHandler(RegisterPayloadHandlersEvent event)
     {
-        NeoForgeNetwork.ALL_NETWORKS.forEach(network -> {
-            PayloadRegistrar registrar = event.registrar(network.getId().getNamespace());
-            network.registerPayloads(registrar);
+        Registration.getNetworks().forEach(network -> {
+            PayloadRegistrar registrar = event.registrar(network.id().getNamespace());
+            ((NeoForgeNetwork) network).registerPayloads(registrar);
         });
     }
 
     private void onRegisterGameConfigurations(RegisterConfigurationTasksEvent event)
     {
-        NeoForgeNetwork.ALL_NETWORKS.forEach(network -> {
-            network.getTasks().forEach(f -> event.register(f.apply(network, event.getListener())));
+        Registration.getNetworks().forEach(network -> {
+            NeoForgeNetwork neoForgeNetwork = (NeoForgeNetwork) network;
+            neoForgeNetwork.getTasks().forEach(f -> event.register(f.apply(neoForgeNetwork, event.getListener())));
         });
     }
 }

@@ -1,11 +1,12 @@
 package test.network;
 
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.FrameworkSetup;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
-import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,32 +20,34 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import java.util.List;
-import java.util.function.Consumer;
 
+@RegistryContainer
 public class NetworkTest implements ModInitializer
 {
     public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
-    public static FrameworkNetwork testPlayChannel;
-    public static FrameworkNetwork testConfigurationChannel;
+    public static final FrameworkNetwork TEST_PLAY_CHANNEL = FrameworkAPI
+            .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "play"), 1)
+            .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle, PacketFlow.CLIENTBOUND)
+            .optional()
+            .build();
+
+    public static final FrameworkNetwork TEST_CONFIGURATION_CHANNEL = FrameworkAPI
+            .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
+            .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
+            .build();
+
+    public NetworkTest()
+    {
+        FrameworkSetup.run();
+    }
 
     @Override
     public void onInitialize()
     {
-        testPlayChannel = FrameworkAPI
-                .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "play"), 1)
-                .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle, PacketFlow.CLIENTBOUND)
-                .optional()
-                .build();
-
-        testConfigurationChannel = FrameworkAPI
-                .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
-                .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
-                .build();
-
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if(!world.isClientSide()) {
-                testPlayChannel.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());
+                TEST_PLAY_CHANNEL.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());
             }
             return InteractionResult.PASS;
         });

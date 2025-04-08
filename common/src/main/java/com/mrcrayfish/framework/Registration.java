@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.Environment;
+import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import com.mrcrayfish.framework.api.util.TaskRunner;
@@ -13,14 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,32 +43,58 @@ public final class Registration
         list.add(Registries.COMMAND_ARGUMENT_TYPE.location());
     });
 
-    private static final Map<ResourceLocation, List<RegistryEntry<?>>> ENTRY_MAP = new HashMap<>();
+    private static final Map<ResourceLocation, List<RegistryEntry<?>>> REGISTRY_ENTRIES = new HashMap<>();
+    private static final Set<FrameworkNetwork> NETWORKS = new HashSet<>();
 
     public static void init()
     {
         Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
-            ENTRY_MAP.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
+            REGISTRY_ENTRIES.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
         });
         Services.REGISTRATION.getRegistryObjects(SyncedDataKey.class).forEach(key -> {
             SyncedEntityData.instance().registerDataKey((SyncedDataKey<?, ?>) key);
+        });
+        Services.REGISTRATION.getRegistryObjects(FrameworkNetwork.class).forEach(network -> {
+            if(!NETWORKS.add(network)) {
+                throw new IllegalStateException("Duplicate network: " + network.id());
+            } else {
+                fireRegisteredEvent(network);
+            }
         });
         TaskRunner.runIf(Environment.CLIENT, () -> ClientRegistration::init);
     }
 
     public static List<RegistryEntry<?>> get(ResourceKey<? extends Registry<?>> key)
     {
-        return ENTRY_MAP.getOrDefault(key.location(), Collections.emptyList());
+        return REGISTRY_ENTRIES.getOrDefault(key.location(), Collections.emptyList());
     }
 
-    public static List<RegistryEntry<?>> getAllRegistryEntries()
+    public static List<RegistryEntry<?>> getSortedRegistryEntries()
     {
-        return ENTRY_MAP.values().stream()
+        return REGISTRY_ENTRIES.values().stream()
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(entry -> {
                 int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistry().key().location());
                 return index != -1 ? index : 1000;
             }))
             .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static Set<FrameworkNetwork> getNetworks()
+    {
+        return Collections.unmodifiableSet(NETWORKS);
+    }
+
+    private static void fireRegisteredEvent(Object obj)
+    {
+        if(obj instanceof Event event)
+        {
+            event.onRegistered();
+        }
+    }
+
+    public interface Event
+    {
+        void onRegistered();
     }
 }

@@ -33,7 +33,7 @@ public class FrameworkSetup
         if(Services.PLATFORM.getPlatform().isFabric())
         {
             // Register all entries
-            Registration.getAllRegistryEntries().forEach(entry ->
+            Registration.getSortedRegistryEntries().forEach(entry ->
             {
                 entry.register(new IRegisterFunction()
                 {
@@ -59,7 +59,6 @@ public class FrameworkSetup
 
     static void init()
     {
-        Network.init();
         FrameworkServerEvents.STARTED.register(server -> {
             TaskRunner.setExecutor(LogicalEnvironment.SERVER, server);
         });

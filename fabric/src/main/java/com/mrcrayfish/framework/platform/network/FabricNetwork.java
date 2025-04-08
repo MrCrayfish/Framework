@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.platform.network;
 
+import com.mrcrayfish.framework.Registration;
 import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
@@ -56,7 +57,7 @@ import java.util.function.Supplier;
 /**
  * Author: MrCrayfish
  */
-public final class FabricNetwork implements FrameworkNetwork
+public final class FabricNetwork implements FrameworkNetwork, Registration.Event
 {
     final ResourceLocation id;
     final int protocolVersion;
@@ -67,6 +68,7 @@ public final class FabricNetwork implements FrameworkNetwork
     final ConfigurationMessage<Ping> pingMessage;
     private MinecraftServer server;
     private boolean active = false;
+    private boolean registered = false;
 
     @SuppressWarnings("unchecked")
     public FabricNetwork(ResourceLocation id, int protocolVersion, List<PlayMessage<?>> playMessages, List<ConfigurationMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
@@ -81,6 +83,12 @@ public final class FabricNetwork implements FrameworkNetwork
             .map(msg -> (ConfigurationMessage<Ping>) msg)
             .orElseThrow(() -> new RuntimeException("Failed to setup Fabric network. Missing Ping configuration message"));
         this.setup();
+    }
+
+    @Override
+    public ResourceLocation id()
+    {
+        return this.id;
     }
 
     private void setup()
@@ -271,12 +279,43 @@ public final class FabricNetwork implements FrameworkNetwork
     @Override
     public boolean isActive(Connection connection)
     {
+        this.throwIfUnregisteredNetwork();
         return !FrameworkAPI.getEnvironment().isClient() || this.active;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        FabricNetwork that = (FabricNetwork) o;
+        return this.id.equals(that.id);
+    }
+
+    @Override
+    public void onRegistered()
+    {
+        this.registered = true;
+    }
+
+    private void throwIfUnregisteredNetwork()
+    {
+        if(!this.registered)
+        {
+            throw new RuntimeException("FrameworkNetwork not registered: " + this.id);
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     <T> FrameworkPayload<T> encode(Object message)
     {
+        this.throwIfUnregisteredNetwork();
         FrameworkMessage msg = this.classToMessage.get(message.getClass());
         if(msg == null) throw new IllegalArgumentException("Unregistered message: " + message.getClass().getName());
         return msg.writePayload(message);

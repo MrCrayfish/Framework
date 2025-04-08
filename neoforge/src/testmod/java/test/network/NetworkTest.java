@@ -4,8 +4,8 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
-import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,37 +22,30 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish
  */
+@RegistryContainer
 @Mod("network_test")
 public class NetworkTest
 {
     public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
-    public static FrameworkNetwork testPlayChannel;
-    public static FrameworkNetwork testConfigurationChannel;
-
-    public NetworkTest(IEventBus bus)
-    {
-        bus.addListener(this::onCommonSetup);
-        NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
-    }
-
-    private void onCommonSetup(FMLCommonSetupEvent event)
-    {
-        testPlayChannel = FrameworkAPI
+    public static final FrameworkNetwork TEST_PLAY_CHANNEL = FrameworkAPI
             .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "play"), 1)
             .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle)
             .optional()
             .build();
 
-        testConfigurationChannel = FrameworkAPI
+    public static final FrameworkNetwork TEST_CONFIGURATION_CHANNEL = FrameworkAPI
             .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
             .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
             .build();
+
+    public NetworkTest(IEventBus bus)
+    {
+        NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
     }
 
     private void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
@@ -64,7 +57,7 @@ public class NetworkTest
         if(!(player instanceof ServerPlayer))
             return;
 
-        testPlayChannel.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());
+        TEST_PLAY_CHANNEL.sendToPlayer(() -> (ServerPlayer) player, new TestMessage());
     }
 
     public record TestMessage()
