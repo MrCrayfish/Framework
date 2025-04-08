@@ -31,6 +31,8 @@ public class FabricClientHelper implements IClientHelper
     @Override
     public <T> T getStandaloneModel(FrameworkModelResource<T> key)
     {
+        // Standalone models not yet supported on Minecraft 1.21.5
+        // TODO implement after https://github.com/FabricMC/fabric/pull/4565 is merged
         return null;
     }
 
