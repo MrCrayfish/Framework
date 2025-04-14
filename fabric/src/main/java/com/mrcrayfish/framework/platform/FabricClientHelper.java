@@ -6,6 +6,7 @@ import com.mrcrayfish.framework.api.client.model.FabricModelResource;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -29,11 +30,9 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public <T> T getStandaloneModel(FrameworkModelResource<T> key)
+    public <T> T getStandaloneModel(FrameworkModelResource<T> resource)
     {
-        // Standalone models not yet supported on Minecraft 1.21.5
-        // TODO implement after https://github.com/FabricMC/fabric/pull/4565 is merged
-        return null;
+        return Minecraft.getInstance().getModelManager().getModel(((FabricModelResource<T>) resource).extraModelKey());
     }
 
     @Override
