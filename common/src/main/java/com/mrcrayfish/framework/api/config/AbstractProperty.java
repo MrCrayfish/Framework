@@ -5,8 +5,8 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;

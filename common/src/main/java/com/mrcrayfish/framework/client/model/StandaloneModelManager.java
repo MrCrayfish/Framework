@@ -2,12 +2,12 @@ package com.mrcrayfish.framework.client.model;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.FrameworkData;
-import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**

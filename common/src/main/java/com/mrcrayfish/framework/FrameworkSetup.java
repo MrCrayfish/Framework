@@ -6,7 +6,6 @@ import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
-import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;

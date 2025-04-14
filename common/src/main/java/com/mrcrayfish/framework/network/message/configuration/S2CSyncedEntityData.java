@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
-import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
@@ -15,7 +14,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish

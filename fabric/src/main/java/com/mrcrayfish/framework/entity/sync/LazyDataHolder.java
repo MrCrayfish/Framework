@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.entity.sync;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 
 /**

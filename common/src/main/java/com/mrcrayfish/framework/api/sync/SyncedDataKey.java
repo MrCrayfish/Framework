@@ -1,9 +1,6 @@
 package com.mrcrayfish.framework.api.sync;
 
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.Validate;

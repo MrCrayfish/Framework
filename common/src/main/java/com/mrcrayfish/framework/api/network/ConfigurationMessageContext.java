@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executor;

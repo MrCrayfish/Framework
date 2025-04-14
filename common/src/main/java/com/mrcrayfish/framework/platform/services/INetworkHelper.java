@@ -2,13 +2,11 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 
 import java.util.OptionalInt;
-import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish

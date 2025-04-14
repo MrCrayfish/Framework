@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.network;
 
 import com.mrcrayfish.framework.entity.sync.DataEntry;
-import com.mrcrayfish.framework.network.message.configuration.S2CSyncedEntityData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

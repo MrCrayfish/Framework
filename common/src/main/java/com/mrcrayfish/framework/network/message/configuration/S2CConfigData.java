@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.network.message.configuration;
 
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
-import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
@@ -12,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 
 /**
  * Author: MrCrayfish

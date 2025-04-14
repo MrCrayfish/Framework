@@ -8,7 +8,6 @@ import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.IOpenModel;
 import com.mrcrayfish.framework.client.model.OpenBlockModel;
 import com.mrcrayfish.framework.util.Utils;
-import net.minecraft.util.context.ContextMap;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

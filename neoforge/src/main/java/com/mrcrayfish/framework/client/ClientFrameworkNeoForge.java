@@ -3,7 +3,6 @@ package com.mrcrayfish.framework.client;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
-import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.model.FrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;

@@ -4,7 +4,6 @@ import com.mrcrayfish.framework.api.network.MessageContext;
 import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.entity.sync.DataEntry;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

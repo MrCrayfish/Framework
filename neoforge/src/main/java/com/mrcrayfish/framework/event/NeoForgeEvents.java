@@ -1,6 +1,9 @@
 package com.mrcrayfish.framework.event;
 
-import com.mrcrayfish.framework.api.event.*;
+import com.mrcrayfish.framework.api.event.FrameworkEntityEvents;
+import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
+import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.LivingEntity;

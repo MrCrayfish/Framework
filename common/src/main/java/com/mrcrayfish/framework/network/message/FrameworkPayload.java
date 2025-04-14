@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.network.message;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 

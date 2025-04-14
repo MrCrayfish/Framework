@@ -3,7 +3,6 @@ package com.mrcrayfish.framework.client;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.client.model.StandaloneModelManager;
 import com.mrcrayfish.framework.platform.Services;
-import net.minecraft.client.KeyMapping;
 
 public class ClientRegistration
 {

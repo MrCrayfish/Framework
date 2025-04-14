@@ -1,11 +1,7 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.platform.services.IConfigHelper;
-import com.mrcrayfish.framework.platform.services.IEntityHelper;
-import com.mrcrayfish.framework.platform.services.INetworkHelper;
-import com.mrcrayfish.framework.platform.services.IPlatformHelper;
-import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
+import com.mrcrayfish.framework.platform.services.*;
 
 import java.util.ServiceLoader;
 

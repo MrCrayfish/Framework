@@ -1,7 +1,6 @@
 package test.openmodeldata;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrcrayfish.framework.api.client.FrameworkClientAPI;
 import com.mrcrayfish.framework.api.serialize.DataHelper;
 import com.mrcrayfish.framework.api.serialize.DataObject;

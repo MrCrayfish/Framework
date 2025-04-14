@@ -1,17 +1,14 @@
 package com.mrcrayfish.framework.client;
 
-import com.mrcrayfish.framework.api.event.client.*;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
+import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.ContainerScreenEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.*;
 
 import java.util.List;
 

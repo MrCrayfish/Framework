@@ -1,8 +1,8 @@
 package com.mrcrayfish.framework.api.config;
 
 import com.mrcrayfish.framework.api.Environment;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 
 /**

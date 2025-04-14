@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.mrcrayfish.framework.Constants;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**

@@ -4,7 +4,6 @@ import com.mrcrayfish.framework.FrameworkNeoForge;
 import com.mrcrayfish.framework.entity.sync.DataHolder;
 import com.mrcrayfish.framework.platform.services.IEntityHelper;
 import net.minecraft.world.entity.Entity;
-
 import org.jetbrains.annotations.Nullable;
 
 /**

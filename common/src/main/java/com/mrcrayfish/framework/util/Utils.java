@@ -4,7 +4,6 @@ import com.mrcrayfish.framework.Constants;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
