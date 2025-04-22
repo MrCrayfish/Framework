@@ -1,10 +1,12 @@
 package com.mrcrayfish.framework.client;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;
 import com.mrcrayfish.framework.config.ConfigWatcher;
+import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -12,6 +14,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -49,5 +52,6 @@ public class ClientFrameworkFabric implements ClientModInitializer
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             ConfigWatcher.get().stop();
         });
+        Services.REGISTRATION.getRegistryObjects(RenderPipeline.class).forEach(RenderPipelines::register);
     }
 }

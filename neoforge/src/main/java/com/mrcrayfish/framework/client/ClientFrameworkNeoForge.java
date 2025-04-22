@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.client;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
@@ -72,5 +73,11 @@ public final class ClientFrameworkNeoForge
     private static void onRegisterItemModels(RegisterBlockStateModels event)
     {
         event.registerModel(FrameworkBlockStateModel.ID, NeoForgeFrameworkBlockStateModel.Unbaked.MAP_CODEC);
+    }
+
+    @SubscribeEvent
+    private static void onRegisterRenderPipelines(RegisterRenderPipelinesEvent event)
+    {
+        Services.REGISTRATION.getRegistryObjects(RenderPipeline.class).forEach(event::registerPipeline);
     }
 }
