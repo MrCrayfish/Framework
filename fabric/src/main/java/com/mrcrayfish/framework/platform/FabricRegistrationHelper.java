@@ -136,7 +136,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     private Map<String, Object> readAnnotationData(String className, String annotationDescriptor)
     {
         Map<String, Object> data = new HashMap<>();
-        try(InputStream is = ClassLoader.getSystemResourceAsStream(className.replace('.', '/') + ".class"))
+        try(InputStream is = FabricRegistrationHelper.class.getClassLoader().getResourceAsStream(className.replace('.', '/') + ".class"))
         {
             if(is != null)
             {
