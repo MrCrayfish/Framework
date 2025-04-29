@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.event;
 
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
@@ -192,11 +193,18 @@ public class NeoForgeEvents
     public void onServerStopped(ServerStoppedEvent event)
     {
         ServerEvents.STOPPED.post().handle(event.getServer());
+        if(event.getServer().isDedicatedServer())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 
     @SubscribeEvent
     public void onShuttingDown(GameShuttingDownEvent event)
     {
-        ConfigWatcher.get().stop();
+        if(FrameworkAPI.getEnvironment().isClient())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 }
