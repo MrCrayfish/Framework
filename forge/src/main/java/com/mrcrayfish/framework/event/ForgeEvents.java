@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.GameShuttingDownEvent;
@@ -193,6 +194,9 @@ public class ForgeEvents
     @SubscribeEvent
     public void onShuttingDown(GameShuttingDownEvent event)
     {
-        ConfigWatcher.get().stop();
+        if(EnvironmentHelper.getEnvironment().isClient())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 }
