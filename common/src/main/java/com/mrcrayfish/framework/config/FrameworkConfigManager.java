@@ -176,8 +176,8 @@ public class FrameworkConfigManager
             CommentedConfig config = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(message.data()));
             if(!frameworkConfig.isCorrect(config))
             {
-                Constants.LOG.error("Received incorrect config data");
-                return false;
+                Constants.LOG.warn("Correcting synced config data during update for config: {}", frameworkConfig.getFileName());
+                frameworkConfig.correct(config);
             }
 
             if(frameworkConfig.config instanceof Config c)
@@ -352,9 +352,10 @@ public class FrameworkConfigManager
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
                 CommentedConfig commentedConfig = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data));
-                if(!this.spec.isCorrect(commentedConfig)) // The server should be sending correct configs
-                    return false;
-                this.correct(commentedConfig);
+                if(!this.spec.isCorrect(commentedConfig)) {
+                    Constants.LOG.warn("Correcting config data from server for config: {}", this.getFileName());
+                    this.correct(commentedConfig);
+                }
                 this.lock(() -> {
                     UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
                     this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
@@ -472,8 +473,15 @@ public class FrameworkConfigManager
         {
             if(config instanceof Config && !this.isCorrect(config))
             {
+                Constants.LOG.debug("Correcting config: {}", this.getFileName());
                 ConfigHelper.createBackup(config);
-                this.spec.correct((Config) config);
+                this.spec.correct((Config) config, (action, path, incorrectValue, correctedValue) -> {
+                    switch(action) {
+                        case ADD -> Constants.LOG.debug("Adding config value at path '{}' with {}", String.join(".", path), correctedValue);
+                        case REPLACE -> Constants.LOG.debug("Replacing config value at path '{}' from '{}' with '{}'", String.join(".", path), incorrectValue, correctedValue);
+                        case REMOVE -> Constants.LOG.debug("Removing config value at path '{}'", String.join(".", path));
+                    }
+                });
                 if(config instanceof CommentedConfig c)
                     c.putAllComments(this.comments);
                 ConfigHelper.saveConfig(config);
