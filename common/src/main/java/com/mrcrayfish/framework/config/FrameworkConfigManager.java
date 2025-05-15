@@ -236,6 +236,7 @@ public class FrameworkConfigManager
     private void unloadServerConfigs(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
+
         this.configs.values().stream().filter(config -> {
             // Unload all on dedicated server
             if(server.isDedicatedServer()) {
@@ -244,7 +245,14 @@ public class FrameworkConfigManager
             // Only unload server configs since were on client
             return config.getType().isServer();
         }).forEach(entry -> entry.unload(true));
+
         Constants.LOG.info("Finished unloading server configs");
+
+        // Close the config watcher if dedicated server
+        if(server.isDedicatedServer())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 
     /**

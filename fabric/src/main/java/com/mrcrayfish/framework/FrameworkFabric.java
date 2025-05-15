@@ -21,10 +21,5 @@ public class FrameworkFabric implements ModInitializer
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             FrameworkData.setLoaded();
         });
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            if(server.isDedicatedServer()) {
-                ConfigWatcher.get().stop();
-            }
-        });
     }
 }
