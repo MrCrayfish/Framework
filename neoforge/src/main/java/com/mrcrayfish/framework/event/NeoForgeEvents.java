@@ -193,10 +193,6 @@ public class NeoForgeEvents
     public void onServerStopped(ServerStoppedEvent event)
     {
         ServerEvents.STOPPED.post().handle(event.getServer());
-        if(event.getServer().isDedicatedServer())
-        {
-            ConfigWatcher.get().stop();
-        }
     }
 
     @SubscribeEvent

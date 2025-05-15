@@ -239,6 +239,7 @@ public class FrameworkConfigManager
     private void unloadServerConfigs(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
+
         this.configs.values().stream().filter(config -> {
             // Unload all on dedicated server
             if(server.isDedicatedServer()) {
@@ -247,7 +248,14 @@ public class FrameworkConfigManager
             // Only unload server configs since were on client
             return config.getType().isServer();
         }).forEach(entry -> entry.unload(true));
+
         Constants.LOG.info("Finished unloading server configs");
+
+        // Close the config watcher if dedicated server
+        if(server.isDedicatedServer())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 
     /**
@@ -278,6 +286,7 @@ public class FrameworkConfigManager
         private final ClassLoader classLoader;
         private final CommentedConfig comments;
         private @Nullable UnmodifiableConfig config;
+        private boolean watched;
         private final Lock lock;
 
         private FrameworkConfigImpl(ConfigScanData data)
@@ -340,7 +349,10 @@ public class FrameworkConfigManager
             });
             if(!this.readOnly && this.configType != ConfigType.MEMORY && watch)
             {
-                ConfigWatcher.get().watch(this.config, this::changeCallback);
+                if(ConfigWatcher.get().watch(this.config, this::changeCallback))
+                {
+                    this.watched = true;
+                }
             }
         }
 
@@ -404,8 +416,9 @@ public class FrameworkConfigManager
             {
                 this.lock(() -> {
                     this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
-                    if(!this.readOnly && this.configType != ConfigType.MEMORY) {
+                    if(this.watched) {
                         ConfigWatcher.get().unwatch(this.config);
+                        this.watched = false;
                     }
                     ConfigHelper.closeConfig(this.config);
                     this.config = null;
@@ -776,7 +789,7 @@ public class FrameworkConfigManager
                     if(obj instanceof AbstractProperty<?> property)
                     {
                         List<String> path = new ArrayList<>(stack);
-                        String key = String.format("framework_config.%s.%s.%s", this.config.id(), this.config.name(), StringUtils.join(path, '.'));
+                        String key = String.format("framework_config.%s.%s.%s", this.config.id(), this.config.name(), String.join(".", path));
                         property.initProperty(new PropertyData(prop.name(), path, key, comment, prop.worldRestart(), prop.gameRestart()));
                         this.properties.add(property);
                     }
