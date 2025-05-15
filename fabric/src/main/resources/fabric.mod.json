@@ -31,9 +31,6 @@
         "minecraft": "${minecraft_version}",
         "java": ">=21"
     },
-    "suggests": {
-        "another-mod": "*"
-    },
     "accessWidener": "framework.accesswidener"
 }
   
