@@ -20,32 +20,20 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v3.5.0
-      - name: Read modid from gradle.properties
-        id: mod_id
-        uses: Reedyuk/read-properties@v1.0.4
+        uses: gradle/actions/wrapper-validation@v4
+      - name: Read mod data from gradle.properties
+        id: mod_data
+        uses: christian-draeger/read-properties@1.1.1
         with:
           path: './gradle.properties'
-          property: 'mod_id'
-      - name: Read mod version from gradle.properties
-        id: mod_version
-        uses: Reedyuk/read-properties@v1.0.4
-        with:
-          path: './gradle.properties'
-          property: 'mod_version'
-      - name: Read minecraft version from gradle.properties
-        id: mc_version
-        uses: Reedyuk/read-properties@v1.0.4
-        with:
-          path: './gradle.properties'
-          property: 'minecraft_version'
+          properties: 'mod_id mod_version minecraft_version'
       - name: Cache
         uses: actions/cache@v4.2.0
         with:
           path: ~/.gradle/caches
-          key: gradle-minecraft-${{ steps.mc_version.outputs.value }}
+          key: gradle-minecraft-${{ steps.mod_data.outputs.minecraft_version }}
           restore-keys: |
-            gradle-minecraft-${{ steps.mc_version.outputs.value }}
+            gradle-minecraft-${{ steps.mod_data.outputs.minecraft_version }}
       - name: Load Keystore
         id: load_keystore
         env:
@@ -75,24 +63,24 @@ jobs:
           GPR_KEY: ${{ secrets.GPR_TOKEN }}
           PACKAGES_REPO: ${{ vars.PACKAGES_REPOSITORY }}
         run: ./gradlew :forge:build
-      - name: Build (NeoForge)
-        env:
-          GPR_USER: "MrCrayfish"
-          GPR_KEY: ${{ secrets.GPR_TOKEN }}
-          PACKAGES_REPO: ${{ vars.PACKAGES_REPOSITORY }}
-        run: ./gradlew :neoforge:build
       - name: Build (Fabric)
         env:
           GPR_USER: "MrCrayfish"
           GPR_KEY: ${{ secrets.GPR_TOKEN }}
           PACKAGES_REPO: ${{ vars.PACKAGES_REPOSITORY }}
         run: ./gradlew :fabric:build
+      - name: Build (NeoForge)
+        env:
+          GPR_USER: "MrCrayfish"
+          GPR_KEY: ${{ secrets.GPR_TOKEN }}
+          PACKAGES_REPO: ${{ vars.PACKAGES_REPOSITORY }}
+        run: ./gradlew :neoforge:build
       - name: Construct artifact files
         id: artifacts
         run: |
-          echo "forge=forge/build/libs/${{ steps.mod_id.outputs.value }}-forge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-signed.jar" >> "$GITHUB_OUTPUT"
-          echo "neoforge=neoforge/build/libs/${{ steps.mod_id.outputs.value }}-neoforge-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-signed.jar" >> "$GITHUB_OUTPUT"
-          echo "fabric=fabric/build/libs/${{ steps.mod_id.outputs.value }}-fabric-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}-signed.jar" >> "$GITHUB_OUTPUT"
+          echo "forge=forge/build/libs/${{ steps.mod_data.outputs.mod_id }}-forge-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}-signed.jar" >> "$GITHUB_OUTPUT"
+          echo "fabric=fabric/build/libs/${{ steps.mod_data.outputs.mod_id }}-fabric-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}-signed.jar" >> "$GITHUB_OUTPUT"
+          echo "neoforge=neoforge/build/libs/${{ steps.mod_data.outputs.mod_id }}-neoforge-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}-signed.jar" >> "$GITHUB_OUTPUT"
       - name: Create Changelog Files
         run: |
           echo "" > CHANGELOG.txt
@@ -107,7 +95,7 @@ jobs:
             echo "No changes"
           fi
           echo "### Download:" >> RELEASE_BODY.md
-          echo "- Official Website: https://mrcrayfish.com/mods/${{ steps.mod_id.outputs.value }}" >> RELEASE_BODY.md
+          echo "- Official Website: https://mrcrayfish.com/mods/${{ steps.mod_data.outputs.mod_id }}" >> RELEASE_BODY.md
           echo "- CurseForge: https://curseforge.com/minecraft/mc-mods/framework" >> RELEASE_BODY.md
       - name: Import GPG
         env:
@@ -124,8 +112,8 @@ jobs:
         if: ${{ env.SIGNING_PASSPHRASE != '' }}
         run: |
           gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.forge }}
-          gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.neoforge }}
           gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.fabric }}
+          gpg --batch --yes --passphrase "${{ env.SIGNING_PASSPHRASE }}" --armor --detach-sign ${{ steps.artifacts.outputs.neoforge }}
       - name: Publish to GitHub Packages
         env:
           GPR_USER: "MrCrayfish"
@@ -139,17 +127,17 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          name: '${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}'
-          artifacts: "${{ steps.artifacts.outputs.forge }},${{ steps.artifacts.outputs.forge }}.asc,steps.artifacts.outputs.neoforge }},${{ steps.artifacts.outputs.neoforge }}.asc,${{ steps.artifacts.outputs.fabric }},${{ steps.artifacts.outputs.fabric }}.asc,CHANGELOG.txt"
+          name: '${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}'
+          artifacts: "${{ steps.artifacts.outputs.forge }},${{ steps.artifacts.outputs.forge }}.asc,${{ steps.artifacts.outputs.fabric }},${{ steps.artifacts.outputs.fabric }}.asc,${{ steps.artifacts.outputs.neoforge }},${{ steps.artifacts.outputs.neoforge }}.asc,CHANGELOG.txt"
           bodyFile: "RELEASE_BODY.md"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ steps.mod_id.outputs.value }}-${{ steps.mc_version.outputs.value }}-${{ steps.mod_version.outputs.value }}'
+          name: '${{ steps.mod_data.outputs.mod_id }}-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}'
           path: |
             ${{ steps.artifacts.outputs.forge }}
             ${{ steps.artifacts.outputs.forge }}.asc
-            ${{ steps.artifacts.outputs.neoforge }}
-            ${{ steps.artifacts.outputs.neoforge }}.asc
             ${{ steps.artifacts.outputs.fabric }}
             ${{ steps.artifacts.outputs.fabric }}.asc
+            ${{ steps.artifacts.outputs.neoforge }}
+            ${{ steps.artifacts.outputs.neoforge }}.asc
