@@ -322,7 +322,11 @@ public class FrameworkConfigManager
             Optional<Environment> env = this.getType().getEnv();
             if(env.isPresent() && !EnvironmentHelper.getEnvironment().equals(env.get()))
                 return;
-            Preconditions.checkState(this.config == null, "Config is already loaded. Unload before loading again.");
+            if(this.config != null)
+            {
+                Constants.LOG.warn("Attempting to load the config '{}', however it is already loaded. This should not happen, however it will simply be reloaded.", this.getName());
+                this.unload(true);
+            }
             this.lock(() -> {
                 UnmodifiableConfig config = this.createConfig(configDir);
                 ConfigHelper.loadConfig(config);
