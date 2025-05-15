@@ -1,14 +1,7 @@
 package com.mrcrayfish.framework.config;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.ConfigFormat;
-import com.electronwill.nightconfig.core.ConfigSpec;
-import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.electronwill.nightconfig.core.*;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.FileConfig;
-import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.core.io.ParsingException;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Preconditions;
@@ -39,9 +32,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.commons.io.file.PathUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -49,14 +41,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
@@ -241,6 +226,7 @@ public class FrameworkConfigManager
     private void onServerStopped(MinecraftServer server)
     {
         Constants.LOG.info("Unloading server configs...");
+
         this.configs.values().stream().filter(config -> {
             // Unload all on dedicated server
             if(server.isDedicatedServer()) {
@@ -249,7 +235,14 @@ public class FrameworkConfigManager
             // Only unload server configs since were on client
             return config.getType().isServer();
         }).forEach(entry -> entry.unload(true));
+
         Constants.LOG.info("Finished unloading server configs");
+
+        // Close the config watcher if dedicated server
+        if(server.isDedicatedServer())
+        {
+            ConfigWatcher.get().stop();
+        }
     }
 
     /**
@@ -280,7 +273,7 @@ public class FrameworkConfigManager
         private final ClassLoader classLoader;
         private final CommentedConfig comments;
         private @Nullable UnmodifiableConfig config;
-        private boolean preventNextChangeCallback;
+        private boolean watched;
         private final Lock lock;
 
         private FrameworkConfigImpl(ConfigScanData data)
@@ -339,7 +332,10 @@ public class FrameworkConfigManager
             });
             if(!this.readOnly && this.configType != ConfigType.MEMORY && watch)
             {
-                ConfigWatcher.get().watch(this.config, this::changeCallback);
+                if(ConfigWatcher.get().watch(this.config, this::changeCallback))
+                {
+                    this.watched = true;
+                }
             }
         }
 
@@ -405,8 +401,9 @@ public class FrameworkConfigManager
             {
                 this.lock(() -> {
                     this.allProperties.forEach(p -> p.updateProxy(ValueProxy.EMPTY));
-                    if(!this.readOnly && this.configType != ConfigType.MEMORY) {
+                    if(this.watched) {
                         ConfigWatcher.get().unwatch(this.config);
+                        this.watched = false;
                     }
                     ConfigHelper.closeConfig(this.config);
                     this.config = null;
@@ -776,7 +773,7 @@ public class FrameworkConfigManager
                     if(obj instanceof AbstractProperty<?> property)
                     {
                         List<String> path = new ArrayList<>(stack);
-                        String key = String.format("framework_config.%s.%s.%s", this.config.id(), this.config.name(), StringUtils.join(path, '.'));
+                        String key = String.format("framework_config.%s.%s.%s", this.config.id(), this.config.name(), String.join(".", path));
                         property.initProperty(new PropertyData(prop.name(), path, key, comment, prop.worldRestart(), prop.gameRestart()));
                         this.properties.add(property);
                     }

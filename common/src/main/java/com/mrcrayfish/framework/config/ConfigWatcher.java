@@ -26,7 +26,7 @@ public class ConfigWatcher
 
     private final FileWatcher fileWatcher = new FileWatcher();
 
-    public void watch(UnmodifiableConfig config, Runnable changeCallback)
+    public boolean watch(UnmodifiableConfig config, Runnable changeCallback)
     {
         if(config instanceof FileConfig fileConfig)
         {
@@ -35,6 +35,7 @@ public class ConfigWatcher
             {
                 this.fileWatcher.setWatch(path, changeCallback);
                 Constants.LOG.debug("Started watching config: " + path);
+                return true;
             }
             catch(IOException e)
             {
@@ -42,6 +43,7 @@ public class ConfigWatcher
                 throw new RuntimeException(e);
             }
         }
+        return false;
     }
 
     public void unwatch(UnmodifiableConfig config)
