@@ -92,17 +92,3 @@ subprojects {
         exclude ".cache" // Remove cache from generated data
     }
 }
-
-def incrementBuild(path) {
-    var buildFile = file(path);
-    int version = buildFile.text.toInteger()
-    buildFile.text = version + 1
-}
-
-tasks.register('incrementBuilds') {
-    doLast {
-        incrementBuild('/release_build_common');
-        incrementBuild('/release_build_forge');
-        incrementBuild('/release_build_fabric');
-    }
-}
