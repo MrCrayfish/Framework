@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.RenderTypeGroup;
@@ -44,19 +45,19 @@ public class NeoForgeClientHelper implements IClientHelper
     }
 
     @Override
-    public RenderType getRenderType(ResolvedModel model)
+    public ChunkSectionLayer getChunkSectionLayer(ResolvedModel model)
     {
         RenderTypeGroup group = model.getTopAdditionalProperties().getOptional(NeoForgeModelProperties.RENDER_TYPE);
-        return group != null && !group.isEmpty() ? group.block() : RenderType.solid();
+        return group != null && !group.isEmpty() ? group.block() : ChunkSectionLayer.SOLID;
     }
 
     @Override
-    public RenderType getRenderType(BlockModelPart part)
+    public ChunkSectionLayer getChunkSectionLayer(BlockModelPart part)
     {
         return MoreObjects.firstNonNull(switch(part) {
             case SimpleModelWrapper wrapper -> wrapper.renderType();
-            case FrameworkBakedModel model -> model.renderType();
+            case FrameworkBakedModel model -> model.layer();
             default -> null;
-        }, RenderType.solid());
+        }, ChunkSectionLayer.SOLID);
     }
 }

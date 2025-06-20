@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -42,15 +43,15 @@ public class FabricClientHelper implements IClientHelper
     }
 
     @Override
-    public RenderType getRenderType(ResolvedModel model)
+    public ChunkSectionLayer getChunkSectionLayer(ResolvedModel model)
     {
-        return RenderType.solid();
+        return ChunkSectionLayer.SOLID;
     }
 
     @Override
-    public RenderType getRenderType(BlockModelPart part)
+    public ChunkSectionLayer getChunkSectionLayer(BlockModelPart part)
     {
-        return RenderType.solid();
+        return ChunkSectionLayer.SOLID;
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

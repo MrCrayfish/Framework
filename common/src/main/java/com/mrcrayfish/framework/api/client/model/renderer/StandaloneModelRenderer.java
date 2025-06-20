@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -33,7 +34,7 @@ public class StandaloneModelRenderer
      */
     public static void draw(FrameworkBakedModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
-        draw(model.quads(), model.renderType(), stack, source, red, green, blue, light, overlay);
+        draw(model.quads(), model.layer(), stack, source, red, green, blue, light, overlay);
     }
 
     /**
@@ -62,7 +63,7 @@ public class StandaloneModelRenderer
      * Draws a QuadCollection into the buffer
      *
      * @param collection the model to draw
-     * @param type the render type of the quads
+     * @param layer the chunk section layer of the model
      * @param stack the current PoseStack
      * @param source a MultiBufferSource instance
      * @param red the amount of red from 0 to 1. Only applicable if model quads are tinted
@@ -71,9 +72,9 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    public static void draw(QuadCollection collection, RenderType type, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
+    public static void draw(QuadCollection collection, ChunkSectionLayer layer, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
-        VertexConsumer consumer = source.getBuffer(getSheet(type));
+        VertexConsumer consumer = source.getBuffer(getSheet(layer));
         for(Direction direction : DIRECTIONS)
         {
             putQuads(stack.last(), consumer, red, green, blue, collection.getQuads(direction), light, overlay);
@@ -97,13 +98,13 @@ public class StandaloneModelRenderer
         }
     }
 
-    private static RenderType getRenderType(BlockModelPart part)
+    private static ChunkSectionLayer getRenderType(BlockModelPart part)
     {
-        return ClientServices.CLIENT.getRenderType(part);
+        return ClientServices.CLIENT.getChunkSectionLayer(part);
     }
 
-    private static RenderType getSheet(RenderType type)
+    private static RenderType getSheet(ChunkSectionLayer layer)
     {
-        return type == RenderType.translucent() ? Sheets.translucentItemSheet() : Sheets.cutoutBlockSheet();
+        return layer == ChunkSectionLayer.TRANSLUCENT ? Sheets.translucentItemSheet() : Sheets.cutoutBlockSheet();
     }
 }

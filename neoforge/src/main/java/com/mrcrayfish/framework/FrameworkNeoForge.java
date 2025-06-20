@@ -4,11 +4,13 @@ import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.entity.sync.DataHolder;
 import com.mrcrayfish.framework.entity.sync.DataHolderSerializer;
+import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.event.NeoForgeEvents;
 import com.mrcrayfish.framework.platform.network.NeoForgeNetwork;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -35,7 +37,12 @@ public class FrameworkNeoForge
     public static final Logger LOGGER = LogManager.getLogger("Framework");
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Constants.MOD_ID);
-    public static final Supplier<AttachmentType<DataHolder>> DATA_HOLDER = ATTACHMENT_TYPES.register("data_holder", () -> AttachmentType.builder(DataHolder::new).serialize(new DataHolderSerializer()).build());
+    public static final Supplier<AttachmentType<DataHolder>> DATA_HOLDER = ATTACHMENT_TYPES.register("data_holder", () -> AttachmentType.builder(holder -> {
+        if(holder instanceof Entity entity && SyncedEntityData.instance().hasSyncedDataKey(entity)) {
+            return new DataHolder(entity);
+        }
+        return DataHolder.EMPTY;
+    }).serialize(new DataHolderSerializer()).build());
 
     public FrameworkNeoForge(IEventBus bus)
     {

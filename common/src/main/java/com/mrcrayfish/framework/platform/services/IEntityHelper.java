@@ -10,5 +10,5 @@ import org.jetbrains.annotations.Nullable;
 public interface IEntityHelper
 {
     @Nullable
-    DataHolder getDataHolder(Entity entity, boolean old);
+    DataHolder getDataHolder(Entity entity);
 }

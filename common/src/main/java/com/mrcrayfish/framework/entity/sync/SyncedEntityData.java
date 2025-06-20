@@ -19,9 +19,13 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Marker;
@@ -129,6 +133,21 @@ public final class SyncedEntityData
     }
 
     /**
+     * Validates the key to ensure that it is registered, otherwise an exception is thrown
+     *
+     * @param key the synced data key to validate
+     */
+    private void validateKey(SyncedDataKey<?, ?> key)
+    {
+        if(!this.registeredDataKeys.contains(key))
+        {
+            String keys = this.registeredDataKeys.stream().map(k -> k.pairKey().toString()).collect(Collectors.joining(",", "[", "]"));
+            Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
+            throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
+        }
+    }
+
+    /**
      * Sets the value of a synced data key to the specified player
      *
      * @param entity the player to assign the value to
@@ -137,12 +156,7 @@ public final class SyncedEntityData
      */
     public <E extends Entity, T> void set(E entity, SyncedDataKey<?, ?> key, T value)
     {
-        if(!this.registeredDataKeys.contains(key))
-        {
-            String keys = this.registeredDataKeys.stream().map(k -> k.pairKey().toString()).collect(Collectors.joining(",", "[", "]"));
-            Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
-            throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
-        }
+        this.validateKey(key);
         DataHolder holder = this.getDataHolder(entity);
         if(holder != null)
         {
@@ -159,12 +173,7 @@ public final class SyncedEntityData
      */
     public <E extends Entity, T> T get(E entity, SyncedDataKey<E, T> key)
     {
-        if(!this.registeredDataKeys.contains(key))
-        {
-            String keys = this.registeredDataKeys.stream().map(k -> k.pairKey().toString()).collect(Collectors.joining(",", "[", "]"));
-            Constants.LOG.info(SYNCED_ENTITY_DATA_MARKER, "Registered keys before throwing exception: {}", keys);
-            throw new IllegalArgumentException(String.format("The synced data key %s for %s is not registered!", key.id(), key.classKey().id()));
-        }
+        this.validateKey(key);
         DataHolder holder = this.getDataHolder(entity);
         return holder != null ? holder.get(key) : key.defaultValueSupplier().get();
     }
@@ -203,7 +212,7 @@ public final class SyncedEntityData
     @Nullable
     private DataHolder getDataHolder(Entity entity)
     {
-        return Services.ENTITY.getDataHolder(entity, false);
+        return Services.ENTITY.getDataHolder(entity);
     }
 
     public boolean hasSyncedDataKey(Entity entity)
@@ -212,19 +221,26 @@ public final class SyncedEntityData
          * have a synced data key. In order to prevent checking this every time we attach the
          * capability, a simple one time check can be performed then cache the result. */
         Class<? extends Entity> entityClass = entity.getClass();
-        return this.getClassNameCapabilityCache(entity.level().isClientSide).computeIfAbsent(entityClass.getName(), c ->
+        String entityClassName = entityClass.getName();
+
+        Map<String, Boolean> cache = this.getClassNameCapabilityCache(entity.level().isClientSide);
+        if(cache.containsKey(entityClassName))
         {
-            Class<?> targetClass = entityClass;
-            while(!targetClass.isAssignableFrom(Entity.class)) // Should be good enough
+            return cache.get(entityClassName);
+        }
+
+        Class<?> targetClass = entityClass;
+        while(!targetClass.isAssignableFrom(Entity.class))
+        {
+            if(this.classNameToClassKey.containsKey(targetClass.getName()))
             {
-                if(this.classNameToClassKey.containsKey(targetClass.getName()))
-                {
-                    return true;
-                }
-                targetClass = targetClass.getSuperclass();
+                cache.put(entityClassName, true);
+                return true;
             }
-            return false;
-        });
+            targetClass = targetClass.getSuperclass();
+        }
+        cache.put(entityClassName, false);
+        return false;
     }
 
     /**
@@ -274,7 +290,7 @@ public final class SyncedEntityData
         if(!this.hasSyncedDataKey(newPlayer))
             return;
 
-        DataHolder oldHolder = Services.ENTITY.getDataHolder(oldPlayer, true);
+        DataHolder oldHolder = Services.ENTITY.getDataHolder(oldPlayer);
         if(oldHolder == null)
             return;
 
@@ -283,15 +299,7 @@ public final class SyncedEntityData
             return;
 
         RegistryAccess access = newPlayer.registryAccess();
-        Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
-        oldHolder.dataMap.forEach((key, entry) -> {
-            if(respawn || key.persistent()) {
-                DataEntry<?, ?> newEntry = new DataEntry<>(newHolder, key);
-                newEntry.readValue(entry.writeValue(access), access);
-                dataMap.put(key, newEntry);
-            }
-        });
-        newHolder.dataMap = dataMap;
+        oldHolder.copyInto(newHolder, access, respawn);
     }
 
     private void onServerTickEnd(MinecraftServer server)

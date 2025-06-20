@@ -13,8 +13,8 @@ public class NeoForgeEntityHelper implements IEntityHelper
 {
     @Override
     @Nullable
-    public DataHolder getDataHolder(Entity entity, boolean old)
+    public DataHolder getDataHolder(Entity entity)
     {
-        return entity.getData(FrameworkNeoForge.DATA_HOLDER).setup(entity);
+        return entity.getData(FrameworkNeoForge.DATA_HOLDER);
     }
 }

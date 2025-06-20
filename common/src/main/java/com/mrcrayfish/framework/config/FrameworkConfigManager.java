@@ -86,7 +86,6 @@ public class FrameworkConfigManager
 
         FrameworkServerEvents.STARTING.register(this::onServerStarting);
         FrameworkServerEvents.STOPPED.register(this::onServerStopped);
-        FrameworkClientConnectionEvents.LOGGING_OUT.register(this::onClientDisconnect);
     }
 
     public List<FrameworkConfigImpl> getConfigs()

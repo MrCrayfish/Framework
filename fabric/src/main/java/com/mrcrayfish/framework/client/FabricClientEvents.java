@@ -35,7 +35,6 @@ public class FabricClientEvents implements ClientModInitializer
             FrameworkTickEvents.END_LEVEL.post().handle(level);
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            FrameworkConfigManager.getInstance().loadDefaultSyncConfigsIfUnloaded();
             FrameworkClientConnectionEvents.LOGGING_IN.post().handle(client.player, client.gameMode, handler.getConnection());
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

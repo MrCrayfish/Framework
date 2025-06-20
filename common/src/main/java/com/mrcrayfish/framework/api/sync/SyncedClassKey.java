@@ -1,6 +1,8 @@
 package com.mrcrayfish.framework.api.sync;
 
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.ambient.Bat;
@@ -94,7 +96,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<Bee> BEE = new SyncedClassKey<>(Bee.class, ResourceLocation.withDefaultNamespace("bee"));
     public static final SyncedClassKey<Blaze> BLAZE = new SyncedClassKey<>(Blaze.class, ResourceLocation.withDefaultNamespace("blaze"));
     public static final SyncedClassKey<BlockAttachedEntity> BLOCK_ATTACHED_ENTITY = new SyncedClassKey<>(BlockAttachedEntity.class, ResourceLocation.withDefaultNamespace("block_attached_entity"));
-    public static final SyncedClassKey<Display.BlockDisplay> BLOCK_DISPLAY = new SyncedClassKey<>(Display.BlockDisplay.class, ResourceLocation.withDefaultNamespace("block_display"));
+    public static final SyncedClassKey<Display.BlockDisplay> BLOCK_DISPLAY_IN_DISPLAY = new SyncedClassKey<>(Display.BlockDisplay.class, ResourceLocation.withDefaultNamespace("block_display_in_display"));
     public static final SyncedClassKey<Boat> BOAT = new SyncedClassKey<>(Boat.class, ResourceLocation.withDefaultNamespace("boat"));
     public static final SyncedClassKey<Bogged> BOGGED = new SyncedClassKey<>(Bogged.class, ResourceLocation.withDefaultNamespace("bogged"));
     public static final SyncedClassKey<Breeze> BREEZE = new SyncedClassKey<>(Breeze.class, ResourceLocation.withDefaultNamespace("breeze"));
@@ -127,7 +129,6 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<Fireball> FIREBALL = new SyncedClassKey<>(Fireball.class, ResourceLocation.withDefaultNamespace("fireball"));
     public static final SyncedClassKey<FireworkRocketEntity> FIREWORK_ROCKET_ENTITY = new SyncedClassKey<>(FireworkRocketEntity.class, ResourceLocation.withDefaultNamespace("firework_rocket_entity"));
     public static final SyncedClassKey<FishingHook> FISHING_HOOK = new SyncedClassKey<>(FishingHook.class, ResourceLocation.withDefaultNamespace("fishing_hook"));
-    public static final SyncedClassKey<FlyingMob> FLYING_MOB = new SyncedClassKey<>(FlyingMob.class, ResourceLocation.withDefaultNamespace("flying_mob"));
     public static final SyncedClassKey<Fox> FOX = new SyncedClassKey<>(Fox.class, ResourceLocation.withDefaultNamespace("fox"));
     public static final SyncedClassKey<Frog> FROG = new SyncedClassKey<>(Frog.class, ResourceLocation.withDefaultNamespace("frog"));
     public static final SyncedClassKey<Ghast> GHAST = new SyncedClassKey<>(Ghast.class, ResourceLocation.withDefaultNamespace("ghast"));
@@ -137,13 +138,14 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<Goat> GOAT = new SyncedClassKey<>(Goat.class, ResourceLocation.withDefaultNamespace("goat"));
     public static final SyncedClassKey<Guardian> GUARDIAN = new SyncedClassKey<>(Guardian.class, ResourceLocation.withDefaultNamespace("guardian"));
     public static final SyncedClassKey<HangingEntity> HANGING_ENTITY = new SyncedClassKey<>(HangingEntity.class, ResourceLocation.withDefaultNamespace("hanging_entity"));
+    public static final SyncedClassKey<HappyGhast> HAPPY_GHAST = new SyncedClassKey<>(HappyGhast.class, ResourceLocation.withDefaultNamespace("happy_ghast"));
     public static final SyncedClassKey<Hoglin> HOGLIN = new SyncedClassKey<>(Hoglin.class, ResourceLocation.withDefaultNamespace("hoglin"));
     public static final SyncedClassKey<Horse> HORSE = new SyncedClassKey<>(Horse.class, ResourceLocation.withDefaultNamespace("horse"));
     public static final SyncedClassKey<Husk> HUSK = new SyncedClassKey<>(Husk.class, ResourceLocation.withDefaultNamespace("husk"));
     public static final SyncedClassKey<Illusioner> ILLUSIONER = new SyncedClassKey<>(Illusioner.class, ResourceLocation.withDefaultNamespace("illusioner"));
     public static final SyncedClassKey<Interaction> INTERACTION = new SyncedClassKey<>(Interaction.class, ResourceLocation.withDefaultNamespace("interaction"));
     public static final SyncedClassKey<IronGolem> IRON_GOLEM = new SyncedClassKey<>(IronGolem.class, ResourceLocation.withDefaultNamespace("iron_golem"));
-    public static final SyncedClassKey<Display.ItemDisplay> ITEM_DISPLAY = new SyncedClassKey<>(Display.ItemDisplay.class, ResourceLocation.withDefaultNamespace("item_display_in_display"));
+    public static final SyncedClassKey<Display.ItemDisplay> ITEM_DISPLAY_IN_DISPLAY = new SyncedClassKey<>(Display.ItemDisplay.class, ResourceLocation.withDefaultNamespace("item_display_in_display"));
     public static final SyncedClassKey<ItemEntity> ITEM_ENTITY = new SyncedClassKey<>(ItemEntity.class, ResourceLocation.withDefaultNamespace("item_entity"));
     public static final SyncedClassKey<ItemFrame> ITEM_FRAME = new SyncedClassKey<>(ItemFrame.class, ResourceLocation.withDefaultNamespace("item_frame"));
     public static final SyncedClassKey<LargeFireball> LARGE_FIREBALL = new SyncedClassKey<>(LargeFireball.class, ResourceLocation.withDefaultNamespace("large_fireball"));
@@ -207,7 +209,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, ResourceLoc
     public static final SyncedClassKey<Strider> STRIDER = new SyncedClassKey<>(Strider.class, ResourceLocation.withDefaultNamespace("strider"));
     public static final SyncedClassKey<Tadpole> TADPOLE = new SyncedClassKey<>(Tadpole.class, ResourceLocation.withDefaultNamespace("tadpole"));
     public static final SyncedClassKey<TamableAnimal> TAMABLE_ANIMAL = new SyncedClassKey<>(TamableAnimal.class, ResourceLocation.withDefaultNamespace("tamable_animal"));
-    public static final SyncedClassKey<Display.TextDisplay> TEXT_DISPLAY = new SyncedClassKey<>(Display.TextDisplay.class, ResourceLocation.withDefaultNamespace("text_display_in_display"));
+    public static final SyncedClassKey<Display.TextDisplay> TEXT_DISPLAY_IN_DISPLAY = new SyncedClassKey<>(Display.TextDisplay.class, ResourceLocation.withDefaultNamespace("text_display_in_display"));
     public static final SyncedClassKey<ThrowableItemProjectile> THROWABLE_ITEM_PROJECTILE = new SyncedClassKey<>(ThrowableItemProjectile.class, ResourceLocation.withDefaultNamespace("throwable_item_projectile"));
     public static final SyncedClassKey<ThrowableProjectile> THROWABLE_PROJECTILE = new SyncedClassKey<>(ThrowableProjectile.class, ResourceLocation.withDefaultNamespace("throwable_projectile"));
     public static final SyncedClassKey<ThrownEgg> THROWN_EGG = new SyncedClassKey<>(ThrownEgg.class, ResourceLocation.withDefaultNamespace("thrown_egg"));

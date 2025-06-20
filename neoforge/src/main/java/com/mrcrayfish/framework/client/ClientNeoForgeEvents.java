@@ -20,7 +20,6 @@ public class ClientNeoForgeEvents
     @SubscribeEvent
     public void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event)
     {
-        FrameworkConfigManager.getInstance().loadDefaultSyncConfigsIfUnloaded();
         FrameworkClientConnectionEvents.LOGGING_IN.post().handle(event.getPlayer(), event.getMultiPlayerGameMode(), event.getConnection());
     }
 

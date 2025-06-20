@@ -1,5 +1,7 @@
 package test.syncedplayerdata;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.sync.*;
 import net.minecraft.core.BlockPos;
@@ -12,6 +14,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
@@ -87,7 +90,7 @@ public class SyncedEntityDataTest
 
     private void onHitEntity(AttackEntityEvent event)
     {
-        if(event.getTarget() instanceof Animal animal && !animal.level().isClientSide())
+        if(event.getTarget() instanceof Pig animal && !animal.level().isClientSide())
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
@@ -104,12 +107,15 @@ public class SyncedEntityDataTest
 
     private static class TestCounter extends SyncedObject
     {
+        public static final Codec<TestCounter> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("Count").forGetter(testCounter -> testCounter.count)
+        ).apply(instance, TestCounter::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, TestCounter> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             TestCounter::getCount,
             TestCounter::new
         );
-        public static final DataSerializer<TestCounter> SERIALIZER = new DataSerializer<>(STREAM_CODEC, TestCounter::write, TestCounter::read);
+        public static final DataSerializer<TestCounter> SERIALIZER = new DataSerializer<>(STREAM_CODEC, CODEC);
 
         private int count;
 

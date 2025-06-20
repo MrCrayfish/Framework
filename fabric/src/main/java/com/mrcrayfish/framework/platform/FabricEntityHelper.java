@@ -13,7 +13,7 @@ public class FabricEntityHelper implements IEntityHelper
 {
     @Override
     @Nullable
-    public DataHolder getDataHolder(Entity entity, boolean old)
+    public DataHolder getDataHolder(Entity entity)
     {
         return ((ISyncedDataHolder) entity).framework$GetDataHolder();
     }

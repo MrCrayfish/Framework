@@ -31,8 +31,8 @@ public class MenuDataTestClient
         @Override
         protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
         {
-            graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFF);
-            graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFF);
+            graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFFFF);
+            graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFFFF);
         }
     }
 }

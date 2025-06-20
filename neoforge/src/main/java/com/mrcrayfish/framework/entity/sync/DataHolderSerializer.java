@@ -1,26 +1,28 @@
 package com.mrcrayfish.framework.entity.sync;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.ListTag;
+import com.mrcrayfish.framework.FrameworkNeoForge;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 /**
  * Author: MrCrayfish
  */
-public class DataHolderSerializer implements IAttachmentSerializer<ListTag, DataHolder>
+public class DataHolderSerializer implements IAttachmentSerializer<DataHolder>
 {
     @Override
-    public DataHolder read(IAttachmentHolder holder, ListTag list, HolderLookup.Provider provider)
+    public DataHolder read(IAttachmentHolder holder, ValueInput input)
     {
-        DataHolder data = new DataHolder();
-        data.deserialize(list, provider);
+        DataHolder data = holder.getData(FrameworkNeoForge.DATA_HOLDER); // Do this to trigger default supplier
+        data.deserialize(input);
         return data;
     }
 
     @Override
-    public ListTag write(DataHolder holder, HolderLookup.Provider provider)
+    public boolean write(DataHolder holder, ValueOutput output)
     {
-        return holder.serialize(provider);
+        return holder.serialize(output);
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.QuadCollection;
@@ -15,16 +16,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record FrameworkBakedModel(QuadCollection quads, boolean useAmbientOcclusion, TextureAtlasSprite particleIcon, RenderType renderType, DataObject data) implements BlockModelPart, IOpenModel
+public record FrameworkBakedModel(QuadCollection quads, boolean useAmbientOcclusion, TextureAtlasSprite particleIcon, ChunkSectionLayer layer, DataObject data) implements BlockModelPart, IOpenModel
 {
     public static final FrameworkModelBaker<FrameworkBakedModel> BAKER = (model, baker) -> {
         boolean ambientOcclusion = model.getTopAmbientOcclusion();
         TextureSlots textureSlots = model.getTopTextureSlots();
         QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, BlockModelRotation.X0_Y0);
         TextureAtlasSprite particle = model.resolveParticleSprite(textureSlots, baker);
-        RenderType renderType = ClientServices.CLIENT.getRenderType(model);
+        ChunkSectionLayer layer = ClientServices.CLIENT.getChunkSectionLayer(model);
         DataObject data = model.wrapped() instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
-        return new FrameworkBakedModel(quads, ambientOcclusion, particle, renderType, data);
+        return new FrameworkBakedModel(quads, ambientOcclusion, particle, layer, data);
     };
 
     @Override

@@ -213,7 +213,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     {
         Entity entity = supplier.get();
         Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
-        ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
+        ((ServerChunkCache) entity.level().getChunkSource()).broadcast(entity, packet);
     }
 
     @Override

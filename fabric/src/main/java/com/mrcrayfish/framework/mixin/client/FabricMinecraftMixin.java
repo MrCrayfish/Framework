@@ -1,10 +1,15 @@
 package com.mrcrayfish.framework.mixin.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
+import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.Connection;
 import net.minecraft.world.InteractionHand;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
  * Author: MrCrayfish
  */
 @Mixin(Minecraft.class)
-public class MinecraftMixin
+public class FabricMinecraftMixin
 {
     @Inject(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/BlockHitResult;getDirection()Lnet/minecraft/core/Direction;"), allow = 1, cancellable = true)
     private void frameworkOnContinue(boolean bl, CallbackInfo ci)

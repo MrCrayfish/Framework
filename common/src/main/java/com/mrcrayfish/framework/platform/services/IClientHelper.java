@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -41,7 +42,7 @@ public interface IClientHelper
      */
     <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker);
 
-    RenderType getRenderType(ResolvedModel model);
+    ChunkSectionLayer getChunkSectionLayer(ResolvedModel model);
 
-    RenderType getRenderType(BlockModelPart part);
+    ChunkSectionLayer getChunkSectionLayer(BlockModelPart part);
 }

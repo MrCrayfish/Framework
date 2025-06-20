@@ -1,6 +1,11 @@
 {
     "model": {
-        "type": "minecraft:model",
-        "model": "framework_test:item/test_block"
+        "type": "framework:model",
+        "model": "framework_test:block/test_block",
+        "tints": [
+            {
+                "type": "framework_test:tint"
+            }
+        ]
     }
 }

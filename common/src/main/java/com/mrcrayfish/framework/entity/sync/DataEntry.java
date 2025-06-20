@@ -2,12 +2,11 @@ package com.mrcrayfish.framework.entity.sync;
 
 import com.mrcrayfish.framework.api.sync.SyncSignal;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Author: MrCrayfish
@@ -72,7 +71,7 @@ public class DataEntry<E extends Entity, T>
     {
         int id = SyncedEntityData.instance().getInternalId(this.key);
         buffer.writeVarInt(id);
-        this.key.serializer().getCodec().encode(buffer, this.value);
+        this.key.serializer().streamCodec().encode(buffer, this.value);
     }
 
     public static DataEntry<?, ?> read(RegistryFriendlyByteBuf buffer)
@@ -86,19 +85,18 @@ public class DataEntry<E extends Entity, T>
 
     private void readValue(RegistryFriendlyByteBuf buffer)
     {
-        this.value = this.getKey().serializer().getCodec().decode(buffer);
+        this.value = this.getKey().serializer().streamCodec().decode(buffer);
     }
 
-    @Nullable
-    Tag writeValue(HolderLookup.Provider provider)
+    public void write(ValueOutput output)
     {
-        return this.key.serializer().getTagWriter().apply(this.value, provider);
+        output.store("Value", this.key.serializer().codec(), this.value);
     }
 
-    void readValue(@Nullable Tag tag, HolderLookup.Provider provider)
+    public void read(ValueInput input)
     {
         this.removeSignal();
-        this.value = this.key.serializer().getTagReader().apply(tag, provider);
+        input.read("Value", this.key.serializer().codec()).ifPresent(value -> this.value = value);
         this.updateSignal();
     }
 

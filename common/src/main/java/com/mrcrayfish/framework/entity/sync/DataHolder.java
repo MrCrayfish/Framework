@@ -1,19 +1,20 @@
 package com.mrcrayfish.framework.entity.sync;
 
+import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -21,17 +22,15 @@ import java.util.stream.Collectors;
  */
 public class DataHolder
 {
-    Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
-    private Entity entity;
+    public static final DataHolder EMPTY = new DataHolder.Empty();
+
+    private final Entity entity;
+    private Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap = new HashMap<>();
     private boolean pendingSync;
 
-    public DataHolder setup(Entity entity)
+    public DataHolder(Entity entity)
     {
-        if(this.entity == null)
-        {
-            this.entity = entity;
-        }
-        return this;
+        this.entity = entity;
     }
 
     @SuppressWarnings("unchecked")
@@ -84,41 +83,35 @@ public class DataHolder
         return this.dataMap.values().stream().filter(entry -> entry.getKey().syncMode().willSync()).collect(Collectors.toList());
     }
 
-    public ListTag serialize(HolderLookup.Provider provider)
+    public boolean serialize(ValueOutput output)
     {
-        ListTag list = new ListTag();
-        this.dataMap.forEach((key, entry) ->
-        {
-            if(key.save())
-            {
-                CompoundTag keyTag = new CompoundTag();
-                keyTag.putString("ClassKey", key.classKey().id().toString());
-                keyTag.putString("DataKey", key.id().toString());
-                Optional.ofNullable(entry.writeValue(provider)).ifPresent(tag -> keyTag.put("Value", tag));
-                list.add(keyTag);
+        ValueOutput.ValueOutputList list = output.childrenList("Entries");
+        this.dataMap.forEach((key, entry) -> {
+            if(key.save()) {
+                ValueOutput entryOutput = list.addChild();
+                entryOutput.putString("ClassKey", key.classKey().id().toString());
+                entryOutput.putString("DataKey", key.id().toString());
+                entry.write(entryOutput);
             }
         });
-        return list;
+        return true;
     }
 
-    public void deserialize(ListTag listTag, HolderLookup.Provider provider)
+    public void deserialize(ValueInput input)
     {
         this.dataMap.clear();
-        listTag.forEach(entryTag ->
+        ValueInput.ValueInputList list = input.childrenListOrEmpty("Entries");
+        list.forEach(entryInput ->
         {
-            CompoundTag keyTag = (CompoundTag) entryTag;
-            Optional<String> rawClassKey = keyTag.getString("ClassKey");
+            Optional<String> rawClassKey = entryInput.getString("ClassKey");
             if(rawClassKey.isEmpty())
                 return;
 
-            Optional<String> rawDataKey = keyTag.getString("DataKey");
+            Optional<String> rawDataKey = entryInput.getString("DataKey");
             if(rawDataKey.isEmpty())
                 return;
 
             ResourceLocation classKey = ResourceLocation.tryParse(rawClassKey.get());
-            ResourceLocation dataKey = ResourceLocation.tryParse(rawDataKey.get());
-            Tag value = keyTag.get("Value");
-
             SyncedClassKey<?> syncedClassKey = SyncedEntityData.instance().getClassKey(classKey);
             if(syncedClassKey == null)
                 return;
@@ -127,13 +120,94 @@ public class DataHolder
             if(keys == null)
                 return;
 
+            ResourceLocation dataKey = ResourceLocation.tryParse(rawDataKey.get());
             SyncedDataKey<?, ?> syncedDataKey = keys.get(dataKey);
             if(syncedDataKey == null || !syncedDataKey.save())
                 return;
 
             DataEntry<?, ?> entry = new DataEntry<>(this, syncedDataKey);
-            entry.readValue(value, provider);
+            entry.read(entryInput);
             this.dataMap.put(syncedDataKey, entry);
         });
+    }
+
+    public void copyInto(DataHolder other, HolderLookup.Provider provider, boolean copyAllKeys)
+    {
+        try(ProblemReporter.ScopedCollector collector = new ProblemReporter.ScopedCollector(this.entity.problemPath(), Constants.LOG))
+        {
+            Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> newDataMap = new HashMap<>();
+            this.dataMap.forEach((key, entry) ->
+            {
+                if(copyAllKeys || key.persistent())
+                {
+                    DataEntry<?, ?> newEntry = new DataEntry<>(other, key);
+                    TagValueOutput output = TagValueOutput.createWithContext(collector, provider);
+                    entry.write(output);
+                    ValueInput input = TagValueInput.create(collector, provider, output.buildResult());
+                    newEntry.read(input);
+                    newDataMap.put(key, newEntry);
+                }
+            });
+            other.dataMap = newDataMap;
+        }
+    }
+
+    private static class Empty extends DataHolder
+    {
+        public Empty()
+        {
+            super(null);
+        }
+
+        @Override
+        <E extends Entity, T> boolean set(SyncedDataKey<?, ?> key, T value)
+        {
+            return false;
+        }
+
+        @Override
+        <E extends Entity, T> @Nullable T get(SyncedDataKey<E, T> key)
+        {
+            return null;
+        }
+
+        @Override
+        boolean markForSync()
+        {
+            return false;
+        }
+
+        @Override
+        boolean isPendingSync()
+        {
+            return false;
+        }
+
+        @Override
+        void clearSync() {}
+
+        @Override
+        List<DataEntry<?, ?>> gatherAllTrackingDataEntries()
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        List<DataEntry<?, ?>> gatherPendingSyncDataEntries()
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean serialize(ValueOutput output)
+        {
+            return false;
+        }
+
+        @Override
+        public void deserialize(ValueInput input) {}
+
+        @Override
+        public void copyInto(DataHolder other, HolderLookup.Provider provider, boolean copyAllKeys) {}
     }
 }

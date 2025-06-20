@@ -23,7 +23,8 @@
         ]
     },
     "mixins": [
-        "framework.mixins.json"
+        "framework.common.mixins.json",
+        "framework.fabric.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",

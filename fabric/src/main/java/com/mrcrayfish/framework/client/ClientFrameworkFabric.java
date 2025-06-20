@@ -4,13 +4,19 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.util.TaskRunner;
+import com.mrcrayfish.framework.client.model.FabricFrameworkBlockStateModel;
+import com.mrcrayfish.framework.client.model.FrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.FrameworkItemModel;
+import com.mrcrayfish.framework.client.model.geometry.OpenModelGeometry;
 import com.mrcrayfish.framework.config.ConfigWatcher;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockModels;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.Minecraft;
@@ -35,6 +41,8 @@ public class ClientFrameworkFabric implements ClientModInitializer
     {
         TaskRunner.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
         ItemModels.ID_MAPPER.put(FrameworkItemModel.ID, FrameworkItemModel.Unbaked.MAP_CODEC);
+        CustomUnbakedBlockStateModel.register(FrameworkBlockStateModel.ID, FabricFrameworkBlockStateModel.Unbaked.MAP_CODEC);
+        UnbakedModelDeserializer.register(OpenModelGeometry.Loader.ID, new OpenModelGeometry.Loader());
         ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override

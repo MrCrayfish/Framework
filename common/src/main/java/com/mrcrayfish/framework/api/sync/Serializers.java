@@ -1,10 +1,12 @@
 package com.mrcrayfish.framework.api.sync;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.*;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
@@ -19,21 +21,19 @@ import java.util.UUID;
  */
 public class Serializers
 {
-    public static final DataSerializer<Boolean> BOOLEAN = new DataSerializer<>(ByteBufCodecs.BOOL, (val, provider) -> ByteTag.valueOf(val), (tag, provider) -> ((ByteTag) tag).byteValue() != 0);
-    public static final DataSerializer<Byte> BYTE = new DataSerializer<>(ByteBufCodecs.BYTE, (val, provider) -> ByteTag.valueOf(val), (tag, provider) -> ((ByteTag) tag).byteValue());
-    public static final DataSerializer<Short> SHORT = new DataSerializer<>(ByteBufCodecs.SHORT, (val, provider) -> ShortTag.valueOf(val), (tag, provider) -> ((ShortTag) tag).shortValue());
-    public static final DataSerializer<Integer> INTEGER = new DataSerializer<>(ByteBufCodecs.INT, (val, provider) -> IntTag.valueOf(val), (tag, provider) -> ((IntTag) tag).intValue());
-    public static final DataSerializer<Long> LONG = new DataSerializer<>(ByteBufCodecs.VAR_LONG, (val, provider) -> LongTag.valueOf(val), (tag, provider) -> ((LongTag) tag).longValue());
-    public static final DataSerializer<Float> FLOAT = new DataSerializer<>(ByteBufCodecs.FLOAT, (val, provider) -> FloatTag.valueOf(val), (tag, provider) -> ((FloatTag) tag).floatValue());
-    public static final DataSerializer<Double> DOUBLE = new DataSerializer<>(ByteBufCodecs.DOUBLE, (val, provider) -> DoubleTag.valueOf(val), (tag, provider) -> ((DoubleTag) tag).doubleValue());
-    public static final DataSerializer<String> STRING = new DataSerializer<>(ByteBufCodecs.STRING_UTF8, (val, provider) -> StringTag.valueOf(val), (tag, provider) -> tag.toString());
-    public static final DataSerializer<CompoundTag> COMPOUND_TAG = new DataSerializer<>(ByteBufCodecs.COMPOUND_TAG, (val, provider) -> val, (tag, provider) -> (CompoundTag) tag);
-    public static final DataSerializer<Optional<CompoundTag>> OPTIONAL_COMPOUND_TAG = new DataSerializer<>(ByteBufCodecs.OPTIONAL_COMPOUND_TAG, (val, provider) -> val.orElse(null), (tag, provider) -> tag != null ? Optional.of((CompoundTag) tag) : Optional.empty());
-    public static final DataSerializer<BlockPos> BLOCK_POS = new DataSerializer<>(BlockPos.STREAM_CODEC, (val, provider) -> LongTag.valueOf(val.asLong()), (tag, provider) -> BlockPos.of(((LongTag) tag).longValue()));
-    public static final DataSerializer<UUID> UUID = new DataSerializer<>(UUIDUtil.STREAM_CODEC, (val, provider) -> UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE, val).getOrThrow(), (tag, provider) -> UUIDUtil.CODEC.parse(NbtOps.INSTANCE, tag).getOrThrow());
-    public static final DataSerializer<ItemStack> ITEM_STACK = new DataSerializer<>(ItemStack.STREAM_CODEC, (stack, provider) -> {
-        return ItemStack.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), stack).getOrThrow();
-    }, (tag, provider) -> ItemStack.parse(provider, tag).orElse(ItemStack.EMPTY));
-    public static final DataSerializer<ItemStack> ITEM_STACK_NON_EMPTY = new DataSerializer<>(ItemStack.STREAM_CODEC, ItemStack::save, (tag, provider) -> ItemStack.parse(provider, tag).orElseThrow());
-    public static final DataSerializer<ResourceLocation> RESOURCE_LOCATION = new DataSerializer<>(ResourceLocation.STREAM_CODEC, (val, provider) -> StringTag.valueOf(val.toString()), (tag, provider) -> ResourceLocation.tryParse(tag.toString()));
+    public static final DataSerializer<Boolean> BOOLEAN = new DataSerializer<>(ByteBufCodecs.BOOL, Codec.BOOL);
+    public static final DataSerializer<Byte> BYTE = new DataSerializer<>(ByteBufCodecs.BYTE, Codec.BYTE);
+    public static final DataSerializer<Short> SHORT = new DataSerializer<>(ByteBufCodecs.SHORT, Codec.SHORT);
+    public static final DataSerializer<Integer> INTEGER = new DataSerializer<>(ByteBufCodecs.INT, Codec.INT);
+    public static final DataSerializer<Long> LONG = new DataSerializer<>(ByteBufCodecs.VAR_LONG, Codec.LONG);
+    public static final DataSerializer<Float> FLOAT = new DataSerializer<>(ByteBufCodecs.FLOAT, Codec.FLOAT);
+    public static final DataSerializer<Double> DOUBLE = new DataSerializer<>(ByteBufCodecs.DOUBLE, Codec.DOUBLE);
+    public static final DataSerializer<String> STRING = new DataSerializer<>(ByteBufCodecs.STRING_UTF8, Codec.STRING);
+    public static final DataSerializer<CompoundTag> COMPOUND_TAG = new DataSerializer<>(ByteBufCodecs.COMPOUND_TAG, CompoundTag.CODEC);
+    public static final DataSerializer<Optional<CompoundTag>> OPTIONAL_COMPOUND_TAG = new DataSerializer<>(ByteBufCodecs.OPTIONAL_COMPOUND_TAG, ExtraCodecs.optionalEmptyMap(CompoundTag.CODEC));
+    public static final DataSerializer<BlockPos> BLOCK_POS = new DataSerializer<>(BlockPos.STREAM_CODEC, BlockPos.CODEC);
+    public static final DataSerializer<UUID> UUID = new DataSerializer<>(UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC);
+    public static final DataSerializer<ItemStack> ITEM_STACK = new DataSerializer<>(ItemStack.STREAM_CODEC, ItemStack.OPTIONAL_CODEC);
+    public static final DataSerializer<ItemStack> ITEM_STACK_NON_EMPTY = new DataSerializer<>(ItemStack.STREAM_CODEC, ItemStack.CODEC);
+    public static final DataSerializer<ResourceLocation> RESOURCE_LOCATION = new DataSerializer<>(ResourceLocation.STREAM_CODEC, ResourceLocation.CODEC);
 }
