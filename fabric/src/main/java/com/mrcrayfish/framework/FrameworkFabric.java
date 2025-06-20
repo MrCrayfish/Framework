@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework;
 
-import com.mrcrayfish.framework.config.ConfigWatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 

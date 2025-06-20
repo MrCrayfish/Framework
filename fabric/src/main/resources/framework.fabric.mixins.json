@@ -15,10 +15,10 @@
     ],
     "client": [
         "client.AbstractContainerScreenMixin",
+        "client.FabricMinecraftMixin",
         "client.GameRendererMixin",
         "client.KeyboardHandlerMixin",
         "client.LocalPlayerMixin",
-        "client.FabricMinecraftMixin",
         "client.OptionsMixin"
     ],
     "injectors": {

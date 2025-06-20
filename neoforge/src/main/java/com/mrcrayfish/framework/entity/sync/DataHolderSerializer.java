@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.entity.sync;
 
 import com.mrcrayfish.framework.FrameworkNeoForge;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;

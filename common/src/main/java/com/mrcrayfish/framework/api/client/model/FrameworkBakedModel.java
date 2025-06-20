@@ -3,7 +3,6 @@ package com.mrcrayfish.framework.api.client.model;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.IOpenModel;
 import com.mrcrayfish.framework.platform.ClientServices;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.TextureSlots;

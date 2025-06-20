@@ -1,8 +1,6 @@
 package com.mrcrayfish.framework.api.sync;
 
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.ambient.Bat;

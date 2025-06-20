@@ -18,7 +18,6 @@ import com.mrcrayfish.framework.api.config.ConfigType;
 import com.mrcrayfish.framework.api.config.FrameworkConfig;
 import com.mrcrayfish.framework.api.config.event.FrameworkConfigEvents;
 import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
-import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents;
 import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.network.Network;
 import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;

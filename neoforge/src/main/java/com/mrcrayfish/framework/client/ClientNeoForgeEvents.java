@@ -4,7 +4,6 @@ import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents
 import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
-import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;

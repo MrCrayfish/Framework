@@ -1,15 +1,10 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
-import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.Connection;
 import net.minecraft.world.InteractionHand;
-import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
