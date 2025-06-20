@@ -40,6 +40,7 @@ public class NetworkTest
     public static final FrameworkNetwork TEST_CONFIGURATION_CHANNEL = FrameworkAPI
             .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
             .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
+            .optional()
             .build();
 
     public NetworkTest(IEventBus bus)
