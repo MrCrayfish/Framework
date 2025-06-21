@@ -12,7 +12,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 /**
  * Author: MrCrayfish
  */
-@EventBusSubscriber(modid = "menu_data_test", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = "menu_data_test", value = Dist.CLIENT)
 public class MenuDataTestClient
 {
     @SubscribeEvent

@@ -35,7 +35,7 @@ public class OpenModelGeometry extends DelegateUnbakedModel implements IOpenMode
         return this.data;
     }
 
-    @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
     public static class Loader implements UnbakedModelLoader<OpenModelGeometry>
     {
         @Override

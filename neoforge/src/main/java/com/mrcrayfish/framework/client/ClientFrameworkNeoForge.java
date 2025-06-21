@@ -17,8 +17,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelBaker;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
 import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.function.BiConsumer;
@@ -26,7 +26,7 @@ import java.util.function.BiConsumer;
 /**
  * Author: MrCrayfish
  */
-@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public final class ClientFrameworkNeoForge
 {
     @SubscribeEvent
@@ -58,9 +58,9 @@ public final class ClientFrameworkNeoForge
     }
 
     // Fighting generics one method at a time
-    private static <T> void registerStandaloneModel(BiConsumer<StandaloneModelKey<T>, StandaloneModelBaker<T>> consumer, NeoForgeModelResource<T> key)
+    private static <T> void registerStandaloneModel(BiConsumer<StandaloneModelKey<T>, UnbakedStandaloneModel<T>> consumer, NeoForgeModelResource<T> key)
     {
-        consumer.accept(key.standaloneKey(), key.modelBaker());
+        consumer.accept(key.standaloneKey(), key.unbakedModel());
     }
 
     @SubscribeEvent
