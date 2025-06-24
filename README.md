@@ -4,89 +4,53 @@
 
 ## About:
 
-Framework is lightweight but powerful library built to enhance the development of mods. Unlike other libraries, Framework focuses on providing powerful yet easy-to-use tools that unlock features which would otherwise be buried in large amounts of code to acheive the same result. Framework also avoids the use of Mixins (a code injection service) in order to gain maximum compatibility with other mods and allow it to safely be included in modpacks.
-
-## Features:
-
-### 🔑 Synced Data Keys
-Synced Data Keys are an improvement of Minecraft's entity data accessor system. It allows you to attach additonal data to any entity without the need of writing a complex capability. The benefit of using Framework's Synced Data Keys is the powerful features it provides. As mentioned by in the name, the data can be automatically synced to clients; this means you don't have to deal with packets. The data can be saved to the entity so it's remembered across world reloads or server restarts. Unlike Minecraft's system, Framework adds an option to allow your data to persist across deaths instead of being reset back to it's default value. Not convinced yet? Check out the example below to see how simple but powerful this system is.
-
-An example of keeping track of how many times a chicken has been hit by players
-```java
-// Create the synced data key
-private static final SyncedDataKey<Chicken, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.CHICKEN, Serializers.INTEGER)
-            .id(new ResourceLocation("your_mod_id", "hit_count"))
-            .defaultValueSupplier(() -> 0)
-            .saveToFile()
-	    .syncMode(SyncMode.TRACKING_ONLY)
-            .build();
-
-// Register the key using the Framework register event
-public static void onFrameworkRegister(FrameworkEvent.Register event)
-{
-    event.registerSyncedDataKey(HIT_COUNT);
-}
-
-// Forge event for entity attacks
-void onHitEntity(AttackEntityEvent event)
-{
-    if(event.getTarget() instanceof Chicken chicken)
-    {
-    	int newCount = HIT_COUNT.getValue(chicken) + 1;
-    	HIT_COUNT.setValue(chicken, newCount);
-        event.getPlayer().displayClientMessage(new TextComponent("This chicken has been hit " + newCount + " times!"), true);
-    }
-}
-```
-You're also not restricted to the Serializers provided by Framework. For more advanced uses, you can create your own custom serializers by implementing `IDataSerializer` on a class. If you want to use Synced Data Keys on your own entities, you'll need to create your own `SyncedClassKey` which is provided for the first argument when creating a `SyncedDatakey#builder`.
-
-### 📦 Easy Login Packets
-Forge has the ability to allow developers to create login packets, however implementing it requires a significant amount of code. Framework condenses the required code into a simple registration method and will handle sending your data to clients.
-
-```java
-// A class implementing the ILoginData interface, this could be a manager
-public static class CustomData implements ILoginData
- {
-     @Override
-     public void writeData(FriendlyByteBuf buffer)
-     {
-         // Write your data to the buffer you want to send to clients when they log in
-         buffer.writeUtf("Touch Grass");
-     }
-
-     @Override
-     public Optional<String> readData(FriendlyByteBuf buffer)
-     {
-         // Read in and handle your data
-         String message = buffer.readUtf();
-         
-         // Return an empty optional if successful or provide a string with the error
-         return Optional.empty();
-     }
- }
-
-// Register the Login Data using the Framework register event
-public static void onFrameworkRegister(FrameworkEvent.Register event)
-{
-    event.registerLoginData(new ResourceLocation("your_mod_id", "test"), CustomData::new);
-}
-
-```
-
-**More features coming soon!**
+Framework is library built to ease the development in multiloader projects.
 
 ## Developers:
 
-To get started quickly, add the following code into to your mod's `build.gradle` then check out the documentation.
+Framework is hosted using GitHub Packages, however in order to depend on Framework, a GitHub username and personal token will need to be added into your Gradle environment. These will need to be added as properties into `gradle.properties`, which is a file located in the `GRADLE_USER_HOME` directory, **not your project**. On Windows, you can quickly navigate to the required directory by pasting `%GRADLE_USER_HOME%` into a File Explorer window. Personal tokens can be generated on the [token settings page](https://github.com/settings/tokens) once logged into a GitHub account.
 
-```gradle
+> **Important Note**
+> 
+> For security purposes, it is recommended to generate a new personal token with only the `read:packages` scope enabled. This will limit the token to only reading packages. An expiry is also recommended to prevent the token from working forever.
+
+Once you have generated your token, simply append and fill in the keys `gpr.user` and `gpr.key` in the aforemention file.
+
+```groovy
+gpr.user=<USERNAME>
+gpr.key=<GITHUB_PERSONAL_TOKEN>
+```
+Finally you can add the repository and implement the dependencies
+```groovy
+def getGprUser() {
+    return project.findProperty('gpr.user')
+}
+
+def getGprKey() {
+    return project.findProperty('gpr.key')
+}
+
 repositories {
-    maven {
-        url "https://cursemaven.com"
+    if(getGprUser() && getGprKey()) {
+        maven {
+            name = "MrCrayfish (GitHub)"
+            url = "https://maven.pkg.github.com/MrCrayfish/Maven"
+            credentials {
+                username = getGprUser()
+                password = getGprKey()
+            }
+        }
     }
 }
 
 dependencies {
-	implementation fb.deobf("curse.maven:framework-549225:<file_id>")
+    // For common module (Official mappings)
+    implementation "com.mrcrayfish:framework-common:<minecraft_version>-<framework_version>"
+
+    // NeoForge
+    implementation "com.mrcrayfish:framework-neoforge:<minecraft_version>-<framework_version>"
+
+    // Fabric
+    modImplementation "com.mrcrayfish:framework-fabric:<minecraft_version>-<framework_version>"
 }
 ```
