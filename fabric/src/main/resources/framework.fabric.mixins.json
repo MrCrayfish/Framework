@@ -3,6 +3,7 @@
     "minVersion": "0.8",
     "package": "com.mrcrayfish.framework.mixin",
     "compatibilityLevel": "JAVA_21",
+    "refmap": "${mod_id}.refmap.json",
     "mixins": [
         "EntityMixin",
         "ExperienceOrbMixin",
