@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.client;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.Registration;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
 import com.mrcrayfish.framework.api.util.TaskRunner;
@@ -10,6 +11,7 @@ import com.mrcrayfish.framework.client.model.FrameworkItemModel;
 import com.mrcrayfish.framework.client.model.NeoForgeFrameworkBlockStateModel;
 import com.mrcrayfish.framework.client.model.StandaloneModelManager;
 import com.mrcrayfish.framework.platform.Services;
+import com.mrcrayfish.framework.platform.network.NeoForgeNetwork;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -19,7 +21,9 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.function.BiConsumer;
 
@@ -79,5 +83,13 @@ public final class ClientFrameworkNeoForge
     private static void onRegisterRenderPipelines(RegisterRenderPipelinesEvent event)
     {
         Services.REGISTRATION.getRegistryObjects(RenderPipeline.class).forEach(event::registerPipeline);
+    }
+
+    @SubscribeEvent
+    private static void onRegisterClientPayloadHandler(RegisterClientPayloadHandlersEvent event)
+    {
+        Registration.getNetworks().forEach(network -> {
+            ((NeoForgeNetwork) network).registerClientPayloads(event);
+        });
     }
 }

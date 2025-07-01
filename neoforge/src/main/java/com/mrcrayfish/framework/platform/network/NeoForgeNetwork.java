@@ -1,9 +1,11 @@
 package com.mrcrayfish.framework.platform.network;
 
 import com.mrcrayfish.framework.Registration;
+import com.mrcrayfish.framework.api.Environment;
 import com.mrcrayfish.framework.api.network.FrameworkNetwork;
 import com.mrcrayfish.framework.api.network.LevelLocation;
 import com.mrcrayfish.framework.api.network.MessageContext;
+import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.FrameworkMessage;
 import com.mrcrayfish.framework.network.message.FrameworkPayload;
@@ -13,10 +15,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +30,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -35,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -45,13 +53,13 @@ public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Eve
     private final ResourceLocation id;
     private final int version;
     private final boolean optional;
-    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads;
-    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads;
+    private final List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads;
+    private final List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads;
     private final Map<Class<?>, FrameworkMessage<?, ? extends FriendlyByteBuf, ? extends MessageContext>> classToMessage;
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks;
     private boolean registered = false;
 
-    public NeoForgeNetwork(ResourceLocation id, int version, boolean optional, Collection<PlayMessage<?>> playMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads, List<ConfigurationMessage<?>> configurationMessages, List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
+    public NeoForgeNetwork(ResourceLocation id, int version, boolean optional, Collection<PlayMessage<?>> playMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads, List<ConfigurationMessage<?>> configurationMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
     {
         this.id = id;
         this.version = version;
@@ -87,8 +95,62 @@ public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Eve
         registrar = registrar.versioned(Integer.toString(this.version)); // Set the version
         registrar = this.optional ? registrar.optional() : registrar;
         PayloadRegistrar finalRegistrar = registrar;
-        this.playPayloads.forEach(consumer -> consumer.accept(this, finalRegistrar));
-        this.configurationPayloads.forEach(consumer -> consumer.accept(this, finalRegistrar));
+        this.playPayloads.forEach(function -> {
+            PayloadHolder<?, RegistryFriendlyByteBuf> holder = function.apply(this);
+            this.registerPlayHandler(holder, finalRegistrar);
+        });
+        this.configurationPayloads.forEach(function -> {
+            PayloadHolder<?, FriendlyByteBuf> holder = function.apply(this);
+            this.registerConfigurationHandler(holder, finalRegistrar);
+        });
+    }
+
+    private <T> void registerPlayHandler(PayloadHolder<T, RegistryFriendlyByteBuf> holder, PayloadRegistrar registrar)
+    {
+        switch(holder.flow())
+        {
+            case null -> registrar.playBidirectional(holder.type(), holder.codec(), holder.handler());
+            case SERVERBOUND -> registrar.playToServer(holder.type(), holder.codec(), holder.handler());
+            case CLIENTBOUND -> registrar.playToClient(holder.type(), holder.codec());
+        }
+    }
+
+    private <T> void registerConfigurationHandler(PayloadHolder<T, FriendlyByteBuf> holder, PayloadRegistrar registrar)
+    {
+        switch(holder.flow())
+        {
+            case null -> registrar.configurationBidirectional(holder.type(), holder.codec(), holder.handler());
+            case SERVERBOUND -> registrar.configurationToServer(holder.type(), holder.codec(), holder.handler());
+            case CLIENTBOUND -> registrar.configurationToClient(holder.type(), holder.codec());
+        }
+    }
+
+    public <T extends CustomPacketPayload> void registerClientPayloads(RegisterClientPayloadHandlersEvent register)
+    {
+        this.playPayloads.forEach(function -> {
+            PayloadHolder<?, RegistryFriendlyByteBuf> holder = function.apply(this);
+            this.registerClientPlayHandler(holder, register);
+        });
+        this.configurationPayloads.forEach(function -> {
+            PayloadHolder<?, FriendlyByteBuf> holder = function.apply(this);
+            this.registerClientConfigurationHandler(holder, register);
+        });
+    }
+
+    private <T> void registerClientPlayHandler(PayloadHolder<T, RegistryFriendlyByteBuf> holder, RegisterClientPayloadHandlersEvent register)
+    {
+        if(holder.flow() == null || holder.flow() == PacketFlow.CLIENTBOUND)
+        {
+            register.register(holder.type(), holder.handler());
+        }
+    }
+
+    private <T> void registerClientConfigurationHandler(PayloadHolder<T, FriendlyByteBuf> holder, RegisterClientPayloadHandlersEvent register)
+    {
+        if(holder.flow() == null || holder.flow() == PacketFlow.CLIENTBOUND)
+        {
+            register.register(holder.type(), holder.handler());
+        }
     }
 
     @Override
@@ -155,7 +217,9 @@ public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Eve
     @Override
     public void sendToServer(Object message)
     {
-        PacketDistributor.sendToServer(this.encode(message));
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
+            ClientPacketDistributor.sendToServer(this.encode(message));
+        });
     }
 
     @Override

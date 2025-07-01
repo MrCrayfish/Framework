@@ -258,7 +258,9 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     @Override
     public void sendToServer(Object message)
     {
-        ClientPlayNetworking.send(this.encode(message));
+        TaskRunner.runIf(Environment.CLIENT, () -> () -> {
+            ClientPlayNetworking.send(this.encode(message));
+        });
     }
 
     @Override

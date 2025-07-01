@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -37,9 +38,9 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     private final int version;
     private boolean optional = false;
     private final List<PlayMessage<?>> playMessages = new ArrayList<>();
-    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> playPayloads = new ArrayList<>();
+    private final List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads = new ArrayList<>();
     private final List<ConfigurationMessage<?>> configurationMessages = new ArrayList<>();
-    private final List<BiConsumer<NeoForgeNetwork, PayloadRegistrar>> configurationPayloads = new ArrayList<>();
+    private final List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads = new ArrayList<>();
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> configurationTasks = new ArrayList<>();
 
     public NeoForgeNetworkBuilder(ResourceLocation id, int version)
@@ -69,13 +70,11 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
         StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
         PlayMessage<T> message = new PlayMessage<>(payloadType, messageClass, payloadCodec, handler, flow);
         this.playMessages.add(message);
-        this.playPayloads.add((network, registrar) -> {
-            this.<FrameworkPayload<T>>getPlayFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
-                PlayMessageContext context = new PlayMessageContext(ctx.flow(), ctx::enqueueWork, ctx::disconnect, b -> {}, ctx.player());
-                message.handler().accept(payload.msg(), context);
-                context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
-            });
-        });
+        this.playPayloads.add(network -> new PayloadHolder<>(flow, payloadType, payloadCodec, (payload, ctx) -> {
+            PlayMessageContext context = new PlayMessageContext(ctx.flow(), ctx::enqueueWork, ctx::disconnect, b -> {}, ctx.player());
+            message.handler().accept(payload.msg(), context);
+            context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
+        }));
         return this;
     }
 
@@ -101,7 +100,11 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
         ConfigurationMessage<T> message = new ConfigurationMessage<>(payloadType, taskClass, payloadCodec, handler, flow);
         ConfigurationTask.Type taskType = new ConfigurationTask.Type(message.type().id());
         this.configurationMessages.add(message);
-        this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
+        this.configurationPayloads.add(network -> new PayloadHolder<>(flow, payloadType, payloadCodec, (payload, ctx) -> {
+            ConfigurationMessageContext context = new ConfigurationMessageContext(ctx.flow(), ctx::enqueueWork, ctx::disconnect, b -> {}, id -> ctx.finishCurrentTask(new ConfigurationTask.Type(id)));
+            message.handler().accept(payload.msg(), context);
+            context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
+        }));
         this.configurationTasks.add((network, listener) -> {
             return new NeoForgeConfigurationTask<>(network, listener, taskType, messages, completeImmediately);
         });
@@ -117,35 +120,12 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
             StreamCodec<FriendlyByteBuf, FrameworkPayload<FinishedConfigurationTask>> payloadCodec = FrameworkPayload.codec(payloadType, FinishedConfigurationTask.STREAM_CODEC);
             ConfigurationMessage<FinishedConfigurationTask> message = new ConfigurationMessage<>(payloadType, FinishedConfigurationTask.class, payloadCodec, FinishedConfigurationTask::handle, null);
             this.configurationMessages.add(message);
-            this.configurationPayloads.add(this.createConfigurationPayloadConsumer(message));
-        }
-    }
-
-    private <T> BiConsumer<NeoForgeNetwork, PayloadRegistrar> createConfigurationPayloadConsumer(ConfigurationMessage<T> message)
-    {
-        return (network, registrar) -> {
-            this.<FrameworkPayload<T>>getConfigurationFunction(registrar, message.flow()).apply(message.type(), message.codec(), (payload, ctx) -> {
-                ConfigurationMessageContext context = new ConfigurationMessageContext(ctx.flow(), ctx::enqueueWork, ctx::disconnect, b -> {}, id -> {
-                    ctx.finishCurrentTask(new ConfigurationTask.Type(id));
-                });
+            this.configurationPayloads.add(network -> new PayloadHolder<>(null, payloadType, payloadCodec, (payload, ctx) -> {
+                ConfigurationMessageContext context = new ConfigurationMessageContext(ctx.flow(), ctx::enqueueWork, ctx::disconnect, b -> {}, id -> ctx.finishCurrentTask(new ConfigurationTask.Type(id)));
                 message.handler().accept(payload.msg(), context);
                 context.getReply().ifPresent(msg -> ctx.reply(network.encode(msg)));
-            });
-        };
-    }
-
-    private <T extends CustomPacketPayload> TriFunction<CustomPacketPayload.Type<T>, StreamCodec<RegistryFriendlyByteBuf, T>, IPayloadHandler<T>, PayloadRegistrar> getPlayFunction(PayloadRegistrar registrar, @Nullable PacketFlow flow)
-    {
-        if(flow == PacketFlow.CLIENTBOUND) return registrar::playToClient;
-        if(flow == PacketFlow.SERVERBOUND) return registrar::playToServer;
-        return registrar::playBidirectional;
-    }
-
-    private <T extends CustomPacketPayload> TriFunction<CustomPacketPayload.Type<T>, StreamCodec<FriendlyByteBuf, T>, IPayloadHandler<T>, PayloadRegistrar> getConfigurationFunction(PayloadRegistrar registrar, @Nullable PacketFlow flow)
-    {
-        if(flow == PacketFlow.CLIENTBOUND) return registrar::configurationToClient;
-        if(flow == PacketFlow.SERVERBOUND) return registrar::configurationToServer;
-        return registrar::configurationBidirectional;
+            }));
+        }
     }
 
     public FrameworkNetwork build()
