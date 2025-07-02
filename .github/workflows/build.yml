@@ -29,7 +29,7 @@ jobs:
           properties: 'mod_id mod_version minecraft_version'
       - name: Validate tag format
         run: |
-          tag=${{ github.action_ref }}
+          tag=${{ github.ref_name }}
           expected_mc_version=${{ steps.mod_data.outputs.minecraft_version }}
           expected_mod_version=${{ steps.mod_data.outputs.mod_version }}
           mc_version=$(echo "${tag:1}" | cut -d '-' -f 1)
