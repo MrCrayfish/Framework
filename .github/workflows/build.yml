@@ -34,7 +34,7 @@ jobs:
           expected_mod_version=${{ steps.mod_data.outputs.mod_version }}
           mc_version=$(echo "${tag:1}" | cut -d '-' -f 1)
           mod_version=$(echo "${tag:1}" | cut -d '-' -f 2)
-          if [[ "${tag:0:1}" != "v" ]]
+          if [[ "${tag:0:1}" != "v" ]]; then
             echo "Tag must start with v"
             exit 1
           elif [[ "$mc_version" != "$expected_mc_version" ]]; then
