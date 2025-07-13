@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -62,12 +63,12 @@ public class SyncedEntityDataTest implements ModInitializer
             this.lastClickedPos = pos;
             if(TOUCHED_GRASS.getValue(player))
             {
-                player.displayClientMessage(Component.literal("You've already touched grass!"), true);
+                player.displayClientMessage(new TextComponent("You've already touched grass!"), true);
             }
             else
             {
                 TOUCHED_GRASS.setValue(player, true);
-                player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
+                player.displayClientMessage(new TextComponent("Well done, you've finally touched grass!"), true);
             }
         }
         return InteractionResult.PASS;
@@ -79,7 +80,7 @@ public class SyncedEntityDataTest implements ModInitializer
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            player.displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            player.displayClientMessage(new TextComponent("This animal has been hit " + newCount + " times!"), true);
         }
         return InteractionResult.PASS;
     }

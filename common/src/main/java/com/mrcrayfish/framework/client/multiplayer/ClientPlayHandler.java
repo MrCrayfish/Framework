@@ -9,6 +9,7 @@ import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CUpdateEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
@@ -43,7 +44,7 @@ public final class ClientPlayHandler
 
         if(!FrameworkConfigManager.getInstance().processSyncData(message))
         {
-            context.getNetworkManager().disconnect(Component.translatable("framework.multiplayer.disconnect.process_config"));
+            context.getNetworkManager().disconnect(new TranslatableComponent("framework.multiplayer.disconnect.process_config"));
         }
     }
 }

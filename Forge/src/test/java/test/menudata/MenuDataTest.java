@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -53,10 +54,10 @@ public class MenuDataTest
     private void onRegisterCommands(RegisterCommandsEvent event)
     {
         event.getDispatcher().register(Commands.literal("data_menu_test:open").executes(context -> {
-            if(context.getSource().source instanceof ServerPlayer player) {
+            if(context.getSource().getEntity() instanceof ServerPlayer player) {
                 FrameworkAPI.openMenuWithData(player, new SimpleMenuProvider((windowId, playerInventory, player1) -> {
                     return new TestMenu(windowId, playerInventory, 1, "Test");
-                }, Component.literal("Hello")), buffer -> {
+                }, new TextComponent("Hello")), buffer -> {
                     buffer.writeInt(5);
                     buffer.writeUtf("Hello from the server!");
                 });

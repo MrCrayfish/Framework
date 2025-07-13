@@ -63,8 +63,8 @@ public class ForgeNetwork implements FrameworkNetwork
         this.sendToTrackingChunk(() -> {
             LevelLocation location = supplier.get();
             Vec3 pos = location.pos();
-            int chunkX = SectionPos.blockToSectionCoord(pos.x);
-            int chunkZ = SectionPos.blockToSectionCoord(pos.z);
+            int chunkX = SectionPos.blockToSectionCoord((int) pos.x);
+            int chunkZ = SectionPos.blockToSectionCoord((int) pos.z);
             return location.level().getChunk(chunkX, chunkZ);
         }, message);
     }

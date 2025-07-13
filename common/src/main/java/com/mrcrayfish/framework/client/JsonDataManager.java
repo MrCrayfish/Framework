@@ -17,6 +17,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,10 +61,9 @@ public final class JsonDataManager extends SimplePreparableReloadListener<List<P
             loader.getResourceSuppliers().forEach(supplier ->
             {
                 ResourceLocation location = supplier.getLocation();
-                Optional<Resource> optional = manager.getResource(location);
-                if(optional.isPresent())
+                try(Resource resource = manager.getResource(location))
                 {
-                    try(BufferedReader reader = optional.get().openAsReader())
+                    try(Reader reader = new InputStreamReader(resource.getInputStream()))
                     {
                         JsonElement element = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                         if(element == null)
@@ -80,7 +81,7 @@ public final class JsonDataManager extends SimplePreparableReloadListener<List<P
                         pairs.add(Pair.of(supplier, DataObject.EMPTY));
                     }
                 }
-                else
+                catch(IOException e)
                 {
                     pairs.add(Pair.of(supplier, DataObject.EMPTY));
                 }

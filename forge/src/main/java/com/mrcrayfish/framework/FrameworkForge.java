@@ -6,10 +6,25 @@ import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
 import com.mrcrayfish.framework.event.ForgeEvents;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.stats.Stats;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.IExtensionPoint;
@@ -20,10 +35,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -39,11 +55,25 @@ public class FrameworkForge
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::onCommonSetup);
         bus.addListener(this::onLoadComplete);
-        bus.addListener(this::onRegister);
+
+        // Don't ask...
+        bus.addGenericListener(Attribute.class, (RegistryEvent.Register<Attribute> event) -> this.onRegister(event));
+        bus.addGenericListener(Block.class, (RegistryEvent.Register<Block> event) -> this.onRegister(event));
+        bus.addGenericListener(BlockEntityType.class, (RegistryEvent.Register<BlockEntityType<?>> event) -> this.onRegister(event));
+        bus.addGenericListener(Enchantment.class, (RegistryEvent.Register<Enchantment> event) -> this.onRegister(event));
+        bus.addGenericListener(EntityType.class, (RegistryEvent.Register<EntityType<?>> event) -> this.onRegister(event));
+        bus.addGenericListener(Fluid.class, (RegistryEvent.Register<Fluid> event) -> this.onRegister(event));
+        bus.addGenericListener(Item.class, (RegistryEvent.Register<Item> event) -> this.onRegister(event));
+        bus.addGenericListener(MenuType.class, (RegistryEvent.Register<MenuType<?>> event) -> this.onRegister(event));
+        bus.addGenericListener(MobEffect.class, (RegistryEvent.Register<MobEffect> event) -> this.onRegister(event));
+        bus.addGenericListener(ParticleType.class, (RegistryEvent.Register<ParticleType<?>> event) -> this.onRegister(event));
+        bus.addGenericListener(Potion.class, (RegistryEvent.Register<Potion> event) -> this.onRegister(event));
+        bus.addGenericListener(RecipeSerializer.class, (RegistryEvent.Register<RecipeSerializer<?>> event) -> this.onRegister(event));
+        bus.addGenericListener(SoundEvent.class, (RegistryEvent.Register<SoundEvent> event) -> this.onRegister(event));
+
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             bus.addListener(this::onClientSetup);
-            bus.addListener(ClientFrameworkForge::registerKeyMappings);
             bus.addListener(ClientFrameworkForge::registerReloadListener);
         });
         FrameworkSetup.run();
@@ -62,6 +92,18 @@ public class FrameworkForge
     private void onCommonSetup(FMLCommonSetupEvent event)
     {
         event.enqueueWork(FrameworkSetup::init);
+
+        // Need to call this manually
+        event.enqueueWork(() -> {
+            Registration.get(Registry.CUSTOM_STAT_REGISTRY).forEach(entry -> {
+                entry.register(new IRegisterFunction() {
+                    @Override
+                    public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> valueSupplier) {
+                        Registry.register(registry, name, valueSupplier.get());
+                    }
+                });
+            });
+        });
     }
 
     private void onClientSetup(FMLClientSetupEvent event)
@@ -69,25 +111,29 @@ public class FrameworkForge
         event.enqueueWork(ClientFrameworkForge::init);
     }
 
-    private void onRegister(RegisterEvent event)
+    @SuppressWarnings("unchecked")
+    private <T extends IForgeRegistryEntry<T>> void onRegister(RegistryEvent.Register<T> event)
     {
-        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction()
-        {
-            @Override
-            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
-            {
-                event.register(registry.key(), name, supplier);
-            }
-        }));
+        Registration.get(event.getRegistry().getRegistryKey()).forEach(entry -> {
+            entry.register(new IRegisterFunction() {
+                @Override
+                public <R> void call(Registry<R> registry, ResourceLocation name, Supplier<R> valueSupplier) {
+                    R value = valueSupplier.get();
+                    ((IForgeRegistryEntry<R>) value).setRegistryName(name);
+                    event.getRegistry().register((T) value);
+                }
+            });
+        });
 
         // Special case for block registry entries to register items
-        if(event.getRegistryKey().equals(Registry.ITEM_REGISTRY))
+        if(event.getRegistry().getRegistryKey().equals(Registry.ITEM_REGISTRY))
         {
-            Registration.get(Registry.BLOCK_REGISTRY).forEach(entry ->
-            {
-                if(entry instanceof BlockRegistryEntry<?, ?> blockEntry)
-                {
-                    blockEntry.item().ifPresent(item -> event.register(Registry.ITEM_REGISTRY, entry.getId(), () -> item));
+            Registration.get(Registry.BLOCK_REGISTRY).forEach(entry -> {
+                if(entry instanceof BlockRegistryEntry<?, ?> blockEntry) {
+                    blockEntry.item().ifPresent(item -> {
+                        ((IForgeRegistryEntry<?>) item).setRegistryName(entry.getId());
+                        event.getRegistry().register((T) item);
+                    });
                 }
             });
         }

@@ -8,6 +8,7 @@ import com.mrcrayfish.framework.platform.Services;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CountDownLatch;
@@ -69,7 +70,7 @@ public class S2CLoginData extends HandshakeMessage<S2CLoginData>
         if(response[0] != null)
         {
             String modName = Services.PLATFORM.getModName(message.id.getNamespace());
-            context.getNetworkManager().disconnect(Component.literal("Connection closed - [" + modName + "] " + response[0]));
+            context.getNetworkManager().disconnect(new TextComponent("Connection closed - [" + modName + "] " + response[0]));
             return;
         }
 

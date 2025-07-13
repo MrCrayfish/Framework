@@ -39,7 +39,6 @@ public final class Registration
         list.add(Registry.MENU_REGISTRY.location());
         list.add(Registry.RECIPE_TYPE_REGISTRY.location());
         list.add(Registry.RECIPE_SERIALIZER_REGISTRY.location());
-        list.add(Registry.COMMAND_ARGUMENT_TYPE_REGISTRY.location());
     });
 
     private static final Map<ResourceLocation, List<RegistryEntry<?>>> ENTRY_MAP = new HashMap<>();

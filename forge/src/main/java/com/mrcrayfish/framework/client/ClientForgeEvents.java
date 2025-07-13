@@ -6,12 +6,10 @@ import com.mrcrayfish.framework.api.event.InputEvents;
 import com.mrcrayfish.framework.api.event.ScreenEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ContainerScreenEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,20 +24,20 @@ import java.util.stream.Collectors;
 public class ClientForgeEvents
 {
     @SubscribeEvent
-    public void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event)
+    public void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggedInEvent event)
     {
         FrameworkConfigManager.getInstance().loadDefaultSyncConfigsIfUnloaded();
         ClientConnectionEvents.LOGGING_IN.post().handle(event.getPlayer(), event.getMultiPlayerGameMode(), event.getConnection());
     }
 
     @SubscribeEvent
-    public void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggingOut event)
+    public void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggedOutEvent event)
     {
         ClientConnectionEvents.LOGGING_OUT.post().handle(event.getConnection());
     }
 
     @SubscribeEvent
-    public void onAfterDrawBackground(ContainerScreenEvent.Render.Background event)
+    public void onAfterDrawBackground(ContainerScreenEvent.DrawBackground event)
     {
         ScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY());
     }
@@ -58,13 +56,13 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent
-    public void onKey(InputEvent.Key event)
+    public void onKey(InputEvent.KeyInputEvent event)
     {
         InputEvents.KEY.post().handle(event.getKey(), event.getScanCode(), event.getAction(), event.getModifiers());
     }
 
     @SubscribeEvent
-    public void onInteraction(InputEvent.InteractionKeyMappingTriggered event)
+    public void onInteraction(InputEvent.ClickInputEvent event)
     {
         if(InputEvents.CLICK.post().handle(event.isAttack(), event.isUseItem(), event.isPickBlock(), event.getHand()))
         {
@@ -73,7 +71,7 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent
-    public void onScreenInit(ScreenEvent.Init.Post event)
+    public void onScreenInit(ScreenEvent.InitScreenEvent.Post event)
     {
         ScreenEvents.INIT.post().handle(event.getScreen());
         List<AbstractWidget> widgets = event.getListenersList().stream().filter(listener -> listener instanceof AbstractWidget).map(listener -> (AbstractWidget) listener).toList();
@@ -94,32 +92,39 @@ public class ClientForgeEvents
     }
 
     @SubscribeEvent
-    public void onScreenRenderPre(ScreenEvent.Render.Pre event)
+    public void onScreenRenderPre(ScreenEvent.DrawScreenEvent.Pre event)
     {
-        ScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        ScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTicks());
     }
 
     @SubscribeEvent
-    public void onScreenRenderPost(ScreenEvent.Render.Post event)
+    public void onScreenRenderPost(ScreenEvent.DrawScreenEvent.Post event)
     {
-        ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        ScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getPoseStack(), event.getMouseX(), event.getMouseY(), event.getPartialTicks());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled
-    public void onScreenOpen(ScreenEvent.Opening event)
+    public void onScreenOpen(ScreenOpenEvent event)
     {
-        ScreenEvents.OPENED.post().handle(event.getNewScreen());
+        if(event.getScreen() != null)
+        {
+            ScreenEvents.OPENED.post().handle(event.getScreen());
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled
-    public void onScreenOpen(ScreenEvent.Closing event)
+    public void onScreenClosed(ScreenOpenEvent event)
     {
-        ScreenEvents.CLOSED.post().handle(event.getScreen());
+        if(event.getScreen() == null)
+        {
+            Screen old = Minecraft.getInstance().screen;
+            ScreenEvents.CLOSED.post().handle(old);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onInputUpdate(MovementInputUpdateEvent event)
     {
-        ClientEvents.PLAYER_INPUT_UPDATE.post().handle(event.getEntity(), event.getInput());
+        ClientEvents.PLAYER_INPUT_UPDATE.post().handle(event.getPlayer(), event.getInput());
     }
 }

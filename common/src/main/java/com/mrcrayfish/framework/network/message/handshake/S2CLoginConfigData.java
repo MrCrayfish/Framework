@@ -6,6 +6,7 @@ import com.mrcrayfish.framework.api.network.message.HandshakeMessage;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CountDownLatch;
@@ -68,7 +69,7 @@ public class S2CLoginConfigData extends HandshakeMessage<S2CLoginConfigData>
         }
         if(failed[0])
         {
-            context.getNetworkManager().disconnect(Component.translatable("framework.gui.process_config_fail", message.key.toString()));
+            context.getNetworkManager().disconnect(new TranslatableComponent("framework.gui.process_config_fail", message.key.toString()));
         }
         context.setHandled(true);
         context.reply(new Acknowledge());

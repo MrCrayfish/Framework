@@ -4,8 +4,10 @@ import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.sync.Serializers;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -65,19 +67,19 @@ public class SyncedEntityDataTest
         if(this.lastClickedPos.equals(event.getPos()))
             return;
 
-        Player player = event.getEntity();
+        Player player = event.getPlayer();
         BlockState state = player.level.getBlockState(event.getPos());
         if(state.getBlock() == Blocks.GRASS_BLOCK)
         {
             this.lastClickedPos = event.getPos();
             if(TOUCHED_GRASS.getValue(player))
             {
-                player.displayClientMessage(Component.literal("You've already touched grass!"), true);
+                player.displayClientMessage(new TextComponent("You've already touched grass!"), true);
             }
             else
             {
                 TOUCHED_GRASS.setValue(player, true);
-                player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
+                player.displayClientMessage(new TextComponent("Well done, you've finally touched grass!"), true);
             }
         }
     }
@@ -88,7 +90,7 @@ public class SyncedEntityDataTest
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            event.getEntity().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            event.getEntity().sendMessage(new TextComponent("This animal has been hit " + newCount + " times!"), Util.NIL_UUID);
         }
     }
 }

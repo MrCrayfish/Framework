@@ -28,7 +28,7 @@ public class ForgeNetworkHelper implements INetworkHelper
     public OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, Consumer<FriendlyByteBuf> data)
     {
         AbstractContainerMenu oldMenu = player.containerMenu;
-        NetworkHooks.openScreen(player, provider, data);
+        NetworkHooks.openGui(player, provider, data);
         AbstractContainerMenu newMenu = player.containerMenu;
         return oldMenu != newMenu ? OptionalInt.of(player.containerCounter) : OptionalInt.empty();
     }

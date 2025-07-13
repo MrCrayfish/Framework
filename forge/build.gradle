@@ -14,6 +14,7 @@ base {
 
 minecraft {
     mappings channel: 'official', version: minecraft_version
+    copyIdeResources = true
 
     if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
         // This location is hardcoded in Forge and can not be changed.

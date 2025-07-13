@@ -4,10 +4,11 @@ import com.mrcrayfish.framework.api.event.EntityEvents;
 import com.mrcrayfish.framework.api.event.PlayerEvents;
 import com.mrcrayfish.framework.api.event.ServerEvents;
 import com.mrcrayfish.framework.api.event.TickEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -18,6 +19,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 /**
  * Author: MrCrayfish
@@ -27,87 +29,91 @@ public class ForgeEvents
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event)
     {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server == null)
+            return;
+
         if(event.phase == TickEvent.Phase.START)
         {
-            TickEvents.START_SERVER.post().handle(event.getServer());
+            TickEvents.START_SERVER.post().handle(server);
         }
         else
         {
-            TickEvents.END_SERVER.post().handle(event.getServer());
+            TickEvents.END_SERVER.post().handle(server);
         }
     }
 
     @SubscribeEvent
-    public void onLevelTick(TickEvent.LevelTickEvent event)
+    public void onLevelTick(TickEvent.WorldTickEvent event)
     {
         if(event.phase == TickEvent.Phase.START)
         {
-            TickEvents.START_LEVEL.post().handle(event.level);
+            TickEvents.START_LEVEL.post().handle(event.world);
         }
         else
         {
-            TickEvents.END_LEVEL.post().handle(event.level);
+            TickEvents.END_LEVEL.post().handle(event.world);
         }
     }
 
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event)
     {
-        PlayerEvents.START_TRACKING_ENTITY.post().handle(event.getTarget(), event.getEntity());
+        PlayerEvents.START_TRACKING_ENTITY.post().handle(event.getTarget(), event.getPlayer());
     }
 
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StopTracking event)
     {
-        PlayerEvents.END_TRACKING_ENTITY.post().handle(event.getTarget(), event.getEntity());
+        PlayerEvents.END_TRACKING_ENTITY.post().handle(event.getTarget(), event.getPlayer());
     }
 
     @SubscribeEvent
-    public void onEntityJoinLevel(EntityJoinLevelEvent event)
+    public void onEntityJoinLevel(EntityJoinWorldEvent event)
     {
-        EntityEvents.JOIN_LEVEL.post().handle(event.getEntity(), event.getLevel(), event.loadedFromDisk());
+        EntityEvents.JOIN_LEVEL.post().handle(event.getEntity(), event.getWorld(), event.loadedFromDisk());
     }
 
     @SubscribeEvent
-    public void onEntityLeaveLevel(EntityLeaveLevelEvent event)
+    public void onEntityLeaveLevel(EntityLeaveWorldEvent event)
     {
-        EntityEvents.LEAVE_LEVEL.post().handle(event.getEntity(), event.getLevel());
+        EntityEvents.LEAVE_LEVEL.post().handle(event.getEntity(), event.getWorld());
     }
 
     @SubscribeEvent
     public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event)
     {
-        PlayerEvents.CHANGE_DIMENSION.post().handle(event.getEntity(), event.getFrom(), event.getTo());
+        PlayerEvents.CHANGE_DIMENSION.post().handle(event.getPlayer(), event.getFrom(), event.getTo());
     }
 
     @SubscribeEvent
     public void onPlayerRespawn(PlayerEvent.Clone event)
     {
-        PlayerEvents.COPY.post().handle(event.getOriginal(), event.getEntity(), !event.isWasDeath());
+        PlayerEvents.COPY.post().handle(event.getOriginal(), event.getPlayer(), !event.isWasDeath());
     }
 
     @SubscribeEvent
     public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event)
     {
-        PlayerEvents.RESPAWN.post().handle(event.getEntity(), event.isEndConquered());
+        PlayerEvents.RESPAWN.post().handle(event.getPlayer(), event.isEndConquered());
     }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
     {
-        PlayerEvents.LOGGED_IN.post().handle(event.getEntity());
+        PlayerEvents.LOGGED_IN.post().handle(event.getPlayer());
     }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedOutEvent event)
     {
-        PlayerEvents.LOGGED_OUT.post().handle(event.getEntity());
+        PlayerEvents.LOGGED_OUT.post().handle(event.getPlayer());
     }
 
     @SubscribeEvent
     public void onPickupItem(EntityItemPickupEvent event)
     {
-        if(PlayerEvents.PICKUP_ITEM.post().handle(event.getEntity(), event.getItem()))
+        if(PlayerEvents.PICKUP_ITEM.post().handle(event.getPlayer(), event.getItem()))
         {
             event.setCanceled(true);
         }
@@ -116,7 +122,7 @@ public class ForgeEvents
     @SubscribeEvent
     public void onCraftItem(PlayerEvent.ItemCraftedEvent event)
     {
-        PlayerEvents.CRAFT_ITEM.post().handle(event.getEntity(), event.getCrafting(), event.getInventory());
+        PlayerEvents.CRAFT_ITEM.post().handle(event.getPlayer(), event.getCrafting(), event.getInventory());
     }
 
     @SubscribeEvent
@@ -130,7 +136,7 @@ public class ForgeEvents
             }
         }
 
-        if(EntityEvents.LIVING_ENTITY_DEATH.post().handle(event.getEntity(), event.getSource()))
+        if(EntityEvents.LIVING_ENTITY_DEATH.post().handle(event.getEntityLiving(), event.getSource()))
         {
             event.setCanceled(true);
         }
@@ -139,16 +145,16 @@ public class ForgeEvents
     @SubscribeEvent
     public void onPlayerPickupExp(PlayerXpEvent.PickupXp event)
     {
-        if(PlayerEvents.PICKUP_EXPERIENCE.post().handle(event.getEntity(), event.getOrb()))
+        if(PlayerEvents.PICKUP_EXPERIENCE.post().handle(event.getPlayer(), event.getOrb()))
         {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void onLivingTick(LivingEvent.LivingTickEvent event)
+    public void onLivingTick(LivingEvent.LivingUpdateEvent event)
     {
-        TickEvents.START_LIVING_ENTITY.post().handle(event.getEntity());
+        TickEvents.START_LIVING_ENTITY.post().handle(event.getEntityLiving());
     }
 
     @SubscribeEvent

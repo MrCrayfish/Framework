@@ -30,12 +30,10 @@ public class RegistryTest
 {
     public static final RegistryEntry<Block> MY_AWESOME_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("registry_test", "awesome_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
     public static final RegistryEntry<ResourceLocation> CUSTOM_AWESOME_STAT = RegistryEntry.customStat(new ResourceLocation("registry_test", "awesome_stat"), StatFormatter.DEFAULT);
-    public static final RegistryEntry<GameEvent> CUSTOM_GAME_EVENT = RegistryEntry.gameEvent(new ResourceLocation("registry_test", "awesome_game_event"));
 
     public RegistryTest()
     {
         MinecraftForge.EVENT_BUS.addListener(this::onLeftClickBlock);
-        MinecraftForge.EVENT_BUS.addListener(this::onGameEvent);
     }
 
     private void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
@@ -43,26 +41,10 @@ public class RegistryTest
         if(event.getSide() != LogicalSide.SERVER)
             return;
 
-        Player player = event.getEntity();
+        Player player = event.getPlayer();
         if(!(player instanceof ServerPlayer))
             return;
 
         player.awardStat(CUSTOM_AWESOME_STAT.get());
-        player.getLevel().gameEvent(CUSTOM_GAME_EVENT.get(), event.getPos(), new GameEvent.Context(player, null));
-    }
-
-    private void onGameEvent(VanillaGameEvent event)
-    {
-        if(event.getVanillaEvent() == CUSTOM_GAME_EVENT.get())
-        {
-            // WE DO OUR OWN HANDLING >:)
-            System.out.println("Received custom event!");
-            event.setCanceled(true);
-        }
-        if(event.getVanillaEvent() == GameEvent.EAT)
-        {
-            System.out.println("Eating");
-            event.setCanceled(true);
-        }
     }
 }

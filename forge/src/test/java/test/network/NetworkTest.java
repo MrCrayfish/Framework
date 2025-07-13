@@ -47,7 +47,7 @@ public class NetworkTest
         if(event.getSide() != LogicalSide.SERVER)
             return;
 
-        Player player = event.getEntity();
+        Player player = event.getPlayer();
         if(!(player instanceof ServerPlayer))
             return;
 

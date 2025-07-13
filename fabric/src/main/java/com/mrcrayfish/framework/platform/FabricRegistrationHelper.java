@@ -5,12 +5,11 @@ import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -94,7 +93,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
-        return BlockEntityType.Builder.of(function::apply, validBlocksSupplier.get()).build(null);
+        return FabricBlockEntityTypeBuilder.create(function::apply, validBlocksSupplier.get()).build();
     }
 
     @Override
@@ -107,13 +106,5 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     public <T extends AbstractContainerMenu> MenuType<T> createMenuTypeWithData(TriFunction<Integer, Inventory, FriendlyByteBuf, T> function)
     {
         return new ExtendedScreenHandlerType<>(function::apply);
-    }
-
-    @Override
-    public <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> I createArgumentTypeInfo(Class<A> argumentTypeClass, Supplier<I> supplier)
-    {
-        I instance = supplier.get();
-        ArgumentTypeInfos.BY_CLASS.put(argumentTypeClass, instance);
-        return instance;
     }
 }

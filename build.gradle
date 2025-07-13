@@ -62,10 +62,3 @@ subprojects {
         enabled = false
     }
 }
-
-task incrementBuild {
-    doLast {
-        int version = file('/release_build_common').text.toInteger()
-        file('/release_build_common').text = version + 1
-    }
-}

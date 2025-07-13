@@ -123,7 +123,7 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
                 builder.loginIndex(LoginIndexHolder::getLoginIndex, LoginIndexHolder::setLoginIndex);
                 builder.encoder(message::encode);
                 builder.decoder(message::decode);
-                builder.consumerNetworkThread((msg, context) -> {
+                builder.consumer((msg, context) -> {
                     MessageDirection direction = DIRECTION_MAPPER.inverse().get(context.get().getDirection());
                     MessageContext messageContext = new ForgeMessageContext(context.get(), direction);
                     msg.handle(msg, messageContext);
@@ -162,7 +162,7 @@ public class ForgeNetworkBuilder implements FrameworkNetworkBuilder
                 .loginIndex(HandshakeMessage::getLoginIndex, HandshakeMessage::setLoginIndex)
                 .decoder(acknowledge::decode)
                 .encoder(acknowledge::encode)
-                .consumerNetworkThread((acknowledge1, context) -> {
+                .consumer((acknowledge1, context) -> {
                     HandshakeHandler.indexFirst((handler, msg, s) -> {
                         MessageDirection direction = DIRECTION_MAPPER.inverse().get(s.get().getDirection());
                         acknowledge.handle(acknowledge1, new ForgeMessageContext(s.get(), direction));

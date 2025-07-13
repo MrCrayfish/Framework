@@ -2,12 +2,10 @@ package com.mrcrayfish.framework.api.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.platform.Services;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
@@ -118,11 +116,6 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(Registry.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createBlockEntityType(function, validBlocksSupplier));
     }
 
-    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> RegistryEntry<I> commandArgumentType(ResourceLocation id, Class<A> argumentTypeClass, Supplier<I> supplier)
-    {
-        return new RegistryEntry<>(Registry.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, supplier));
-    }
-
     public static RegistryEntry<ResourceLocation> customStat(ResourceLocation id, StatFormatter formatter)
     {
         return new CustomStatRegistryEntry(Registry.CUSTOM_STAT, id, formatter);
@@ -141,16 +134,6 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     public static <T extends Fluid> RegistryEntry<T> fluid(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(Registry.FLUID, id, supplier);
-    }
-
-    public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id)
-    {
-        return new RegistryEntry<>(Registry.GAME_EVENT, id, () -> new GameEvent(id.getPath(), GameEvent.DEFAULT_NOTIFICATION_RADIUS));
-    }
-
-    public static RegistryEntry<GameEvent> gameEvent(ResourceLocation id, int notifyRadius)
-    {
-        return new RegistryEntry<>(Registry.GAME_EVENT, id, () -> new GameEvent(id.getPath(), notifyRadius));
     }
 
     public static <T extends Item> RegistryEntry<T> item(ResourceLocation id, Supplier<T> supplier)
@@ -186,16 +169,6 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     public static <T extends RecipeType<?>> RegistryEntry<T> recipeType(ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(Registry.RECIPE_TYPE, id, supplier);
-    }
-
-    public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(ResourceLocation id)
-    {
-        return new RegistryEntry<>(Registry.RECIPE_TYPE, id, () -> new RecipeType<>() {
-            @Override
-            public String toString() {
-                return id.getPath();
-            }
-        });
     }
 
     public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(ResourceLocation id, Supplier<T> supplier)

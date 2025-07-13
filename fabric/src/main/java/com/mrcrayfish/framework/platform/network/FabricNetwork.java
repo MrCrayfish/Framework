@@ -25,6 +25,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -155,7 +156,7 @@ public class FabricNetwork implements FrameworkNetwork
     {
         Entity entity = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<?> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, packet);
     }
 
@@ -174,8 +175,8 @@ public class FabricNetwork implements FrameworkNetwork
         this.sendToTrackingChunk(() -> {
             LevelLocation location = supplier.get();
             Vec3 pos = location.pos();
-            int chunkX = SectionPos.blockToSectionCoord(pos.x);
-            int chunkZ = SectionPos.blockToSectionCoord(pos.z);
+            int chunkX = SectionPos.posToSectionCoord(pos.x);
+            int chunkZ = SectionPos.posToSectionCoord(pos.z);
             return location.level().getChunk(chunkX, chunkZ);
         }, message);
     }
@@ -185,7 +186,7 @@ public class FabricNetwork implements FrameworkNetwork
     {
         LevelChunk chunk = supplier.get();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<?> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
     }
 
@@ -196,7 +197,7 @@ public class FabricNetwork implements FrameworkNetwork
         Level level = location.level();
         Vec3 pos = location.pos();
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<?> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
@@ -211,7 +212,7 @@ public class FabricNetwork implements FrameworkNetwork
     public void sendToAll(IMessage<?> message)
     {
         FriendlyByteBuf buf = this.encode(message);
-        Packet<ClientGamePacketListener> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
+        Packet<?> packet = ServerPlayNetworking.createS2CPacket(this.id, buf);
         this.server.getPlayerList().broadcastAll(packet);
     }
 
@@ -273,13 +274,13 @@ public class FabricNetwork implements FrameworkNetwork
     {
         if(message == null)
         {
-            connection.disconnect(Component.literal("Received invalid packet, closing connection"));
+            connection.disconnect(new TextComponent("Received invalid packet, closing connection"));
             return false;
         }
         MessageDirection direction = message.getDirection();
         if(direction != null && !direction.isClient())
         {
-            connection.disconnect(Component.literal("Received invalid packet, closing connection"));
+            connection.disconnect(new TextComponent("Received invalid packet, closing connection"));
             return false;
         }
         return true;
