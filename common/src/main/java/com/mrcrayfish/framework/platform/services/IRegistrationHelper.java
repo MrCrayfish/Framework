@@ -29,6 +29,8 @@ public interface IRegistrationHelper
 {
     List<RegistryEntry<?>> getAllRegistryEntries();
 
+    <T> List<T> getRegistryObjects(Class<T> objectType);
+
     <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier);
 
     <T extends AbstractContainerMenu> MenuType<T> createMenuType(BiFunction<Integer, Inventory, T> function);

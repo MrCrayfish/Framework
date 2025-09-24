@@ -50,4 +50,35 @@ public class ReflectionUtils
         }
         return entries;
     }
+
+    public static <T> List<T> findPublicStaticObjects(Class<T> objectClass, Class<?> holderClass)
+    {
+        List<T> entries = new ArrayList<>();
+        Field[] fields = holderClass.getDeclaredFields();
+        for(Field field : fields)
+        {
+            if(!objectClass.isAssignableFrom(field.getType()))
+                continue;
+
+            // Allows non-public fields to be registered
+            field.setAccessible(true);
+
+            if(!Modifier.isStatic(field.getModifiers()))
+                throw new RuntimeException("Registration objects must be static. Please update the field: " + holderClass.getName() + "." + field.getName());
+
+            if(!Modifier.isFinal(field.getModifiers()))
+                throw new RuntimeException("Registration objects must be final. Please update the field: " + holderClass.getName() + "." + field.getName());
+
+            try
+            {
+                //noinspection unchecked
+                entries.add((T) field.get(null));
+            }
+            catch(IllegalAccessException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+        return entries;
+    }
 }

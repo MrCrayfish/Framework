@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
@@ -29,7 +30,9 @@ import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,6 +43,9 @@ import java.util.stream.Collectors;
 public class ForgeRegistrationHelper implements IRegistrationHelper
 {
     public static final Type ENTRY_CONTAINER = Type.getType(RegistryContainer.class);
+
+    private final Set<Class<?>> registryClasses = new HashSet<>();
+    private boolean loadedRegistryClasses;
 
     @Override
     public List<RegistryEntry<?>> getAllRegistryEntries()
@@ -57,7 +63,31 @@ public class ForgeRegistrationHelper implements IRegistrationHelper
     }
 
     @Override
-    @SuppressWarnings({"ConstantConditions", "NullableProblems"})
+    public <T> List<T> getRegistryObjects(Class<T> objectType)
+    {
+        if(!this.loadedRegistryClasses)
+        {
+            ModList.get().getAllScanData().stream()
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(a -> a.targetType() == ElementType.TYPE)
+                .filter(a -> ENTRY_CONTAINER.equals(a.annotationType()))
+                .filter(a -> {
+                    boolean clientOnly = (boolean) a.annotationData().getOrDefault("clientOnly", false);
+                    return !clientOnly || FrameworkAPI.getEnvironment().isClient();
+                })
+                .map(ModFileScanData.AnnotationData::memberName)
+                .map(ReflectionUtils::getClass)
+                .forEach(this.registryClasses::add);
+            this.loadedRegistryClasses = true;
+        }
+        return this.registryClasses.stream()
+            .flatMap(holderClass -> ReflectionUtils.findPublicStaticObjects(objectType, holderClass).stream())
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @SuppressWarnings({"ConstantConditions"})
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier)
     {
         return BlockEntityType.Builder.of(function::apply, validBlocksSupplier.get()).build(null);
