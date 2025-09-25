@@ -141,7 +141,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, supplier, t -> null);
     }
 
-    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceLocation id, Supplier<T> supplier)
+    public static <T extends Block> RegistryEntry<T> blockWithItem(ResourceLocation id, Supplier<T> supplier)
     {
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, supplier, t -> new BlockItem(t, new Item.Properties()));
     }
