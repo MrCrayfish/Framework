@@ -5,19 +5,12 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class FrameworkRegistry<T> extends WrappedRegistry<T>
 {
-    private final boolean save;
     private final boolean sync;
 
-    private FrameworkRegistry(ResourceLocation id, boolean save, boolean sync)
+    private FrameworkRegistry(ResourceLocation id, boolean sync)
     {
         super(ResourceKey.createRegistryKey(id));
-        this.save = save;
         this.sync = sync;
-    }
-
-    public boolean shouldSave()
-    {
-        return this.save;
     }
 
     public boolean shouldSync()
@@ -33,18 +26,11 @@ public final class FrameworkRegistry<T> extends WrappedRegistry<T>
     public static class Builder<T>
     {
         private final ResourceLocation id;
-        private boolean save = true;
         private boolean sync = true;
 
         private Builder(ResourceLocation id)
         {
             this.id = id;
-        }
-
-        public Builder<T> save(boolean save)
-        {
-            this.save = save;
-            return this;
         }
 
         public Builder<T> sync(boolean sync)
@@ -55,7 +41,7 @@ public final class FrameworkRegistry<T> extends WrappedRegistry<T>
 
         public FrameworkRegistry<T> build()
         {
-            return new FrameworkRegistry<>(this.id, this.save, this.sync);
+            return new FrameworkRegistry<>(this.id, this.sync);
         }
     }
 }
