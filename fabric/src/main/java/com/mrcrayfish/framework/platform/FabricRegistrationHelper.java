@@ -1,12 +1,18 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.Constants;
+import com.mrcrayfish.framework.Registration;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
+import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
+import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import com.mrcrayfish.framework.util.ReflectionUtils;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -15,7 +21,9 @@ import net.fabricmc.loader.api.metadata.CustomValue;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
@@ -52,16 +60,33 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     private boolean loadedRegistryClasses;
 
     @Override
-    public List<RegistryEntry<?>> getAllRegistryEntries()
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void init()
     {
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages(this.getScanPackages())
-                .addScanners(Scanners.TypesAnnotated));
-        Set<Class<?>> containerClass = reflections.getTypesAnnotatedWith(RegistryContainer.class);
-        return containerClass.stream()
-                .map(ReflectionUtils::findRegistryEntriesInClass)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        // Registers custom registries using Fabric's registry builder
+        Services.REGISTRATION.getRegistryObjects(FrameworkRegistry.class).forEach(registry -> {
+            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().location());
+            var builder = FabricRegistryBuilder.createSimple(registry.getKey());
+            if(registry.shouldSync()) builder.attribute(RegistryAttribute.SYNCED);
+            registry.setProxy(VanillaRegistryProxy.wrap(builder.buildAndRegister()));
+        });
+
+        // Register all entries
+        Registration.getAllRegistryEntries().forEach(entry -> {
+            entry.register((registryKey, name, valueSupplier) -> {
+                Registry registry = BuiltInRegistries.REGISTRY.get(registryKey.location());
+                if(registry == null)
+                    throw new NullPointerException("Registry not found: " + registryKey);
+                Registry.register(registry, name, valueSupplier.get());
+            });
+        });
+
+        // Special case for block registry entries to register items
+        Registration.get(Registries.BLOCK).forEach(entry -> {
+            if(entry instanceof BlockRegistryEntry<?, ?> blockEntry) {
+                blockEntry.item().ifPresent(item -> Registry.register(BuiltInRegistries.ITEM, entry.getId(), item));
+            }
+        });
     }
 
     @Override

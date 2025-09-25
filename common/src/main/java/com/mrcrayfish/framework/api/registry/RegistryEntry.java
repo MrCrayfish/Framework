@@ -1,8 +1,12 @@
 package com.mrcrayfish.framework.api.registry;
 
+import com.google.common.base.Suppliers;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
+import com.mrcrayfish.framework.registry.RegisterConsumer;
+import com.mrcrayfish.framework.registry.RegistryProxy;
+import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -12,6 +16,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
@@ -28,13 +33,13 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -47,15 +52,28 @@ import java.util.function.UnaryOperator;
  */
 public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
-    protected final Registry<?> registry;
-    protected final ResourceLocation id;
-    protected final Supplier<T> supplier;
+    protected final ResourceKey<Registry<T>> registryKey;
+    protected final Supplier<RegistryProxy<T>> registryProxySupplier;
+    protected final ResourceLocation valueId;
+    protected final Supplier<T> valueSupplier;
 
-    RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
+    @SuppressWarnings("unchecked")
+    RegistryEntry(Registry<?> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
     {
-        this.registry = registry;
-        this.id = id;
-        this.supplier = supplier;
+        this((ResourceKey<Registry<T>>) registry.key(), () -> (RegistryProxy<T>) VanillaRegistryProxy.wrap(registry), valueId, valueSupplier);
+    }
+
+    RegistryEntry(FrameworkRegistry<T> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
+    {
+        this(registry.getKey(), registry::getProxy, valueId, valueSupplier);
+    }
+
+    RegistryEntry(ResourceKey<Registry<T>> registryKey, Supplier<RegistryProxy<T>> registryProxySupplier, ResourceLocation valueId, Supplier<T> valueSupplier)
+    {
+        this.registryKey = registryKey;
+        this.registryProxySupplier = Suppliers.memoize(registryProxySupplier::get);
+        this.valueId = valueId;
+        this.valueSupplier = valueSupplier;
     }
 
     private T instance;
@@ -79,18 +97,18 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     {
         if(this.instance != null)
             throw new IllegalStateException("Entry has already been created");
-        this.instance = this.supplier.get();
+        this.instance = this.valueSupplier.get();
         return this.instance;
     }
 
-    public Registry<?> getRegistry()
+    public ResourceKey<Registry<T>> getRegistryKey()
     {
-        return this.registry;
+        return this.registryKey;
     }
 
     public ResourceLocation getId()
     {
-        return this.id;
+        return this.valueId;
     }
 
     protected void invalidate()
@@ -99,14 +117,18 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         this.holder = null;
     }
 
-    @SuppressWarnings("unchecked")
-    public void register(IRegisterFunction function)
+    @ApiStatus.Internal
+    public void register(RegisterConsumer<T> consumer)
     {
-        function.call((Registry<? super Object>) this.registry, this.id, () -> {
-            this.invalidate();
-            return this.create();
-        });
-        this.holder = (Holder<T>) this.registry.getHolder(this.id).orElseThrow();
+        this.invalidate();
+        T value = this.create();
+        consumer.accept(this.registryKey, this.valueId, () -> value);
+        this.holder = this.registryProxySupplier.get().getHolder(this.valueId);
+    }
+
+    public static <T> RegistryEntry<T> custom(FrameworkRegistry<T> registry, ResourceLocation id, Supplier<T> supplier)
+    {
+        return new RegistryEntry<>(registry, id, supplier);
     }
 
     public static <T extends Attribute> RegistryEntry<T> attribute(ResourceLocation id, Supplier<T> supplier)

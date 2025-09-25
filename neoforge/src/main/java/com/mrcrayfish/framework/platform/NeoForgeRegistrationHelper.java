@@ -4,13 +4,11 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,21 +44,6 @@ public class NeoForgeRegistrationHelper implements IRegistrationHelper
 
     private final Set<Class<?>> registryClasses = new HashSet<>();
     private boolean loadedRegistryClasses;
-
-    @Override
-    public List<RegistryEntry<?>> getAllRegistryEntries()
-    {
-        return ModList.get().getAllScanData().stream()
-                .map(ModFileScanData::getAnnotations)
-                .flatMap(Collection::stream)
-                .filter(a -> ENTRY_CONTAINER.equals(a.annotationType()))
-                .filter(a -> a.targetType() == ElementType.TYPE)
-                .map(ModFileScanData.AnnotationData::memberName)
-                .map(ReflectionUtils::getClass)
-                .map(ReflectionUtils::findRegistryEntriesInClass)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public <T> List<T> getRegistryObjects(Class<T> objectType)

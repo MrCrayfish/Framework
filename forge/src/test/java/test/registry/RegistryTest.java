@@ -4,10 +4,12 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.MapCodec;
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -19,20 +21,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -44,7 +42,6 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -56,8 +53,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.Optional;
 
 /**
  * Author: MrCrayfish
@@ -91,11 +86,14 @@ public class RegistryTest
     public static final RegistryEntry<Item> MY_AWESOME_ITEM = RegistryEntry.item(rl("awesome_item"), () -> new Item(new Item.Properties().food(new FoodProperties.Builder().nutrition(10).build())));
     public static final RegistryEntry<MobEffect> MY_AWESOME_MOB_EFFECT = RegistryEntry.mobEffect(rl("awesome_mob_effect"), AwesomeMobEffect::new);
     public static final RegistryEntry<SimpleParticleType> MY_AWESOME_PARTICLE_TYPE = RegistryEntry.particleType(rl("awesome_particle_type"), () -> new SimpleParticleType(false));
-    public static final RegistryEntry<Potion> MY_AWESOME_POTION = RegistryEntry.potion(rl("awesome_potion"), () -> new Potion("awesome_potion", new MobEffectInstance(MY_AWESOME_MOB_EFFECT.holder(), 1)));
+    public static final RegistryEntry<Potion> MY_AWESOME_POTION = RegistryEntry.potion(rl("awesome_potion"), () -> new Potion("awesome_potion", new MobEffectInstance(Holder.direct(MY_AWESOME_MOB_EFFECT.get()), 1)));
     public static final RegistryEntry<RecipeType<AwesomeRecipe>> MY_AWESOME_RECIPE_TYPE = RegistryEntry.recipeType(rl("awesome_recipe_type"));
     public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), AwesomeRecipe.AwesomeSerializer::new);
     public static final RegistryEntry<SoundEvent> MY_AWESOME_SOUND_EVENT = RegistryEntry.soundEvent(rl("awesome_sound_event"), id -> () -> SoundEvent.createVariableRangeEvent(id));
     public static final RegistryEntry<DataComponentType<Integer>> SIMPLE_COUNTER = RegistryEntry.dataComponentType(rl("simple_counter"), builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final FrameworkRegistry<MyCustomObject> REGISTRY = FrameworkRegistry.<MyCustomObject>builder(ResourceLocation.fromNamespaceAndPath("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, ResourceLocation.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject("Hello World!"));
 
     public RegistryTest()
     {
@@ -202,5 +200,10 @@ public class RegistryTest
                 return STREAM_CODEC;
             }
         }
+    }
+
+    public record MyCustomObject(String value)
+    {
+
     }
 }
