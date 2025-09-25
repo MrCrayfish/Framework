@@ -53,26 +53,19 @@ import java.util.function.*;
  */
 public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
-    protected final ResourceKey<Registry<T>> registryKey;
-    protected final Supplier<RegistryProxy<T>> registryProxySupplier;
+    protected final WrappedRegistry<T> registry;
     protected final ResourceLocation valueId;
     protected final Supplier<T> valueSupplier;
 
     @SuppressWarnings("unchecked")
     RegistryEntry(Registry<?> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
     {
-        this((ResourceKey<Registry<T>>) registry.key(), () -> (RegistryProxy<T>) VanillaRegistryProxy.wrap(registry), valueId, valueSupplier);
+        this((WrappedRegistry<T>) WrappedRegistry.wrapVanilla(registry), valueId, valueSupplier);
     }
 
-    RegistryEntry(FrameworkRegistry<T> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
+    RegistryEntry(WrappedRegistry<T> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
     {
-        this(registry.getKey(), registry::getProxy, valueId, valueSupplier);
-    }
-
-    RegistryEntry(ResourceKey<Registry<T>> registryKey, Supplier<RegistryProxy<T>> registryProxySupplier, ResourceLocation valueId, Supplier<T> valueSupplier)
-    {
-        this.registryKey = registryKey;
-        this.registryProxySupplier = Suppliers.memoize(registryProxySupplier::get);
+        this.registry = registry;
         this.valueId = valueId;
         this.valueSupplier = valueSupplier;
     }
@@ -104,7 +97,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 
     public ResourceKey<Registry<T>> getRegistryKey()
     {
-        return this.registryKey;
+        return this.registry.getKey();
     }
 
     public ResourceLocation getId()
@@ -123,8 +116,8 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     {
         this.invalidate();
         T value = this.create();
-        consumer.accept(this.registryKey, this.valueId, () -> value);
-        this.holder = this.registryProxySupplier.get().getHolder(this.valueId);
+        consumer.accept(this.registry.getKey(), this.valueId, () -> value);
+        this.holder = this.registry.getProxy().getHolder(this.valueId);
     }
 
     public static <T> RegistryEntry<T> custom(FrameworkRegistry<T> registry, ResourceLocation id, Supplier<T> supplier)
