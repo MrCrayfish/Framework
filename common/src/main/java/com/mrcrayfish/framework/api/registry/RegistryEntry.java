@@ -1,12 +1,9 @@
 package com.mrcrayfish.framework.api.registry;
 
-import com.google.common.base.Suppliers;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.registry.RegisterConsumer;
-import com.mrcrayfish.framework.registry.RegistryProxy;
-import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -41,11 +38,7 @@ import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 
 /**
  * Author: MrCrayfish
