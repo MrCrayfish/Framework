@@ -8,6 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -26,6 +27,12 @@ public final class ForgeRegistryProxy<T> implements RegistryProxy<T>
     public boolean containsKey(ResourceLocation id)
     {
         return this.supplier.get().containsKey(id);
+    }
+
+    @Override
+    public @Nullable T getValue(ResourceLocation id)
+    {
+        return this.supplier.get().getValue(id);
     }
 
     @Override

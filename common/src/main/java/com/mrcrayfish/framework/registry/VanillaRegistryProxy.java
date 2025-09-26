@@ -26,6 +26,12 @@ public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
     }
 
     @Override
+    public T getValue(ResourceLocation id)
+    {
+        return this.registry.get(id);
+    }
+
+    @Override
     public Holder<T> getHolder(ResourceLocation id)
     {
         return this.registry.getHolder(id).orElseThrow();

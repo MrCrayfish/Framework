@@ -57,6 +57,18 @@ public class WrappedRegistry<T> implements Iterable<T>
     }
 
     /**
+     * Gets the value associated with the given id or null if it doesn't exist.
+     *
+     * @param id the id of the registered value
+     * @return T or null if no value matching the id
+     */
+    @Nullable
+    public T getValue(ResourceLocation id)
+    {
+        return this.getProxy().getValue(id);
+    }
+
+    /**
      * An iterator that goes over all the objects in this registry. Warning, this method may
      * throw an IllegalStateException if called too early, especially if it's a custom registry.
      * Each modloader has a different stage during the initialization process when custom registries
