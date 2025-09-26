@@ -20,7 +20,7 @@ public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
     }
 
     @Override
-    public boolean contains(ResourceLocation id)
+    public boolean containsKey(ResourceLocation id)
     {
         return this.registry.containsKey(id);
     }

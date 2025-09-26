@@ -23,7 +23,7 @@ public final class ForgeRegistryProxy<T> implements RegistryProxy<T>
     }
 
     @Override
-    public boolean contains(ResourceLocation id)
+    public boolean containsKey(ResourceLocation id)
     {
         return this.supplier.get().containsKey(id);
     }
