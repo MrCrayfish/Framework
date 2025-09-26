@@ -141,7 +141,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
      * @return a registry entry that represents the registered object
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <T> RegistryEntry<T> custom(FrameworkRegistry<?> registry, ResourceLocation id, Supplier<T> supplier)
+    public static <T> RegistryEntry<T> custom(FrameworkRegistry registry, ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(registry, id, supplier);
     }
