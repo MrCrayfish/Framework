@@ -120,7 +120,28 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         this.holder = this.registry.getProxy().getHolder(this.valueId);
     }
 
-    public static <T> RegistryEntry<T> custom(FrameworkRegistry<T> registry, ResourceLocation id, Supplier<T> supplier)
+    /**
+     * Creates a registry entry using a custom registry.
+     *
+     * <p>Please note that the object type of the FrameworkRegistry argument is a wildcard and
+     * unrestricted. This is to allow this method to be more flexible in cases where the type of the
+     * supplied value does not strictly match the registry type.</p>
+     *
+     * <p>For example, a registry may be created as {@code FrameworkRegistry<MyObject<?>>} but the
+     * supplied object type is {@code MyObject<String>}. The registry is expecting {@code MyObject<?>},
+     * but it would not be possible to add {@code MyObject<String>} if this method expected the
+     * supplied value type to exactly match the type of the registry. It is more useful that the type
+     * of the {@code RegistryEntry} preserves its type, so that when calling {@code RegistryEntry#get()}
+     * it will return {@code MyObject<String>}, rather than a wildcard.</p>
+     *
+     * @param registry the registry to bound this entry to
+     * @param id       a resource location representing the id of the value. Must be unique
+     * @param supplier a supplier which provides an instance of the value
+     * @param <T>      the type of the object being registered
+     * @return a registry entry that represents the registered object
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> RegistryEntry<T> custom(FrameworkRegistry<?> registry, ResourceLocation id, Supplier<T> supplier)
     {
         return new RegistryEntry<>(registry, id, supplier);
     }
