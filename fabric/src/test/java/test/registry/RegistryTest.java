@@ -24,8 +24,8 @@ public class RegistryTest
     public static final RegistryEntry<Item> THE_BEST_ITEM = RegistryEntry.item(ResourceLocation.fromNamespaceAndPath("framework_test", "best_item"), () -> new BlockItem(THE_BEST_BLOCK.get(), new Item.Properties()));
     public static final RegistryEntry<Block> THE_ACTUAL_BEST_BLOCK = RegistryEntry.blockWithItem(ResourceLocation.fromNamespaceAndPath("framework_test", "best_block"), () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
 
-    public static final FrameworkRegistry<MyCustomObject> REGISTRY = FrameworkRegistry.<MyCustomObject>builder(ResourceLocation.fromNamespaceAndPath("registry_test", "custom_registry")).build();
-    public static final RegistryEntry<MyCustomObject> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, ResourceLocation.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject("Hello World!"));
+    public static final FrameworkRegistry<MyCustomObject<?>> REGISTRY = FrameworkRegistry.<MyCustomObject<?>>builder(ResourceLocation.fromNamespaceAndPath("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject<String>> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, ResourceLocation.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject<>("Hello World!"));
 
     public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(ResourceLocation.fromNamespaceAndPath("registry_test", "tab"), builder -> {
         builder.title(Component.literal("Creative tabs are pretty cool!"));
@@ -35,7 +35,7 @@ public class RegistryTest
         });
     });
 
-    public record MyCustomObject(String value)
+    public record MyCustomObject<T>(T value)
     {
 
     }
