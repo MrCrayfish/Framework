@@ -11,6 +11,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
+/**
+ * An abstraction class that wraps over platform specific registries. Fabric and NeoForge use vanilla
+ * registries, while Forge uses its own custom IForgeRegistry. An abstraction was needed to interact
+ * with different types of registries, not just vanilla. This class provides a few common methods
+ * to interact with the underlying registry.
+ * <p>
+ * It should be noted that custom registries might not be initialized yet, so calling methods too
+ * early may result in an exception. To be safe, it's best to interact will this class after the game
+ * has started.
+ *
+ * @param <T> The type of object this registry holds
+ */
 public class WrappedRegistry<T> implements Iterable<T>
 {
     private final ResourceKey<Registry<T>> key;
@@ -21,16 +33,38 @@ public class WrappedRegistry<T> implements Iterable<T>
         this.key = key;
     }
 
+    /**
+     * @return The ResourceKey of this registry
+     */
     public ResourceKey<Registry<T>> getKey()
     {
         return this.key;
     }
 
+    /**
+     * Determines if this registry contains a value with the given id. Warning, this method may
+     * throw an IllegalStateException if called too early, especially if it's a custom registry.
+     * Each modloader has a different stage during the initialization process when custom registries
+     * are registered. To be safe, only access this method after the game or server has completed
+     * started.
+     *
+     * @param id a resource location of the value
+     * @return True if a match was found
+     */
     public boolean containsKey(ResourceLocation id)
     {
         return this.getProxy().containsKey(id);
     }
 
+    /**
+     * An iterator that goes over all the objects in this registry. Warning, this method may
+     * throw an IllegalStateException if called too early, especially if it's a custom registry.
+     * Each modloader has a different stage during the initialization process when custom registries
+     * are registered. To be safe, only access this method after the game or server has completed
+     * started.
+
+     * @return An iterator that goes over all the values in this registry
+     */
     @NotNull
     @Override
     public Iterator<T> iterator()
