@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface RegistryProxy<T>
 {
-    boolean contains(ResourceLocation id);
+    boolean containsKey(ResourceLocation id);
 
     Holder<T> getHolder(ResourceLocation id);
 

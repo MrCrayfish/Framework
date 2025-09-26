@@ -4,6 +4,7 @@ import com.mrcrayfish.framework.registry.RegistryProxy;
 import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,11 @@ public class WrappedRegistry<T> implements Iterable<T>
     public ResourceKey<Registry<T>> getKey()
     {
         return this.key;
+    }
+
+    public boolean containsKey(ResourceLocation id)
+    {
+        return this.getProxy().containsKey(id);
     }
 
     @NotNull
