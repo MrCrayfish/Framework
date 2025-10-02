@@ -8,9 +8,13 @@ import com.mrcrayfish.framework.api.client.model.renderer.StandaloneModelRendere
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,19 +34,25 @@ public class ClientStandaloneModelTest implements ClientModInitializer
         BlockEntityRenderers.register(StandaloneModelTest.TEST_BLOCK_ENTITY.get(), TestBlockRenderer::new);
     }
 
-    private static class TestBlockRenderer implements BlockEntityRenderer<StandaloneModelTest.TestBlockEntity>
+    private static class TestBlockRenderer implements BlockEntityRenderer<StandaloneModelTest.TestBlockEntity, BlockEntityRenderState>
     {
         public TestBlockRenderer(BlockEntityRendererProvider.Context context) {}
 
         @Override
-        public void render(StandaloneModelTest.TestBlockEntity entity, float partialTick, PoseStack stack, MultiBufferSource source, int light, int overlay, Vec3 camera)
+        public BlockEntityRenderState createRenderState()
+        {
+            return new BlockEntityRenderState();
+        }
+
+        @Override
+        public void submit(BlockEntityRenderState renderState, PoseStack stack, SubmitNodeCollector collector, CameraRenderState cameraState)
         {
             stack.pushPose();
             stack.translate(0.5, 0, 0.5);
             stack.mulPose(Axis.YP.rotationDegrees(45));
             stack.scale(2, 2, 2);
             stack.translate(-0.5, 0, -0.5);
-            StandaloneModelRenderer.draw(CUSTOM_MODEL.getModel(), stack, source, 1, 1, 1, light, overlay);
+            StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);
             stack.popPose();
         }
     }

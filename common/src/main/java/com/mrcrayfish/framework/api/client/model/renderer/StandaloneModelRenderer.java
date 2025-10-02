@@ -7,6 +7,7 @@ import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -57,6 +58,15 @@ public class StandaloneModelRenderer
             putQuads(stack.last(), consumer, red, green, blue, model.getQuads(direction), light, overlay);
         }
         putQuads(stack.last(), consumer, red, green, blue, model.getQuads(null), light, overlay);
+    }
+
+    public static void submitDraw(SubmitNodeCollector collector, BlockModelPart model, PoseStack stack, float red, float green, float blue, int light, int overlay)
+    {
+        collector.submitCustomGeometry(stack, getSheet(getRenderType(model)), (pose, consumer) -> {
+            for(Direction direction : DIRECTIONS)
+                putQuads(pose, consumer, red, green, blue, model.getQuads(direction), light, overlay);
+            putQuads(pose, consumer, red, green, blue, model.getQuads(null), light, overlay);
+        });
     }
 
     /**

@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.item.ItemModels;
@@ -43,16 +44,7 @@ public class ClientFrameworkFabric implements ClientModInitializer
         CustomUnbakedBlockStateModel.register(FrameworkBlockStateModel.ID, FabricFrameworkBlockStateModel.Unbaked.MAP_CODEC);
         UnbakedModelDeserializer.register(OpenModelGeometry.Loader.ID, new OpenModelGeometry.Loader());
         ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
-            @Override
-            public ResourceLocation getFabricId() {
-                return Utils.rl("json_data_manager");
-            }
-            @Override
-            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, Executor executor, Executor executor2) {
-                return JsonDataManager.getInstance().reload(preparationBarrier, resourceManager, executor, executor2);
-            }
-        });
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(Utils.rl("json_data_manager"), JsonDataManager.getInstance());
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             FrameworkData.setLoaded();
         });

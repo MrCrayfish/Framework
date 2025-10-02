@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.event.client;
 
 import com.mrcrayfish.framework.api.event.FrameworkEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -10,8 +11,16 @@ import net.minecraft.world.entity.player.Player;
  */
 public final class FrameworkInputEvents
 {
+    /**
+     * @deprecated Use {@link #KEY_PRESS} event instead
+     */
+    @Deprecated(forRemoval = true, since = "1.21.9")
     public static final FrameworkEvent<Key> KEY = new FrameworkEvent<>(listeners -> (key, scanCode, action, modifiers) -> {
        listeners.forEach(listener -> listener.handle(key, scanCode, action, modifiers));
+    });
+
+    public static final FrameworkEvent<KeyPress> KEY_PRESS = new FrameworkEvent<>(listeners -> (action, event) -> {
+        listeners.forEach(listener -> listener.handle(action, event));
     });
 
     public static final FrameworkEvent<Interaction> INTERACTION = new FrameworkEvent<>(listeners -> (attack, use, pick, hand) -> {
@@ -31,6 +40,12 @@ public final class FrameworkInputEvents
     public interface Key
     {
         void handle(int key, int scanCode, int action, int modifiers);
+    }
+
+    @FunctionalInterface
+    public interface KeyPress
+    {
+        void handle(int action, KeyEvent event);
     }
 
     @FunctionalInterface

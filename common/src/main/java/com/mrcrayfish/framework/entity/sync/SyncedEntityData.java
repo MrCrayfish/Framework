@@ -219,7 +219,7 @@ public final class SyncedEntityData
         Class<? extends Entity> entityClass = entity.getClass();
         String entityClassName = entityClass.getName();
 
-        Map<String, Boolean> cache = this.getClassNameCapabilityCache(entity.level().isClientSide);
+        Map<String, Boolean> cache = this.getClassNameCapabilityCache(entity.level().isClientSide());
         if(cache.containsKey(entityClassName))
         {
             return cache.get(entityClassName);

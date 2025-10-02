@@ -28,12 +28,12 @@ public class NeoForgePlatformHelper implements IPlatformHelper
     @Override
     public boolean isDevelopmentEnvironment()
     {
-        return !FMLLoader.isProduction();
+        return !FMLLoader.getCurrent().isProduction();
     }
 
     @Override
     public Environment getEnvironment()
     {
-        return FMLLoader.getDist().isClient() ? Environment.CLIENT : Environment.DEDICATED_SERVER;
+        return FMLLoader.getCurrent().getDist().isClient() ? Environment.CLIENT : Environment.DEDICATED_SERVER;
     }
 }

@@ -3,6 +3,7 @@ package com.mrcrayfish.framework.mixin.client;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,11 +22,12 @@ public class KeyboardHandlerMixin
     private Minecraft minecraft;
 
     @Inject(method = "keyPress", at = @At(value = "TAIL"))
-    private void frameworkOnKeyEvent(long windowId, int key, int scanCode, int action, int modifiers, CallbackInfo ci)
+    private void frameworkOnKeyEvent(long windowId, int action, KeyEvent event, CallbackInfo ci)
     {
-        if(windowId == this.minecraft.getWindow().getWindow())
+        if(windowId == this.minecraft.getWindow().handle())
         {
-            FrameworkInputEvents.KEY.post().handle(key, scanCode, action, modifiers);
+            FrameworkInputEvents.KEY.post().handle(event.key(), event.scancode(), action, event.modifiers());
+            FrameworkInputEvents.KEY_PRESS.post().handle(action, event);
         }
     }
 }

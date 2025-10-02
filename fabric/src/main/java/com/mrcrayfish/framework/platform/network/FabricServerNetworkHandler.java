@@ -18,7 +18,7 @@ public class FabricServerNetworkHandler
     static <T> void receivePlay(PlayMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ServerPlayNetworking.Context context)
     {
         ServerPlayer player = context.player();
-        PlayMessageContext ctx = new PlayMessageContext(message.flow(), player.getServer(), context.responseSender()::disconnect, b -> {}, player);
+        PlayMessageContext ctx = new PlayMessageContext(message.flow(), player.level().getServer(), context.responseSender()::disconnect, b -> {}, player);
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));
     }
