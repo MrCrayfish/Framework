@@ -46,7 +46,7 @@ public class FabricMinecraftMixin
         }
     }
 
-    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"), allow = 1, cancellable = true)
+    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"), allow = 1, cancellable = true)
     private void frameworkOnPick(CallbackInfo ci)
     {
         if(FrameworkInputEvents.INTERACTION.post().handle(false, false, true, InteractionHand.MAIN_HAND))
