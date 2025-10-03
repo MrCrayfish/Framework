@@ -49,7 +49,7 @@ public final class Registration
     public static void init()
     {
         Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
-            REGISTRY_ENTRIES.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
+            REGISTRY_ENTRIES.computeIfAbsent(entry.getRegistryKey().location(), location -> new ArrayList<>()).add(entry);
         });
         Services.REGISTRATION.getRegistryObjects(SyncedDataKey.class).forEach(key -> {
             SyncedEntityData.instance().registerDataKey((SyncedDataKey<?, ?>) key);
@@ -62,6 +62,7 @@ public final class Registration
             }
         });
         TaskRunner.runIf(Environment.CLIENT, () -> ClientRegistration::init);
+        Services.REGISTRATION.init();
     }
 
     public static List<RegistryEntry<?>> get(ResourceKey<? extends Registry<?>> key)
@@ -74,7 +75,7 @@ public final class Registration
         return REGISTRY_ENTRIES.values().stream()
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(entry -> {
-                int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistry().key().location());
+                int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistryKey().location());
                 return index != -1 ? index : 1000;
             }))
             .collect(Collectors.toCollection(ArrayList::new));

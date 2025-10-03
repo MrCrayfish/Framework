@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.registry;
 
+import com.mrcrayfish.framework.registry.RegisterConsumer;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.StatFormatter;
@@ -19,9 +20,9 @@ public final class CustomStatRegistryEntry extends RegistryEntry<ResourceLocatio
     }
 
     @Override
-    public void register(IRegisterFunction function)
+    public void register(RegisterConsumer<ResourceLocation> consumer)
     {
-        super.register(function);
-        Stats.CUSTOM.get(this.id, this.formatter);
+        super.register(consumer);
+        Stats.CUSTOM.get(this.valueId, this.formatter);
     }
 }

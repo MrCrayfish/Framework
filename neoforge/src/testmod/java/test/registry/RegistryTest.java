@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -86,6 +87,10 @@ public class RegistryTest
     public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), AwesomeRecipe.AwesomeSerializer::new);
     public static final RegistryEntry<SoundEvent> MY_AWESOME_SOUND_EVENT = RegistryEntry.soundEvent(rl("awesome_sound_event"), id -> () -> SoundEvent.createVariableRangeEvent(id));
     public static final RegistryEntry<DataComponentType<Integer>> SIMPLE_COUNTER = RegistryEntry.dataComponentType(rl("simple_counter"), builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    // Custom registry
+    public static final FrameworkRegistry<MyCustomObject> REGISTRY = FrameworkRegistry.<MyCustomObject>builder(ResourceLocation.fromNamespaceAndPath("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, ResourceLocation.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject("Hello World!"));
 
     public RegistryTest()
     {
@@ -226,5 +231,10 @@ public class RegistryTest
         {
             return TYPE;
         }
+    }
+
+    public record MyCustomObject(String value)
+    {
+
     }
 }
