@@ -5,6 +5,7 @@ import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.*;
@@ -29,9 +30,12 @@ public class ClientNeoForgeEvents
     }
 
     @SubscribeEvent
-    public void onAfterDrawBackground(ContainerScreenEvent.Render.Background event)
+    public void onAfterDrawBackground(ScreenEvent.Render.Background event)
     {
-        FrameworkScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(event.getContainerScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY());
+        if(event.getScreen() instanceof ContainerScreen screen)
+        {
+            FrameworkScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(screen, event.getGuiGraphics(), event.getMouseX(), event.getMouseY());
+        }
     }
 
     @SubscribeEvent
