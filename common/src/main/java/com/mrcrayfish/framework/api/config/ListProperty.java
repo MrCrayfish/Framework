@@ -138,12 +138,12 @@ public final class ListProperty<T> extends AbstractProperty<List<T>>
             Preconditions.checkNotNull(o);
             for(Class<?> validType : this.additionalTypes)
             {
-                if(validType.isAssignableFrom(o.getClass()))
+                if(validType == o.getClass())
                 {
                     return true;
                 }
             }
-            return this.classType.isAssignableFrom(o.getClass());
+            return this.classType == o.getClass();
         }
     }
 
