@@ -746,7 +746,7 @@ public class FrameworkConfigManager
     {
         private final FrameworkConfig config;
         private final Object source;
-        private final Set<AbstractProperty<?>> properties = new HashSet<>();
+        private final Set<AbstractProperty<?>> properties = new LinkedHashSet<>();
         private final Map<List<String>, String> comments = new HashMap<>();
 
         private ConfigScanData(FrameworkConfig config, Object source)
@@ -865,7 +865,7 @@ public class FrameworkConfigManager
         {
             String fileName = String.format("%s%s%s.toml", id, separator, name);
             File file = new File(folder.toFile(), fileName);
-            return CommentedFileConfig.builder(file, TomlFormat.instance()).autosave().sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
+            return CommentedFileConfig.builder(file, TomlFormat.instance()).preserveInsertionOrder().autosave().sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
         }
         return CommentedConfig.inMemory();
     }
@@ -885,7 +885,7 @@ public class FrameworkConfigManager
     {
         String fileName = String.format("%s%s%s.toml", id, separator, name);
         File file = new File(folder.toFile(), fileName);
-        return CommentedFileConfig.builder(file, TomlFormat.instance()).sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
+        return CommentedFileConfig.builder(file, TomlFormat.instance()).preserveInsertionOrder().sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
     }
 
     private static boolean initConfig(final Path file, final ConfigFormat<?> format, final String fileName) throws IOException
@@ -905,7 +905,7 @@ public class FrameworkConfigManager
 
     private static ConfigSpec createSpec(Set<AbstractProperty<?>> properties)
     {
-        ConfigSpec spec = new ConfigSpec();
+        ConfigSpec spec = new ConfigSpec(Config.of(LinkedHashMap::new, InMemoryFormat.withUniversalSupport()));
         properties.forEach(p -> p.defineSpec(spec));
         return spec;
     }
