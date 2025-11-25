@@ -865,7 +865,7 @@ public class FrameworkConfigManager
         {
             String fileName = String.format("%s%s%s.toml", id, separator, name);
             File file = new File(folder.toFile(), fileName);
-            return CommentedFileConfig.builder(file).autosave().sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
+            return CommentedFileConfig.builder(file, TomlFormat.instance()).autosave().sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
         }
         return CommentedConfig.inMemory();
     }
@@ -885,7 +885,7 @@ public class FrameworkConfigManager
     {
         String fileName = String.format("%s%s%s.toml", id, separator, name);
         File file = new File(folder.toFile(), fileName);
-        return CommentedFileConfig.builder(file).sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
+        return CommentedFileConfig.builder(file, TomlFormat.instance()).sync().onFileNotFound((file1, configFormat) -> initConfig(file1, configFormat, fileName)).build();
     }
 
     private static boolean initConfig(final Path file, final ConfigFormat<?> format, final String fileName) throws IOException
