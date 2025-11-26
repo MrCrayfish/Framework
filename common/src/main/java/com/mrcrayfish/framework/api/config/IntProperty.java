@@ -4,6 +4,9 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.NumberRange;
 import com.mrcrayfish.framework.api.config.validate.Validator;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 /**
  * Author: MrCrayfish
@@ -13,6 +16,12 @@ public final class IntProperty extends AbstractProperty<Integer>
     IntProperty(int defaultValue, Validator<Integer> validator)
     {
         super(defaultValue, (config, path) -> config.getIntOrElse(path, defaultValue), validator);
+    }
+
+    @Override
+    public StreamCodec<ByteBuf, Integer> streamCodec()
+    {
+        return ByteBufCodecs.INT;
     }
 
     @Override

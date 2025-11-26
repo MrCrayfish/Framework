@@ -4,6 +4,9 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,12 +17,20 @@ import java.util.Set;
  */
 public final class EnumProperty<T extends Enum<T>> extends AbstractProperty<T>
 {
+    private final Class<T> enumClass;
     private final Set<T> allowedValues;
 
     EnumProperty(T defaultValue, Set<T> allowedValues)
     {
         super(defaultValue, (config, path) -> config.getEnumOrElse(path, defaultValue));
+        this.enumClass = defaultValue.getDeclaringClass();
         this.allowedValues = ImmutableSet.copyOf(allowedValues);
+    }
+
+    @Override
+    public StreamCodec<FriendlyByteBuf, T> streamCodec()
+    {
+        return StreamCodec.of(FriendlyByteBuf::writeEnum, buf -> buf.readEnum(this.enumClass));
     }
 
     @Override

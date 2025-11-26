@@ -5,6 +5,10 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -47,8 +51,16 @@ public abstract sealed class AbstractProperty<T> implements FrameworkConfigManag
     }
 
     /**
+     * Internal method. The StreamCodec used to encode/decode this property
+     * @return a StreamCodec
+     */
+    @ApiStatus.Internal
+    public abstract StreamCodec<? super FriendlyByteBuf, T> streamCodec();
+
+    /**
      * Internal method. Used for setting up config specifications
      */
+    @ApiStatus.Internal
     public abstract void defineSpec(ConfigSpec spec);
 
     /**

@@ -2,6 +2,10 @@ package com.mrcrayfish.framework.api.config;
 
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 /**
  * Author: MrCrayfish
@@ -11,6 +15,12 @@ public final class BoolProperty extends AbstractProperty<Boolean>
     BoolProperty(boolean defaultValue)
     {
         super(defaultValue);
+    }
+
+    @Override
+    public StreamCodec<ByteBuf, Boolean> streamCodec()
+    {
+        return ByteBufCodecs.BOOL;
     }
 
     @Override

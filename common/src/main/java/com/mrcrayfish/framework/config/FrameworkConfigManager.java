@@ -24,7 +24,10 @@ import com.mrcrayfish.framework.network.message.configuration.S2CConfigData;
 import com.mrcrayfish.framework.network.message.play.S2CSyncConfigData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.util.ConfigHelper;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -101,12 +104,9 @@ public class FrameworkConfigManager
     public List<S2CConfigData> getConfigurationMessages()
     {
         return this.configs.values().stream()
-            .filter(entry -> entry.getType().isSync())
-            .map(entry -> {
-                ResourceLocation key = entry.getName();
-                byte[] data = ConfigHelper.getBytes(entry.config);
-                return new S2CConfigData(key, data);
-            }).collect(Collectors.toList());
+            .filter(config -> config.getType().isSync())
+            .map(config -> new S2CConfigData(config.getName(), config.asBytes()))
+            .collect(Collectors.toList());
     }
 
     public boolean processConfigData(S2CConfigData message)
@@ -148,58 +148,34 @@ public class FrameworkConfigManager
 
     public boolean processSyncData(S2CSyncConfigData message)
     {
-        FrameworkConfigImpl frameworkConfig = this.configs.get(message.id());
-        if(frameworkConfig == null)
+        FrameworkConfigImpl config = this.configs.get(message.id());
+        if(config == null)
         {
             Constants.LOG.error("Server sent data for a config that doesn't exist: {}", message.id());
             return false;
         }
-
-        if(frameworkConfig.isReadOnly())
+        else if(config.isReadOnly())
         {
             Constants.LOG.error("Server sent data for a read-only config '{}'. This should not happen!", message.id());
             return false;
         }
-
-        if(!frameworkConfig.getType().isSync())
+        else if(!config.getType().isSync())
         {
             Constants.LOG.error("Server sent data for non-sync config '{}'. This should not happen!", message.id());
             return false;
         }
-
-        if(!frameworkConfig.isLoaded())
+        else if(!config.isLoaded())
         {
             Constants.LOG.error("Tried to perform sync update on an unloaded config. Something went wrong...");
             return false;
         }
-
-        try
+        else if(!config.loadFromData(message.data()))
         {
-            CommentedConfig config = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(message.data()));
-            if(!frameworkConfig.isCorrect(config))
-            {
-                Constants.LOG.warn("Correcting synced config data during update for config: {}", frameworkConfig.getFileName());
-                frameworkConfig.correct(config);
-            }
-
-            if(frameworkConfig.config instanceof Config c)
-            {
-                c.putAll(config);
-                frameworkConfig.allProperties.forEach(AbstractProperty::invalidateCache);
-                FrameworkConfigEvents.RELOAD.post().handle(frameworkConfig.source);
-                Constants.LOG.debug("Successfully processed sync update for config: {}", message.id());
-                return true;
-            }
+            Constants.LOG.error("Received invalid config data update from server. Got bytes: {}", message.data());
+            return false;
         }
-        catch(ParsingException e)
-        {
-            Constants.LOG.error("Received malformed config data", e);
-        }
-        catch(Exception e)
-        {
-            Constants.LOG.error("An exception was thrown when processing config data", e);
-        }
-        return false;
+        Constants.LOG.debug("Successfully processed sync update for config: {}", message.id());
+        return true;
     }
 
     private void onServerStarting(MinecraftServer server)
@@ -347,35 +323,55 @@ public class FrameworkConfigManager
             }
         }
 
+        // TODO this needs to throw up
         public boolean loadFromData(byte[] data)
         {
+            boolean loaded = this.config != null;
             Preconditions.checkState(FrameworkAPI.getEnvironment().isClient(), "Configs can only be loaded from data on the client");
             this.unload(false);
             try
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
-                CommentedConfig commentedConfig = TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data));
-                if(!this.spec.isCorrect(commentedConfig)) {
-                    Constants.LOG.warn("Correcting config data from server for config: {}", this.getFileName());
-                    this.correct(commentedConfig);
+                CommentedConfig commentedConfig = CommentedConfig.inMemory();
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
+
+                // All properties are encoded/decoded in a predicatable order, all types are known and validated
+                for(AbstractProperty<?> prop : this.allProperties)
+                {
+                    commentedConfig.add(prop.getPath(), decodeAndValidateProperty(buf, prop));
                 }
+
+                // There should be no more readable data at this point
+                if(buf.isReadable())
+                    throw new DecoderException("Server sent too much data (%s bytes remaining)".formatted(buf.readableBytes()));
+
+                // Finally bind the properties to the decoded config
                 this.lock(() -> {
                     this.correct(commentedConfig);
                     UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
                     this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
                     this.config = config;
                 });
-                FrameworkConfigEvents.LOAD.post().handle(this.source);
+
+                // Send events
+                if(loaded)
+                {
+                    FrameworkConfigEvents.RELOAD.post().handle(this.source);
+                }
+                else
+                {
+                    FrameworkConfigEvents.LOAD.post().handle(this.source);
+                }
                 return true;
             }
-            catch(ParsingException e)
+            catch(DecoderException e)
             {
-                Constants.LOG.info("Failed to parse config data: {}", e.toString());
+                Constants.LOG.info("An error occurred while decoding config data from server", e);
                 return false;
             }
             catch(Exception e)
             {
-                Constants.LOG.info("An exception occurred when loading config data: {}", e.toString());
+                Constants.LOG.info("An error occurred while loading config data from server", e);
                 this.unload(false);
                 return false;
             }
@@ -442,7 +438,7 @@ public class FrameworkConfigManager
                 // Send updates to clients if server exists
                 if(this.configType.isServer() && this.configType.isSync()) {
                     TaskRunner.submitOn(LogicalEnvironment.SERVER, () -> () -> {
-                        Network.getPlayChannel().sendToAll(new S2CSyncConfigData(this.getName(), this.getData()));
+                        Network.getPlayChannel().sendToAll(new S2CSyncConfigData(this.getName(), this.asBytes()));
                     });
                 }
             }
@@ -588,12 +584,6 @@ public class FrameworkConfigManager
             return this.config != null;
         }
 
-        @Nullable
-        public byte[] getData()
-        {
-            return this.config != null ? ConfigHelper.getBytes(this.config) : null;
-        }
-
         public Object getSource()
         {
             return this.source;
@@ -623,6 +613,23 @@ public class FrameworkConfigManager
         public char getSeparator()
         {
             return this.separator;
+        }
+
+        public byte[] asBytes()
+        {
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            try
+            {
+                this.allProperties.forEach(prop -> encodeProperty(buf, prop));
+                buf.readerIndex(0);
+                byte[] data = new byte[buf.readableBytes()];
+                buf.readBytes(data);
+                return data;
+            }
+            finally
+            {
+                buf.release();
+            }
         }
     }
 
@@ -937,5 +944,18 @@ public class FrameworkConfigManager
         {
             throw new RuntimeException(e);
         }
+    }
+
+    private static <T> void encodeProperty(FriendlyByteBuf buf, AbstractProperty<T> property)
+    {
+        property.streamCodec().encode(buf, property.get());
+    }
+
+    private static <T> T decodeAndValidateProperty(FriendlyByteBuf buf, AbstractProperty<T> property)
+    {
+        T value = property.streamCodec().decode(buf);
+        if(!property.isValid(value))
+            throw new DecoderException("Decoded property value is invalid");
+        return value;
     }
 }
