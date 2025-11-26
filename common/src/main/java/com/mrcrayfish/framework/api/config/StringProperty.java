@@ -3,6 +3,9 @@ package com.mrcrayfish.framework.api.config;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 /**
  * Author: MrCrayfish
@@ -12,6 +15,12 @@ public final class StringProperty extends AbstractProperty<String>
     StringProperty(String defaultValue, Validator<String> validator)
     {
         super(defaultValue, validator);
+    }
+
+    @Override
+    public StreamCodec<ByteBuf, String> streamCodec()
+    {
+        return ByteBufCodecs.STRING_UTF8;
     }
 
     @Override

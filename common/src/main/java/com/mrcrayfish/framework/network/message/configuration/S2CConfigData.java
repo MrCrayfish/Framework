@@ -3,9 +3,10 @@ package com.mrcrayfish.framework.network.message.configuration;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.FrameworkResponse;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
-import com.mrcrayfish.framework.network.FrameworkCodecs;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,26 +18,15 @@ import java.util.function.Consumer;
  */
 public record S2CConfigData(ResourceLocation key, byte[] data)
 {
-    public static final StreamCodec<FriendlyByteBuf, S2CConfigData> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
-        S2CConfigData::key,
-        FrameworkCodecs.BYTE_ARRAY,
-        S2CConfigData::data,
-        S2CConfigData::new
-    );
-
-    public static void encode(S2CConfigData message, FriendlyByteBuf buffer)
-    {
-        buffer.writeResourceLocation(message.key);
-        buffer.writeByteArray(message.data);
-    }
-
-    public static S2CConfigData decode(FriendlyByteBuf buffer)
-    {
-        ResourceLocation key = buffer.readResourceLocation();
-        byte[] data = buffer.readByteArray();
+    public static final StreamCodec<FriendlyByteBuf, S2CConfigData> STREAM_CODEC = StreamCodec.of((buf, data) -> {
+        buf.writeResourceLocation(data.key);
+        buf.writeBytes(data.data);
+    }, buf -> {
+        ResourceLocation key = buf.readResourceLocation();
+        byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
         return new S2CConfigData(key, data);
-    }
+    });
 
     public static FrameworkResponse handle(S2CConfigData message, Consumer<Runnable> executor)
     {

@@ -3,6 +3,10 @@ package com.mrcrayfish.framework.api.config;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +18,11 @@ import java.util.function.Supplier;
  */
 public final class ListProperty<T> extends AbstractProperty<List<T>>
 {
-    public static final Type<Boolean> BOOL = new Type<>(Boolean.class);
-    public static final Type<Double> DOUBLE = new Type<>(Double.class);
-    public static final Type<Integer> INT = new Type<>(Integer.class);
-    public static final Type<Long> LONG = new Type<>(Long.class, Integer.class);
-    public static final Type<String> STRING = new Type<>(String.class);
+    public static final Type<Boolean> BOOL = new Type<>(ByteBufCodecs.BOOL, Boolean.class);
+    public static final Type<Double> DOUBLE = new Type<>(ByteBufCodecs.DOUBLE, Double.class);
+    public static final Type<Integer> INT = new Type<>(ByteBufCodecs.INT, Integer.class);
+    public static final Type<Long> LONG = new Type<>(ByteBufCodecs.VAR_LONG, Long.class, Integer.class);
+    public static final Type<String> STRING = new Type<>(ByteBufCodecs.STRING_UTF8, String.class);
 
     private final Supplier<List<T>> defaultList;
     private final Type<T> type;
@@ -35,6 +39,12 @@ public final class ListProperty<T> extends AbstractProperty<List<T>>
     public Type<T> getType()
     {
         return this.type;
+    }
+
+    @Override
+    public StreamCodec<? super FriendlyByteBuf, List<T>> streamCodec()
+    {
+        return this.type.streamCodec.apply(ByteBufCodecs.list());
     }
 
     @Override
@@ -122,13 +132,15 @@ public final class ListProperty<T> extends AbstractProperty<List<T>>
         return new ListProperty<>(defaultList, type, elementValidator);
     }
 
-    public static class Type<T>
+    public static final class Type<T>
     {
+        private final StreamCodec<ByteBuf, T> streamCodec;
         private final Class<T> classType;
         private final Class<?>[] additionalTypes;
 
-        private Type(Class<T> classType, Class<?> ... additionalTypes)
+        private Type(StreamCodec<ByteBuf, T> streamCodec, Class<T> classType, Class<?> ... additionalTypes)
         {
+            this.streamCodec = streamCodec;
             this.classType = classType;
             this.additionalTypes = additionalTypes;
         }
