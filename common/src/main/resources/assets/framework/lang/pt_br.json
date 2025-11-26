@@ -1,0 +1,4 @@
+{
+    "framework.gui.sync_config_failed": "(Framework) Falha ao processar a configuração de sincronização do servidor. Consulte os logs para mais detalhes.",
+    "framework.gui.sync_entity_data_failed": "(Framework) Dados de entidade sincronizados desconhecidos recebidos. Consulte os logs para mais detalhes."
+}
