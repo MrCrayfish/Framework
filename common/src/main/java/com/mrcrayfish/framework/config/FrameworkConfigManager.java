@@ -1,6 +1,8 @@
 package com.mrcrayfish.framework.config;
 
 import com.electronwill.nightconfig.core.*;
+import com.electronwill.nightconfig.core.concurrent.StampedConfig;
+import com.electronwill.nightconfig.core.concurrent.SynchronizedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.ParsingException;
 import com.electronwill.nightconfig.toml.TomlFormat;
@@ -326,13 +328,13 @@ public class FrameworkConfigManager
             try
             {
                 Preconditions.checkState(this.configType.isServer(), "Only server configs can be loaded from data");
-                CommentedConfig commentedConfig = CommentedConfig.inMemory();
+                SynchronizedConfig remoteConfig = new SynchronizedConfig(InMemoryFormat.defaultInstance(), LinkedHashMap::new);
                 FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
 
                 // All properties are encoded/decoded in a predicatable order, all types are known and validated
                 for(AbstractProperty<?> prop : this.allProperties)
                 {
-                    commentedConfig.add(prop.getPath(), decodeAndValidateProperty(buf, prop));
+                    remoteConfig.add(prop.getPath(), decodeAndValidateProperty(buf, prop));
                 }
 
                 // There should be no more readable data at this point
@@ -341,7 +343,7 @@ public class FrameworkConfigManager
 
                 // Finally bind the properties to the decoded config
                 this.lock(() -> {
-                    UnmodifiableConfig config = this.isReadOnly() ? commentedConfig.unmodifiable() : commentedConfig;
+                    UnmodifiableConfig config = this.isReadOnly() ? remoteConfig.unmodifiable() : remoteConfig;
                     this.allProperties.forEach(p -> p.updateProxy(new ValueProxy(config, p.getPath(), this.readOnly)));
                     this.config = config;
                 });
