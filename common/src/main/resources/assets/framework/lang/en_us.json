@@ -1,4 +1,6 @@
 {
     "framework.gui.sync_config_failed": "(Framework) Failed to process sync config from server. See logs for details.",
-    "framework.gui.sync_entity_data_failed": "(Framework) Received unknown synced entity data keys. See logs for details."
+    "framework.gui.sync_entity_data_failed": "(Framework) Received unknown synced entity data keys. See logs for details.",
+    "framework.validator.resource_location.hint": "Any valid resource location.\nFormat: \"<namespace>:<path>\"",
+    "framework.validator.resource_location.hint_with_namespace": "A valid resource location but must use the namespace: %1$s.\nFormat: \"%1$s:<path>\""
 }
