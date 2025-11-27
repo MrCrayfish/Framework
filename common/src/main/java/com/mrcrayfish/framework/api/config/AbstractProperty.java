@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.google.common.base.Preconditions;
 import com.mrcrayfish.framework.api.config.validate.Validator;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
-
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.ApiStatus;

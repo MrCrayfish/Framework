@@ -7,7 +7,6 @@ import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.api.client.model.renderer.StandaloneModelRenderer;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -16,7 +15,6 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 
 @RegistryContainer(clientOnly = true)
 public class ClientStandaloneModelTest implements ClientModInitializer

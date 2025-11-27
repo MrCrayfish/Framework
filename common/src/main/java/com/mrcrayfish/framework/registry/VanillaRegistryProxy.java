@@ -2,13 +2,7 @@ package com.mrcrayfish.framework.registry;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
 {

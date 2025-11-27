@@ -3,12 +3,9 @@ package com.mrcrayfish.framework.network.message.configuration;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.network.ConfigurationMessageContext;
 import com.mrcrayfish.framework.config.FrameworkConfigManager;
-import com.mrcrayfish.framework.network.FrameworkCodecs;
 import com.mrcrayfish.framework.network.message.ConfigurationMessage;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 

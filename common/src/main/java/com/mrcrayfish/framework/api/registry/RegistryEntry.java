@@ -1,12 +1,9 @@
 package com.mrcrayfish.framework.api.registry;
 
-import com.google.common.base.Suppliers;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.registry.RegisterConsumer;
-import com.mrcrayfish.framework.registry.RegistryProxy;
-import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
