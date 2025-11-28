@@ -58,6 +58,13 @@ displayName="Standalone Model Test"
 authors="MrCrayfish"
 description=""
 
+[[mods]]
+modId="widgets_test"
+version="0.1.0"
+displayName="Widgets Test"
+authors="MrCrayfish"
+description=""
+
 [[dependencies.synced_entity_data_test]]
 modId="framework"
 type="required"
@@ -99,3 +106,10 @@ type="required"
 versionRange="[0.2.4,)"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.widgets_test]]
+modId="framework"
+type="required"
+versionRange="[0.2.4,)"
+ordering="NONE"
+side="CLIENT"
