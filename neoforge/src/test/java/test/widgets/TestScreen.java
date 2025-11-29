@@ -1,7 +1,9 @@
 package test.widgets;
 
+import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -43,6 +45,12 @@ public class TestScreen extends Screen
             .setLabel(Component.literal("Disabled"))
             .setIcon(Icon.sprite(ResourceLocation.withDefaultNamespace("icon/checkmark"), 9, 8))
             .build()).active = false;
+        layout.addChild(FrameworkButton.builder()
+            .setSize(100, 20)
+            .setLabel(Component.literal("Tooltip"))
+            .setTooltip(btn -> Tooltip.create(Component.literal("It is wednesday my dudes")))
+            .setTooltipOptions(TooltipOptions.REBUILD_TOOLTIP_ON_WIDGET_HOVER)
+            .build());
         layout.arrangeElements();
         layout.setPosition(10, 10);
         layout.visitWidgets(this::addRenderableWidget);
