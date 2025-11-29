@@ -54,6 +54,7 @@ public final class FrameworkButton extends AbstractButton
     private final int tooltipOptions;
     private @Nullable Tooltip currentTooltip;
     private boolean shiftWasDown;
+    private boolean mouseIsHovering;
     private final @Nullable ContentRenderer<FrameworkButton> contentRenderer;
 
     private FrameworkButton(int x, int y, int width, int height, Label label, Function<FrameworkButton, Icon> icon, int spacing, @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions, @Nullable WidgetSprites texture, @Nullable Controller controller, @Nullable Supplier<Boolean> activeSupplier, @Nullable Function<FrameworkButton, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable ContentRenderer<FrameworkButton> contentRenderer)
@@ -175,6 +176,23 @@ public final class FrameworkButton extends AbstractButton
             this.rebuildTooltip();
             this.shiftWasDown = false;
         }
+
+        if((this.tooltipOptions & TooltipOptions.REBUILD_TOOLTIP_ON_WIDGET_HOVER) != 0)
+        {
+            if(this.isHovered())
+            {
+                if(!this.mouseIsHovering)
+                {
+                    this.rebuildTooltip();
+                    this.mouseIsHovering = true;
+                }
+            }
+            else
+            {
+                this.mouseIsHovering = false;
+            }
+        }
+
         if(!this.active && (this.tooltipOptions & TooltipOptions.DISABLE_TOOLTIP_WHEN_WIDGET_INACTIVE) != 0)
         {
             this.setTooltip(null);
