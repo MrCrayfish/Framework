@@ -41,14 +41,12 @@ public final class FrameworkButton extends AbstractButton
     );
     public static final int DEFAULT_TOOLTIP_DELAY = 350;
     public static final ContentRenderer<FrameworkButton> DEFAULT_CONTENT_RENDERER = new DefaultContentRenderer();
-    public static final ContentRenderer<FrameworkButton> TOGGLE_CONTENT_RENDERER = new ToggleContentRenderer();
 
     private final Label label;
     private final @Nullable Icon icon;
     private final int spacing;
     private final @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions;
     private final @Nullable WidgetSprites texture;
-    private final @Nullable Controller controller;
     private final @Nullable Supplier<Boolean> activeSupplier;
     private final @Nullable Function<FrameworkButton, Tooltip> tooltip;
     private final int tooltipOptions;
@@ -57,7 +55,7 @@ public final class FrameworkButton extends AbstractButton
     private boolean mouseIsHovering;
     private final @Nullable ContentRenderer<FrameworkButton> contentRenderer;
 
-    private FrameworkButton(int x, int y, int width, int height, Label label, Function<FrameworkButton, Icon> icon, int spacing, @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions, @Nullable WidgetSprites texture, @Nullable Controller controller, @Nullable Supplier<Boolean> activeSupplier, @Nullable Function<FrameworkButton, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable ContentRenderer<FrameworkButton> contentRenderer)
+    private FrameworkButton(int x, int y, int width, int height, Label label, Function<FrameworkButton, Icon> icon, int spacing, @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions, @Nullable WidgetSprites texture, @Nullable Supplier<Boolean> activeSupplier, @Nullable Function<FrameworkButton, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable ContentRenderer<FrameworkButton> contentRenderer)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.label = label;
@@ -65,7 +63,6 @@ public final class FrameworkButton extends AbstractButton
         this.spacing = spacing;
         this.actions = actions;
         this.texture = texture;
-        this.controller = controller;
         this.activeSupplier = activeSupplier;
         this.tooltip = tooltip;
         this.tooltipOptions = tooltipOptions;
@@ -127,13 +124,6 @@ public final class FrameworkButton extends AbstractButton
 
     private void onAction(int button)
     {
-        if(button == 0)
-        {
-            if(this.controller != null)
-            {
-                this.controller.run();
-            }
-        }
         Holder<SoundEvent> sound = SoundEvents.UI_BUTTON_CLICK;
         Action<FrameworkButton> action = this.actions != null ? this.actions.get(MouseInput.fromButton(button)) : null;
         if(action != null)
@@ -250,17 +240,7 @@ public final class FrameworkButton extends AbstractButton
         return new Builder();
     }
 
-    public static Builder state(Supplier<Boolean> getter, Consumer<Boolean> setter)
-    {
-        return new Builder(new StateController(getter, setter));
-    }
 
-    public static <T extends Enum<T> & LabelAndDescription> Builder values(Supplier<T> getter, Consumer<T> setter)
-    {
-        return new Builder(new EnumController<>(getter, setter))
-            .setLabel(() -> getter.get().label())
-            .setTooltip(btn -> Tooltip.create(getter.get().description()));
-    }
 
     public static final class Builder
     {
@@ -273,7 +253,6 @@ public final class FrameworkButton extends AbstractButton
         private int spacing = 4;
         private @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions;
         private @Nullable WidgetSprites texture = DEFAULT_SPRITES;
-        private @Nullable Controller controller;
         private @Nullable Supplier<Boolean> active;
         private @Nullable Function<FrameworkButton, Tooltip> tooltip;
         private int tooltipDelay = DEFAULT_TOOLTIP_DELAY;
@@ -282,14 +261,9 @@ public final class FrameworkButton extends AbstractButton
 
         private Builder() {}
 
-        private Builder(@Nullable Controller controller)
-        {
-            this.controller = controller;
-        }
-
         public FrameworkButton build()
         {
-            return new FrameworkButton(this.x, this.y, this.width, this.height, this.label, this.icon, this.spacing, this.actions, this.texture, this.controller, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.contentRenderer);
+            return new FrameworkButton(this.x, this.y, this.width, this.height, this.label, this.icon, this.spacing, this.actions, this.texture, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.contentRenderer);
         }
 
         private EnumMap<MouseInput, Action<FrameworkButton>> actions()
@@ -484,35 +458,9 @@ public final class FrameworkButton extends AbstractButton
         }
     }
 
-    private interface Controller
+    public static class DefaultContentRenderer implements ContentRenderer<FrameworkButton>
     {
-        void run();
-    }
-
-    private record StateController(Supplier<Boolean> getter, Consumer<Boolean> setter) implements Controller
-    {
-        @Override
-        public void run()
-        {
-            this.setter.accept(!this.getter.get());
-        }
-    }
-
-    private record EnumController<T extends Enum<T> & LabelAndDescription>(Supplier<T> getter, Consumer<T> setter) implements Controller
-    {
-        @Override
-        public void run()
-        {
-            T currentValue = this.getter.get();
-            T[] values = currentValue.getDeclaringClass().getEnumConstants();
-            T nextValue = values[(currentValue.ordinal() + 1) % values.length];
-            this.setter.accept(nextValue);
-        }
-    }
-
-    private static class DefaultContentRenderer implements ContentRenderer<FrameworkButton>
-    {
-        private DefaultContentRenderer() {}
+        public DefaultContentRenderer() {}
 
         @Override
         public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
@@ -561,7 +509,7 @@ public final class FrameworkButton extends AbstractButton
         }
     }
 
-    private static class ToggleContentRenderer implements ContentRenderer<FrameworkButton>
+    public static class ToggleContentRenderer implements ContentRenderer<FrameworkButton>
     {
         private static final int TOGGLE_SIZE = 6;
         private static final WidgetSprites TOGGLE_SPRITES = new WidgetSprites(
@@ -570,7 +518,12 @@ public final class FrameworkButton extends AbstractButton
             ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "button/toggle_on")
         );
 
-        private ToggleContentRenderer() {}
+        private final Supplier<Boolean> state;
+
+        public ToggleContentRenderer(Supplier<Boolean> state)
+        {
+            this.state = state;
+        }
 
         @Override
         public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
@@ -586,7 +539,7 @@ public final class FrameworkButton extends AbstractButton
             }
 
             Label label = button.getLabel();
-            int contentLeft = button.getX() + 6;
+            int contentLeft = button.getX() + TOGGLE_SIZE;
             int textX = contentLeft + (button.icon != null ? button.spacing + button.icon.width() : 0);
             int textY = button.getY() + (button.getHeight() - label.height()) / 2 + 1;
             int textColour = button.active ? 0xFFFFFFFF : 0xFF666666;
@@ -607,8 +560,7 @@ public final class FrameworkButton extends AbstractButton
             int yOffset = (button.getHeight() - TOGGLE_SIZE) / 2;
             int stateIconY = button.getY() + yOffset;
             int stateIconX = button.getX() + button.getWidth() - TOGGLE_SIZE - yOffset;
-            boolean value = button.controller instanceof StateController state ? state.getter.get() : false;
-            graphics.blitSprite(TOGGLE_SPRITES.get(value, button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
+            graphics.blitSprite(TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
         }
     }
 }
