@@ -8,10 +8,10 @@ import com.mrcrayfish.framework.api.client.screen.widget.element.Label;
 import com.mrcrayfish.framework.api.client.screen.widget.input.Action;
 import com.mrcrayfish.framework.api.client.screen.widget.input.MouseInput;
 import com.mrcrayfish.framework.api.client.screen.widget.renderer.ContentRenderer;
-import com.mrcrayfish.framework.api.util.LabelAndDescription;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -34,12 +34,24 @@ import java.util.function.Supplier;
 
 public final class FrameworkButton extends AbstractButton
 {
+    /**
+     * The default sprites used for Framework buttons. This is just vanilla button textures.
+     */
     public static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
         ResourceLocation.withDefaultNamespace("widget/button"),
         ResourceLocation.withDefaultNamespace("widget/button_disabled"),
         ResourceLocation.withDefaultNamespace("widget/button_highlighted")
     );
+
+    /**
+     * The default tooltip delay for Framework buttons. A good happy medium (opinionated)
+     */
     public static final int DEFAULT_TOOLTIP_DELAY = 350;
+
+    /**
+     * The default content renderer used by Framework buttons. This content renderer will draw the
+     * icon and/or label provided to the button and align the content horizontally center.
+     */
     public static final ContentRenderer<FrameworkButton> DEFAULT_CONTENT_RENDERER = new DefaultContentRenderer();
 
     private final Label label;
@@ -84,12 +96,12 @@ public final class FrameworkButton extends AbstractButton
     }
 
     /**
-     * The underlying message supplier for this button. Since the message (aka the label) of the
-     * button can be dynamic, using {@link #getMessage()} will return the Component that represents
-     * the label based on dynamic supplier at the time of calling the method. This method returns
-     * the underlying supplier so
+     * The {@link Label} used by this button. Since the label of the button can be dynamic, using
+     * {@link #getMessage()} will return a Component that represents the label returned by the
+     * dynamic supplier at the time of calling the method. If this button does not have Label, this
+     * method will return {@link Label#EMPTY} instead.
      *
-     * @return
+     * @return The {@link Label} used for this button.
      */
     public Label getLabel()
     {
@@ -235,12 +247,13 @@ public final class FrameworkButton extends AbstractButton
         return button == 0 || this.actions != null && this.actions.containsKey(button);
     }
 
+    /**
+     * @return A {@link Builder} to build and create a {@link FrameworkButton}
+     */
     public static Builder builder()
     {
         return new Builder();
     }
-
-
 
     public static final class Builder
     {
@@ -275,18 +288,38 @@ public final class FrameworkButton extends AbstractButton
             return this.actions;
         }
 
+        /**
+         * Sets the x position of this button.
+         *
+         * @param x the x position of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setX(int x)
         {
             this.x = x;
             return this;
         }
 
+        /**
+         * Sets the y position of this button.
+         *
+         * @param y the y position of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setY(int y)
         {
             this.y = y;
             return this;
         }
 
+        /**
+         * Sets the x and y position of the button. This method is simply for convenience to set the
+         * x and y position in a single call.
+         *
+         * @param x the x position of the button in pixel units
+         * @param y the y position of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setPosition(int x, int y)
         {
             this.x = x;
@@ -294,18 +327,39 @@ public final class FrameworkButton extends AbstractButton
             return this;
         }
 
+        /**
+         * Sets the width of this button.
+         *
+         * @param width the width of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setWidth(int width)
         {
             this.width = width;
             return this;
         }
 
+        /**
+         * Sets the height of this button. The default height is 20 to match vanilla buttons.
+         *
+         * @param height the height of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setHeight(int height)
         {
             this.height = height;
             return this;
         }
 
+        /**
+         * Sets the width and height (the size) of the button. The default height is 20 to match
+         * vanilla buttons. This method is simply for convenience to set the width and height in
+         * a single call.
+         *
+         * @param width  the width of the button in pixel units
+         * @param height the height of the button in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setSize(int width, int height)
         {
             this.width = width;
@@ -313,144 +367,341 @@ public final class FrameworkButton extends AbstractButton
             return this;
         }
 
+        /**
+         * Sets the label that will be displayed on the button.
+         *
+         * @param text a {@link Component} to use for the label
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setLabel(Component text)
         {
             this.label = Label.constant(text);
             return this;
         }
 
+        /**
+         * Supplies a label that will be displayed on the button. Please note that the value
+         * supplied is not cached by the button and is called every frame the button is drawn.
+         *
+         * @param supplier a {@link Supplier} that returns a {@link Component} to use for the label
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setLabel(Supplier<Component> supplier)
         {
             this.label = Label.dynamic(supplier);
             return this;
         }
 
+        /**
+         * Sets the {@link Label} that will be displayed on the button. Unlike {@link #setLabel(Component)}
+         * and {@link #setLabel(Supplier)}, this method allows for a custom implementation of {@link Label}
+         * to be used.
+         *
+         * @param label the
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setLabel(Label label)
         {
             this.label = label;
             return this;
         }
 
+        /**
+         * Sets the icon that will be displayed on the button. The provided resource must be a
+         * sprite, not a texture.
+         *
+         * @param sprite a {@link ResourceLocation} to a sprite image
+         * @param width  the width of the sprite in pixels
+         * @param height the height of the sprite in pixels
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setIcon(ResourceLocation sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite, width, height);
             return this;
         }
 
+        /**
+         * Supplies an icon that will be displayed on the button. Unlike {@link #setIcon(ResourceLocation, int, int)},
+         * the supplier is called every frame the button is drawn, which allows the sprite resource
+         * to dynamically change. For example, this could be used to draw a different icon when the
+         * button is on or off.
+         *
+         * @param sprite a {@link Supplier} that returns a {@link ResourceLocation} to a sprite image
+         * @param width  the width of the sprite in pixels
+         * @param height the height of the sprite in pixels
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setIcon(Supplier<ResourceLocation> sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite, width, height);
             return this;
         }
 
+        /**
+         * Similar to {@link #setIcon(Supplier, int, int)} but with the ability to reference the
+         * button when creating the {@link Supplier}. Please note that the sprite function is only
+         * called once to create the {@link Supplier}, unlike the created supplier which is called
+         * every frame the button is drawn.
+         *
+         * @param sprite a {@link Function} that provides context of the {@link FrameworkButton} to
+         *               aid the creation of the {@link Supplier}, which returns a {@link ResourceLocation}
+         *               to a sprite image
+         * @param width  the width of the sprite in pixels
+         * @param height the height of the sprite in pixels
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setIcon(Function<FrameworkButton, Supplier<ResourceLocation>> sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite.apply(btn), width, height);
             return this;
         }
 
+        /**
+         * Sets the icon that will be displayed on the button but allows for custom implementations
+         * of {@link Icon}. Use built-in functions {@link Icon#sprite(ResourceLocation, int, int)} and
+         * {@link Icon#sprite(Supplier, int, int)} to create an icon for a sprite resources, otherwise
+         * custom implements can be used to draw anything.
+         *
+         * @param icon an {@link Icon} to be used as the icon for this button
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setIcon(Icon icon)
         {
             this.icon = btn -> icon;
             return this;
         }
 
+        /**
+         * Similar to {@link #setIcon(Icon)} but with the ability to reference the button when
+         * creating the {@link Icon}. Please note that the provided function is only called once
+         * upon the creation of the button.
+         *
+         * @param icon a {@link Function} that returns an {@link Icon}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setIcon(Function<FrameworkButton, Icon> icon)
         {
             this.icon = icon;
             return this;
         }
 
+        /**
+         * Sets the spacing between the icon and label of the button. The spacing if only applied
+         * when the button has both an icon and label, not one or the other.
+         *
+         * @param spacing the spacing in pixel units
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setSpacing(int spacing)
         {
             this.spacing = spacing;
             return this;
         }
 
+        /**
+         * An alias method for {@link #setPrimaryAction(Action)}. Sets the action to run when the
+         * button is left-clicked (the primary click).
+         *
+         * @param action a {@link Consumer} that accepts the {@link FrameworkButton}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setAction(Consumer<FrameworkButton> action)
         {
             this.actions().put(MouseInput.LEFT_CLICK, Action.create(action));
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is left-clicked (the primary click).
+         *
+         * @param action a {@link Consumer} that accepts the {@link FrameworkButton}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setPrimaryAction(Consumer<FrameworkButton> action)
         {
             this.actions().put(MouseInput.LEFT_CLICK, Action.create(action));
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is left-clicked (the primary click), however the
+         * action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
+         * {@link Action#create(Consumer, Holder)} to create an instance.
+         *
+         * @param action an {@link Action} object
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setPrimaryAction(Action<FrameworkButton> action)
         {
             this.actions().put(MouseInput.LEFT_CLICK, action);
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is right-clicked (the secondary click).
+         *
+         * @param action a {@link Consumer} that accepts the {@link FrameworkButton}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setSecondaryAction(Consumer<FrameworkButton> action)
         {
             this.actions().put(MouseInput.RIGHT_CLICK, Action.create(action));
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is right-clicked (the secondary click), however
+         * the action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
+         * {@link Action#create(Consumer, Holder)} to create an instance.
+         *
+         * @param action an {@link Action} object
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setSecondaryAction(Action<FrameworkButton> action)
         {
             this.actions().put(MouseInput.RIGHT_CLICK, action);
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is middle-clicked (the tertiary click).
+         *
+         * @param action a {@link Consumer} that accepts the {@link FrameworkButton}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTertiaryAction(Consumer<FrameworkButton> action)
         {
             this.actions().put(MouseInput.MIDDLE_CLICK, Action.create(action));
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is middle-clicked (the tertiary click), however
+         * the action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
+         * {@link Action#create(Consumer, Holder)} to create an instance.
+         *
+         * @param action an {@link Action} object
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTertiaryAction(Action<FrameworkButton> action)
         {
             this.actions().put(MouseInput.MIDDLE_CLICK, action);
             return this;
         }
 
+        /**
+         * Sets the action to run when the button is clicked using the given {@link MouseInput}.
+         *
+         * @param input a {@link MouseInput}
+         * @param action
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setAction(MouseInput input, Action<FrameworkButton> action)
         {
             this.actions().put(input, action);
             return this;
         }
 
+        /**
+         * Sets the texture of the button.
+         *
+         * @param texture a {@link WidgetSprites} containing the texture resources
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTexture(WidgetSprites texture)
         {
             this.texture = texture;
             return this;
         }
 
+        /**
+         * Removes the texture of the button, only drawing the icon and label.
+         *
+         * @return this {@link Builder} for method chaining
+         */
         public Builder noTexture()
         {
             this.texture = null;
             return this;
         }
 
-        public Builder setActive(Supplier<Boolean> active)
+        /**
+         * Sets a dependency on an arbitrary boolean. This will update the
+         * {@link AbstractWidget#active} property of the button.
+         *
+         * @param active a {@link Supplier} returning a {@link Boolean} representing the dependent state
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setDependent(Supplier<Boolean> active)
         {
             this.active = active;
             return this;
         }
 
+        /**
+         * Sets the tooltip for the button.
+         *
+         * @param tooltip
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setTooltip(Tooltip tooltip)
+        {
+            this.tooltip = btn -> tooltip;
+            return this;
+        }
+
+        /**
+         * Sets the tooltip for the button. Please note that {@link FrameworkButton} will call the
+         * provided function everytime the tooltip cache is invalidated. The cache by default is only
+         * invalidated when the button is clicked. It is very common in mods to show additional
+         * information only when the shift key is pressed, and by adding
+         * {@link TooltipOptions#REBUILD_TOOLTIP_ON_SHIFT} via {@link #setTooltipOptions(int)} will
+         * additionally invalidate the cache when the shift key is pressed or released.
+         *
+         * @param tooltip a {@link Function} that returns a {@link Tooltip}
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTooltip(Function<FrameworkButton, Tooltip> tooltip)
         {
             this.tooltip = tooltip;
             return this;
         }
 
+        /**
+         * Sets the delay (in milliseconds) before the tooltip is shown
+         *
+         * @param delay the time in milliseconds
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTooltipDelay(int delay)
         {
             this.tooltipDelay = delay;
             return this;
         }
 
+        /**
+         * Sets the tooltip options for the button. Tooltip options gives additional control over
+         * how tooltips behave. All possible tooltip options can be found at {@link TooltipOptions}.
+         * To apply multiple options, use a bitwise-or operation: <code>option1 | option2 | option3</code>
+         *
+         * @param options an int of option flags
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setTooltipOptions(int options)
         {
             this.tooltipOptions = options;
             return this;
         }
 
+        /**
+         * Sets the {@link ContentRenderer} used to draw the content of this button. This includes
+         * the layout, texture, icon, and label. Content Renderers give complete freedom of how the
+         * button draws itself.
+         *
+         * @param renderer the {@link ContentRenderer} for the button
+         * @return this {@link Builder} for method chaining
+         */
         public Builder setContentRenderer(@Nullable ContentRenderer<FrameworkButton> renderer)
         {
             this.contentRenderer = renderer;
