@@ -315,13 +315,13 @@ public final class FrameworkButton extends AbstractButton
 
         public Builder setLabel(Component text)
         {
-            this.label = Label.create(text);
+            this.label = Label.constant(text);
             return this;
         }
 
         public Builder setLabel(Supplier<Component> supplier)
         {
-            this.label = Label.create(supplier);
+            this.label = Label.dynamic(supplier);
             return this;
         }
 
