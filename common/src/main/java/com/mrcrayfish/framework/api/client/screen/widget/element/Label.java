@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public abstract class Label
 {
-    public static final Label EMPTY = create(CommonComponents.EMPTY);
+    public static final Label EMPTY = constant(CommonComponents.EMPTY);
 
     public abstract Component text();
 
@@ -20,12 +20,12 @@ public abstract class Label
 
     public abstract void draw(GuiGraphics graphics, int x, int y, int colour, boolean shadow);
 
-    public static Label create(Component text)
+    public static Label constant(Component text)
     {
         return new Impl(text);
     }
 
-    public static Label create(Supplier<Component> text)
+    public static Label dynamic(Supplier<Component> text)
     {
         return new Impl(text);
     }
