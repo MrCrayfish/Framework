@@ -39,8 +39,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     private final int backgroundBorder;
     private final @Nullable Supplier<Boolean> activeSupplier;
     private final EditBox editBox;
+    private final boolean clearOnRightClick;
 
-    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, int padding, int spacing, @Nullable WidgetSprites background, int backgroundBorder, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength)
+    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, int padding, int spacing, @Nullable WidgetSprites background, int backgroundBorder, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon.apply(this);
@@ -49,6 +50,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         this.background = background;
         this.backgroundBorder = backgroundBorder;
         this.activeSupplier = activeSupplier;
+        this.clearOnRightClick = clearOnRightClick;
 
         // Create the icon widget, or null if the icon function returned null
         int iconSize = this.icon != null ? Math.max(this.icon.width(), this.icon.height()) : 0;
@@ -213,13 +215,14 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private @Nullable Component hint;
         private @Nullable Supplier<Boolean> active;
         private @Nullable Integer maxTextLength;
+        private boolean clearOnRightClick = true;
 
         /**
          * @return A new {@link FrameworkEditBox}
          */
         public FrameworkEditBox build()
         {
-            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.backgroundBorder, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength);
+            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.backgroundBorder, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick);
         }
 
         /**
@@ -544,6 +547,18 @@ public final class FrameworkEditBox extends AbstractContainerWidget
             this.active = active;
             return this;
         }
+
+        /**
+         * Sets if the edit box should clear on right click. This option is enabled by default.
+         *
+         * @param clearOnRightClick true if the edit should clear when right clicking
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setClearOnRightClick(boolean clearOnRightClick)
+        {
+            this.clearOnRightClick = clearOnRightClick;
+            return this;
+        }
     }
 
     private static class Impl extends EditBox
@@ -592,7 +607,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         public boolean mouseClicked(double mouseX, double mouseY, int button)
         {
             // Right-clicking will clear the edit box
-            if(this.active && this.visible && button == 1 && this.clicked(mouseX, mouseY))
+            if(this.parent.clearOnRightClick && this.active && this.visible && button == 1 && this.clicked(mouseX, mouseY))
             {
                 this.setValue("");
                 return true;
