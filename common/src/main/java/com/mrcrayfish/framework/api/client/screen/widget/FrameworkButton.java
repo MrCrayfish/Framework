@@ -722,7 +722,7 @@ public final class FrameworkButton extends AbstractButton
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
                 graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(button.texture.get(button.active, button.isHovered() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
+                graphics.blitSprite(button.texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
                 graphics.setColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
             }
@@ -785,7 +785,7 @@ public final class FrameworkButton extends AbstractButton
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
                 graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(button.texture.get(button.active, button.isHovered() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
+                graphics.blitSprite(button.texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
                 graphics.setColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
             }
