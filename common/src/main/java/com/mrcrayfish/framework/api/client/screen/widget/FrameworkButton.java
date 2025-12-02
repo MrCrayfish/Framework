@@ -237,6 +237,7 @@ public final class FrameworkButton extends AbstractButton
         if(this.active && this.visible && this.isValidClickButton(button) && this.clicked(mouseX, mouseY))
         {
             this.onAction(button);
+            return true;
         }
         return false;
     }
