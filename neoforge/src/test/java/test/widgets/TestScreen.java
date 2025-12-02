@@ -1,5 +1,6 @@
 package test.widgets;
 
+import com.mrcrayfish.framework.api.client.screen.Buttons;
 import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkEditBox;
@@ -30,14 +31,12 @@ public class TestScreen extends Screen
             .setLabel(Component.literal("Normal"))
             .build());
         MutableBoolean state = new MutableBoolean();
-        layout.addChild(FrameworkButton.state(state::getValue, state::setValue)
+        layout.addChild(Buttons.createOnOffOption(Component.literal("Toggle"), state::getValue, state::setValue)
             .setSize(100, 20)
-            .setLabel(() -> CommonComponents.optionStatus(Component.literal("Toggle"), state.getValue()))
             .build());
         MutableBoolean iconState = new MutableBoolean();
-        layout.addChild(FrameworkButton.state(iconState::getValue, iconState::setValue)
+        layout.addChild(Buttons.createOnOffOption(Component.literal("Icon"), iconState::getValue, iconState::setValue)
             .setSize(100, 20)
-            .setLabel(() -> CommonComponents.optionStatus(Component.literal("Icon"), iconState.getValue()))
             .setIcon(Icon.sprite(ResourceLocation.withDefaultNamespace("icon/checkmark"), 9, 8))
             .setSpacing(5)
             .build());
