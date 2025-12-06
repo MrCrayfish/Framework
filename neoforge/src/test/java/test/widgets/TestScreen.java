@@ -6,6 +6,7 @@ import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkEditBox;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkSelectionList;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
@@ -88,6 +89,7 @@ public class TestScreen extends Screen
         var list2 = new FrameworkSelectionList(150, 100, 0, 0, 16);
         list2.setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.MERGED);
         list2.setScrollBarAlwaysVisible(true);
+        list2.addItem(new TitleItem(Component.literal("Fruits")));
         list2.addItem(new TextItem("Apple"));
         list2.addItem(new TextItem("Banana"));
         list2.addItem(new TextItem("Orange"));
@@ -123,6 +125,29 @@ public class TestScreen extends Screen
         {
             int textY = y + (height - 8) / 2;
             graphics.drawString(Minecraft.getInstance().font, this.text, x + 5, textY, 0xFFFFFFFF);
+        }
+    }
+
+    private static class TitleItem extends FrameworkSelectionList.Item
+    {
+        private final Component text;
+
+        public TitleItem(Component text)
+        {
+            this.text = text.plainCopy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
+        }
+
+        @Override
+        public boolean isSelectable()
+        {
+            return false;
+        }
+
+        @Override
+        public void renderContent(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
+        {
+            int textY = y + (height - 8) / 2;
+            graphics.drawCenteredString(Minecraft.getInstance().font, this.text, x + width / 2, textY, 0xFFFFFFFF);
         }
     }
 }
