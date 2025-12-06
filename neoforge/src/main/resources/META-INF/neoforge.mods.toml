@@ -12,6 +12,9 @@ logoFile = "assets/${mod_id}/icon.png"
 authors = "${mod_author}"
 description = '''${mod_desc}'''
 
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"

@@ -5,11 +5,11 @@ import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.fabricmc.fabric.impl.client.model.loading.ModelLoadingConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +38,12 @@ public class FabricClientHelper implements IClientHelper
     public String getStandaloneModelVariant()
     {
         return ModelLoadingConstants.RESOURCE_SPECIAL_VARIANT;
+    }
+
+    @Override
+    public void setScrollingState(AbstractSelectionList<?> list, boolean state)
+    {
+        list.scrolling = state;
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

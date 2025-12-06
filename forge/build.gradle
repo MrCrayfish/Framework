@@ -22,7 +22,7 @@ minecraft {
 
     def at = file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
-        accessTransformers = at
+        accessTransformer = at
     }
 
     runs {

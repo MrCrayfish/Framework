@@ -4,10 +4,10 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Author: MrCrayfish
@@ -32,5 +32,11 @@ public class NeoForgeClientHelper implements IClientHelper
     public String getStandaloneModelVariant()
     {
         return ModelResourceLocation.STANDALONE_VARIANT;
+    }
+
+    @Override
+    public void setScrollingState(AbstractSelectionList<?> list, boolean state)
+    {
+        list.scrolling = state;
     }
 }

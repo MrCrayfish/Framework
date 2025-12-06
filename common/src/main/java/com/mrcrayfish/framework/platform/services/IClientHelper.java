@@ -2,10 +2,10 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Author: MrCrayfish
@@ -33,4 +33,13 @@ public interface IClientHelper
      * @return The platform specific variant for registering standalone models.
      */
     String getStandaloneModelVariant();
+
+    /**
+     * Sets the scrolling state of AbstractSelectionList. This field is private, so field is exposed
+     * using AW/AT on subprojects.
+     *
+     * @param list  the AbstractSelectionList to update
+     * @param state the new scrolling state
+     */
+    void setScrollingState(AbstractSelectionList<?> list, boolean state);
 }
