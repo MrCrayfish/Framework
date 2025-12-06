@@ -474,6 +474,27 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         ClientServices.CLIENT.setScrollingState(this, this.scrolling);
     }
 
+    @Override
+    @Nullable
+    public Item getSelected()
+    {
+        Item selected = super.getSelected();
+        if(selected != null && selected.isSelectable())
+        {
+            return selected;
+        }
+        return null;
+    }
+
+    @Override
+    public void setSelected(@Nullable Item item)
+    {
+        if(item == null || item.isSelectable())
+        {
+            super.setSelected(item);
+        }
+    }
+
     public static abstract class Item extends ObjectSelectionList.Entry<Item>
     {
         private boolean hovered;
@@ -483,6 +504,11 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         private void setHovered(boolean hovered)
         {
             this.hovered = hovered;
+        }
+
+        public boolean isSelectable()
+        {
+            return true;
         }
 
         @Override
