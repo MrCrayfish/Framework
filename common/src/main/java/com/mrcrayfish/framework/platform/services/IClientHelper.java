@@ -4,6 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -44,4 +45,13 @@ public interface IClientHelper
     ChunkSectionLayer getChunkSectionLayer(ResolvedModel model);
 
     ChunkSectionLayer getChunkSectionLayer(BlockModelPart part);
+    /**
+     * Sets the scrolling state of AbstractSelectionList. This field is private, so field is exposed
+     * using AW/AT on subprojects.
+     *
+     * @param list  the AbstractSelectionList to update
+     * @param state the new scrolling state
+     */
+    void setScrollingState(AbstractSelectionList<?> list, boolean state);
+
 }
