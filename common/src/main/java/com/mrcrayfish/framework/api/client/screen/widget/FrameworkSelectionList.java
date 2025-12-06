@@ -414,7 +414,11 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     public Item removeItem(int index)
     {
         if(index >= 0 && index < this.children().size())
-            return super.remove(index);
+        {
+            Item removed = super.remove(index);
+            if(removed != null) this.clampScrollAmount();
+            return removed;
+        }
         return null;
     }
 
