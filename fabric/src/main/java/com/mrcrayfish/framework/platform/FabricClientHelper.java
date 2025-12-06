@@ -7,11 +7,15 @@ import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -51,6 +55,12 @@ public class FabricClientHelper implements IClientHelper
     public ChunkSectionLayer getChunkSectionLayer(BlockModelPart part)
     {
         return ChunkSectionLayer.SOLID;
+    }
+
+    @Override
+    public void setScrollingState(AbstractSelectionList<?> list, boolean state)
+    {
+        list.scrolling = state;
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

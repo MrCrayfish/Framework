@@ -9,6 +9,7 @@ import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import com.mrcrayfish.framework.api.client.model.NeoForgeModelResource;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
@@ -17,6 +18,8 @@ import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.RenderTypeGroup;
 import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 
 /**
  * Author: MrCrayfish
@@ -58,5 +61,11 @@ public class NeoForgeClientHelper implements IClientHelper
             case FrameworkBakedModel model -> model.layer();
             default -> null;
         }, ChunkSectionLayer.SOLID);
+    }
+
+    @Override
+    public void setScrollingState(AbstractSelectionList<?> list, boolean state)
+    {
+        list.scrolling = state;
     }
 }
