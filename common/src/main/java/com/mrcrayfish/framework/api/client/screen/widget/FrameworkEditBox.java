@@ -629,7 +629,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
         {
-            this.icon.draw(graphics, this.getX(), this.getY(), partialTick);
+            int iconX = this.getX() + (this.getWidth() - this.icon.width()) / 2;
+            int iconY = this.getY() + (this.getHeight() - this.icon.height()) / 2;
+            this.icon.draw(graphics, iconX, iconY, partialTick);
         }
 
         @Override
