@@ -52,16 +52,20 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         this.activeSupplier = activeSupplier;
         this.clearOnRightClick = clearOnRightClick;
 
+        // Update layout spacing
+        this.layout.spacing(spacing);
+
         // Create the icon widget, or null if the icon function returned null
-        int iconSize = this.icon != null ? Math.max(this.icon.width(), this.icon.height()) : 0;
-        this.iconWidget = this.icon != null ? this.layout.addChild(new CenteredSpriteWidget(iconSize, iconSize, this.icon), layoutSettings -> {
-            layoutSettings.paddingLeft(backgroundBorder + padding).paddingRight(spacing).alignVerticallyMiddle();
+        this.iconWidget = this.icon != null ? this.layout.addChild(new CenteredSpriteWidget(this.icon.width(), 0, this.icon), layoutSettings -> {
+            layoutSettings.paddingVertical(backgroundBorder).paddingLeft(padding + backgroundBorder);
         }) : null;
 
         // Create the custom edit box implementation
         this.editBox = this.layout.addChild(new Impl(this), layoutSettings -> {
             if(this.icon == null) {
-                layoutSettings.paddingHorizontal(this.backgroundBorder + padding);
+                layoutSettings.paddingHorizontal(padding + backgroundBorder).paddingVertical(backgroundBorder);
+            } else {
+                layoutSettings.paddingRight(padding + backgroundBorder + backgroundBorder).paddingVertical(backgroundBorder);
             }
         });
         this.updateEditBoxWidth();
@@ -120,7 +124,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     {
         super.setHeight(height);
         this.updateEditBoxWidth();
-        this.editBox.setHeight(height);
+        this.editBox.setHeight(height - this.backgroundBorder * 2);
+        if(this.iconWidget != null)
+            this.iconWidget.setHeight(height - this.backgroundBorder * 2);
         this.layout.arrangeElements();
     }
 
