@@ -600,7 +600,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         @Override
         protected boolean clicked(double mouseX, double mouseY)
         {
-            return this.visible && this.active && mouseX >= this.parent.getX() && mouseY >= (double) this.parent.getY() && mouseX < (double) (this.parent.getX() + this.parent.getWidth()) && mouseY < (double) (this.parent.getY() + this.getHeight());
+            return this.visible && this.active && mouseX >= this.parent.getX() && mouseY >= (double) this.parent.getY() && mouseX < (double) (this.parent.getX() + this.parent.getWidth()) && mouseY < (double) (this.parent.getY() + this.parent.getHeight());
         }
 
         @Override
