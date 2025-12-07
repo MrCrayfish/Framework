@@ -209,8 +209,8 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private int width = 100;
         private int height = 16;
         private Function<FrameworkEditBox, Icon> icon = editBox1 -> null;
-        private int padding = 5;
-        private int spacing = 5;
+        private int padding = 4;
+        private int spacing = 4;
         private @Nullable WidgetSprites background = DEFAULT_SPRITES;
         private int backgroundBorder = 1;
         private String text = "";
