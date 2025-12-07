@@ -30,7 +30,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         ResourceLocation.withDefaultNamespace("widget/text_field"),
         ResourceLocation.withDefaultNamespace("widget/text_field_highlighted")
     );
-    public static final Padding DEFAULT_PADDING = new Padding(4, 0, 4, 0);
+    public static final Padding DEFAULT_PADDING = Padding.of(4, 0, 4, 0);
 
     private final LinearLayout layout = LinearLayout.horizontal();
     private final @Nullable Icon icon;
@@ -437,7 +437,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          */
         public Builder setPadding(int padding)
         {
-            this.padding = new Padding(padding, padding, padding, padding);
+            this.padding = Padding.of(padding, padding, padding, padding);
             return this;
         }
 
@@ -452,7 +452,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          */
         public Builder setPadding(int left, int top, int right, int bottom)
         {
-            this.padding = new Padding(left, top, right, bottom);
+            this.padding = Padding.of(left, top, right, bottom);
             return this;
         }
 
