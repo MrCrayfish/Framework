@@ -26,8 +26,8 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     public static final ItemSprites DEFAULT_ITEM_SPRITE = new ItemSprites(null, null, null, null, Utils.rl("widget/selection_list/item_enabled_selected"), null, Utils.rl("widget/selection_list/item_enabled_selected"), null);
     public static final ItemSprites DEFAULT_SCROLLER_SPRITE = new ItemSprites(ResourceLocation.withDefaultNamespace("widget/scroller"));
     public static final ResourceLocation DEFAULT_SCROLL_BAR_BACKGROUND = ResourceLocation.withDefaultNamespace("widget/scroller_background");
-    protected static final Padding DEFAULT_ITEM_CONTAINER_PADDING = new Padding(4);
-    protected static final Padding DEFAULT_SCROLL_BAR_PADDING = new Padding(0);
+    protected static final Padding DEFAULT_ITEM_CONTAINER_PADDING = Padding.of(4);
+    protected static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
 
     protected Padding itemContainerPadding = DEFAULT_ITEM_CONTAINER_PADDING;
     protected @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
@@ -70,12 +70,17 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
     public void setItemContainerPadding(int padding)
     {
-        this.itemContainerPadding = new Padding(padding);
+        this.itemContainerPadding = Padding.of(padding);
     }
 
     public void setItemContainerPadding(int left, int top, int right, int bottom)
     {
-        this.itemContainerPadding = new Padding(left, top, right, bottom);
+        this.itemContainerPadding = Padding.of(left, top, right, bottom);
+    }
+
+    public void setItemContainerPadding(Padding padding)
+    {
+        this.itemContainerPadding = padding;
     }
 
     public void setItemSpacing(int itemSpacing)
@@ -125,12 +130,12 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
     public void setScrollBarPadding(int padding)
     {
-        this.scrollBarPadding = new Padding(padding);
+        this.scrollBarPadding = Padding.of(padding);
     }
 
     public void setScrollBarPadding(int left, int top, int right, int bottom)
     {
-        this.scrollBarPadding = new Padding(left, top, right, bottom);
+        this.scrollBarPadding = Padding.of(left, top, right, bottom);
     }
 
     public void setActive(@Nullable Supplier<Boolean> activeSupplier)
