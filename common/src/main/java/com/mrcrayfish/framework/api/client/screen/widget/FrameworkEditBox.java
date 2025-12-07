@@ -43,7 +43,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     private final EditBox editBox;
     private final boolean clearOnRightClick;
 
-    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, int backgroundBorder, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick)
+    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, int backgroundBorder, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon.apply(this);
@@ -58,12 +58,17 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         this.layout.spacing(spacing);
 
         // Create the icon widget, or null if the icon function returned null
-        this.iconWidget = this.icon != null ? this.layout.addChild(new CenteredSpriteWidget(this.icon.width(), 0, this.icon), layoutSettings -> {
-            layoutSettings
-                .paddingTop(backgroundBorder + padding.top())
-                .paddingBottom(backgroundBorder + padding.bottom())
-                .paddingLeft(padding.left() + backgroundBorder);
-        }) : null;
+        if(this.icon != null)
+        {
+            int iconWidth = iconWidthOverride != null ? iconWidthOverride : this.icon.width();
+            this.iconWidget = this.layout.addChild(new CenteredSpriteWidget(iconWidth, 0, this.icon), layoutSettings -> {
+                layoutSettings.paddingTop(backgroundBorder + padding.top()).paddingBottom(backgroundBorder + padding.bottom()).paddingLeft(padding.left() + backgroundBorder);
+            });
+        }
+        else
+        {
+            this.iconWidget = null;
+        }
 
         // Create the custom edit box implementation
         this.editBox = this.layout.addChild(new Impl(this), layoutSettings -> {
@@ -230,13 +235,14 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private @Nullable Supplier<Boolean> active;
         private @Nullable Integer maxTextLength;
         private boolean clearOnRightClick = true;
+        private @Nullable Integer iconWidthOverride;
 
         /**
          * @return A new {@link FrameworkEditBox}
          */
         public FrameworkEditBox build()
         {
-            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.backgroundBorder, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick);
+            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.backgroundBorder, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
         }
 
         /**
@@ -395,6 +401,19 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         public Builder setIcon(Function<FrameworkEditBox, Icon> icon)
         {
             this.icon = icon;
+            return this;
+        }
+
+        /**
+         * Sets the width of the icon container. By default, the width of the icon is used. However,
+         * this method can be used to make the area width smaller or larger than the icon width.
+         *
+         * @param width the width of the icon container in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setIconWidth(int width)
+        {
+            this.iconWidthOverride = width;
             return this;
         }
 
