@@ -1,44 +1,15 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
-@SuppressWarnings("ClassCanBeRecord")
-public final class Padding
+public final class Padding extends EdgeInsets
 {
-    private final int left;
-    private final int top;
-    private final int right;
-    private final int bottom;
-
     private Padding(int left, int top, int right, int bottom)
     {
-        this.left = left;
-        this.top = top;
-        this.right = right;
-        this.bottom = bottom;
+        super(left, top, right, bottom);
     }
 
     private Padding(int padding)
     {
         this(padding, padding, padding, padding);
-    }
-
-    public int left()
-    {
-        return this.left;
-    }
-
-    public int top()
-    {
-        return this.top;
-    }
-
-    public int right()
-    {
-        return this.right;
-    }
-
-    public int bottom()
-    {
-        return this.bottom;
     }
 
     public static Padding of(int all)
