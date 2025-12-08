@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.ItemSprites;
+import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import com.mrcrayfish.framework.client.ClientUtils;
 import com.mrcrayfish.framework.platform.ClientServices;
@@ -27,23 +28,25 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         .setEnabledSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
         .setEnabledHoveredSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
         .build();
+    public static final Padding DEFAULT_ITEM_CONTAINER_PADDING = Padding.of(4);
+    public static final Border DEFAULT_ITEM_CONTAINER_BORDER = Border.of(0);
     public static final ItemSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(ResourceLocation.withDefaultNamespace("widget/scroller"));
     public static final ResourceLocation DEFAULT_SCROLL_BAR_BACKGROUND = ResourceLocation.withDefaultNamespace("widget/scroller_background");
-    protected static final Padding DEFAULT_ITEM_CONTAINER_PADDING = Padding.of(4);
-    protected static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
+    public static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
+    public static final Border DEFAULT_SCROLL_BAR_BACKGROUND_BORDER = Border.of(0);
 
     protected Padding itemContainerPadding = DEFAULT_ITEM_CONTAINER_PADDING;
     protected @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
     protected int itemSpacing = 0;
     protected @Nullable ResourceLocation listBackground = DEFAULT_BACKGROUND;
-    protected int listBackgroundBorder = 0;
+    protected Border listBackgroundBorder = DEFAULT_ITEM_CONTAINER_BORDER;
     protected boolean scrolling;
     protected int scrollBarWidth = 6;
     protected boolean scrollBarAlwaysVisible;
     protected int scrollBarSpacing = 4;
     protected @Nullable ItemSprites scrollBarSprites = DEFAULT_SCROLLER_SPRITE;
     protected @Nullable ResourceLocation scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
-    protected int scrollBarBackgroundBorder = 0;
+    protected Border scrollBarBackgroundBorder = DEFAULT_SCROLL_BAR_BACKGROUND_BORDER;
     protected ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
     protected Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
     protected @Nullable Supplier<Boolean> activeSupplier;
@@ -66,9 +69,19 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         this.listBackground = background;
     }
 
-    public void setListBackgroundBorder(int listBackgroundBorder)
+    public void setListBackgroundBorder(int size)
     {
-        this.listBackgroundBorder = listBackgroundBorder;
+        this.listBackgroundBorder = Border.of(size);
+    }
+
+    public void setListBackgroundBorder(int left, int top, int right, int bottom)
+    {
+        this.listBackgroundBorder = Border.of(left, top, right, bottom);
+    }
+
+    public void setListBackgroundBorder(Border border)
+    {
+        this.listBackgroundBorder = border;
     }
 
     public void setItemContainerPadding(int padding)
@@ -111,9 +124,19 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         this.scrollBarBackground = background;
     }
 
-    public void setScrollBarBackgroundBorder(int scrollBarBackgroundBorder)
+    public void setScrollBarBackgroundBorder(int size)
     {
-        this.scrollBarBackgroundBorder = scrollBarBackgroundBorder;
+        this.scrollBarBackgroundBorder = Border.of(size);
+    }
+
+    public void setScrollBarBackgroundBorder(int left, int top, int right, int bottom)
+    {
+        this.scrollBarBackgroundBorder = Border.of(left, top, right, bottom);
+    }
+
+    public void setScrollBarBackgroundBorder(Border border)
+    {
+        this.scrollBarBackgroundBorder = border;
     }
 
     public void setScrollBarStyle(ScrollBarStyle scrollBarStyle)
@@ -161,7 +184,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public int getRowLeft()
     {
-        return this.getX() + this.listBackgroundBorder + this.itemContainerPadding.left();
+        return this.getX() + this.listBackgroundBorder.left() + this.itemContainerPadding.left();
     }
 
     @Override
@@ -170,26 +193,26 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         if(this.getMaxScroll() > 0 || this.scrollBarAlwaysVisible)
         {
             int scrollBarArea = switch(this.scrollBarStyle) {
-                case DETACHED -> this.itemContainerPadding.right() + this.listBackgroundBorder + this.scrollBarSpacing + this.scrollBarBackgroundBorder + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder;
-                case MERGED -> this.scrollBarSpacing + this.scrollBarBackgroundBorder + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder + this.itemContainerPadding.right() + this.listBackgroundBorder;
+                case DETACHED -> this.itemContainerPadding.right() + this.listBackgroundBorder.right() + this.scrollBarSpacing + this.scrollBarBackgroundBorder.left() + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder.right();
+                case MERGED -> this.scrollBarSpacing + this.scrollBarBackgroundBorder.left() + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder.right() + this.itemContainerPadding.right() + this.listBackgroundBorder.right();
             };
             return this.getX() + this.getWidth() - scrollBarArea;
         }
-        return this.getX() + this.getWidth() - this.itemContainerPadding.right() - this.listBackgroundBorder;
+        return this.getX() + this.getWidth() - this.itemContainerPadding.right() - this.listBackgroundBorder.right();
     }
 
     @Override
     protected int getRowTop(int index)
     {
-        return this.getY() + this.listBackgroundBorder + this.itemContainerPadding.top() - (int) this.getScrollAmount() + index * this.itemHeight + index * this.itemSpacing;
+        return this.getY() + this.listBackgroundBorder.top() + this.itemContainerPadding.top() - (int) this.getScrollAmount() + index * this.itemHeight + index * this.itemSpacing;
     }
 
     @Override
     protected int getScrollbarPosition()
     {
         int offset = switch(this.scrollBarStyle) {
-            case DETACHED -> this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder;
-            case MERGED -> this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder + this.itemContainerPadding.right() + this.listBackgroundBorder;
+            case DETACHED -> this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder.right();
+            case MERGED -> this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder.right() + this.itemContainerPadding.right() + this.listBackgroundBorder.right();
         };
         return this.getX() + this.getWidth() - offset;
     }
@@ -204,8 +227,8 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected int getScrollAreaHeight()
     {
         int offset = switch(this.scrollBarStyle) {
-            case DETACHED -> this.scrollBarPadding.top() + this.scrollBarPadding.bottom() + this.scrollBarBackgroundBorder * 2;
-            case MERGED -> this.scrollBarPadding.top() + this.scrollBarPadding.bottom() + this.scrollBarBackgroundBorder * 2 + this.itemContainerPadding.top() + this.itemContainerPadding.bottom() + + this.listBackgroundBorder * 2;
+            case DETACHED -> this.scrollBarBackgroundBorder.top() + this.scrollBarPadding.top() + this.scrollBarPadding.bottom() + this.scrollBarBackgroundBorder.bottom();
+            case MERGED -> this.listBackgroundBorder.top() + this.itemContainerPadding.top() + this.scrollBarBackgroundBorder.top() + this.scrollBarPadding.top() + this.scrollBarPadding.bottom() + this.scrollBarBackgroundBorder.bottom() + this.itemContainerPadding.bottom() + this.listBackgroundBorder.bottom();
         };
         return this.getHeight() - offset;
     }
@@ -213,8 +236,8 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected int getScrollAreaTop()
     {
         int offset = switch(this.scrollBarStyle) {
-            case DETACHED -> this.scrollBarPadding.top() + this.scrollBarBackgroundBorder;
-            case MERGED -> this.scrollBarPadding.top() + this.scrollBarBackgroundBorder + this.itemContainerPadding.top() + this.listBackgroundBorder;
+            case DETACHED -> this.scrollBarPadding.top() + this.scrollBarBackgroundBorder.top();
+            case MERGED -> this.scrollBarPadding.top() + this.scrollBarBackgroundBorder.top() + this.itemContainerPadding.top() + this.listBackgroundBorder.top();
         };
         return this.getY() + offset;
     }
@@ -222,7 +245,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public int getMaxScroll()
     {
-        return Math.max(0, this.getMaxPosition() - this.height + this.itemContainerPadding.top() + this.itemContainerPadding.bottom() + this.listBackgroundBorder * 2);
+        return Math.max(0, this.getMaxPosition() - this.height + this.listBackgroundBorder.top() + this.itemContainerPadding.top() + this.itemContainerPadding.bottom() + this.listBackgroundBorder.bottom());
     }
 
     @Override
@@ -246,7 +269,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected int getListBackgroundWidth()
     {
         return switch(this.scrollBarStyle) {
-            case DETACHED -> this.listBackgroundBorder + this.itemContainerPadding.left() + this.getRowWidth() + this.itemContainerPadding.right() + this.listBackgroundBorder;
+            case DETACHED -> this.listBackgroundBorder.left() + this.itemContainerPadding.left() + this.getRowWidth() + this.itemContainerPadding.right() + this.listBackgroundBorder.right();
             case MERGED -> this.getWidth();
         };
     }
@@ -280,12 +303,12 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
                 RenderSystem.enableDepthTest();
                 int scrollBarTop = this.getY();
                 if(this.scrollBarStyle == ScrollBarStyle.MERGED)
-                    scrollBarTop += this.listBackgroundBorder + this.itemContainerPadding.top();
-                int scrollBarLeft = this.getScrollbarPosition() - this.scrollBarPadding.left() - this.scrollBarBackgroundBorder;
-                int scrollBarAreaWidth = this.scrollBarBackgroundBorder + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder;
+                    scrollBarTop += this.listBackgroundBorder.top() + this.itemContainerPadding.top();
+                int scrollBarLeft = this.getScrollbarPosition() - this.scrollBarPadding.left() - this.scrollBarBackgroundBorder.left();
+                int scrollBarAreaWidth = this.scrollBarBackgroundBorder.left() + this.scrollBarPadding.left() + this.scrollBarWidth + this.scrollBarPadding.right() + this.scrollBarBackgroundBorder.right();
                 int scrollBarAreaHeight = this.getHeight();
                 if(this.scrollBarStyle == ScrollBarStyle.MERGED)
-                    scrollBarAreaHeight -= this.itemContainerPadding.top() +  this.itemContainerPadding.bottom() + this.listBackgroundBorder * 2;
+                    scrollBarAreaHeight -= this.listBackgroundBorder.top() + this.itemContainerPadding.top() + this.itemContainerPadding.bottom() + this.listBackgroundBorder.bottom();
                 graphics.blitSprite(this.scrollBarBackground, scrollBarLeft, scrollBarTop, scrollBarAreaWidth, scrollBarAreaHeight);
                 RenderSystem.disableBlend();
             }
@@ -322,7 +345,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        graphics.enableScissor(this.getRowLeft(), this.getY() + this.listBackgroundBorder, this.getRowRight(), this.getY() + this.getHeight() - this.listBackgroundBorder);
+        graphics.enableScissor(this.getRowLeft(), this.getY() + this.listBackgroundBorder.top(), this.getRowRight(), this.getY() + this.getHeight() - this.listBackgroundBorder.bottom());
 
         int rowLeft = this.getRowLeft();
         int rowWidth = this.getRowWidth();
@@ -448,10 +471,10 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
     public Item getEntry(double mouseX, double mouseY)
     {
-        int contentLeft = this.getX() + this.listBackgroundBorder + this.itemContainerPadding.left();
-        int contentTop = this.getY() + this.listBackgroundBorder;
+        int contentLeft = this.getX() + this.listBackgroundBorder.left() + this.itemContainerPadding.left();
+        int contentTop = this.getY() + this.listBackgroundBorder.top();
         int contentWidth = this.getRowWidth();
-        int contentHeight = this.getHeight() - this.listBackgroundBorder * 2;
+        int contentHeight = this.getHeight() - this.listBackgroundBorder.top() - this.listBackgroundBorder.bottom();
         if(ClientUtils.isPointInArea((int) mouseX, (int) mouseY, contentLeft, contentTop, contentWidth, contentHeight))
         {
             int rowLeft = this.getRowLeft();
