@@ -23,8 +23,11 @@ import java.util.function.Supplier;
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
     public static final ResourceLocation DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
-    public static final ItemSprites DEFAULT_ITEM_SPRITE = new ItemSprites(null, null, null, null, Utils.rl("widget/selection_list/item_enabled_selected"), null, Utils.rl("widget/selection_list/item_enabled_selected"), null);
-    public static final ItemSprites DEFAULT_SCROLLER_SPRITE = new ItemSprites(ResourceLocation.withDefaultNamespace("widget/scroller"));
+    public static final ItemSprites DEFAULT_ITEM_SPRITE = ItemSprites.builder()
+        .setEnabledSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
+        .setEnabledHoveredSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
+        .build();
+    public static final ItemSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(ResourceLocation.withDefaultNamespace("widget/scroller"));
     public static final ResourceLocation DEFAULT_SCROLL_BAR_BACKGROUND = ResourceLocation.withDefaultNamespace("widget/scroller_background");
     protected static final Padding DEFAULT_ITEM_CONTAINER_PADDING = Padding.of(4);
     protected static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
