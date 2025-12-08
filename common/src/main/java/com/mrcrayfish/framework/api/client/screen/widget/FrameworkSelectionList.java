@@ -47,6 +47,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
     protected @Nullable ItemSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
     protected int scrollerWidth = 6;
+    protected int minScrollerHeight = 32;
     protected @Nullable ResourceLocation scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
     protected Border scrollBarBorder = DEFAULT_SCROLL_BAR_BORDER;
     protected Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
@@ -113,9 +114,14 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         this.itemSprites = sprites;
     }
 
-    public void setScrollerWidth(int scrollerWidth)
+    public void setScrollerWidth(int width)
     {
-        this.scrollerWidth = scrollerWidth;
+        this.scrollerWidth = width;
+    }
+
+    public void setScrollerMinHeight(int minHeight)
+    {
+        this.minScrollerHeight = minHeight;
     }
 
     public void setScrollerSprites(@Nullable ItemSprites sprites)
@@ -240,7 +246,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     {
         int scrollAreaHeight = this.getScrollAreaHeight();
         int scrollBarHeight = (int) (Mth.square(scrollAreaHeight) / (float) this.getMaxPosition());
-        return Mth.clamp(scrollBarHeight, 32, scrollAreaHeight);
+        return Mth.clamp(scrollBarHeight, this.minScrollerHeight, scrollAreaHeight);
     }
 
     protected int getScrollAreaHeight()
