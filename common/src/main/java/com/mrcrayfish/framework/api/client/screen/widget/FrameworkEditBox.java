@@ -37,22 +37,22 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     private final LinearLayout layout = LinearLayout.horizontal();
     private final @Nullable Icon icon;
     private final @Nullable CenteredSpriteWidget iconWidget;
+    private final Border border;
     private final Padding padding;
     private final int spacing;
     private final @Nullable WidgetSprites background;
-    private final Border backgroundBorder;
     private final @Nullable Supplier<Boolean> activeSupplier;
     private final EditBox editBox;
     private final boolean clearOnRightClick;
 
-    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border backgroundBorder, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
+    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border border, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon.apply(this);
         this.padding = padding;
         this.spacing = spacing;
         this.background = background;
-        this.backgroundBorder = backgroundBorder;
+        this.border = border;
         this.activeSupplier = activeSupplier;
         this.clearOnRightClick = clearOnRightClick;
 
@@ -64,7 +64,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         {
             int iconWidth = iconWidthOverride != null ? iconWidthOverride : this.icon.width();
             this.iconWidget = this.layout.addChild(new CenteredSpriteWidget(iconWidth, 0, this.icon), layoutSettings -> {
-                layoutSettings.paddingTop(backgroundBorder.top() + padding.top()).paddingBottom(backgroundBorder.bottom() + padding.bottom()).paddingLeft(padding.left() + backgroundBorder.left());
+                layoutSettings.paddingTop(border.top() + padding.top()).paddingBottom(border.bottom() + padding.bottom()).paddingLeft(padding.left() + border.left());
             });
         }
         else
@@ -75,11 +75,11 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         // Create the custom edit box implementation
         this.editBox = this.layout.addChild(new Impl(this), layoutSettings -> {
             layoutSettings
-                .paddingRight(backgroundBorder.right() + padding.right())
-                .paddingTop(backgroundBorder.top() + padding.top())
-                .paddingBottom(backgroundBorder.bottom() + padding.bottom());
+                .paddingRight(border.right() + padding.right())
+                .paddingTop(border.top() + padding.top())
+                .paddingBottom(border.bottom() + padding.bottom());
             if(this.icon == null) {
-                layoutSettings.paddingLeft(backgroundBorder.left() + padding.left());
+                layoutSettings.paddingLeft(border.left() + padding.left());
             }
         });
         this.updateEditBoxWidth();
@@ -103,11 +103,11 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     {
         if(this.iconWidget != null)
         {
-            this.editBox.setWidth(this.getWidth() - (this.backgroundBorder.left() + this.padding.left() + this.iconWidget.getWidth() + this.spacing + this.padding.right() + this.backgroundBorder.right()));
+            this.editBox.setWidth(this.getWidth() - (this.border.left() + this.padding.left() + this.iconWidget.getWidth() + this.spacing + this.padding.right() + this.border.right()));
         }
         else
         {
-            this.editBox.setWidth(this.getWidth() - (this.backgroundBorder.left() + this.padding.left() + this.padding.right() + this.backgroundBorder.right()));
+            this.editBox.setWidth(this.getWidth() - (this.border.left() + this.padding.left() + this.padding.right() + this.border.right()));
         }
     }
 
@@ -138,7 +138,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     {
         super.setHeight(height);
         this.updateEditBoxWidth();
-        int contentHeight = height - (this.backgroundBorder.top() + this.padding.top() + this.padding.bottom() + this.backgroundBorder.bottom());
+        int contentHeight = height - (this.border.top() + this.padding.top() + this.padding.bottom() + this.border.bottom());
         this.editBox.setHeight(contentHeight);
         if(this.iconWidget != null)
             this.iconWidget.setHeight(contentHeight);
@@ -224,10 +224,10 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private int width = 100;
         private int height = 16;
         private Function<FrameworkEditBox, Icon> icon = editBox1 -> null;
+        private Border border = DEFAULT_BORDER;
         private Padding padding = DEFAULT_PADDING;
         private int spacing = 4;
         private @Nullable WidgetSprites background = DEFAULT_SPRITES;
-        private Border backgroundBorder = DEFAULT_BORDER;
         private String text = "";
         private @Nullable String suggestion;
         private @Nullable Consumer<String> callback;
@@ -244,7 +244,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          */
         public FrameworkEditBox build()
         {
-            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.backgroundBorder, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
+            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.border, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
         }
 
         /**
@@ -494,23 +494,21 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
 
         /**
-         * Sets the size of the background border. This will affect the positioning of the icon
-         * and text. This is effectively a padding around the content. The border size should match
-         * that of the background texture.
+         * Sets the size of the border. This will affect the layout of the icon and text. The border
+         * will inset the contents, not grow the width of the widget.
          *
          * @param border the size of the border in pixel units
          * @return this {@link Builder} for method chaining
          */
-        public Builder setBackgroundBorder(int border)
+        public Builder setBorder(int border)
         {
-            this.backgroundBorder = Border.of(border);
+            this.border = Border.of(border);
             return this;
         }
 
         /**
-         * Sets the size of the background border. This will affect the positioning of the icon
-         * and text. This is effectively a padding around the content. The border size should match
-         * that of the background texture.
+         * Sets the size of the border. This will affect the layout of the icon and text. The border
+         * will inset the contents, not grow the width of the widget.
          *
          * @param left   the left border in pixel units
          * @param top    the top border in pixel units
@@ -518,23 +516,22 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          * @param bottom the bottom border in pixel units
          * @return this {@link Builder} for method chaining
          */
-        public Builder setBackgroundBorder(int left, int top, int right, int bottom)
+        public Builder setBorder(int left, int top, int right, int bottom)
         {
-            this.backgroundBorder = Border.of(left, top, right, bottom);
+            this.border = Border.of(left, top, right, bottom);
             return this;
         }
 
         /**
-         * Sets the size of the background border. This will affect the positioning of the icon
-         * and text. This is effectively a padding around the content. The border size should match
-         * that of the background texture.
+         * Sets the size of the border. This will affect the layout of the icon and text. The border
+         * will inset the contents, not grow the width of the widget.
          *
          * @param border a {@link Border} object
          * @return this {@link Builder} for method chaining
          */
-        public Builder setBackgroundBorder(Border border)
+        public Builder setBorder(Border border)
         {
-            this.backgroundBorder = border;
+            this.border = border;
             return this;
         }
 
