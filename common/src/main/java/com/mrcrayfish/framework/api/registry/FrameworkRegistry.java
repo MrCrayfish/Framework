@@ -1,13 +1,13 @@
 package com.mrcrayfish.framework.api.registry;
 
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class FrameworkRegistry<T> extends WrappedRegistry<T>
 {
     private final boolean sync;
 
-    private FrameworkRegistry(ResourceLocation id, boolean sync)
+    private FrameworkRegistry(Identifier id, boolean sync)
     {
         super(ResourceKey.createRegistryKey(id));
         this.sync = sync;
@@ -28,17 +28,17 @@ public final class FrameworkRegistry<T> extends WrappedRegistry<T>
      * @param <T> The type of the object the registry will hold
      * @return A {@link Builder} instance for constructing a FrameworkRegistry
      */
-    public static <T> Builder<T> builder(ResourceLocation id)
+    public static <T> Builder<T> builder(Identifier id)
     {
         return new Builder<>(id);
     }
 
     public static class Builder<T>
     {
-        private final ResourceLocation id;
+        private final Identifier id;
         private boolean sync = true;
 
-        private Builder(ResourceLocation id)
+        private Builder(Identifier id)
         {
             this.id = id;
         }

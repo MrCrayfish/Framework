@@ -4,7 +4,8 @@ import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.platform.network.NeoForgeNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 
@@ -16,7 +17,7 @@ import java.util.OptionalInt;
 public class NeoForgeNetworkHelper implements INetworkHelper
 {
     @Override
-    public FrameworkNetworkBuilder createNetworkBuilder(ResourceLocation id, int version)
+    public FrameworkNetworkBuilder createNetworkBuilder(Identifier id, int version)
     {
         return new NeoForgeNetworkBuilder(id, version);
     }

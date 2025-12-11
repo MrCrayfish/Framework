@@ -2,16 +2,17 @@ package com.mrcrayfish.framework.api.client.model;
 
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
+import org.jetbrains.annotations.NotNull;
 
 public class NeoForgeModelResource<T> extends FrameworkModelResource<T>
 {
-    private final StandaloneModelKey<T> key;
-    private final UnbakedStandaloneModel<T> baker;
+    private final StandaloneModelKey<@NotNull T> key;
+    private final UnbakedStandaloneModel<@NotNull T> baker;
 
-    public NeoForgeModelResource(ResourceLocation location, FrameworkModelBaker<T> modelBaker)
+    public NeoForgeModelResource(Identifier location, FrameworkModelBaker<T> modelBaker)
     {
         super(location, modelBaker);
         this.key = new StandaloneModelKey<>(location::toString);

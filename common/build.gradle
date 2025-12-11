@@ -13,10 +13,10 @@ neoForge {
 
 dependencies {
     compileOnly "org.spongepowered:mixin:0.8.7"
-    compileOnly "io.github.llamalad7:mixinextras-common:0.4.1"
-    annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
-    library "com.electronwill.night-config:core:3.7.1"
-    library "com.electronwill.night-config:toml:3.7.1"
+    compileOnly "io.github.llamalad7:mixinextras-common:0.5.0"
+    annotationProcessor "io.github.llamalad7:mixinextras-common:0.5.0"
+    library "com.electronwill.night-config:core:3.8.3"
+    library "com.electronwill.night-config:toml:3.8.3"
 }
 
 configurations {
@@ -33,4 +33,23 @@ configurations {
 artifacts {
     commonJava sourceSets.main.java.sourceDirectories.singleFile
     commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}
+
+// Implement mcgradleconventions loader attribute
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    configurations.named("$variant") {
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
+        configurations.named("$variant") {
+            attributes {
+                attribute(loaderAttribute, 'common')
+            }
+        }
+    }
 }

@@ -26,7 +26,6 @@ public class KeyboardHandlerMixin
     {
         if(windowId == this.minecraft.getWindow().handle())
         {
-            FrameworkInputEvents.KEY.post().handle(event.key(), event.scancode(), action, event.modifiers());
             FrameworkInputEvents.KEY_PRESS.post().handle(action, event);
         }
     }

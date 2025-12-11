@@ -7,14 +7,14 @@ import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.function.Function;
 
-public record OpenBlockModel(@Nullable UnbakedGeometry geometry, @Nullable UnbakedModel.GuiLight guiLight, @Nullable Boolean ambientOcclusion, @Nullable ItemTransforms transforms, TextureSlots.Data textureSlots, @Nullable ResourceLocation parent, DataObject data) implements UnbakedModel
+public record OpenBlockModel(@Nullable UnbakedGeometry geometry, @Nullable UnbakedModel.GuiLight guiLight, @Nullable Boolean ambientOcclusion, @Nullable ItemTransforms transforms, TextureSlots.Data textureSlots, @Nullable Identifier parent, DataObject data) implements UnbakedModel
 {
     public static class Deserializer implements JsonDeserializer<OpenBlockModel>
     {
@@ -25,8 +25,8 @@ public record OpenBlockModel(@Nullable UnbakedGeometry geometry, @Nullable Unbak
         {
             JsonObject object = element.getAsJsonObject();
             UnbakedGeometry geometry = this.createGeometry(context, object);
-            ResourceLocation parent = this.parseString(object, "parent", ResourceLocation::parse, null);
-            TextureSlots.Data textures = this.parseObject(object, "textures", o -> TextureSlots.parseTextureMap(o, TextureAtlas.LOCATION_BLOCKS), TextureSlots.Data.EMPTY);
+            Identifier parent = this.parseString(object, "parent", Identifier::parse, null);
+            TextureSlots.Data textures = this.parseObject(object, "textures", o -> TextureSlots.parseTextureMap(o), TextureSlots.Data.EMPTY);
             Boolean ambientOcclusion = this.parseString(object, "ambientocclusion", Boolean::parseBoolean, null);
             ItemTransforms transforms = this.parseObject(object, "display", o -> context.deserialize(o, ItemTransforms.class), null);
             UnbakedModel.GuiLight guiLight = this.parseString(object, "gui_light", UnbakedModel.GuiLight::getByName, null);

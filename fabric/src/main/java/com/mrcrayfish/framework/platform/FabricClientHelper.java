@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -32,13 +32,15 @@ public class FabricClientHelper implements IClientHelper
     @Override
     public <T> T getStandaloneModel(FrameworkModelResource<T> resource)
     {
-        return Minecraft.getInstance().getModelManager().getModel(((FabricModelResource<T>) resource).extraModelKey());
+        throw new UnsupportedOperationException("Not supported yet in 1.21.11");
+        //return Minecraft.getInstance().getModelManager().getModel(((FabricModelResource<T>) resource).extraModelKey());
     }
 
     @Override
-    public <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker)
+    public <T> FrameworkModelResource<T> createModelResource(Identifier id, FrameworkModelBaker<T> baker)
     {
-        return new FabricModelResource<>(id, baker);
+        throw new UnsupportedOperationException("Not supported yet in 1.21.11");
+        //return new FabricModelResource<>(id, baker);
     }
 
     @Override

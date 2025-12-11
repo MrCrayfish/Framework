@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
@@ -35,5 +35,5 @@ public class Serializers
     public static final DataSerializer<UUID> UUID = new DataSerializer<>(UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC);
     public static final DataSerializer<ItemStack> ITEM_STACK = new DataSerializer<>(ItemStack.STREAM_CODEC, ItemStack.OPTIONAL_CODEC);
     public static final DataSerializer<ItemStack> ITEM_STACK_NON_EMPTY = new DataSerializer<>(ItemStack.STREAM_CODEC, ItemStack.CODEC);
-    public static final DataSerializer<ResourceLocation> RESOURCE_LOCATION = new DataSerializer<>(ResourceLocation.STREAM_CODEC, ResourceLocation.CODEC);
+    public static final DataSerializer<Identifier> RESOURCE_LOCATION = new DataSerializer<>(Identifier.STREAM_CODEC, Identifier.CODEC);
 }

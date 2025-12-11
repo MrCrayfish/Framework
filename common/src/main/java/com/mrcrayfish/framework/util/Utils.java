@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.util;
 
 import com.mrcrayfish.framework.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
@@ -10,9 +10,9 @@ import java.util.Optional;
  */
 public class Utils
 {
-    public static ResourceLocation rl(String name)
+    public static Identifier rl(String name)
     {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, name);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, name);
     }
 
     public static <T> Optional<T> or(T a, T b)

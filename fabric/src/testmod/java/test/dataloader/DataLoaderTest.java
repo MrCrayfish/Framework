@@ -9,7 +9,7 @@ import com.mrcrayfish.framework.client.resources.IDataLoader;
 import com.mrcrayfish.framework.client.resources.IResourceSupplier;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,10 +32,10 @@ public class DataLoaderTest implements ClientModInitializer
     private record ItemResource(Supplier<Item> item) implements IResourceSupplier
     {
         @Override
-        public ResourceLocation getLocation()
+        public Identifier getLocation()
         {
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(this.item.get());
-            return ResourceLocation.fromNamespaceAndPath(key.getNamespace(), "custom_data/" + key.getPath() + ".json");
+            Identifier key = BuiltInRegistries.ITEM.getKey(this.item.get());
+            return Identifier.fromNamespaceAndPath(key.getNamespace(), "custom_data/" + key.getPath() + ".json");
         }
     }
 

@@ -5,15 +5,15 @@ import com.mrcrayfish.framework.client.multiplayer.ClientPlayHandler;
 import com.mrcrayfish.framework.network.FrameworkCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Author: MrCrayfish
  */
-public record S2CSyncConfigData(ResourceLocation id, byte[] data)
+public record S2CSyncConfigData(Identifier id, byte[] data)
 {
     public static final StreamCodec<RegistryFriendlyByteBuf, S2CSyncConfigData> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         S2CSyncConfigData::id,
         FrameworkCodecs.BYTE_ARRAY,
         S2CSyncConfigData::data,

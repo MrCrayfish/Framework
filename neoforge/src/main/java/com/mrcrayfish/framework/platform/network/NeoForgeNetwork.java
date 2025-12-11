@@ -23,7 +23,7 @@ import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +49,7 @@ import java.util.function.Supplier;
  */
 public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Event
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final int version;
     private final boolean optional;
     private final List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads;
@@ -58,7 +58,7 @@ public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Eve
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks;
     private boolean registered = false;
 
-    public NeoForgeNetwork(ResourceLocation id, int version, boolean optional, Collection<PlayMessage<?>> playMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads, List<ConfigurationMessage<?>> configurationMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
+    public NeoForgeNetwork(Identifier id, int version, boolean optional, Collection<PlayMessage<?>> playMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, RegistryFriendlyByteBuf>>> playPayloads, List<ConfigurationMessage<?>> configurationMessages, List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads, List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> tasks)
     {
         this.id = id;
         this.version = version;
@@ -70,7 +70,7 @@ public final class NeoForgeNetwork implements FrameworkNetwork, Registration.Eve
     }
 
     @Override
-    public ResourceLocation id()
+    public Identifier id()
     {
         return this.id;
     }

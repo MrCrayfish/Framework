@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +23,7 @@ public class OpenModelHelper
 
     public static DataObject getData(Item item)
     {
-        ResourceLocation location = item.components().get(DataComponents.ITEM_MODEL);
+        Identifier location = item.components().get(DataComponents.ITEM_MODEL);
         if(location != null)
         {
             return readDataFromTopLevelItemModel(location);
@@ -33,7 +33,7 @@ public class OpenModelHelper
 
     public static DataObject getData(ItemStack stack)
     {
-        ResourceLocation location = stack.get(DataComponents.ITEM_MODEL);
+        Identifier location = stack.get(DataComponents.ITEM_MODEL);
         if(location != null)
         {
             return readDataFromTopLevelItemModel(location);
@@ -41,7 +41,7 @@ public class OpenModelHelper
         return DataObject.EMPTY;
     }
 
-    private static DataObject readDataFromTopLevelItemModel(ResourceLocation location)
+    private static DataObject readDataFromTopLevelItemModel(Identifier location)
     {
         ItemModel model = Minecraft.getInstance().getModelManager().getItemModel(location);
         if(model instanceof IOpenModel openModel)

@@ -66,7 +66,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     {
         // Registers custom registries using Fabric's registry builder
         Services.REGISTRATION.getRegistryObjects(FrameworkRegistry.class).forEach(registry -> {
-            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().location());
+            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().identifier());
             var builder = FabricRegistryBuilder.createSimple(registry.getKey());
             if(registry.shouldSync()) builder.attribute(RegistryAttribute.SYNCED);
             registry.setProxy(VanillaRegistryProxy.wrap(builder.buildAndRegister()));
@@ -75,7 +75,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         // Register all entries
         Registration.getSortedRegistryEntries().forEach(entry -> {
             entry.register((registryKey, name, valueSupplier) -> {
-                Registry registry = BuiltInRegistries.REGISTRY.getValue(registryKey.location());
+                Registry registry = BuiltInRegistries.REGISTRY.getValue(registryKey.identifier());
                 if(registry == null)
                     throw new NullPointerException("Registry not found: " + registryKey);
                 Registry.register(registry, name, valueSupplier.get());

@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.entity.sync.DataEntry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -54,34 +54,34 @@ public class FrameworkCodecs
         }
     };
 
-    public static final StreamCodec<FriendlyByteBuf, Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>>> ENTITY_DATA_KEYS = new StreamCodec<>()
+    public static final StreamCodec<FriendlyByteBuf, Map<Identifier, List<Pair<Identifier, Integer>>>> ENTITY_DATA_KEYS = new StreamCodec<>()
     {
         @Override
-        public void encode(FriendlyByteBuf buf, Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> map)
+        public void encode(FriendlyByteBuf buf, Map<Identifier, List<Pair<Identifier, Integer>>> map)
         {
             buf.writeInt(map.size());
             map.forEach((classId, value) -> {
-                buf.writeResourceLocation(classId);
+                buf.writeIdentifier(classId);
                 buf.writeVarInt(value.size());
                 value.forEach(pair -> {
-                    buf.writeResourceLocation(pair.getKey());
+                    buf.writeIdentifier(pair.getKey());
                     buf.writeVarInt(pair.getValue());
                 });
             });
         }
 
         @Override
-        public Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> decode(FriendlyByteBuf buf)
+        public Map<Identifier, List<Pair<Identifier, Integer>>> decode(FriendlyByteBuf buf)
         {
-            Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> map = new HashMap<>();
+            Map<Identifier, List<Pair<Identifier, Integer>>> map = new HashMap<>();
             int keySize = buf.readInt();
             for(int i = 0; i < keySize; i++)
             {
-                ResourceLocation classId = buf.readResourceLocation();
+                Identifier classId = buf.readIdentifier();
                 int entrySize = buf.readVarInt();
                 for(int j = 0; j < entrySize; j++)
                 {
-                    ResourceLocation keyId = buf.readResourceLocation();
+                    Identifier keyId = buf.readIdentifier();
                     int id = buf.readVarInt();
                     map.computeIfAbsent(classId, c -> new ArrayList<>()).add(Pair.of(keyId, id));
                 }

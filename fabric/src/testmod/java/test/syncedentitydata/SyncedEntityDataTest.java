@@ -11,7 +11,7 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +29,7 @@ public class SyncedEntityDataTest implements ModInitializer
     private BlockPos lastClickedPos = BlockPos.ZERO;
 
     private static final SyncedDataKey<Player, Boolean> TOUCHED_GRASS = SyncedDataKey.builder(SyncedClassKey.PLAYER, Serializers.BOOLEAN)
-            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "touched_grass"))
+            .id(Identifier.fromNamespaceAndPath("synced_entity_data_test", "touched_grass"))
             .defaultValueSupplier(() -> false)
             .resetOnDeath()
             .saveToFile()
@@ -37,7 +37,7 @@ public class SyncedEntityDataTest implements ModInitializer
             .build();
 
     private static final SyncedDataKey<Animal, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.ANIMAL, Serializers.INTEGER)
-            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "hit_count"))
+            .id(Identifier.fromNamespaceAndPath("synced_entity_data_test", "hit_count"))
             .defaultValueSupplier(() -> 0)
             .saveToFile()
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)

@@ -20,7 +20,7 @@ public record FrameworkBakedModel(QuadCollection quads, boolean useAmbientOcclus
     public static final FrameworkModelBaker<FrameworkBakedModel> BAKER = (model, baker) -> {
         boolean ambientOcclusion = model.getTopAmbientOcclusion();
         TextureSlots textureSlots = model.getTopTextureSlots();
-        QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, BlockModelRotation.X0_Y0);
+        QuadCollection quads = model.bakeTopGeometry(textureSlots, baker, BlockModelRotation.IDENTITY); // TODO check
         TextureAtlasSprite particle = model.resolveParticleSprite(textureSlots, baker);
         ChunkSectionLayer layer = ClientServices.CLIENT.getChunkSectionLayer(model);
         DataObject data = model.wrapped() instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;

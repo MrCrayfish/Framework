@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +28,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 @RegistryContainer
 public class MenuDataTest
 {
-    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(ResourceLocation.fromNamespaceAndPath("menu_data_test", "test_menu"), TestMenu.CustomData.STREAM_CODEC, TestMenu::new);
+    public static final RegistryEntry<MenuType<TestMenu>> TEST_MENU = RegistryEntry.menuTypeWithData(Identifier.fromNamespaceAndPath("menu_data_test", "test_menu"), TestMenu.CustomData.STREAM_CODEC, TestMenu::new);
 
     public MenuDataTest()
     {

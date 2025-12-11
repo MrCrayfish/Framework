@@ -9,7 +9,7 @@ import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
@@ -32,13 +32,13 @@ public class NetworkTest
     public static final Marker MARKER = MarkerFactory.getMarker("NETWORK_TEST");
 
     public static final FrameworkNetwork TEST_PLAY_CHANNEL = FrameworkAPI
-            .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "play"), 1)
+            .createNetworkBuilder(Identifier.fromNamespaceAndPath("network_test", "play"), 1)
             .registerPlayMessage("test", TestMessage.class, TestMessage.STREAM_CODEC, TestMessage::handle)
             .optional()
             .build();
 
     public static final FrameworkNetwork TEST_CONFIGURATION_CHANNEL = FrameworkAPI
-            .createNetworkBuilder(ResourceLocation.fromNamespaceAndPath("network_test", "configuration"), 1)
+            .createNetworkBuilder(Identifier.fromNamespaceAndPath("network_test", "configuration"), 1)
             .registerConfigurationMessage("test", TestConfiguration.class, TestConfiguration.STREAM_CODEC, TestConfiguration::handle, () -> List.of(new TestConfiguration()))
             .optional()
             .build();

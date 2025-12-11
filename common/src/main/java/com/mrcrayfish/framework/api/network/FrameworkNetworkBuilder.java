@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -30,8 +30,8 @@ public interface FrameworkNetworkBuilder
 
     FrameworkNetwork build();
 
-    static ResourceLocation createMessageId(ResourceLocation id, String name)
+    static Identifier createMessageId(Identifier id, String name)
     {
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + "/" + name);
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), id.getPath() + "/" + name);
     }
 }

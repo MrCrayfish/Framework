@@ -13,7 +13,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.jetbrains.annotations.Nullable;
@@ -29,13 +29,13 @@ import java.util.function.Supplier;
  */
 public class FabricNetworkBuilder implements FrameworkNetworkBuilder
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final int version;
     private final List<PlayMessage<?>> playMessages = new ArrayList<>();
     private final List<ConfigurationMessage<?>> configurationMessages = new ArrayList<>();
     private final List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks = new ArrayList<>();
 
-    public FabricNetworkBuilder(ResourceLocation id, int version)
+    public FabricNetworkBuilder(Identifier id, int version)
     {
         this.id = id;
         this.version = version;
@@ -56,7 +56,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, PlayMessageContext> handler, @org.jetbrains.annotations.Nullable PacketFlow flow)
     {
-        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
         StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
         this.playMessages.add(new PlayMessage<>(payloadType, messageClass, payloadCodec, handler, flow));
@@ -79,7 +79,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ConfigurationMessageContext> handler, Supplier<List<T>> messages, @Nullable PacketFlow flow, boolean completeImmediately)
     {
         this.registerConfigurationAckMessage();
-        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
         StreamCodec<FriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
         this.configurationMessages.add(new ConfigurationMessage<>(payloadType, taskClass, payloadCodec, handler, flow));
@@ -92,7 +92,7 @@ public class FabricNetworkBuilder implements FrameworkNetworkBuilder
     {
         if(this.configurationMessages.isEmpty())
         {
-            ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
+            Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
             CustomPacketPayload.Type<FrameworkPayload<FinishedConfigurationTask>> payloadType = new CustomPacketPayload.Type<>(payloadId);
             StreamCodec<FriendlyByteBuf, FrameworkPayload<FinishedConfigurationTask>> payloadCodec = FrameworkPayload.codec(payloadType, FinishedConfigurationTask.STREAM_CODEC);
             this.configurationMessages.add(new ConfigurationMessage<>(payloadType, FinishedConfigurationTask.class, payloadCodec, FinishedConfigurationTask::handle, null));

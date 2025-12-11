@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.api.network;
 
 import net.minecraft.network.Connection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,7 +18,7 @@ public interface FrameworkNetwork
 {
     Marker CONFIGURATION_MARKER = MarkerFactory.getMarker("FRAMEWORK_CONFIGURATION");
 
-    ResourceLocation id();
+    Identifier id();
 
     void send(Connection connection, Object message);
 

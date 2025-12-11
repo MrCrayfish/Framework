@@ -5,16 +5,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-// TODO deprecate and create new renamed version
-@Deprecated(since = "1.21.11", forRemoval = true)
-public final class ResourceLocationValidator implements Validator<String>
+public final class IdentifierValidator implements Validator<String>
 {
-    private static final ResourceLocationValidator INSTANCE = new ResourceLocationValidator(null);
+    private static final IdentifierValidator INSTANCE = new IdentifierValidator(null);
 
     private final @Nullable String namespace;
     private final Component hint;
 
-    private ResourceLocationValidator(@Nullable String namespace)
+    private IdentifierValidator(@Nullable String namespace)
     {
         this.namespace = namespace;
         this.hint = namespace != null
@@ -48,7 +46,7 @@ public final class ResourceLocationValidator implements Validator<String>
     /**
      * @return A String validator that validates the String value uses the Identifier format.
      */
-    public static ResourceLocationValidator any()
+    public static IdentifierValidator any()
     {
         return INSTANCE;
     }
@@ -61,9 +59,9 @@ public final class ResourceLocationValidator implements Validator<String>
      * @param namespace the namespace to use for matching
      * @return A String validator for check Identifier format with a namespace rule.
      */
-    public static ResourceLocationValidator restrictNamespace(String namespace)
+    public static IdentifierValidator restrictNamespace(String namespace)
     {
         Preconditions.checkState(Identifier.isValidNamespace(namespace), "Invalid namespace: %s", namespace);
-        return new ResourceLocationValidator(namespace);
+        return new IdentifierValidator(namespace);
     }
 }

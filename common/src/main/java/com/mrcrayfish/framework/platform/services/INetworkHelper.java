@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 
@@ -20,7 +20,7 @@ public interface INetworkHelper
      * @param version the protocol version
      * @return a network builder instance
      */
-    FrameworkNetworkBuilder createNetworkBuilder(ResourceLocation id, int version);
+    FrameworkNetworkBuilder createNetworkBuilder(Identifier id, int version);
 
     /**
      * Opens a menu with data. This allows custom data to be sent to clients when opening a menu.

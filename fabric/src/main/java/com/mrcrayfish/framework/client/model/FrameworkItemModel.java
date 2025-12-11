@@ -12,24 +12,27 @@ import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Author: MrCrayfish
  */
 public final class FrameworkItemModel extends BlockModelWrapper implements IOpenModel
 {
-    public static final ResourceLocation ID = Utils.rl("model");
+    public static final Identifier ID = Utils.rl("model");
 
     private final DataObject data;
 
-    public FrameworkItemModel(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, DataObject data)
+    public FrameworkItemModel(List<BakedQuad> quads, List<ItemTintSource> tints, ModelRenderProperties properties, Function<ItemStack, RenderType> function, DataObject data)
     {
-        super(tints, quads, properties);
+        super(tints, quads, properties, function);
         this.data = data;
     }
 
@@ -39,10 +42,10 @@ public final class FrameworkItemModel extends BlockModelWrapper implements IOpen
         return this.data;
     }
 
-    public record Unbaked(ResourceLocation model, List<ItemTintSource> tints) implements ItemModel.Unbaked
+    public record Unbaked(Identifier model, List<ItemTintSource> tints) implements ItemModel.Unbaked
     {
         public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
-            ResourceLocation.CODEC.fieldOf("model").forGetter(Unbaked::model),
+            Identifier.CODEC.fieldOf("model").forGetter(Unbaked::model),
             ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(Unbaked::tints)
         ).apply(builder, Unbaked::new));
 
@@ -61,7 +64,8 @@ public final class FrameworkItemModel extends BlockModelWrapper implements IOpen
             FrameworkBakedModel model = FrameworkBakedModel.BAKER.bake(resolvedModel, baker);
             List<BakedQuad> quads = model.quads().getAll();
             ModelRenderProperties properties = ModelRenderProperties.fromResolvedModel(baker, resolvedModel, textureslots);
-            return new FrameworkItemModel(quads, this.tints, properties, model.getData());
+            Function<ItemStack, RenderType> function = BlockModelWrapper.detectRenderType(quads);
+            return new FrameworkItemModel(quads, this.tints, properties, function, model.getData());
         }
 
         @Override

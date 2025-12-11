@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import com.mrcrayfish.framework.network.message.configuration.FinishedConfigurationTask;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 
@@ -18,14 +18,14 @@ import java.util.function.Supplier;
  */
 public class FabricConfigurationTask<T> implements ConfigurationTask
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final FabricNetwork network;
     private final ServerConfigurationPacketListenerImpl listener;
     private final Type type;
     private final Supplier<List<T>> messages;
     private final boolean completeImmediately;
 
-    public FabricConfigurationTask(ResourceLocation id, FabricNetwork network, ServerConfigurationPacketListenerImpl listener, Type type, Supplier<List<T>> messages, boolean completeImmediately)
+    public FabricConfigurationTask(Identifier id, FabricNetwork network, ServerConfigurationPacketListenerImpl listener, Type type, Supplier<List<T>> messages, boolean completeImmediately)
     {
         this.id = id;
         this.network = network;
@@ -58,7 +58,7 @@ public class FabricConfigurationTask<T> implements ConfigurationTask
         return this.type;
     }
 
-    public ResourceLocation id()
+    public Identifier id()
     {
         return this.id;
     }

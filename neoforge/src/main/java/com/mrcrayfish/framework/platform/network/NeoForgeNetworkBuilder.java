@@ -14,7 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  */
 public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final int version;
     private boolean optional = false;
     private final List<PlayMessage<?>> playMessages = new ArrayList<>();
@@ -40,7 +40,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     private final List<Function<NeoForgeNetwork, PayloadHolder<?, FriendlyByteBuf>>> configurationPayloads = new ArrayList<>();
     private final List<BiFunction<NeoForgeNetwork, ServerConfigurationPacketListener, ICustomConfigurationTask>> configurationTasks = new ArrayList<>();
 
-    public NeoForgeNetworkBuilder(ResourceLocation id, int version)
+    public NeoForgeNetworkBuilder(Identifier id, int version)
     {
         this.id = id;
         this.version = version;
@@ -62,7 +62,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     @Override
     public <T> FrameworkNetworkBuilder registerPlayMessage(String name, Class<T> messageClass, StreamCodec<RegistryFriendlyByteBuf, T> codec, BiConsumer<T, PlayMessageContext> handler, @Nullable PacketFlow flow)
     {
-        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
         StreamCodec<RegistryFriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
         PlayMessage<T> message = new PlayMessage<>(payloadType, messageClass, payloadCodec, handler, flow);
@@ -91,7 +91,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     public <T> FrameworkNetworkBuilder registerConfigurationMessage(String name, Class<T> taskClass, StreamCodec<FriendlyByteBuf, T> codec, BiConsumer<T, ConfigurationMessageContext> handler, Supplier<List<T>> messages, @Nullable PacketFlow flow, boolean completeImmediately)
     {
         this.registerConfigurationAckMessage();
-        ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
+        Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, name);
         CustomPacketPayload.Type<FrameworkPayload<T>> payloadType = new CustomPacketPayload.Type<>(payloadId);
         StreamCodec<FriendlyByteBuf, FrameworkPayload<T>> payloadCodec = FrameworkPayload.codec(payloadType, codec);
         ConfigurationMessage<T> message = new ConfigurationMessage<>(payloadType, taskClass, payloadCodec, handler, flow);
@@ -112,7 +112,7 @@ public class NeoForgeNetworkBuilder implements FrameworkNetworkBuilder
     {
         if(this.configurationMessages.isEmpty())
         {
-            ResourceLocation payloadId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
+            Identifier payloadId = FrameworkNetworkBuilder.createMessageId(this.id, "ack");
             CustomPacketPayload.Type<FrameworkPayload<FinishedConfigurationTask>> payloadType = new CustomPacketPayload.Type<>(payloadId);
             StreamCodec<FriendlyByteBuf, FrameworkPayload<FinishedConfigurationTask>> payloadCodec = FrameworkPayload.codec(payloadType, FinishedConfigurationTask.STREAM_CODEC);
             ConfigurationMessage<FinishedConfigurationTask> message = new ConfigurationMessage<>(payloadType, FinishedConfigurationTask.class, payloadCodec, FinishedConfigurationTask::handle, null);

@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.sync.SyncedClassKey;
 import com.mrcrayfish.framework.api.sync.SyncedDataKey;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -110,16 +110,16 @@ public class DataHolder
             if(rawDataKey.isEmpty())
                 return;
 
-            ResourceLocation classKey = ResourceLocation.tryParse(rawClassKey.get());
+            Identifier classKey = Identifier.tryParse(rawClassKey.get());
             SyncedClassKey<?> syncedClassKey = SyncedEntityData.instance().getClassKey(classKey);
             if(syncedClassKey == null)
                 return;
 
-            Map<ResourceLocation, SyncedDataKey<?, ?>> keys = SyncedEntityData.instance().getDataKeys(syncedClassKey);
+            Map<Identifier, SyncedDataKey<?, ?>> keys = SyncedEntityData.instance().getDataKeys(syncedClassKey);
             if(keys == null)
                 return;
 
-            ResourceLocation dataKey = ResourceLocation.tryParse(rawDataKey.get());
+            Identifier dataKey = Identifier.tryParse(rawDataKey.get());
             SyncedDataKey<?, ?> syncedDataKey = keys.get(dataKey);
             if(syncedDataKey == null || !syncedDataKey.save())
                 return;

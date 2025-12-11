@@ -29,7 +29,7 @@ import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.level.storage.LevelResource;
@@ -71,12 +71,12 @@ public class FrameworkConfigManager
         return instance;
     }
 
-    private final Map<ResourceLocation, FrameworkConfigImpl> configs;
+    private final Map<Identifier, FrameworkConfigImpl> configs;
     private WeakReference<MinecraftServer> currentServer = new WeakReference<>(null);
 
     private FrameworkConfigManager()
     {
-        Map<ResourceLocation, FrameworkConfigImpl> configs = new HashMap<>();
+        Map<Identifier, FrameworkConfigImpl> configs = new HashMap<>();
         Services.CONFIG.getAllFrameworkConfigs().forEach(pair ->
         {
             ConfigScanData data = ConfigScanData.analyze(pair.getLeft(), pair.getRight());
@@ -95,7 +95,7 @@ public class FrameworkConfigManager
     }
 
     @Nullable
-    public FrameworkConfigImpl getConfig(ResourceLocation id)
+    public FrameworkConfigImpl getConfig(Identifier id)
     {
         return this.configs.get(id);
     }
@@ -557,9 +557,9 @@ public class FrameworkConfigManager
             }
         }
 
-        public ResourceLocation getName()
+        public Identifier getName()
         {
-            return ResourceLocation.fromNamespaceAndPath(this.id, this.name);
+            return Identifier.fromNamespaceAndPath(this.id, this.name);
         }
 
         public ConfigType getType()

@@ -30,7 +30,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientCommonPacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,7 +51,7 @@ import java.util.function.Supplier;
  */
 public final class FabricNetwork implements FrameworkNetwork, Registration.Event
 {
-    final ResourceLocation id;
+    final Identifier id;
     final int protocolVersion;
     final List<PlayMessage<?>> playMessages;
     final List<ConfigurationMessage<?>> configurationMessages;
@@ -63,7 +63,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     private boolean registered = false;
 
     @SuppressWarnings("unchecked")
-    public FabricNetwork(ResourceLocation id, int protocolVersion, List<PlayMessage<?>> playMessages, List<ConfigurationMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
+    public FabricNetwork(Identifier id, int protocolVersion, List<PlayMessage<?>> playMessages, List<ConfigurationMessage<?>> configurationMessages, List<BiFunction<FabricNetwork, ServerConfigurationPacketListenerImpl, ConfigurationTask>> configurationTasks)
     {
         this.id = id;
         this.protocolVersion = protocolVersion;
@@ -78,7 +78,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     }
 
     @Override
-    public ResourceLocation id()
+    public Identifier id()
     {
         return this.id;
     }

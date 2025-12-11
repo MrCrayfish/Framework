@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.api.registry;
 
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 
@@ -17,7 +17,7 @@ public final class BlockRegistryEntry<T extends Block, E extends BlockItem> exte
     private final Function<T, E> itemSupplier;
     private E itemInstance = null;
 
-    BlockRegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> blockSupplier, Function<T, E> itemSupplier)
+    BlockRegistryEntry(Registry<?> registry, Identifier id, Supplier<T> blockSupplier, Function<T, E> itemSupplier)
     {
         super(registry, id, blockSupplier);
         this.itemSupplier = itemSupplier;

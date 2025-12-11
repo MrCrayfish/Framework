@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -43,15 +43,15 @@ public class FrameworkModelProvider implements DataProvider
     {
         Map<Block, BlockModelDefinitionGenerator> generators = new HashMap<>();
         Map<Item, ClientItem> clientItems = new HashMap<>();
-        Map<ResourceLocation, ModelInstance> models = new HashMap<>();
+        Map<Identifier, ModelInstance> models = new HashMap<>();
         for(FrameworkGenerator.Factory<? extends FrameworkGenerator> generator : this.generators)
             generator.apply(generators, clientItems, models).generate();
         return CompletableFuture.allOf(
             DataProvider.saveAll(output, BlockModelDefinition.CODEC, block -> {
-                return this.blockstates.json(block.builtInRegistryHolder().key().location());
+                return this.blockstates.json(block.builtInRegistryHolder().key().identifier());
             }, Maps.transformValues(generators, BlockModelDefinitionGenerator::create)),
             DataProvider.saveAll(output, ClientItem.CODEC, item -> {
-                return this.items.json(item.builtInRegistryHolder().key().location());
+                return this.items.json(item.builtInRegistryHolder().key().identifier());
             }, clientItems),
             DataProvider.saveAll(output, Supplier::get, this.models::json, models)
         );

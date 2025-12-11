@@ -4,7 +4,7 @@ license = "${mod_license}"
 
 [[mods]]
 modId="synced_entity_data_test"
-version="0.1.0"
+version="0.3.0"
 displayName="Synced Player Data Test"
 authors="MrCrayfish"
 description=""

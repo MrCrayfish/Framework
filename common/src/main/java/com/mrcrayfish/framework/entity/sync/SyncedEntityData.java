@@ -16,7 +16,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * <p>To use this system you first need to create a synced data key instance. This should be a public
  * static final field. You will need to specify an key id (based on your modid), the serializer, and
  * a default value supplier.</p>
- * <code>public static final SyncedDataKey&lt;Double&gt; CURRENT_SPEED = SyncedDataKey.create(new ResourceLocation("examplemod:speed"), Serializers.DOUBLE, () -> 0.0);</code>
+ * <code>public static final SyncedDataKey&lt;Double&gt; CURRENT_SPEED = SyncedDataKey.create(new Identifier("examplemod:speed"), Serializers.DOUBLE, () -> 0.0);</code>
  * <p></p>
  * <p>Next the key needs to be registered. This can simply be done in the common setup of your mod.</p>
  * <code>SyncedPlayerData.instance().registerKey(CURRENT_SPEED);</code>
@@ -61,13 +61,13 @@ public final class SyncedEntityData
     private static SyncedEntityData instance;
 
     private final Set<SyncedClassKey<?>> registeredClassKeys = new HashSet<>();
-    private final Object2ObjectMap<ResourceLocation, SyncedClassKey<?>> idToClassKey = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Identifier, SyncedClassKey<?>> idToClassKey = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectMap<String, SyncedClassKey<?>> classNameToClassKey = new Object2ObjectOpenHashMap<>();
     private final Map<String, Boolean> clientClassNameCapabilityCache = new ConcurrentHashMap<>();
     private final Map<String, Boolean> serverClassNameCapabilityCache = new ConcurrentHashMap<>();
 
     private final Set<SyncedDataKey<?, ?>> registeredDataKeys = new HashSet<>();
-    private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<ResourceLocation, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
+    private final Reference2ObjectMap<SyncedClassKey<?>, HashMap<Identifier, SyncedDataKey<?, ?>>> classToKeys = new Reference2ObjectOpenHashMap<>();
     private final Reference2IntMap<SyncedDataKey<?, ?>> internalIds = new Reference2IntOpenHashMap<>();
     private final Int2ReferenceMap<SyncedDataKey<?, ?>> syncedIdToKey = new Int2ReferenceOpenHashMap<>();
 
@@ -109,7 +109,7 @@ public final class SyncedEntityData
      */
     public synchronized <E extends Entity, T> void registerDataKey(SyncedDataKey<E, T> dataKey)
     {
-        ResourceLocation keyId = dataKey.id();
+        Identifier keyId = dataKey.id();
         SyncedClassKey<E> classKey = dataKey.classKey();
         if(FrameworkData.isLoaded())
         {
@@ -184,12 +184,12 @@ public final class SyncedEntityData
         return this.internalIds.getInt(key);
     }
 
-    SyncedClassKey<?> getClassKey(ResourceLocation id)
+    SyncedClassKey<?> getClassKey(Identifier id)
     {
         return this.idToClassKey.get(id);
     }
 
-    Map<ResourceLocation, SyncedDataKey<?, ?>> getDataKeys(SyncedClassKey<?> key)
+    Map<Identifier, SyncedDataKey<?, ?>> getDataKeys(SyncedClassKey<?> key)
     {
         return this.classToKeys.get(key);
     }
@@ -344,7 +344,7 @@ public final class SyncedEntityData
     {
         this.syncedIdToKey.clear();
 
-        List<Pair<ResourceLocation, ResourceLocation>> missingKeys = new ArrayList<>();
+        List<Pair<Identifier, Identifier>> missingKeys = new ArrayList<>();
         message.getKeyMap().forEach((classId, list) ->
         {
             SyncedClassKey<?> classKey = this.idToClassKey.get(classId);
@@ -354,7 +354,7 @@ public final class SyncedEntityData
                 return;
             }
 
-            Map<ResourceLocation, SyncedDataKey<?, ?>> keys = this.classToKeys.get(classKey);
+            Map<Identifier, SyncedDataKey<?, ?>> keys = this.classToKeys.get(classKey);
             list.forEach(pair ->
             {
                 SyncedDataKey<?, ?> syncedDataKey = keys.get(pair.getLeft());
@@ -378,7 +378,7 @@ public final class SyncedEntityData
 
     public List<S2CSyncedEntityData> getConfigurationMessages()
     {
-        Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> map = new HashMap<>();
+        Map<Identifier, List<Pair<Identifier, Integer>>> map = new HashMap<>();
         this.getKeys().forEach(key -> {
             int id = this.getInternalId(key);
             map.computeIfAbsent(key.classKey().id(), c -> new ArrayList<>()).add(Pair.of(key.id(), id));

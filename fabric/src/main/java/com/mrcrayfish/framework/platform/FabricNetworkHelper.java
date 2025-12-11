@@ -6,7 +6,7 @@ import com.mrcrayfish.framework.platform.network.FabricNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,7 +22,7 @@ import java.util.OptionalInt;
 public class FabricNetworkHelper implements INetworkHelper
 {
     @Override
-    public FrameworkNetworkBuilder createNetworkBuilder(ResourceLocation id, int version)
+    public FrameworkNetworkBuilder createNetworkBuilder(Identifier id, int version)
     {
         return new FabricNetworkBuilder(id, version);
     }

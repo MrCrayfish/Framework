@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -22,9 +22,9 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 @Mod(value = "standalone_model_test", dist = Dist.CLIENT)
 public class ClientStandaloneModelTest
 {
-    private static ResourceLocation rl(String name)
+    private static Identifier rl(String name)
     {
-        return ResourceLocation.fromNamespaceAndPath("standalone_model_test", name);
+        return Identifier.fromNamespaceAndPath("standalone_model_test", name);
     }
 
     public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));

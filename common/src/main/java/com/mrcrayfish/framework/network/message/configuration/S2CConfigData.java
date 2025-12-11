@@ -7,20 +7,20 @@ import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.concurrent.CountDownLatch;
 
 /**
  * Author: MrCrayfish
  */
-public record S2CConfigData(ResourceLocation key, byte[] data)
+public record S2CConfigData(Identifier key, byte[] data)
 {
     public static final StreamCodec<FriendlyByteBuf, S2CConfigData> STREAM_CODEC = StreamCodec.of((buf, data) -> {
-        buf.writeResourceLocation(data.key);
+        buf.writeIdentifier(data.key);
         buf.writeBytes(data.data);
     }, buf -> {
-        ResourceLocation key = buf.readResourceLocation();
+        Identifier key = buf.readIdentifier();
         byte[] data = new byte[buf.readableBytes()];
         buf.readBytes(data);
         return new S2CConfigData(key, data);

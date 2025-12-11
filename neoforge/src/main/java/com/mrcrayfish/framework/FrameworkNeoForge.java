@@ -109,7 +109,7 @@ public class FrameworkNeoForge
     {
         // Registers custom registries using NeoForge's event
         Services.REGISTRATION.getRegistryObjects(FrameworkRegistry.class).forEach(registry -> {
-            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().location());
+            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().identifier());
             RegistryBuilder<?> builder = new RegistryBuilder(registry.getKey()).sync(registry.shouldSync());
             registry.setProxy(VanillaRegistryProxy.wrap(event.create(builder)));
         });

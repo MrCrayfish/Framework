@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.registry.RegistryProxy;
 import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +51,7 @@ public class WrappedRegistry<T> implements Iterable<T>
      * @param id a resource location of the value
      * @return True if a match was found
      */
-    public boolean containsKey(ResourceLocation id)
+    public boolean containsKey(Identifier id)
     {
         return this.getProxy().containsKey(id);
     }
@@ -63,7 +63,7 @@ public class WrappedRegistry<T> implements Iterable<T>
      * @return T or null if no value matching the id
      */
     @Nullable
-    public T getValue(ResourceLocation id)
+    public T getValue(Identifier id)
     {
         return this.getProxy().getValue(id);
     }
@@ -100,9 +100,9 @@ public class WrappedRegistry<T> implements Iterable<T>
     }
 
     @ApiStatus.Internal
-    public static <T> WrappedRegistry<T> wrapVanilla(Registry<T> registry)
+    public static <T> WrappedRegistry<T> wrapVanilla(Registry<@NotNull T> registry)
     {
-        ResourceKey<Registry<T>> key = ResourceKey.createRegistryKey(registry.key().location());
+        ResourceKey<@NotNull Registry<@NotNull T>> key = ResourceKey.createRegistryKey(registry.key().identifier());
         WrappedRegistry<T> wrapped = new WrappedRegistry<>(key);
         wrapped.proxy = VanillaRegistryProxy.wrap(registry);
         return wrapped;

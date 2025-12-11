@@ -53,7 +53,6 @@ public class ClientNeoForgeEvents
     @SubscribeEvent
     public void onKey(InputEvent.Key event)
     {
-        FrameworkInputEvents.KEY.post().handle(event.getKey(), event.getScanCode(), event.getAction(), event.getModifiers());
         FrameworkInputEvents.KEY_PRESS.post().handle(event.getAction(), event.getKeyEvent());
     }
 

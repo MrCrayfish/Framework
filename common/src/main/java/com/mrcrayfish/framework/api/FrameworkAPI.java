@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import org.apache.commons.lang3.function.TriFunction;
@@ -24,7 +24,7 @@ public class FrameworkAPI
      * @param version the version of the protocol
      * @return a new modloader specific FrameworkNetworkBuilder
      */
-    public static FrameworkNetworkBuilder createNetworkBuilder(ResourceLocation id, int version)
+    public static FrameworkNetworkBuilder createNetworkBuilder(Identifier id, int version)
     {
         // Internal code, do not call these directly since they may break in a future update.
         return Services.NETWORK.createNetworkBuilder(id, version);
@@ -32,7 +32,7 @@ public class FrameworkAPI
 
     /**
      * Opens a menu with the ability to provide custom data to clients. The menu type of the menu must
-     * be an extended version as registered with {@link RegistryEntry#menuTypeWithData(ResourceLocation, StreamCodec, TriFunction)}
+     * be an extended version as registered with {@link RegistryEntry#menuTypeWithData(Identifier, StreamCodec, TriFunction)}
      * or an error will occur on the client.
      *
      * @param player   the player opening the menu

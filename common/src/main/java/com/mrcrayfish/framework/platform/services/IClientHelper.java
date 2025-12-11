@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Author: MrCrayfish
@@ -25,7 +25,7 @@ public interface IClientHelper
     BlockElement deserializeBlockElement(JsonElement element, JsonDeserializationContext context);
 
     /**
-     * Gets a BakedModel in the ModelManager using a ModelResourceLocation
+     * Gets a BakedModel in the ModelManager using a ModelIdentifier
      *
      * @param key the identifier of the baked model
      * @return the baked model or missing model if location doesn't exist
@@ -39,7 +39,7 @@ public interface IClientHelper
      * @return
      * @param <T>
      */
-    <T> FrameworkModelResource<T> createModelResource(ResourceLocation id, FrameworkModelBaker<T> baker);
+    <T> FrameworkModelResource<T> createModelResource(Identifier id, FrameworkModelBaker<T> baker);
 
     ChunkSectionLayer getChunkSectionLayer(ResolvedModel model);
 

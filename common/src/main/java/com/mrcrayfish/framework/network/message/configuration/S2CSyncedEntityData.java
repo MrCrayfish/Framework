@@ -8,7 +8,7 @@ import com.mrcrayfish.framework.network.message.ConfigurationMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Author: MrCrayfish
  */
-public record S2CSyncedEntityData(Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> keyMap)
+public record S2CSyncedEntityData(Map<Identifier, List<Pair<Identifier, Integer>>> keyMap)
 {
     public static final StreamCodec<FriendlyByteBuf, S2CSyncedEntityData> STREAM_CODEC = StreamCodec.composite(
         FrameworkCodecs.ENTITY_DATA_KEYS,
@@ -51,7 +51,7 @@ public record S2CSyncedEntityData(Map<ResourceLocation, List<Pair<ResourceLocati
         }
     }
 
-    public Map<ResourceLocation, List<Pair<ResourceLocation, Integer>>> getKeyMap()
+    public Map<Identifier, List<Pair<Identifier, Integer>>> getKeyMap()
     {
         return this.keyMap;
     }

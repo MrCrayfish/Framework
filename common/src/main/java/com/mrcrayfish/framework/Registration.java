@@ -8,11 +8,11 @@ import com.mrcrayfish.framework.api.util.TaskRunner;
 import com.mrcrayfish.framework.client.ClientRegistration;
 import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.platform.Services;
-import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,34 +22,34 @@ import java.util.stream.Collectors;
  */
 public final class Registration
 {
-    private static final List<ResourceLocation> REGISTRATION_PRIORITY = Util.make(new LinkedList<>(), list -> {
-        list.add(Registries.ATTRIBUTE.location());
-        list.add(Registries.DATA_COMPONENT_TYPE.location());
-        list.add(Registries.GAME_EVENT.location());
-        list.add(Registries.SOUND_EVENT.location());
-        list.add(Registries.FLUID.location());
-        list.add(Registries.MOB_EFFECT.location());
-        list.add(Registries.BLOCK.location());
-        list.add(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.location());
-        list.add(Registries.ENTITY_TYPE.location());
-        list.add(Registries.ITEM.location());
-        list.add(Registries.POTION.location());
-        list.add(Registries.PARTICLE_TYPE.location());
-        list.add(Registries.BLOCK_ENTITY_TYPE.location());
-        list.add(Registries.CUSTOM_STAT.location());
-        list.add(Registries.MENU.location());
-        list.add(Registries.RECIPE_TYPE.location());
-        list.add(Registries.RECIPE_SERIALIZER.location());
-        list.add(Registries.COMMAND_ARGUMENT_TYPE.location());
+    private static final List<Identifier> REGISTRATION_PRIORITY = Util.make(new LinkedList<>(), list -> {
+        list.add(Registries.ATTRIBUTE.identifier());
+        list.add(Registries.DATA_COMPONENT_TYPE.identifier());
+        list.add(Registries.GAME_EVENT.identifier());
+        list.add(Registries.SOUND_EVENT.identifier());
+        list.add(Registries.FLUID.identifier());
+        list.add(Registries.MOB_EFFECT.identifier());
+        list.add(Registries.BLOCK.identifier());
+        list.add(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.identifier());
+        list.add(Registries.ENTITY_TYPE.identifier());
+        list.add(Registries.ITEM.identifier());
+        list.add(Registries.POTION.identifier());
+        list.add(Registries.PARTICLE_TYPE.identifier());
+        list.add(Registries.BLOCK_ENTITY_TYPE.identifier());
+        list.add(Registries.CUSTOM_STAT.identifier());
+        list.add(Registries.MENU.identifier());
+        list.add(Registries.RECIPE_TYPE.identifier());
+        list.add(Registries.RECIPE_SERIALIZER.identifier());
+        list.add(Registries.COMMAND_ARGUMENT_TYPE.identifier());
     });
 
-    private static final Map<ResourceLocation, List<RegistryEntry<?>>> REGISTRY_ENTRIES = new HashMap<>();
+    private static final Map<Identifier, List<RegistryEntry<?>>> REGISTRY_ENTRIES = new HashMap<>();
     private static final Set<FrameworkNetwork> NETWORKS = new HashSet<>();
 
     public static void init()
     {
         Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
-            REGISTRY_ENTRIES.computeIfAbsent(entry.getRegistryKey().location(), location -> new ArrayList<>()).add(entry);
+            REGISTRY_ENTRIES.computeIfAbsent(entry.getRegistryKey().identifier(), location -> new ArrayList<>()).add(entry);
         });
         Services.REGISTRATION.getRegistryObjects(SyncedDataKey.class).forEach(key -> {
             SyncedEntityData.instance().registerDataKey((SyncedDataKey<?, ?>) key);
@@ -67,7 +67,7 @@ public final class Registration
 
     public static List<RegistryEntry<?>> get(ResourceKey<? extends Registry<?>> key)
     {
-        return REGISTRY_ENTRIES.getOrDefault(key.location(), Collections.emptyList());
+        return REGISTRY_ENTRIES.getOrDefault(key.identifier(), Collections.emptyList());
     }
 
     public static List<RegistryEntry<?>> getSortedRegistryEntries()
@@ -75,7 +75,7 @@ public final class Registration
         return REGISTRY_ENTRIES.values().stream()
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(entry -> {
-                int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistryKey().location());
+                int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistryKey().identifier());
                 return index != -1 ? index : 1000;
             }))
             .collect(Collectors.toCollection(ArrayList::new));

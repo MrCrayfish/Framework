@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.registry;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
 {
@@ -14,19 +14,19 @@ public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
     }
 
     @Override
-    public boolean containsKey(ResourceLocation id)
+    public boolean containsKey(Identifier id)
     {
         return this.registry.containsKey(id);
     }
 
     @Override
-    public T getValue(ResourceLocation id)
+    public T getValue(Identifier id)
     {
         return this.registry.getValue(id);
     }
 
     @Override
-    public Holder<T> getHolder(ResourceLocation id)
+    public Holder<T> getHolder(Identifier id)
     {
         return this.registry.get(id).orElseThrow();
     }

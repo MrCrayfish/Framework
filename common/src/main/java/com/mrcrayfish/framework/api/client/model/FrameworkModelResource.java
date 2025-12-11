@@ -1,18 +1,19 @@
 package com.mrcrayfish.framework.api.client.model;
 
 import com.mrcrayfish.framework.platform.ClientServices;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
 import net.minecraft.client.renderer.block.model.Variant;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class FrameworkModelResource<T>
 {
-    private final ResourceLocation location;
+    private final Identifier location;
     private final FrameworkModelBaker<T> baker;
     private T cachedModel;
 
-    FrameworkModelResource(ResourceLocation location, FrameworkModelBaker<T> baker)
+    FrameworkModelResource(Identifier location, FrameworkModelBaker<T> baker)
     {
         this.location = location;
         this.baker = baker;
@@ -21,7 +22,7 @@ public abstract class FrameworkModelResource<T>
     /**
      * @return The location of the resource
      */
-    public final ResourceLocation getLocation()
+    public final Identifier getLocation()
     {
         return this.location;
     }
@@ -83,14 +84,14 @@ public abstract class FrameworkModelResource<T>
      * <pre><code>
      *      &#64;RegistryContainer
      *      public final class CustomModels {
-     *          public static final FrameworkModelResource<FrameworkBakedModel> MY_CUSTOM_MODEL = FrameworkModelResource.create(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
+     *          public static final FrameworkModelResource<FrameworkBakedModel> MY_CUSTOM_MODEL = FrameworkModelResource.create(Identifier.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
      *      }
      * </code></pre>
      *
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
      */
-    public static FrameworkModelResource<FrameworkBakedModel> create(ResourceLocation location)
+    public static FrameworkModelResource<FrameworkBakedModel> create(Identifier location)
     {
         // Internal code, do not call services directly since they may change at any time.
         return createCustom(location, FrameworkBakedModel.BAKER);
@@ -107,14 +108,14 @@ public abstract class FrameworkModelResource<T>
      * <pre><code>
      *      &#64;RegistryContainer
      *      public final class CustomModels {
-     *          public static final FrameworkModelResource<SimpleModelWrapper> MY_CUSTOM_MODEL = FrameworkModelResource.createVanilla(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
+     *          public static final FrameworkModelResource<SimpleModelWrapper> MY_CUSTOM_MODEL = FrameworkModelResource.createVanilla(Identifier.fromNamespaceAndPath("mymod", "custom/my_custom_model"));
      *      }
      * </code></pre>
      *
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
      */
-    public static FrameworkModelResource<SimpleModelWrapper> createVanilla(ResourceLocation location)
+    public static FrameworkModelResource<BlockModelPart> createVanilla(Identifier location)
     {
         // Internal code, do not call services directly since they may change at any time.
         return createCustom(location, (model, baker) -> {
@@ -133,7 +134,7 @@ public abstract class FrameworkModelResource<T>
      * <pre><code>
      *      &#64;RegistryContainer
      *      public final class CustomModels {
-     *          public static final FrameworkModelResource<T> MY_CUSTOM_MODEL = FrameworkModelResource.createCustom(ResourceLocation.fromNamespaceAndPath("mymod", "custom/my_custom_model"), (model, baker) -> {
+     *          public static final FrameworkModelResource<T> MY_CUSTOM_MODEL = FrameworkModelResource.createCustom(Identifier.fromNamespaceAndPath("mymod", "custom/my_custom_model"), (model, baker) -> {
      *              // Your baking code
      *              return T;
      *          });
@@ -145,7 +146,7 @@ public abstract class FrameworkModelResource<T>
      * @param <T>      the implementation type of the baked model
      * @return a new model resource holding the definition and baker
      */
-    public static <T> FrameworkModelResource<T> createCustom(ResourceLocation location, FrameworkModelBaker<T> baker)
+    public static <T> FrameworkModelResource<T> createCustom(Identifier location, FrameworkModelBaker<T> baker)
     {
         // Internal code, do not call services directly since they may change at any time.
         return ClientServices.CLIENT.createModelResource(location, baker);

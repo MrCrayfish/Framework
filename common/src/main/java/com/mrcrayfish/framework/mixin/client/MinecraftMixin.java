@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 public class MinecraftMixin
 {
-    @Inject(method = "disconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;dropAllTasks()V", ordinal = 0))
-    private void unloadConfigs(Screen screen, boolean transferring, CallbackInfo ci, @Local(ordinal = 0) ClientPacketListener listener)
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;dropAllTasks()V"))
+    private void unloadConfigs(Screen screen, boolean transferring, boolean unknown, CallbackInfo ci, @Local(ordinal = 0) ClientPacketListener listener)
     {
         Connection connection = listener.getConnection();
         FrameworkConfigManager.getInstance().onClientDisconnect(connection);

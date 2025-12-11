@@ -3,7 +3,7 @@ package test.standalonemodel;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -21,9 +21,9 @@ import org.jetbrains.annotations.Nullable;
 @RegistryContainer
 public class StandaloneModelTest
 {
-    private static ResourceLocation rl(String name)
+    private static Identifier rl(String name)
     {
-        return ResourceLocation.fromNamespaceAndPath("standalone_model_test", name);
+        return Identifier.fromNamespaceAndPath("standalone_model_test", name);
     }
 
     public static final RegistryEntry<Block> TEST_BLOCK = RegistryEntry.blockWithItem(rl("test"), TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS));

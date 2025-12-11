@@ -12,10 +12,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Pig;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,7 +36,7 @@ public class SyncedEntityDataTest
     private BlockPos lastClickedPos = BlockPos.ZERO;
 
     private static final SyncedDataKey<Player, Boolean> TOUCHED_GRASS = SyncedDataKey.builder(SyncedClassKey.PLAYER, Serializers.BOOLEAN)
-            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "touched_grass"))
+            .id(Identifier.fromNamespaceAndPath("synced_entity_data_test", "touched_grass"))
             .defaultValueSupplier(() -> false)
             .resetOnDeath()
             .saveToFile()
@@ -44,14 +44,14 @@ public class SyncedEntityDataTest
             .build();
 
     private static final SyncedDataKey<Animal, Integer> HIT_COUNT = SyncedDataKey.builder(SyncedClassKey.ANIMAL, Serializers.INTEGER)
-            .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "hit_count"))
+            .id(Identifier.fromNamespaceAndPath("synced_entity_data_test", "hit_count"))
             .defaultValueSupplier(() -> 0)
             .saveToFile()
             .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)
             .build();
 
     private static final SyncedDataKey<Zombie, TestCounter> STRIKE_COUNT = SyncedDataKey.builder(SyncedClassKey.ZOMBIE, TestCounter.SERIALIZER)
-        .id(ResourceLocation.fromNamespaceAndPath("synced_entity_data_test", "strike_count"))
+        .id(Identifier.fromNamespaceAndPath("synced_entity_data_test", "strike_count"))
         .defaultValueSupplier(() -> new TestCounter(0))
         .saveToFile()
         .syncMode(SyncedDataKey.SyncMode.TRACKING_ONLY)

@@ -17,7 +17,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
@@ -56,9 +56,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @RegistryContainer
 public class RegistryTest
 {
-    private static ResourceLocation rl(String name)
+    private static Identifier rl(String name)
     {
-        return ResourceLocation.fromNamespaceAndPath("registry_test", name);
+        return Identifier.fromNamespaceAndPath("registry_test", name);
     }
 
     public static final RegistryEntry<Attribute> MY_AWESOME_ATTRIBUTE = RegistryEntry.attribute(rl("awesome_attribute"), () -> new RangedAttribute("attribute.registry_test.generic.awesome", 0, 0, 1));
@@ -74,7 +74,7 @@ public class RegistryTest
             output.accept(new ItemStack(Items.STICK));
         });
     });
-    public static final RegistryEntry<ResourceLocation> MY_AWESOME_CUSTOM_STAT = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
+    public static final RegistryEntry<Identifier> MY_AWESOME_CUSTOM_STAT = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<EntityType<Creeper>> MY_AWESOME_ENTITY_TYPE = RegistryEntry.entityType(rl("awesome_entity"), () -> EntityType.Builder.of(Creeper::new, MobCategory.AMBIENT));
     //public static final RegistryEntry<ResourceLocation> MY_AWESOME_FLUID = RegistryEntry.customStat(rl("awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<Item> MY_AWESOME_ITEM = RegistryEntry.item(rl("awesome_item"), Item::new, () -> new Item.Properties().food(new FoodProperties.Builder().nutrition(10).build()));
@@ -89,8 +89,8 @@ public class RegistryTest
     public static final RegistryEntry<DataComponentType<Integer>> SIMPLE_COUNTER = RegistryEntry.dataComponentType(rl("simple_counter"), builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
     // Custom registry
-    public static final FrameworkRegistry<MyCustomObject> REGISTRY = FrameworkRegistry.<MyCustomObject>builder(ResourceLocation.fromNamespaceAndPath("registry_test", "custom_registry")).build();
-    public static final RegistryEntry<MyCustomObject> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, ResourceLocation.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject("Hello World!"));
+    public static final FrameworkRegistry<MyCustomObject> REGISTRY = FrameworkRegistry.<MyCustomObject>builder(Identifier.fromNamespaceAndPath("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, Identifier.fromNamespaceAndPath("registry_test", "my_awesome_object"), () -> new MyCustomObject("Hello World!"));
 
     public RegistryTest()
     {

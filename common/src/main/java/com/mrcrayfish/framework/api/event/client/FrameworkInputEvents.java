@@ -11,14 +11,6 @@ import net.minecraft.world.entity.player.Player;
  */
 public final class FrameworkInputEvents
 {
-    /**
-     * @deprecated Use {@link #KEY_PRESS} event instead
-     */
-    @Deprecated(forRemoval = true, since = "1.21.9")
-    public static final FrameworkEvent<Key> KEY = new FrameworkEvent<>(listeners -> (key, scanCode, action, modifiers) -> {
-       listeners.forEach(listener -> listener.handle(key, scanCode, action, modifiers));
-    });
-
     public static final FrameworkEvent<KeyPress> KEY_PRESS = new FrameworkEvent<>(listeners -> (action, event) -> {
         listeners.forEach(listener -> listener.handle(action, event));
     });

@@ -14,17 +14,17 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @RegistryContainer(clientOnly = true)
 public class ClientStandaloneModelTest implements ClientModInitializer
 {
-    private static ResourceLocation rl(String name)
+    private static Identifier rl(String name)
     {
-        return ResourceLocation.fromNamespaceAndPath("framework_test", name);
+        return Identifier.fromNamespaceAndPath("framework_test", name);
     }
 
-    public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
+    //public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
 
     @Override
     public void onInitializeClient()
@@ -50,7 +50,7 @@ public class ClientStandaloneModelTest implements ClientModInitializer
             stack.mulPose(Axis.YP.rotationDegrees(45));
             stack.scale(2, 2, 2);
             stack.translate(-0.5, 0, -0.5);
-            StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);
+            //StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);
             stack.popPose();
         }
     }
