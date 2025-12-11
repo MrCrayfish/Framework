@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.api.registry;
 
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 
 public final class FrameworkRegistry<T> extends WrappedRegistry<T>
 {

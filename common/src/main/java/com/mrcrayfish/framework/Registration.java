@@ -10,8 +10,8 @@ import com.mrcrayfish.framework.entity.sync.SyncedEntityData;
 import com.mrcrayfish.framework.platform.Services;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 
 import java.util.*;

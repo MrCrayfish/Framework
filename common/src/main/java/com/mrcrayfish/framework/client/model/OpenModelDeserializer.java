@@ -4,11 +4,9 @@ import com.google.gson.*;
 import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.util.GsonUtils;
 import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.renderer.block.model.BlockElementRotation;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.SimpleUnbakedGeometry;
 import net.minecraft.client.resources.model.UnbakedGeometry;
-import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
 import org.joml.Vector3f;
 
