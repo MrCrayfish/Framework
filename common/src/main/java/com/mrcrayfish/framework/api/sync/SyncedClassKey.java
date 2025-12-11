@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.sync;
 
+import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ambient.AmbientCreature;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
+import net.minecraft.world.entity.animal.nautilus.AbstractNautilus;
 import net.minecraft.world.entity.animal.nautilus.Nautilus;
 import net.minecraft.world.entity.animal.nautilus.ZombieNautilus;
 import net.minecraft.world.entity.animal.panda.Panda;
@@ -120,6 +122,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<AbstractIllager> ABSTRACT_ILLAGER = new SyncedClassKey<>(AbstractIllager.class, Identifier.withDefaultNamespace("abstract_illager"));
     public static final SyncedClassKey<AbstractMinecart> ABSTRACT_MINECART = new SyncedClassKey<>(AbstractMinecart.class, Identifier.withDefaultNamespace("abstract_minecart"));
     public static final SyncedClassKey<AbstractMinecartContainer> ABSTRACT_MINECART_CONTAINER = new SyncedClassKey<>(AbstractMinecartContainer.class, Identifier.withDefaultNamespace("abstract_minecart_container"));
+    public static final SyncedClassKey<AbstractNautilus> ABSTRACT_NAUTILUS = new SyncedClassKey<>(AbstractNautilus.class, Identifier.withDefaultNamespace("abstract_nautilus"));
     public static final SyncedClassKey<AbstractPiglin> ABSTRACT_PIGLIN = new SyncedClassKey<>(AbstractPiglin.class, Identifier.withDefaultNamespace("abstract_piglin"));
     public static final SyncedClassKey<AbstractSchoolingFish> ABSTRACT_SCHOOLING_FISH = new SyncedClassKey<>(AbstractSchoolingFish.class, Identifier.withDefaultNamespace("abstract_schooling_fish"));
     public static final SyncedClassKey<AbstractSkeleton> ABSTRACT_SKELETON = new SyncedClassKey<>(AbstractSkeleton.class, Identifier.withDefaultNamespace("abstract_skeleton"));
@@ -135,6 +138,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<Armadillo> ARMADILLO = new SyncedClassKey<>(Armadillo.class, Identifier.withDefaultNamespace("armadillo"));
     public static final SyncedClassKey<ArmorStand> ARMOR_STAND = new SyncedClassKey<>(ArmorStand.class, Identifier.withDefaultNamespace("armor_stand"));
     public static final SyncedClassKey<Arrow> ARROW = new SyncedClassKey<>(Arrow.class, Identifier.withDefaultNamespace("arrow"));
+    public static final SyncedClassKey<Avatar> AVATAR = new SyncedClassKey<>(Avatar.class, Identifier.withDefaultNamespace("avatar"));
     public static final SyncedClassKey<Axolotl> AXOLOTL = new SyncedClassKey<>(Axolotl.class, Identifier.withDefaultNamespace("axolotl"));
     public static final SyncedClassKey<Bat> BAT = new SyncedClassKey<>(Bat.class, Identifier.withDefaultNamespace("bat"));
     public static final SyncedClassKey<Bee> BEE = new SyncedClassKey<>(Bee.class, Identifier.withDefaultNamespace("bee"));
@@ -146,12 +150,15 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<Breeze> BREEZE = new SyncedClassKey<>(Breeze.class, Identifier.withDefaultNamespace("breeze"));
     public static final SyncedClassKey<BreezeWindCharge> BREEZE_WIND_CHARGE = new SyncedClassKey<>(BreezeWindCharge.class, Identifier.withDefaultNamespace("breeze_wind_charge"));
     public static final SyncedClassKey<Camel> CAMEL = new SyncedClassKey<>(Camel.class, Identifier.withDefaultNamespace("camel"));
+    public static final SyncedClassKey<CamelHusk> CAMEL_HUSK = new SyncedClassKey<>(CamelHusk.class, Identifier.withDefaultNamespace("camel_husk"));
     public static final SyncedClassKey<Cat> CAT = new SyncedClassKey<>(Cat.class, Identifier.withDefaultNamespace("cat"));
     public static final SyncedClassKey<CaveSpider> CAVE_SPIDER = new SyncedClassKey<>(CaveSpider.class, Identifier.withDefaultNamespace("cave_spider"));
     public static final SyncedClassKey<ChestBoat> CHEST_BOAT = new SyncedClassKey<>(ChestBoat.class, Identifier.withDefaultNamespace("chest_boat"));
     public static final SyncedClassKey<ChestRaft> CHEST_RAFT = new SyncedClassKey<>(ChestRaft.class, Identifier.withDefaultNamespace("chest_raft"));
     public static final SyncedClassKey<Chicken> CHICKEN = new SyncedClassKey<>(Chicken.class, Identifier.withDefaultNamespace("chicken"));
+    public static final SyncedClassKey<ClientMannequin> CLIENT_MANNEQUIN = new SyncedClassKey<>(ClientMannequin.class, Identifier.withDefaultNamespace("client_mannequin"));
     public static final SyncedClassKey<Cod> COD = new SyncedClassKey<>(Cod.class, Identifier.withDefaultNamespace("cod"));
+    public static final SyncedClassKey<CopperGolem> COPPER_GOLEM = new SyncedClassKey<>(CopperGolem.class, Identifier.withDefaultNamespace("copper_golem"));
     public static final SyncedClassKey<Cow> COW = new SyncedClassKey<>(Cow.class, Identifier.withDefaultNamespace("cow"));
     public static final SyncedClassKey<Creaking> CREAKING = new SyncedClassKey<>(Creaking.class, Identifier.withDefaultNamespace("creaking"));
     public static final SyncedClassKey<Creeper> CREEPER = new SyncedClassKey<>(Creeper.class, Identifier.withDefaultNamespace("creeper"));
@@ -199,6 +206,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<Llama> LLAMA = new SyncedClassKey<>(Llama.class, Identifier.withDefaultNamespace("llama"));
     public static final SyncedClassKey<LlamaSpit> LLAMA_SPIT = new SyncedClassKey<>(LlamaSpit.class, Identifier.withDefaultNamespace("llama_spit"));
     public static final SyncedClassKey<MagmaCube> MAGMA_CUBE = new SyncedClassKey<>(MagmaCube.class, Identifier.withDefaultNamespace("magma_cube"));
+    public static final SyncedClassKey<Mannequin> MANNEQUIN = new SyncedClassKey<>(Mannequin.class, Identifier.withDefaultNamespace("mannequin"));
     public static final SyncedClassKey<Marker> MARKER = new SyncedClassKey<>(Marker.class, Identifier.withDefaultNamespace("marker"));
     public static final SyncedClassKey<Minecart> MINECART = new SyncedClassKey<>(Minecart.class, Identifier.withDefaultNamespace("minecart"));
     public static final SyncedClassKey<MinecartChest> MINECART_CHEST = new SyncedClassKey<>(MinecartChest.class, Identifier.withDefaultNamespace("minecart_chest"));
@@ -211,10 +219,12 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<Monster> MONSTER = new SyncedClassKey<>(Monster.class, Identifier.withDefaultNamespace("monster"));
     public static final SyncedClassKey<Mule> MULE = new SyncedClassKey<>(Mule.class, Identifier.withDefaultNamespace("mule"));
     public static final SyncedClassKey<MushroomCow> MUSHROOM_COW = new SyncedClassKey<>(MushroomCow.class, Identifier.withDefaultNamespace("mushroom_cow"));
+    public static final SyncedClassKey<Nautilus> NAUTILUS = new SyncedClassKey<>(Nautilus.class, Identifier.withDefaultNamespace("nautilus"));
     public static final SyncedClassKey<Ocelot> OCELOT = new SyncedClassKey<>(Ocelot.class, Identifier.withDefaultNamespace("ocelot"));
     public static final SyncedClassKey<OminousItemSpawner> OMINOUS_ITEM_SPAWNER = new SyncedClassKey<>(OminousItemSpawner.class, Identifier.withDefaultNamespace("ominous_item_spawner"));
     public static final SyncedClassKey<Painting> PAINTING = new SyncedClassKey<>(Painting.class, Identifier.withDefaultNamespace("painting"));
     public static final SyncedClassKey<Panda> PANDA = new SyncedClassKey<>(Panda.class, Identifier.withDefaultNamespace("panda"));
+    public static final SyncedClassKey<Parched> PARCHED = new SyncedClassKey<>(Parched.class, Identifier.withDefaultNamespace("parched"));
     public static final SyncedClassKey<Parrot> PARROT = new SyncedClassKey<>(Parrot.class, Identifier.withDefaultNamespace("parrot"));
     public static final SyncedClassKey<PathfinderMob> PATHFINDER_MOB = new SyncedClassKey<>(PathfinderMob.class, Identifier.withDefaultNamespace("pathfinder_mob"));
     public static final SyncedClassKey<PatrollingMonster> PATROLLING_MONSTER = new SyncedClassKey<>(PatrollingMonster.class, Identifier.withDefaultNamespace("patrolling_monster"));
@@ -281,6 +291,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<Zoglin> ZOGLIN = new SyncedClassKey<>(Zoglin.class, Identifier.withDefaultNamespace("zoglin"));
     public static final SyncedClassKey<Zombie> ZOMBIE = new SyncedClassKey<>(Zombie.class, Identifier.withDefaultNamespace("zombie"));
     public static final SyncedClassKey<ZombieHorse> ZOMBIE_HORSE = new SyncedClassKey<>(ZombieHorse.class, Identifier.withDefaultNamespace("zombie_horse"));
+    public static final SyncedClassKey<ZombieNautilus> ZOMBIE_NAUTILUS = new SyncedClassKey<>(ZombieNautilus.class, Identifier.withDefaultNamespace("zombie_nautilus"));
     public static final SyncedClassKey<ZombieVillager> ZOMBIE_VILLAGER = new SyncedClassKey<>(ZombieVillager.class, Identifier.withDefaultNamespace("zombie_villager"));
     public static final SyncedClassKey<ZombifiedPiglin> ZOMBIFIED_PIGLIN = new SyncedClassKey<>(ZombifiedPiglin.class, Identifier.withDefaultNamespace("zombified_piglin"));
 }
