@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
+import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.ItemSprites;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
@@ -21,6 +22,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@Beta
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
     public static final ResourceLocation DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");

@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget.element;
 
+import com.google.common.annotations.Beta;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
+@Beta
 public abstract class Label
 {
     public static final Label EMPTY = constant(CommonComponents.EMPTY);
