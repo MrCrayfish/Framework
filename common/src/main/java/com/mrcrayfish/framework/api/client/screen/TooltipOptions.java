@@ -1,8 +1,11 @@
 package com.mrcrayfish.framework.api.client.screen;
 
+import com.google.common.annotations.Beta;
+
 /**
  * Tooltip options for widgets. These options are intended to be applied together using bitwise ops.
  */
+@Beta
 @SuppressWarnings("PointlessBitwiseExpression")
 public final class TooltipOptions
 {

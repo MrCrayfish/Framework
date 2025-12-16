@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget.input;
 
+import com.google.common.annotations.Beta;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -8,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Beta
 public enum MouseInput
 {
     LEFT_CLICK(GLFW.GLFW_MOUSE_BUTTON_LEFT),

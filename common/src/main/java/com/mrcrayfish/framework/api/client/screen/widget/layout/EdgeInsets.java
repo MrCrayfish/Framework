@@ -1,5 +1,8 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public abstract sealed class EdgeInsets permits Border, Padding
 {
     private final int left;
