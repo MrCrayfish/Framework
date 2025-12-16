@@ -45,7 +45,7 @@ public class FabricEvents implements ModInitializer
             EntityEvents.LEAVE_LEVEL.post().handle(entity, level);
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            PlayerEvents.COPY.post().handle(oldPlayer, newPlayer, !alive);
+            PlayerEvents.COPY.post().handle(oldPlayer, newPlayer, alive);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             PlayerEvents.RESPAWN.post().handle(newPlayer, alive);
