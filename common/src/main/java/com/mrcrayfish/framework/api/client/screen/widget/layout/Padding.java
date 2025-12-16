@@ -1,5 +1,8 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public final class Padding extends EdgeInsets
 {
     private Padding(int left, int top, int right, int bottom)

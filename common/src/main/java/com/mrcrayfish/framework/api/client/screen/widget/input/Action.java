@@ -1,11 +1,13 @@
 package com.mrcrayfish.framework.api.client.screen.widget.input;
 
+import com.google.common.annotations.Beta;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.function.Consumer;
 
+@Beta
 public final class Action<T>
 {
     private final Consumer<T> handler;

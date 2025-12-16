@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen;
 
+import com.google.common.annotations.Beta;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.util.LabelAndDescription;
 import net.minecraft.client.gui.components.Tooltip;

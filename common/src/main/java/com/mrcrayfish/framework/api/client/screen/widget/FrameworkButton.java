@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
+import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
@@ -32,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@Beta
 public final class FrameworkButton extends AbstractButton
 {
     /**
