@@ -32,15 +32,13 @@ public class FabricClientHelper implements IClientHelper
     @Override
     public <T> T getStandaloneModel(FrameworkModelResource<T> resource)
     {
-        throw new UnsupportedOperationException("Not supported yet in 1.21.11");
-        //return Minecraft.getInstance().getModelManager().getModel(((FabricModelResource<T>) resource).extraModelKey());
+        return Minecraft.getInstance().getModelManager().getModel(((FabricModelResource<T>) resource).extraModelKey());
     }
 
     @Override
     public <T> FrameworkModelResource<T> createModelResource(Identifier id, FrameworkModelBaker<T> baker)
     {
-        throw new UnsupportedOperationException("Not supported yet in 1.21.11");
-        //return new FabricModelResource<>(id, baker);
+        return new FabricModelResource<>(id, baker);
     }
 
     @Override

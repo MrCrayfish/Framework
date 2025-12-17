@@ -46,7 +46,7 @@ public class StandaloneModelTest implements ModInitializer
         @Override
         protected RenderShape getRenderShape(BlockState state)
         {
-            return RenderShape.MODEL;
+            return RenderShape.INVISIBLE;
         }
 
         @Nullable

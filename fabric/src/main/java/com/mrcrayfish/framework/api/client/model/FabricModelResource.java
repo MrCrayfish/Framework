@@ -1,16 +1,20 @@
 package com.mrcrayfish.framework.api.client.model;
 
+import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
 
 public class FabricModelResource<T> extends FrameworkModelResource<T>
 {
-    //private final ExtraModelKey<T> extraModelKey;
-    //private final UnbakedExtraModel<T> unbakedModel;
+    private final ExtraModelKey<T> extraModelKey;
+    private final UnbakedExtraModel<T> unbakedModel;
 
     public FabricModelResource(Identifier location, FrameworkModelBaker<T> modelBaker)
     {
         super(location, modelBaker);
-        /*this.extraModelKey = ExtraModelKey.create(location::toString);
+        this.extraModelKey = ExtraModelKey.create(location::toString);
         this.unbakedModel = new UnbakedExtraModel<>()
         {
             @Override
@@ -25,10 +29,10 @@ public class FabricModelResource<T> extends FrameworkModelResource<T>
             {
                 resolver.markDependency(location);
             }
-        };*/
+        };
     }
 
-    /*public ExtraModelKey<T> extraModelKey()
+    public ExtraModelKey<T> extraModelKey()
     {
         return this.extraModelKey;
     }
@@ -36,5 +40,5 @@ public class FabricModelResource<T> extends FrameworkModelResource<T>
     public UnbakedExtraModel<T> unbakedModel()
     {
         return this.unbakedModel;
-    }*/
+    }
 }

@@ -24,7 +24,7 @@ public class ClientStandaloneModelTest implements ClientModInitializer
         return Identifier.fromNamespaceAndPath("framework_test", name);
     }
 
-    //public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
+    public static final FrameworkModelResource<FrameworkBakedModel> CUSTOM_MODEL = FrameworkModelResource.create(rl("special/custom_model"));
 
     @Override
     public void onInitializeClient()
@@ -50,7 +50,7 @@ public class ClientStandaloneModelTest implements ClientModInitializer
             stack.mulPose(Axis.YP.rotationDegrees(45));
             stack.scale(2, 2, 2);
             stack.translate(-0.5, 0, -0.5);
-            //StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);
+            StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);
             stack.popPose();
         }
     }

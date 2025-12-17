@@ -8,13 +8,15 @@ import com.mrcrayfish.framework.client.model.OpenBlockModel;
 import com.mrcrayfish.framework.util.Utils;
 //import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
 //import net.fabricmc.fabric.api.client.model.loading.v1.wrapper.WrapperUnbakedModel;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
+import net.fabricmc.fabric.api.client.model.loading.v1.wrapper.WrapperUnbakedModel;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-public class OpenModelGeometry// extends WrapperUnbakedModel implements IOpenModel
+public class OpenModelGeometry extends WrapperUnbakedModel implements IOpenModel
 {
-    /*private final DataObject data;
+    private final DataObject data;
 
     public OpenModelGeometry(UnbakedModel wrapped, @Nullable DataObject data)
     {
@@ -37,5 +39,5 @@ public class OpenModelGeometry// extends WrapperUnbakedModel implements IOpenMod
         {
            return new OpenModelGeometry(OpenBlockModel.Deserializer.INSTANCE.deserialize(object, OpenBlockModel.class, context), DataObject.convertNonNull(object.get("data")));
         }
-    }*/
+    }
 }
