@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.sync;
 
-import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ambient.AmbientCreature;
@@ -152,7 +151,6 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<ChestBoat> CHEST_BOAT = new SyncedClassKey<>(ChestBoat.class, Identifier.withDefaultNamespace("chest_boat"));
     public static final SyncedClassKey<ChestRaft> CHEST_RAFT = new SyncedClassKey<>(ChestRaft.class, Identifier.withDefaultNamespace("chest_raft"));
     public static final SyncedClassKey<Chicken> CHICKEN = new SyncedClassKey<>(Chicken.class, Identifier.withDefaultNamespace("chicken"));
-    public static final SyncedClassKey<ClientMannequin> CLIENT_MANNEQUIN = new SyncedClassKey<>(ClientMannequin.class, Identifier.withDefaultNamespace("client_mannequin"));
     public static final SyncedClassKey<Cod> COD = new SyncedClassKey<>(Cod.class, Identifier.withDefaultNamespace("cod"));
     public static final SyncedClassKey<CopperGolem> COPPER_GOLEM = new SyncedClassKey<>(CopperGolem.class, Identifier.withDefaultNamespace("copper_golem"));
     public static final SyncedClassKey<Cow> COW = new SyncedClassKey<>(Cow.class, Identifier.withDefaultNamespace("cow"));
