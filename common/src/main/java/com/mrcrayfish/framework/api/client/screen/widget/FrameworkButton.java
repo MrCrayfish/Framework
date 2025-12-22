@@ -60,7 +60,7 @@ public final class FrameworkButton extends AbstractButton
     private final @Nullable Icon icon;
     private final int spacing;
     private final @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions;
-    private final @Nullable WidgetSprites texture;
+    private final @Nullable Supplier<WidgetSprites> texture;
     private final @Nullable Supplier<Boolean> activeSupplier;
     private final @Nullable Function<FrameworkButton, Tooltip> tooltip;
     private final int tooltipOptions;
@@ -69,7 +69,7 @@ public final class FrameworkButton extends AbstractButton
     private boolean mouseIsHovering;
     private final @Nullable ContentRenderer<FrameworkButton> contentRenderer;
 
-    private FrameworkButton(int x, int y, int width, int height, Label label, Function<FrameworkButton, Icon> icon, int spacing, @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions, @Nullable WidgetSprites texture, @Nullable Supplier<Boolean> activeSupplier, @Nullable Function<FrameworkButton, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable ContentRenderer<FrameworkButton> contentRenderer)
+    private FrameworkButton(int x, int y, int width, int height, Label label, Function<FrameworkButton, Icon> icon, int spacing, @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions, @Nullable Supplier<WidgetSprites> texture, @Nullable Supplier<Boolean> activeSupplier, @Nullable Function<FrameworkButton, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable ContentRenderer<FrameworkButton> contentRenderer)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.label = label;
@@ -125,7 +125,7 @@ public final class FrameworkButton extends AbstractButton
     @Nullable
     public WidgetSprites getTexture()
     {
-        return this.texture;
+        return this.texture != null ? this.texture.get() : null;
     }
 
     /**
@@ -268,7 +268,7 @@ public final class FrameworkButton extends AbstractButton
         private Function<FrameworkButton, Icon> icon = btn -> null;
         private int spacing = 4;
         private @Nullable EnumMap<MouseInput, Action<FrameworkButton>> actions;
-        private @Nullable WidgetSprites texture = DEFAULT_SPRITES;
+        private @Nullable Supplier<WidgetSprites> texture = () -> DEFAULT_SPRITES;
         private @Nullable Supplier<Boolean> active;
         private @Nullable Function<FrameworkButton, Tooltip> tooltip;
         private int tooltipDelay = DEFAULT_TOOLTIP_DELAY;
@@ -614,6 +614,18 @@ public final class FrameworkButton extends AbstractButton
          */
         public Builder setTexture(WidgetSprites texture)
         {
+            this.texture = () -> texture;
+            return this;
+        }
+
+        /**
+         * Sets the texture of the button using a {@link Supplier}
+         *
+         * @param texture a {@link Supplier} that returns a {@link WidgetSprites} resource
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setTexture(Supplier<WidgetSprites> texture)
+        {
             this.texture = texture;
             return this;
         }
@@ -719,12 +731,13 @@ public final class FrameworkButton extends AbstractButton
         @Override
         public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
         {
-            if(button.texture != null)
+            WidgetSprites texture = button.getTexture();
+            if(texture != null)
             {
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
                 graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(button.texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
+                graphics.blitSprite(texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
                 graphics.setColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
             }
@@ -782,12 +795,13 @@ public final class FrameworkButton extends AbstractButton
         @Override
         public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
         {
-            if(button.texture != null)
+            WidgetSprites texture = button.getTexture();
+            if(texture != null)
             {
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
                 graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(button.texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
+                graphics.blitSprite(texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
                 graphics.setColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
             }
