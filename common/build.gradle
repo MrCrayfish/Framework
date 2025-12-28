@@ -4,7 +4,10 @@ plugins {
 }
 
 neoForge {
-    neoFormVersion = neo_form_version
+    enable {
+        neoFormVersion = neo_form_version
+        disableRecompilation = System.getenv("CI") == "true"
+    }
     def at = file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
         accessTransformers.add(at.absolutePath)

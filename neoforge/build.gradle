@@ -13,7 +13,10 @@ sourceSets {
 }
 
 neoForge {
-    version = neoforge_version
+    enable {
+        version = neoforge_version
+        disableRecompilation = System.getenv("CI") == "true"
+    }
 
     addModdingDependenciesTo(sourceSets.testmod)
 
