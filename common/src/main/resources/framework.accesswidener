@@ -1,4 +1,4 @@
-accessWidener v1 named
+accessWidener v1 official
 accessible class net/minecraft/client/renderer/block/model/BlockElement$Deserializer
 accessible field net/minecraft/commands/synchronization/ArgumentTypeInfos BY_CLASS Ljava/util/Map;
 accessible field net/minecraft/server/network/ServerLoginPacketListenerImpl connection Lnet/minecraft/network/Connection;

@@ -2,7 +2,7 @@ import org.apache.commons.io.FilenameUtils
 
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom'
+    id 'net.fabricmc.fabric-loom'
 }
 
 sourceSets {
@@ -14,9 +14,8 @@ sourceSets {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     library include("com.electronwill.night-config:core:3.8.3")
     library include("com.electronwill.night-config:toml:3.8.3")
@@ -58,12 +57,12 @@ jar {
 }
 
 tasks.register("signJar") {
-    dependsOn remapJar
+    dependsOn jar
     onlyIf {
         findProperty('keyStore') || System.getenv("KEYSTORE")
     }
     doLast {
-        def unsignedJar = tasks.remapJar.archiveFile.get().asFile
+        def unsignedJar = jar.archiveFile.get().asFile
         def name = FilenameUtils.removeExtension(unsignedJar.getName())
         def signedJar  = layout.buildDirectory.file("libs/%s-signed.jar".formatted(name)).get().asFile
         def signingKeyAlias = findProperty('keyStoreAlias') ?: System.getenv("KEYSTORE_ALIAS")
@@ -98,13 +97,6 @@ sourceSets.configureEach {
             attributes {
                 attribute(loaderAttribute, 'fabric')
             }
-        }
-    }
-}
-loom.remapConfigurations.configureEach {
-    configurations.named(it.name) {
-        attributes {
-            attribute(loaderAttribute, 'fabric')
         }
     }
 }
