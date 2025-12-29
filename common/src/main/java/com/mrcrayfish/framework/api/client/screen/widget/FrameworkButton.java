@@ -157,7 +157,10 @@ public final class FrameworkButton extends AbstractButton
         }
     }
 
-    private void rebuildTooltip()
+    /**
+     * Call to manually rebuild the button tooltip
+     */
+    public void rebuildTooltip()
     {
         if(this.tooltip != null)
         {
