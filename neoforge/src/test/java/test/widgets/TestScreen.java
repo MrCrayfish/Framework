@@ -37,11 +37,11 @@ public class TestScreen extends Screen
             .setLabel(Component.literal("Normal"))
             .build());
         MutableBoolean state = new MutableBoolean();
-        first.addChild(Buttons.createOnOffOption(Component.literal("Toggle"), state::getValue, state::setValue)
+        first.addChild(Buttons.createOnOff(Component.literal("Toggle"), state::getValue, state::setValue)
             .setSize(100, 20)
             .build());
         MutableBoolean iconState = new MutableBoolean();
-        first.addChild(Buttons.createOnOffOption(Component.literal("Icon"), iconState::getValue, iconState::setValue)
+        first.addChild(Buttons.createOnOff(Component.literal("Icon"), iconState::getValue, iconState::setValue)
             .setSize(100, 20)
             .setIcon(Icon.sprite(ResourceLocation.withDefaultNamespace("icon/checkmark"), 9, 8))
             .setSpacing(5)
@@ -65,6 +65,10 @@ public class TestScreen extends Screen
             .setSize(100, 20)
             .setIcon(Icon.sprite(ResourceLocation.withDefaultNamespace("icon/checkmark"), 9, 8))
             .setInitialText("Stone Axe")
+            .build());
+        MutableBoolean state2 = new MutableBoolean();
+        first.addChild(Buttons.createToggle(Component.literal("Test"), state2::getValue, state2::setValue)
+            .setSize(100, 20)
             .build());
         wrapper.addChild(first);
 
