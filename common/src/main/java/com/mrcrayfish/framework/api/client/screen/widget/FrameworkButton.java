@@ -8,7 +8,6 @@ import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Label;
 import com.mrcrayfish.framework.api.client.screen.widget.input.Action;
 import com.mrcrayfish.framework.api.client.screen.widget.input.MouseInput;
-import com.mrcrayfish.framework.api.client.screen.widget.renderer.ContentRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -833,5 +832,10 @@ public final class FrameworkButton extends AbstractButton
             int stateIconX = button.getX() + button.getWidth() - TOGGLE_SIZE - yOffset;
             graphics.blitSprite(TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
         }
+    }
+
+    public interface ContentRenderer<T>
+    {
+        void draw(T widget, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
     }
 }
