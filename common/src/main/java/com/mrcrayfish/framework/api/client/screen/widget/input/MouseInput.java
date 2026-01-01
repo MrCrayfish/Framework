@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget.input;
 
-import com.google.common.annotations.Beta;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -9,7 +8,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Beta
 public enum MouseInput
 {
     LEFT_CLICK(GLFW.GLFW_MOUSE_BUTTON_LEFT),
@@ -25,12 +23,21 @@ public enum MouseInput
         this.button = button;
     }
 
+    /**
+     * Resolves a {@link MouseInput} from a raw GLFW mouse button value.
+     *
+     * @param button the GLFW mouse button constant
+     * @return the corresponding {@link MouseInput}, or null if the button is not supported
+     */
     @Nullable
     public static MouseInput fromButton(int button)
     {
         return BUTTON_TO_INPUT.get(button);
     }
 
+    /**
+     * @return the GLFW mouse button constant associated with this input.
+     */
     public int button()
     {
         return this.button;

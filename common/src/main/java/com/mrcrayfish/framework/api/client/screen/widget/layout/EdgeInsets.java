@@ -1,8 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
-import com.google.common.annotations.Beta;
-
-@Beta
 public abstract sealed class EdgeInsets permits Border, Padding
 {
     private final int left;
@@ -10,6 +7,14 @@ public abstract sealed class EdgeInsets permits Border, Padding
     private final int right;
     private final int bottom;
 
+    /**
+     * Constructs an {@link EdgeInsets} instance with the specified values for each side.
+     *
+     * @param left   the distance from the left edge in pixels
+     * @param top    the distance from the top edge in pixels
+     * @param right  the distance from the right edge in pixels
+     * @param bottom the distance from the bottom edge in pixels
+     */
     protected EdgeInsets(int left, int top, int right, int bottom)
     {
         this.left = left;
@@ -18,21 +23,33 @@ public abstract sealed class EdgeInsets permits Border, Padding
         this.bottom = bottom;
     }
 
+    /**
+     * @return the left distance in pixels
+     */
     public int left()
     {
         return this.left;
     }
 
+    /**
+     * @return the top distance in pixels
+     */
     public int top()
     {
         return this.top;
     }
 
+    /**
+     * @return the right distance in pixels
+     */
     public int right()
     {
         return this.right;
     }
 
+    /**
+     * @return the bottom distance in pixels
+     */
     public int bottom()
     {
         return this.bottom;
