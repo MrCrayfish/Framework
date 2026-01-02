@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.client.screen.widget.input;
 
 import com.google.common.annotations.Beta;
+import com.mrcrayfish.framework.api.client.screen.widget.element.Sound;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -10,10 +11,12 @@ import java.util.function.Consumer;
 @Beta
 public final class Action<T>
 {
-    private final Consumer<T> handler;
-    private final Holder<SoundEvent> sound;
+    private static final Sound DEFAULT_SOUND = Sound.create(SoundEvents.UI_BUTTON_CLICK);
 
-    private Action(Consumer<T> handler, Holder<SoundEvent> sound)
+    private final Consumer<T> handler;
+    private final Sound sound;
+
+    private Action(Consumer<T> handler, Sound sound)
     {
         this.handler = handler;
         this.sound = sound;
@@ -24,17 +27,17 @@ public final class Action<T>
         return this.handler;
     }
 
-    public Holder<SoundEvent> sound()
+    public Sound sound()
     {
         return this.sound;
     }
 
     public static <T> Action<T> create(Consumer<T> action)
     {
-        return new Action<>(action, SoundEvents.UI_BUTTON_CLICK);
+        return new Action<>(action, DEFAULT_SOUND);
     }
 
-    public static <T> Action<T> create(Consumer<T> action, Holder<SoundEvent> sound)
+    public static <T> Action<T> create(Consumer<T> action, Sound sound)
     {
         return new Action<>(action, sound);
     }
