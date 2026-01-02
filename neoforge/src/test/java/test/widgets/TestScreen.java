@@ -1,6 +1,7 @@
 package test.widgets;
 
 import com.mrcrayfish.framework.api.client.screen.Buttons;
+import com.mrcrayfish.framework.api.client.screen.ItemSprites;
 import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkEditBox;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.Nullable;
 
 public class TestScreen extends Screen
 {
@@ -73,40 +75,47 @@ public class TestScreen extends Screen
         wrapper.addChild(first);
 
         LinearLayout second = LinearLayout.vertical().spacing(4);
-        var list = new FrameworkSelectionList(150, 100, 0, 0, 16);
-        list.setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.DETACHED);
-        list.setScrollBarAlwaysVisible(true);
-        list.addItem(new TextItem("Apple"));
-        list.addItem(new TextItem("Banana"));
-        list.addItem(new TextItem("Orange"));
-        list.addItem(new TextItem("Mango"));
-        list.addItem(new TextItem("Apple"));
-        list.addItem(new TextItem("Banana"));
-        list.addItem(new TextItem("Orange"));
-        list.addItem(new TextItem("Mango"));
-        list.addItem(new TextItem("Apple"));
-        list.addItem(new TextItem("Banana"));
-        list.addItem(new TextItem("Orange"));
-        list.addItem(new TextItem("Mango"));
-        second.addChild(list);
+        second.addChild(FrameworkSelectionList.builder()
+            .setSize(150, 100)
+            .setItemHeight(16)
+            .noListBackground()
+            .setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.DETACHED)
+            .setScrollBarAlwaysVisible(true)
+            .setInitialItems(items -> {
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+            }).build());
 
-        var list2 = new FrameworkSelectionList(150, 100, 0, 0, 16);
-        list2.setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.MERGED);
-        list2.setScrollBarAlwaysVisible(true);
-        list2.addItem(new TitleItem(Component.literal("Fruits")));
-        list2.addItem(new TextItem("Apple"));
-        list2.addItem(new TextItem("Banana"));
-        list2.addItem(new TextItem("Orange"));
-        list2.addItem(new TextItem("Mango"));
-        list2.addItem(new TextItem("Apple"));
-        list2.addItem(new TextItem("Banana"));
-        list2.addItem(new TextItem("Orange"));
-        list2.addItem(new TextItem("Mango"));
-        list2.addItem(new TextItem("Apple"));
-        list2.addItem(new TextItem("Banana"));
-        list2.addItem(new TextItem("Orange"));
-        list2.addItem(new TextItem("Mango"));
-        second.addChild(list2);
+        second.addChild(FrameworkSelectionList.builder()
+            .setSize(150, 100)
+            .setItemHeight(16)
+            .setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.MERGED)
+            .setScrollBarAlwaysVisible(true)
+            .setInitialItems(items -> {
+                items.accept(new TitleItem(Component.literal("Fruits")));
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+                items.accept(new TextItem("Apple"));
+                items.accept(new TextItem("Banana"));
+                items.accept(new TextItem("Orange"));
+                items.accept(new TextItem("Mango"));
+            }).build());
 
         wrapper.addChild(second);
 
@@ -153,5 +162,8 @@ public class TestScreen extends Screen
             int textY = y + (height - 8) / 2;
             graphics.drawCenteredString(Minecraft.getInstance().font, this.text, x + width / 2, textY, 0xFFFFFFFF);
         }
+
+        @Override
+        protected void renderBackground(@Nullable ItemSprites sprites, GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected) {}
     }
 }
