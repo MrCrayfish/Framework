@@ -24,7 +24,7 @@ public final class Border extends EdgeInsets
     }
 
     /**
-     * Creates a {@link Border} instance with custom border for each side.
+     * Creates a {@link Border} instance with a custom border for each side.
      *
      * @param left   the border for the left side in pixels
      * @param top    the border for the top side in pixels
