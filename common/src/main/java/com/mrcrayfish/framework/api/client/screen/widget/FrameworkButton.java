@@ -6,6 +6,7 @@ import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Label;
+import com.mrcrayfish.framework.api.client.screen.widget.element.Sound;
 import com.mrcrayfish.framework.api.client.screen.widget.input.Action;
 import com.mrcrayfish.framework.api.client.screen.widget.input.MouseInput;
 import net.minecraft.client.Minecraft;
@@ -18,11 +19,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,14 +136,17 @@ public final class FrameworkButton extends AbstractButton
 
     private void onAction(int button)
     {
-        Holder<SoundEvent> sound = SoundEvents.UI_BUTTON_CLICK;
         Action<FrameworkButton> action = this.actions != null ? this.actions.get(MouseInput.fromButton(button)) : null;
         if(action != null)
         {
             action.handler().accept(this);
-            sound = action.sound();
+            Sound sound = action.sound();
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound.value(), sound.pitch(), sound.volume()));
         }
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F));
+        else
+        {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
         this.rebuildTooltip();
     }
 
@@ -532,7 +534,7 @@ public final class FrameworkButton extends AbstractButton
         /**
          * Sets the action to run when the button is left-clicked (the primary click), however the
          * action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
-         * {@link Action#create(Consumer, Holder)} to create an instance.
+         * {@link Action#create(Consumer, Sound)} to create an instance.
          *
          * @param action an {@link Action} object
          * @return this {@link Builder} for method chaining
@@ -558,7 +560,7 @@ public final class FrameworkButton extends AbstractButton
         /**
          * Sets the action to run when the button is right-clicked (the secondary click), however
          * the action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
-         * {@link Action#create(Consumer, Holder)} to create an instance.
+         * {@link Action#create(Consumer, Sound)} to create an instance.
          *
          * @param action an {@link Action} object
          * @return this {@link Builder} for method chaining
@@ -584,7 +586,7 @@ public final class FrameworkButton extends AbstractButton
         /**
          * Sets the action to run when the button is middle-clicked (the tertiary click), however
          * the action is wrapped in an {@link Action} object. Use {@link Action#create(Consumer)} or
-         * {@link Action#create(Consumer, Holder)} to create an instance.
+         * {@link Action#create(Consumer, Sound)} to create an instance.
          *
          * @param action an {@link Action} object
          * @return this {@link Builder} for method chaining
