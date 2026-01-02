@@ -1,11 +1,9 @@
 package com.mrcrayfish.framework.api.client.screen;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-@Beta
 public final class ItemSprites
 {
     private final ImmutableMap<Integer, ResourceLocation> map;
