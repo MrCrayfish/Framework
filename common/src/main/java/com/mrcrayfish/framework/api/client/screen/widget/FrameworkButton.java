@@ -141,7 +141,10 @@ public final class FrameworkButton extends AbstractButton
         {
             action.handler().accept(this);
             Sound sound = action.sound();
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound.value(), sound.pitch(), sound.volume()));
+            if(sound != null)
+            {
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound.value(), sound.pitch(), sound.volume()));
+            }
         }
         else
         {
