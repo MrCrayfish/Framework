@@ -1,15 +1,11 @@
 package com.mrcrayfish.framework.api.client.screen.widget.input;
 
-import com.google.common.annotations.Beta;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Sound;
-import net.minecraft.core.Holder;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@Beta
 public final class Action<T>
 {
     private static final Sound DEFAULT_SOUND = Sound.create(SoundEvents.UI_BUTTON_CLICK);
