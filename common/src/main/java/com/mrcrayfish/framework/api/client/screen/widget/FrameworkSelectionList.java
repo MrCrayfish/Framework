@@ -23,6 +23,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/**
+ * An improved version of selection lists, with a focus on a pixel-perfect layout, customisation,
+ * and a more open API. One key difference of this implementation is that row width is determined
+ * by the available width of the list, rather than a fixed value, which is more akin to lists in
+ * a traditional user interface. The implementation also takes advantage of the sprite texture
+ * system and can be used to change the texture of the list background, items, scrollbar, and scroller.
+ * <p>
+ * To get started, use {@link FrameworkSelectionList#builder()} to start constructing a new instance
+ * or extend {@link FrameworkSelectionList} to create a custom subclass for full control.
+ */
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
     public static final ResourceLocation DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
@@ -56,7 +66,18 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected Padding scrollBarContainerPadding;
     protected @Nullable Supplier<Boolean> activeSupplier;
 
-    public FrameworkSelectionList(int width, int height, int x, int y, int itemHeight)
+    /**
+     * Constructs a FrameworkSelectionList with specified dimensions, position, and item height.
+     * This constructor is only for subclassing. To create a {@link FrameworkSelectionList},
+     * use {@link #builder()} to start building a new instance.
+     *
+     * @param width      the width of the list
+     * @param height     the height of the list
+     * @param x          the x position of the list
+     * @param y          the y position of the list
+     * @param itemHeight the height of each item in the list
+     */
+    protected FrameworkSelectionList(int width, int height, int x, int y, int itemHeight)
     {
         super(Minecraft.getInstance(), width, height, y, itemHeight);
         this.setPosition(x, y);
@@ -64,7 +85,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
     private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable ResourceLocation listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ItemSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable ResourceLocation scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
     {
-        this( width, height, x, y, itemHeight);
+        this(width, height, x, y, itemHeight);
         this.itemSprites = itemSprites;
         this.itemSpacing = itemSpacing;
         this.listBackground = listBackground;
@@ -498,6 +519,12 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         DETACHED, MERGED
     }
 
+    /**
+     * Creates a {@link Builder} for constructing {@link FrameworkSelectionList}s. The builder by
+     * default is configured to replicate the visual style of vanilla's selection lists.
+     *
+     * @return a new {@link Builder} instance for creating a FrameworkSelectionList.
+     */
     public static Builder builder()
     {
         return new Builder();
