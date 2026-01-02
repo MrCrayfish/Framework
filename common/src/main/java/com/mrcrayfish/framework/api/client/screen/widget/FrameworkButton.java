@@ -127,7 +127,7 @@ public final class FrameworkButton extends AbstractButton
     }
 
     /**
-     * @return The pixel spacing used between the icon and message
+     * @return The pixel spacing used between the icon and label of the button
      */
     public int getSpacing()
     {
