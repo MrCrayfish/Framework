@@ -1,12 +1,10 @@
 package com.mrcrayfish.framework.api.client.screen.widget.element;
 
-import com.google.common.annotations.Beta;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
-@Beta
 public abstract class Icon
 {
     public abstract int width();
