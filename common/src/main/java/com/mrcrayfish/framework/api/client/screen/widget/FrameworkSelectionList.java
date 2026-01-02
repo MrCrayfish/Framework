@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.ItemSprites;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
@@ -10,6 +9,7 @@ import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,10 +19,10 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@Beta
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
     public static final ResourceLocation DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
@@ -38,25 +38,23 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     public static final Border DEFAULT_SCROLL_BAR_BORDER = Border.of(0);
     public static final Padding DEFAULT_SCROLL_BAR_CONTAINER_PADDING = Padding.of(0);
 
-    protected @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
-    protected int itemSpacing = 0;
-    protected @Nullable ResourceLocation listBackground = DEFAULT_BACKGROUND;
-    protected Border listBorder = DEFAULT_LIST_BORDER;
-    protected Padding listPadding = DEFAULT_LIST_PADDING;
+    protected @Nullable ItemSprites itemSprites;
+    protected int itemSpacing;
+    protected @Nullable ResourceLocation listBackground;
+    protected Border listBorder;
+    protected Padding listPadding;
     protected boolean scrolling;
     protected boolean scrollBarAlwaysVisible;
-    protected int scrollBarSpacing = 4;
+    protected int scrollBarSpacing;
     protected ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
-    protected @Nullable ItemSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
+    protected @Nullable ItemSprites scrollerSprites;
     protected int scrollerWidth = 6;
     protected int minScrollerHeight = 32;
-    protected @Nullable ResourceLocation scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
-    protected Border scrollBarBorder = DEFAULT_SCROLL_BAR_BORDER;
-    protected Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
-    protected Padding scrollBarContainerPadding = DEFAULT_SCROLL_BAR_CONTAINER_PADDING;
+    protected @Nullable ResourceLocation scrollBarBackground;
+    protected Border scrollBarBorder;
+    protected Padding scrollBarPadding;
+    protected Padding scrollBarContainerPadding;
     protected @Nullable Supplier<Boolean> activeSupplier;
-
-    // TODO set minm scroller height
 
     public FrameworkSelectionList(int width, int height, int x, int y, int itemHeight)
     {
@@ -64,136 +62,36 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         this.setPosition(x, y);
     }
 
+    private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable ResourceLocation listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ItemSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable ResourceLocation scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
+    {
+        this( width, height, x, y, itemHeight);
+        this.itemSprites = itemSprites;
+        this.itemSpacing = itemSpacing;
+        this.listBackground = listBackground;
+        this.listBorder = listBorder;
+        this.listPadding = listPadding;
+        this.scrollBarAlwaysVisible = scrollBarAlwaysVisible;
+        this.scrollBarSpacing = scrollBarSpacing;
+        this.scrollBarStyle = scrollBarStyle;
+        this.scrollerSprites = scrollerSprites;
+        this.scrollerWidth = scrollerWidth;
+        this.minScrollerHeight = minScrollerHeight;
+        this.scrollBarBackground = scrollBarBackground;
+        this.scrollBarBorder = scrollBarBorder;
+        this.scrollBarPadding = scrollBarPadding;
+        this.scrollBarContainerPadding = scrollBarContainerPadding;
+        this.activeSupplier = activeSupplier;
+        if(itemsSupplier != null)
+        {
+            itemsSupplier.accept(this::addItem);
+        }
+    }
+
     @Override
     public void setPosition(int x, int y)
     {
         super.setPosition(x, y);
         this.setSize(this.width, this.height);
-    }
-
-    public void setListBackground(@Nullable ResourceLocation background)
-    {
-        this.listBackground = background;
-    }
-
-    public void setListBorder(int size)
-    {
-        this.listBorder = Border.of(size);
-    }
-
-    public void setListBorder(int left, int top, int right, int bottom)
-    {
-        this.listBorder = Border.of(left, top, right, bottom);
-    }
-
-    public void setListBorder(Border border)
-    {
-        this.listBorder = border;
-    }
-
-    public void setListPadding(int padding)
-    {
-        this.listPadding = Padding.of(padding);
-    }
-
-    public void setListPadding(int left, int top, int right, int bottom)
-    {
-        this.listPadding = Padding.of(left, top, right, bottom);
-    }
-
-    public void setListPadding(Padding padding)
-    {
-        this.listPadding = padding;
-    }
-
-    public void setItemSpacing(int itemSpacing)
-    {
-        this.itemSpacing = itemSpacing;
-    }
-
-    public void setItemSprites(@Nullable ItemSprites sprites)
-    {
-        this.itemSprites = sprites;
-    }
-
-    public void setScrollerWidth(int width)
-    {
-        this.scrollerWidth = width;
-    }
-
-    public void setScrollerMinHeight(int minHeight)
-    {
-        this.minScrollerHeight = minHeight;
-    }
-
-    public void setScrollerSprites(@Nullable ItemSprites sprites)
-    {
-        this.scrollerSprites = sprites;
-    }
-
-    public void setScrollBarBackground(@Nullable ResourceLocation background)
-    {
-        this.scrollBarBackground = background;
-    }
-
-    public void setScrollBarBorder(int size)
-    {
-        this.scrollBarBorder = Border.of(size);
-    }
-
-    public void setScrollBarBorder(int left, int top, int right, int bottom)
-    {
-        this.scrollBarBorder = Border.of(left, top, right, bottom);
-    }
-
-    public void setScrollBarBorder(Border border)
-    {
-        this.scrollBarBorder = border;
-    }
-
-    public void setScrollBarStyle(ScrollBarStyle scrollBarStyle)
-    {
-        this.scrollBarStyle = scrollBarStyle;
-    }
-
-    public void setScrollBarAlwaysVisible(boolean scrollBarAlwaysVisible)
-    {
-        this.scrollBarAlwaysVisible = scrollBarAlwaysVisible;
-    }
-
-    public void setScrollBarSpacing(int scrollBarSpacing)
-    {
-        this.scrollBarSpacing = scrollBarSpacing;
-    }
-
-    public void setScrollBarPadding(int padding)
-    {
-        this.scrollBarPadding = Padding.of(padding);
-    }
-
-    public void setScrollBarPadding(int left, int top, int right, int bottom)
-    {
-        this.scrollBarPadding = Padding.of(left, top, right, bottom);
-    }
-
-    public void setScrollBarContainerPadding(int size)
-    {
-        this.scrollBarContainerPadding = Padding.of(size);
-    }
-
-    public void setScrollBarContainerPadding(int left, int top, int right, int bottom)
-    {
-        this.scrollBarContainerPadding = Padding.of(left, top, right, bottom);
-    }
-
-    public void setScrollBarContainerPadding(Padding padding)
-    {
-        this.scrollBarContainerPadding = padding;
-    }
-
-    public void setActive(@Nullable Supplier<Boolean> activeSupplier)
-    {
-        this.activeSupplier = activeSupplier;
     }
 
     @Override
@@ -598,5 +496,363 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     public enum ScrollBarStyle
     {
         DETACHED, MERGED
+    }
+
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
+    public static class Builder
+    {
+        private int x;
+        private int y;
+        private int width = 100;
+        private int height = 100;
+        private int itemHeight = 20;
+        private @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
+        private int itemSpacing = 0;
+        private @Nullable ResourceLocation listBackground = DEFAULT_BACKGROUND;
+        private Border listBorder = DEFAULT_LIST_BORDER;
+        private Padding listPadding = DEFAULT_LIST_PADDING;
+        private boolean scrollBarAlwaysVisible;
+        private int scrollBarSpacing = 4;
+        private ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
+        private @Nullable ItemSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
+        private int scrollerWidth = 6;
+        private int minScrollerHeight = 32;
+        private @Nullable ResourceLocation scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
+        private Border scrollBarBorder = DEFAULT_SCROLL_BAR_BORDER;
+        private Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
+        private Padding scrollBarContainerPadding = DEFAULT_SCROLL_BAR_CONTAINER_PADDING;
+        private @Nullable Supplier<Boolean> activeSupplier;
+        private @Nullable Consumer<Consumer<Item>> itemsSupplier;
+
+        private Builder() {}
+
+        public FrameworkSelectionList build()
+        {
+            return new FrameworkSelectionList(this.x, this.y, this.width, this.height, this.itemHeight, this.itemSprites, this.itemSpacing, this.listBackground, this.listBorder, this.listPadding, this.scrollBarAlwaysVisible, this.scrollBarSpacing, this.scrollBarStyle, this.scrollerSprites, this.scrollerWidth, this.minScrollerHeight, this.scrollBarBackground, this.scrollBarBorder, this.scrollBarPadding, this.scrollBarContainerPadding, this.activeSupplier, this.itemsSupplier);
+        }
+
+        /**
+         * Sets the x position of this list.
+         *
+         * @param x the x position in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setX(int x)
+        {
+            this.x = x;
+            return this;
+        }
+
+        /**
+         * Sets the y position of this list.
+         *
+         * @param y the y position in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setY(int y)
+        {
+            this.y = y;
+            return this;
+        }
+
+        /**
+         * Sets the x and y position of this list. This method is simply for convenience
+         * to set both values in a single call.
+         *
+         * @param x the x position in pixel units
+         * @param y the y position in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setPosition(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+            return this;
+        }
+
+        /**
+         * Sets the width of this list.
+         *
+         * @param width the width in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setWidth(int width)
+        {
+            this.width = width;
+            return this;
+        }
+
+        /**
+         * Sets the height of this list.
+         *
+         * @param height the height in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setHeight(int height)
+        {
+            this.height = height;
+            return this;
+        }
+
+        /**
+         * Sets the width and height (the size) of this list. This method is simply for
+         * convenience to set both values in a single call.
+         *
+         * @param width  the width in pixel units
+         * @param height the height in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setSize(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+            return this;
+        }
+
+        /**
+         * Sets the height of individual items in the list.
+         *
+         * @param height the item height in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setItemHeight(int height)
+        {
+            this.itemHeight = height;
+            return this;
+        }
+
+        /**
+         * Sets the {@link ItemSprites} used to render list items.
+         *
+         * @param sprites the item sprites to use, or null to disable sprites
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setItemSprites(@Nullable ItemSprites sprites)
+        {
+            this.itemSprites = sprites;
+            return this;
+        }
+
+        /**
+         * Disables item sprites for the list.
+         *
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder noItemSprites()
+        {
+            this.itemSprites = null;
+            return this;
+        }
+
+        /**
+         * Sets the spacing between items in the list.
+         *
+         * @param spacing the spacing between items in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setItemSpacing(int spacing)
+        {
+            this.itemSpacing = spacing;
+            return this;
+        }
+
+        /**
+         * Sets the background sprite for the list.
+         *
+         * @param texture the background resource location, or null for no background
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setListBackground(@Nullable ResourceLocation texture)
+        {
+            this.listBackground = texture;
+            return this;
+        }
+
+        /**
+         * Disables the background sprite for the list.
+         *
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder noListBackground()
+        {
+            this.listBackground = null;
+            return this;
+        }
+
+        /**
+         * Sets the border applied to the outer edges of the list.
+         *
+         * @param border the border to apply to the list
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setListBorder(Border border)
+        {
+            this.listBorder = border;
+            return this;
+        }
+
+        /**
+         * Sets the padding applied inside the list, between its border and content.
+         *
+         * @param padding the padding to apply inside the list
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setListPadding(Padding padding)
+        {
+            this.listPadding = padding;
+            return this;
+        }
+
+        /**
+         * Sets whether the scroll bar is always visible, even when there is not enough items in the
+         * list to even warrant scrolling.
+         *
+         * @param alwaysVisible true to always show the scroll bar
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarAlwaysVisible(boolean alwaysVisible)
+        {
+            this.scrollBarAlwaysVisible = alwaysVisible;
+            return this;
+        }
+
+        /**
+         * Sets the spacing between the list content and the scroll bar container.
+         *
+         * @param spacing the spacing in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarSpacing(int spacing)
+        {
+            this.scrollBarSpacing = spacing;
+            return this;
+        }
+
+        /**
+         * Sets the {@link ScrollBarStyle} used to render the scroll bar. See {@link ScrollBarStyle}
+         * for the available styles.
+         *
+         * @param style the scroll bar style to use
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarStyle(ScrollBarStyle style)
+        {
+            this.scrollBarStyle = style;
+            return this;
+        }
+
+        /**
+         * Sets the {@link ItemSprites} used for rendering the scroller in the scroll bar
+         *
+         * @param sprites the sprites to use for the scroller, or null to disable
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollerSprites(@Nullable ItemSprites sprites)
+        {
+            this.scrollerSprites = sprites;
+            return this;
+        }
+
+        /**
+         * Sets the width of the scroller in the scroll bar
+         *
+         * @param width the width in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollerWidth(int width)
+        {
+            this.scrollerWidth = width;
+            return this;
+        }
+
+        /**
+         * Sets the min height of the scroller in the scroll bar
+         *
+         * @param minHeight the minimum height in pixel units
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setMinScrollerHeight(int minHeight)
+        {
+            this.minScrollerHeight = minHeight;
+            return this;
+        }
+
+        /**
+         * Sets the sprite to use for the background of the scroll bar
+         *
+         * @param texture the resource location to a sprite, or null for no background
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarBackground(@Nullable ResourceLocation texture)
+        {
+            this.scrollBarBackground = texture;
+            return this;
+        }
+
+        /**
+         * Sets the border applied to the scroll bar
+         *
+         * @param border the border to apply to the scroll bar
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarBorder(Border border)
+        {
+            this.scrollBarBorder = border;
+            return this;
+        }
+
+        /**
+         * Sets the padding applied inside the scroll bar, between its border and scroller
+         *
+         * @param padding the padding to apply inside the scroll bar
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarPadding(Padding padding)
+        {
+            this.scrollBarPadding = padding;
+            return this;
+        }
+
+        /**
+         * Sets the padding applied around the scroll bar container
+         *
+         * @param padding the padding to apply around the scroll bar container
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setScrollBarContainerPadding(Padding padding)
+        {
+            this.scrollBarContainerPadding = padding;
+            return this;
+        }
+
+        /**
+         * Sets a dependency on an arbitrary boolean. This will update the
+         * {@link AbstractWidget#active} property of the list.
+         *
+         * @param active a supplier returning a boolean representing the dependent state
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setDependent(Supplier<Boolean> active)
+        {
+            this.activeSupplier = active;
+            return this;
+        }
+
+        /**
+         * Sets the initial items for the list. These will be added to the list during call to
+         * {@link #build()}. Items should be added via the consumer provided in the consumer.
+         *
+         * @param items a consumer used to populate the initial list items
+         * @return this {@link Builder} for method chaining
+         */
+        public Builder setInitialItems(Consumer<Consumer<Item>> items)
+        {
+            this.itemsSupplier = items;
+            return this;
+        }
     }
 }
