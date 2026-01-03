@@ -24,6 +24,8 @@ import java.util.function.*;
 
 /**
  * An improved version of edit boxes, with support for icons and more customisation options.
+ * <p>
+ * To get started, use {@link #builder()} to build out a new {@link FrameworkEditBox} instance.
  */
 public final class FrameworkEditBox extends AbstractContainerWidget
 {
