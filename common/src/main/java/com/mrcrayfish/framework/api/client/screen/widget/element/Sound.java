@@ -7,6 +7,10 @@ import net.minecraft.util.RandomSource;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Represents an abstract sound construct that allows for dynamic or fixed configurations
+ * of sound events, volume, and pitch.
+ */
 public abstract class Sound
 {
     /**
