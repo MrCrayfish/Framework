@@ -1,5 +1,8 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
+/**
+ * Represents a configurable border with customisable thickness for each side
+ */
 public final class Border extends EdgeInsets
 {
     private Border(int left, int top, int right, int bottom)
