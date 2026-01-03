@@ -1,6 +1,6 @@
 package test.widgets;
 
-import com.mrcrayfish.framework.api.client.screen.Buttons;
+import com.mrcrayfish.framework.api.client.screen.widget.Buttons;
 import com.mrcrayfish.framework.api.client.screen.ItemSprites;
 import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;

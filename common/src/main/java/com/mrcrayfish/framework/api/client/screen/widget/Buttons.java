@@ -1,6 +1,5 @@
-package com.mrcrayfish.framework.api.client.screen;
+package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
