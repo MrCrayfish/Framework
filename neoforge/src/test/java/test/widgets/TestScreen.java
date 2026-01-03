@@ -1,8 +1,7 @@
 package test.widgets;
 
 import com.mrcrayfish.framework.api.client.screen.widget.Buttons;
-import com.mrcrayfish.framework.api.client.screen.ItemSprites;
-import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
+import com.mrcrayfish.framework.api.client.screen.widget.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkEditBox;
 import com.mrcrayfish.framework.api.client.screen.widget.FrameworkSelectionList;
@@ -164,6 +163,6 @@ public class TestScreen extends Screen
         }
 
         @Override
-        protected void renderBackground(@Nullable ItemSprites sprites, GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected) {}
+        protected void renderBackground(@Nullable FrameworkSelectionList.ItemSprites sprites, GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected) {}
     }
 }
