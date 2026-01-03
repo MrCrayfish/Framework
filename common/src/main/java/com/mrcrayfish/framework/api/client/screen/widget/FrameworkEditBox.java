@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
@@ -26,7 +25,6 @@ import java.util.function.*;
 /**
  * An improved version of edit boxes, with support for icons and more customisation options.
  */
-@Beta
 public final class FrameworkEditBox extends AbstractContainerWidget
 {
     private static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
