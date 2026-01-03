@@ -1,5 +1,8 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
+/**
+ * Represents a configurable padding with customisable values for each side.
+ */
 public final class Padding extends EdgeInsets
 {
     private Padding(int left, int top, int right, int bottom)

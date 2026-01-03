@@ -9,6 +9,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Utility class for creating pre-configured {@link FrameworkButton.Builder} instances
+ * for common button behaviours, such as toggling boolean values or cycling through enum values.
+ */
 public final class Buttons
 {
     private Buttons() {}
