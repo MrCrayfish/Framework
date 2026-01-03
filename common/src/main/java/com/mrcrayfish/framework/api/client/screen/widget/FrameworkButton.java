@@ -787,9 +787,9 @@ public final class FrameworkButton extends AbstractButton
     {
         private static final int TOGGLE_SIZE = 6;
         private static final WidgetSprites TOGGLE_SPRITES = new WidgetSprites(
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "button/toggle_on"),
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "button/toggle_off"),
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "button/toggle_on")
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on"),
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_off"),
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on")
         );
 
         private final Supplier<Boolean> state;
