@@ -8,6 +8,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Represents mouse input actions for left, middle, or right click, mapped to GLFW button constants.
+ */
 public enum MouseInput
 {
     LEFT_CLICK(GLFW.GLFW_MOUSE_BUTTON_LEFT),

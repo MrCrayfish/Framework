@@ -6,6 +6,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * Represents an action that can be triggered, with an associated handler and optional sound effect.
+ *
+ * @param <T> the type of the argument consumed by the action handler
+ */
 public final class Action<T>
 {
     private static final Sound DEFAULT_SOUND = Sound.create(SoundEvents.UI_BUTTON_CLICK);

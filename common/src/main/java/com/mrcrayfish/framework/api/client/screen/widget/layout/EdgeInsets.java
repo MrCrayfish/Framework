@@ -1,5 +1,9 @@
 package com.mrcrayfish.framework.api.client.screen.widget.layout;
 
+/**
+ * Represents a base class for defining spacing or thickness for each edge of a rectangular area.
+ * Only {@link Border} and {@link Padding} are permitted classes.
+ */
 public abstract sealed class EdgeInsets permits Border, Padding
 {
     private final int left;
