@@ -1,4 +1,4 @@
-package com.mrcrayfish.framework.api.client.screen;
+package com.mrcrayfish.framework.api.client.screen.widget;
 
 /**
  * Tooltip options for widgets. These options are intended to be applied together using bitwise ops.
@@ -18,13 +18,13 @@ public final class TooltipOptions
     /**
      * It is very often that tooltips become overloaded with information. Instead of showing the
      * full tooltip, it is shortened until the user pressed the shift key. Since Framework widgets
-     * reuse a cached version of the tooltip, in order to update, this option will flag that cache
-     * to be invalidated when the shift key is pressed or released.
+     * reuse a cached version of the tooltip, this option will flag that cache to be invalidated
+     * when the shift key is pressed or released.
      */
     public static final int REBUILD_TOOLTIP_ON_SHIFT = 1 << 1;
 
     /**
-     * Framework widgets by default only invalidate the tooltip cache when the widget is clicked.
+     * Framework widgets, by default, only invalidate the tooltip cache when the widget is clicked.
      * This is an additional option to invalidate and rebuild the tooltip when the cursor initially
      * hovers over the widget.
      */

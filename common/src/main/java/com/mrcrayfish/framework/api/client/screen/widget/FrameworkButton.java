@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.Constants;
-import com.mrcrayfish.framework.api.client.screen.TooltipOptions;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Label;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Sound;
