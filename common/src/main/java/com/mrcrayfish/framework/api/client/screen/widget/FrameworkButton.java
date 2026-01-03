@@ -29,6 +29,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * An improved version of buttons, with support for icons, better tooltips, change the background
+ * texture, handle actions for every mouse button, and custom content rendering.
+ * <p>
+ * To get started, use {@link #builder()} to build out a new {@link FrameworkButton} instance.
+ */
 public final class FrameworkButton extends AbstractButton
 {
     /**
