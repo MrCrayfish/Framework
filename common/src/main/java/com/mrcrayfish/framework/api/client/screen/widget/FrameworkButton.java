@@ -830,7 +830,8 @@ public final class FrameworkButton extends AbstractButton
             int yOffset = (button.getHeight() - TOGGLE_SIZE) / 2;
             int stateIconY = button.getY() + yOffset;
             int stateIconX = button.getX() + button.getWidth() - TOGGLE_SIZE - yOffset;
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
+            int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE, alpha);
         }
     }
 
