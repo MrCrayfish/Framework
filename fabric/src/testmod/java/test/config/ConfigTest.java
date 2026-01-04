@@ -1,8 +1,8 @@
 package test.config;
 
 import com.mrcrayfish.framework.api.config.*;
+import com.mrcrayfish.framework.api.config.validate.IdentifierValidator;
 import com.mrcrayfish.framework.api.config.validate.NumberRange;
-import com.mrcrayfish.framework.api.config.validate.ResourceLocationValidator;
 import net.minecraft.core.Direction;
 
 import java.util.List;
@@ -41,10 +41,10 @@ public class ConfigTest
             public final ListProperty<String> stringList = ListProperty.create(ListProperty.STRING, () -> List.of("Hello", "World"));
 
             @ConfigProperty(name = "myItemsList", comment = "A list of item identifiers")
-            public final ListProperty<String> itemsList = ListProperty.create(ListProperty.STRING, ResourceLocationValidator.any(), () -> List.of("minecraft:stick", "minecraft:stone"));
+            public final ListProperty<String> itemsList = ListProperty.create(ListProperty.STRING, IdentifierValidator.any(), () -> List.of("minecraft:stick", "minecraft:stone"));
 
             @ConfigProperty(name = "paymentItem", comment = "The item to use for payments. Cannot be empty")
-            public final StringProperty paymentItem = StringProperty.create("minecraft:emerald", ResourceLocationValidator.restrictNamespace("minecraft"));
+            public final StringProperty paymentItem = StringProperty.create("minecraft:emerald", IdentifierValidator.restrictNamespace("minecraft"));
         }
     }
 }

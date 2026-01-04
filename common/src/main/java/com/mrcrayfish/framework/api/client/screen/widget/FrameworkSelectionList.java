@@ -480,7 +480,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public boolean updateScrolling(MouseButtonEvent event)
     {
-        this.scrolling = this.scrollbarVisible() && event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) event.x(), (int) event.y(), this.scrollBarX(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
+        this.scrolling = this.scrollable() && event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) event.x(), (int) event.y(), this.scrollBarX(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
         ClientServices.CLIENT.setScrollingState(this, this.scrolling);
         return this.scrolling;
     }

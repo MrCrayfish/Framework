@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
@@ -19,7 +18,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -50,9 +48,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     private final EditBox editBox;
     private final boolean clearOnRightClick;
 
-    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border border, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable EditBox.TextFormatter textFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
+    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border border, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable EditBox.TextFormatter textFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
     {
-        super(x, y, width, height, CommonComponents.EMPTY);
+        super(x, y, width, height, CommonComponents.EMPTY, defaultSettings(0));
         this.icon = icon.apply(this);
         this.padding = padding;
         this.spacing = spacing;
@@ -88,8 +86,6 @@ public final class FrameworkEditBox extends AbstractContainerWidget
             }
         });
         this.updateEditBoxWidth();
-        if(valueFilter != null)
-            this.editBox.setFilter(valueFilter);
         if(maxTextLength != null)
             this.editBox.setMaxLength(maxTextLength);
         this.editBox.setValue(text);
@@ -244,7 +240,6 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private String text = "";
         private @Nullable String suggestion;
         private @Nullable Consumer<String> callback;
-        private @Nullable Predicate<String> valueFilter;
         private @Nullable EditBox.TextFormatter textFormatter;
         private @Nullable Component hint;
         private @Nullable Supplier<Boolean> active;
@@ -257,7 +252,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          */
         public FrameworkEditBox build()
         {
-            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.border, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.textFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
+            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.border, this.text, this.suggestion, this.hint, this.callback, this.textFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
         }
 
         /**
@@ -595,6 +590,8 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
 
         /**
+         * Deprecated: No longer a feature in vanilla EditBoxes. This method will do nothing.
+         * <p>
          * Sets a filter for the text that can be present in the edit box. For example, this could be
          * used to only allow lower case letters. The predicate is called after a key is typed, and
          * will only be set the value to the edit box if the predicate passes. This predicate will
@@ -603,9 +600,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          * @param valueFilter a {@link Predicate} accepting a {@link String}
          * @return this {@link Builder} for method chaining
          */
+        @Deprecated(since = "26.1", forRemoval = true)
         public Builder setValueFilter(@Nullable Predicate<String> valueFilter)
         {
-            this.valueFilter = valueFilter;
             return this;
         }
 
