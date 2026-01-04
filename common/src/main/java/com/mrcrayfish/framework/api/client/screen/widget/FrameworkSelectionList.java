@@ -38,6 +38,7 @@ import java.util.function.Supplier;
  */
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
+    // Defaults for making the list replicate the visual style of vanilla's selection lists
     public static final Identifier DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
     public static final ItemSprites DEFAULT_ITEM_SPRITE = ItemSprites.builder()
         .setEnabledSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
@@ -50,6 +51,11 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     public static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
     public static final Border DEFAULT_SCROLL_BAR_BORDER = Border.of(0);
     public static final Padding DEFAULT_SCROLL_BAR_CONTAINER_PADDING = Padding.of(0);
+    public static final int DEFAULT_SCROLL_BAR_SPACING = 4;
+    public static final int DEFAULT_SCROLLER_WIDTH = 6;
+    public static final int DEFAULT_MIN_SCROLLER_HEIGHT = 32;
+    public static final int DEFAULT_ITEM_HEIGHT = 20;
+    public static final int DEFAULT_ITEM_SPACING = 0;
 
     // Properties
     protected @Nullable ItemSprites itemSprites;
@@ -593,18 +599,18 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         private int y;
         private int width = 100;
         private int height = 100;
-        private int itemHeight = 20;
+        private int itemHeight = DEFAULT_ITEM_HEIGHT;
         private @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
-        private int itemSpacing = 0;
+        private int itemSpacing = DEFAULT_ITEM_SPACING;;
         private @Nullable Identifier listBackground = DEFAULT_BACKGROUND;
         private Border listBorder = DEFAULT_LIST_BORDER;
         private Padding listPadding = DEFAULT_LIST_PADDING;
         private boolean scrollBarAlwaysVisible;
-        private int scrollBarSpacing = 4;
+        private int scrollBarSpacing = DEFAULT_SCROLL_BAR_SPACING;
         private ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
         private @Nullable ScrollerSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
-        private int scrollerWidth = 6;
-        private int minScrollerHeight = 32;
+        private int scrollerWidth = DEFAULT_SCROLLER_WIDTH;
+        private int minScrollerHeight = DEFAULT_MIN_SCROLLER_HEIGHT;
         private @Nullable Identifier scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
         private Border scrollBarBorder = DEFAULT_SCROLL_BAR_BORDER;
         private Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
