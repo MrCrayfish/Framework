@@ -13,9 +13,12 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,8 +33,8 @@ import java.util.function.*;
 public final class FrameworkEditBox extends AbstractContainerWidget
 {
     private static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
-        ResourceLocation.withDefaultNamespace("widget/text_field"),
-        ResourceLocation.withDefaultNamespace("widget/text_field_highlighted")
+        Identifier.withDefaultNamespace("widget/text_field"),
+        Identifier.withDefaultNamespace("widget/text_field_highlighted")
     );
     public static final Padding DEFAULT_PADDING = Padding.of(4, 0, 4, 0);
     public static final Border DEFAULT_BORDER = Border.of(1);
@@ -47,7 +50,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     private final EditBox editBox;
     private final boolean clearOnRightClick;
 
-    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border border, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
+    private FrameworkEditBox(int x, int y, int width, int height, Function<FrameworkEditBox, Icon> icon, Padding padding, int spacing, @Nullable WidgetSprites background, Border border, String text, @Nullable String suggestion, @Nullable Component hint, @Nullable Consumer<String> callback, @Nullable Predicate<String> valueFilter, @Nullable EditBox.TextFormatter textFormatter, @Nullable Supplier<Boolean> activeSupplier, @Nullable Integer maxTextLength, boolean clearOnRightClick, @Nullable Integer iconWidthOverride)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon.apply(this);
@@ -95,8 +98,8 @@ public final class FrameworkEditBox extends AbstractContainerWidget
             this.editBox.setHint(hint);
         if(callback != null)
             this.editBox.setResponder(callback); // Add after setting initial text to avoid call
-        if(styleFormatter != null)
-            this.editBox.setFormatter(styleFormatter);
+        if(textFormatter != null)
+            this.editBox.addFormatter(textFormatter);
 
         this.setSize(width, height);
     }
@@ -165,13 +168,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
         if(this.background != null)
         {
-            RenderSystem.enableBlend();
-            RenderSystem.enableDepthTest();
-            graphics.setColor(1, 1, 1, this.editBox.isActive() ? 1.0F : 0.5F);
-            ResourceLocation background = this.background.get(this.editBox.isActive(), this.editBox.isFocused());
-            graphics.blitSprite(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            graphics.setColor(1, 1, 1, 1);
-            RenderSystem.disableBlend();
+            int alpha = ARGB.white(this.editBox.isActive() ? 1.0F : 0.5F);
+            Identifier background = this.background.get(this.editBox.isActive(), this.editBox.isFocused());
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight(), alpha);
         }
         this.layout.visitWidgets(widget -> widget.render(graphics,  mouseX, mouseY, partialTick));
     }
@@ -219,6 +218,18 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         return new Builder();
     }
 
+    @Override
+    protected int contentHeight()
+    {
+        return this.height;
+    }
+
+    @Override
+    protected double scrollRate()
+    {
+        return 0;
+    }
+
     public static class Builder
     {
         private int x;
@@ -234,7 +245,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         private @Nullable String suggestion;
         private @Nullable Consumer<String> callback;
         private @Nullable Predicate<String> valueFilter;
-        private @Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter;
+        private @Nullable EditBox.TextFormatter textFormatter;
         private @Nullable Component hint;
         private @Nullable Supplier<Boolean> active;
         private @Nullable Integer maxTextLength;
@@ -246,7 +257,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          */
         public FrameworkEditBox build()
         {
-            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.border, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.styleFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
+            return new FrameworkEditBox(this.x, this.y, this.width, this.height, this.icon, this.padding, this.spacing, this.background, this.border, this.text, this.suggestion, this.hint, this.callback, this.valueFilter, this.textFormatter, this.active, this.maxTextLength, this.clearOnRightClick, this.iconWidthOverride);
         }
 
         /**
@@ -332,29 +343,29 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          * Sets the icon that will be displayed on the edit box. The provided resource must be a
          * sprite, not a texture.
          *
-         * @param sprite a {@link ResourceLocation} to a sprite image
+         * @param sprite a {@link Identifier} to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(ResourceLocation sprite, int width, int height)
+        public Builder setIcon(Identifier sprite, int width, int height)
         {
             this.icon = editBox -> Icon.sprite(sprite, width, height);
             return this;
         }
 
         /**
-         * Supplies an icon that will be displayed on the edit box. Unlike {@link #setIcon(ResourceLocation, int, int)},
+         * Supplies an icon that will be displayed on the edit box. Unlike {@link #setIcon(Identifier, int, int)},
          * the supplier is called every frame the edit box is drawn, which allows the sprite resource
          * to dynamically change. For example, this could be used to draw a different icon depending
          * on the value in the edit box.
          *
-         * @param sprite a {@link Supplier} that returns a {@link ResourceLocation} to a sprite image
+         * @param sprite a {@link Supplier} that returns a {@link Identifier} to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(Supplier<ResourceLocation> sprite, int width, int height)
+        public Builder setIcon(Supplier<Identifier> sprite, int width, int height)
         {
             this.icon = editBox -> Icon.sprite(sprite, width, height);
             return this;
@@ -367,13 +378,13 @@ public final class FrameworkEditBox extends AbstractContainerWidget
          * every frame the edit box is drawn.
          *
          * @param sprite a {@link Function} that provides context of the {@link FrameworkEditBox} to
-         *               aid the creation of the {@link Supplier}, which returns a {@link ResourceLocation}
+         *               aid the creation of the {@link Supplier}, which returns a {@link Identifier}
          *               to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(Function<FrameworkEditBox, Supplier<ResourceLocation>> sprite, int width, int height)
+        public Builder setIcon(Function<FrameworkEditBox, Supplier<Identifier>> sprite, int width, int height)
         {
             this.icon = editBox -> Icon.sprite(sprite.apply(editBox), width, height);
             return this;
@@ -381,7 +392,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
 
         /**
          * Sets the icon that will be displayed on the edit box but allows for custom implementations
-         * of {@link Icon}. Use built-in functions {@link Icon#sprite(ResourceLocation, int, int)} and
+         * of {@link Icon}. Use built-in functions {@link Icon#sprite(Identifier, int, int)} and
          * {@link Icon#sprite(Supplier, int, int)} to create an icon for a sprite resources, otherwise
          * custom implements can be used to draw anything.
          *
@@ -599,16 +610,15 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
 
         /**
-         * Sets the style formatter of the edit box. This can be used to apply custom styling based
-         * on the format of a value. The {@link BiFunction} will be applied using the visually displayed
-         * {@link String} in the edit box and the starting index of that value.
+         * Sets the text formatter of the edit box. This can be used to apply custom styling based
+         * on the format of a value.
          *
-         * @param styleFormatter a {@link BiFunction} that accepts a {@link String} and an integer.
+         * @param textFormatter a {@link EditBox.TextFormatter} instance
          * @return this {@link Builder} for method chaining
          */
-        public Builder setStyleFormatter(@Nullable BiFunction<String, Integer, FormattedCharSequence> styleFormatter)
+        public Builder setTextFormatter(@Nullable EditBox.TextFormatter textFormatter)
         {
-            this.styleFormatter = styleFormatter;
+            this.textFormatter = textFormatter;
             return this;
         }
 
@@ -652,10 +662,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
     }
 
-    private static class Impl extends EditBox
+    public static class Impl extends EditBox
     {
         private final FrameworkEditBox parent;
-        private boolean drawing;
 
         private Impl(FrameworkEditBox parent)
         {
@@ -667,43 +676,25 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         @Override
         public boolean isBordered()
         {
-            return false; // Hack to disable the default background
+            return false;
         }
 
         @Override
-        public int getY()
+        public boolean isMouseOver(double mouseX, double mouseY)
         {
-            if(this.drawing)
-            {
-                return super.getY() + (this.getHeight() - 8) / 2;
-            }
-            return super.getY();
+            return mouseX >= this.parent.getX() && mouseY >= (double) this.parent.getY() && mouseX < (double) (this.parent.getX() + this.parent.getWidth()) && mouseY < (double) (this.parent.getY() + this.parent.getHeight());
         }
 
         @Override
-        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
-        {
-            this.drawing = true;
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
-            this.drawing = false;
-        }
-
-        @Override
-        protected boolean clicked(double mouseX, double mouseY)
-        {
-            return this.visible && this.active && mouseX >= this.parent.getX() && mouseY >= (double) this.parent.getY() && mouseX < (double) (this.parent.getX() + this.parent.getWidth()) && mouseY < (double) (this.parent.getY() + this.parent.getHeight());
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button)
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
         {
             // Right-clicking will clear the edit box
-            if(this.parent.clearOnRightClick && this.active && this.visible && button == 1 && this.clicked(mouseX, mouseY))
+            if(this.parent.clearOnRightClick && this.isActive() && event.button() == 1 && this.isMouseOver(event.x(), event.y()))
             {
                 this.setValue("");
                 return true;
             }
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(event, doubleClick);
         }
     }
 
@@ -722,7 +713,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         {
             int iconX = this.getX() + (this.getWidth() - this.icon.width()) / 2;
             int iconY = this.getY() + (this.getHeight() - this.icon.height()) / 2;
-            this.icon.draw(graphics, iconX, iconY, partialTick);
+            this.icon.draw(graphics, iconX, iconY, ARGB.white(1.0F), partialTick);
         }
 
         @Override

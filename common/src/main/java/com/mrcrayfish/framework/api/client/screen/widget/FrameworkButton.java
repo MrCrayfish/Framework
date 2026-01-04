@@ -14,13 +14,17 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -28,6 +32,8 @@ import java.util.EnumMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+// TODO add double click and modifier support
 
 /**
  * An improved version of buttons, with support for icons, better tooltips, change the background
@@ -41,9 +47,9 @@ public final class FrameworkButton extends AbstractButton
      * The default sprites used for Framework buttons. This is just vanilla button textures.
      */
     public static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
-        ResourceLocation.withDefaultNamespace("widget/button"),
-        ResourceLocation.withDefaultNamespace("widget/button_disabled"),
-        ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+        Identifier.withDefaultNamespace("widget/button"),
+        Identifier.withDefaultNamespace("widget/button_disabled"),
+        Identifier.withDefaultNamespace("widget/button_highlighted")
     );
 
     /**
@@ -179,13 +185,13 @@ public final class FrameworkButton extends AbstractButton
     {
         if((this.tooltipOptions & TooltipOptions.REBUILD_TOOLTIP_ON_SHIFT) != 0)
         {
-            if(!this.shiftWasDown && Screen.hasShiftDown() && this.isHovered())
+            if(!this.shiftWasDown && Minecraft.getInstance().hasShiftDown() && this.isHovered())
             {
                 this.rebuildTooltip();
                 this.shiftWasDown = true;
             }
         }
-        if(this.shiftWasDown && !Screen.hasShiftDown())
+        if(this.shiftWasDown && !Minecraft.getInstance().hasShiftDown())
         {
             this.rebuildTooltip();
             this.shiftWasDown = false;
@@ -218,16 +224,16 @@ public final class FrameworkButton extends AbstractButton
     }
 
     @Override
-    public void onPress()
+    public void onPress(InputWithModifiers input)
     {
-        this.onAction(0);
+        this.onAction(input.input());
     }
 
     @Override
     public void playDownSound(SoundManager manager) {}
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
         this.updateActiveState();
         this.updateTooltip();
@@ -244,20 +250,20 @@ public final class FrameworkButton extends AbstractButton
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if(this.active && this.visible && this.isValidClickButton(button) && this.clicked(mouseX, mouseY))
+        if(this.isActive() && this.isValidClickButton(event.buttonInfo()) && this.isMouseOver(event.x(), event.y()))
         {
-            this.onAction(button);
+            this.onAction(event.button());
             return true;
         }
         return false;
     }
 
     @Override
-    protected boolean isValidClickButton(int button)
+    protected boolean isValidClickButton(MouseButtonInfo info)
     {
-        return button == 0 || this.actions != null && this.actions.containsKey(button);
+        return info.button() == 0 || this.actions != null && this.actions.containsKey(MouseInput.fromButton(info.button()));
     }
 
     /**
@@ -423,29 +429,29 @@ public final class FrameworkButton extends AbstractButton
          * Sets the icon that will be displayed on the button. The provided resource must be a
          * sprite, not a texture.
          *
-         * @param sprite a {@link ResourceLocation} to a sprite image
+         * @param sprite a {@link Identifier} to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(ResourceLocation sprite, int width, int height)
+        public Builder setIcon(Identifier sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite, width, height);
             return this;
         }
 
         /**
-         * Supplies an icon that will be displayed on the button. Unlike {@link #setIcon(ResourceLocation, int, int)},
+         * Supplies an icon that will be displayed on the button. Unlike {@link #setIcon(Identifier, int, int)},
          * the supplier is called every frame the button is drawn, which allows the sprite resource
          * to dynamically change. For example, this could be used to draw a different icon when the
          * button is on or off.
          *
-         * @param sprite a {@link Supplier} that returns a {@link ResourceLocation} to a sprite image
+         * @param sprite a {@link Supplier} that returns a {@link Identifier} to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(Supplier<ResourceLocation> sprite, int width, int height)
+        public Builder setIcon(Supplier<Identifier> sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite, width, height);
             return this;
@@ -458,13 +464,13 @@ public final class FrameworkButton extends AbstractButton
          * every frame the button is drawn.
          *
          * @param sprite a {@link Function} that provides context of the {@link FrameworkButton} to
-         *               aid the creation of the {@link Supplier}, which returns a {@link ResourceLocation}
+         *               aid the creation of the {@link Supplier}, which returns a {@link Identifier}
          *               to a sprite image
          * @param width  the width of the sprite in pixels
          * @param height the height of the sprite in pixels
          * @return this {@link Builder} for method chaining
          */
-        public Builder setIcon(Function<FrameworkButton, Supplier<ResourceLocation>> sprite, int width, int height)
+        public Builder setIcon(Function<FrameworkButton, Supplier<Identifier>> sprite, int width, int height)
         {
             this.icon = btn -> Icon.sprite(sprite.apply(btn), width, height);
             return this;
@@ -472,7 +478,7 @@ public final class FrameworkButton extends AbstractButton
 
         /**
          * Sets the icon that will be displayed on the button but allows for custom implementations
-         * of {@link Icon}. Use built-in functions {@link Icon#sprite(ResourceLocation, int, int)} and
+         * of {@link Icon}. Use built-in functions {@link Icon#sprite(Identifier, int, int)} and
          * {@link Icon#sprite(Supplier, int, int)} to create an icon for a sprite resources, otherwise
          * custom implements can be used to draw anything.
          *
@@ -744,12 +750,8 @@ public final class FrameworkButton extends AbstractButton
             WidgetSprites texture = button.getTexture();
             if(texture != null)
             {
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
-                graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
-                graphics.setColor(1, 1, 1, 1);
-                RenderSystem.disableBlend();
+                int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
             }
 
             Label label = button.getLabel();
@@ -777,11 +779,8 @@ public final class FrameworkButton extends AbstractButton
             {
                 int iconX = contentLeft;
                 int iconY = contentTop + (contentHeight - button.icon.height()) / 2;
-                RenderSystem.enableBlend();
-                graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                button.icon.draw(graphics, iconX, iconY, partialTick);
-                graphics.setColor(1, 1, 1, 1);
-                RenderSystem.disableBlend();
+                int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
+                button.icon.draw(graphics, iconX, iconY, alpha, partialTick);
             }
         }
     }
@@ -790,9 +789,9 @@ public final class FrameworkButton extends AbstractButton
     {
         private static final int TOGGLE_SIZE = 6;
         private static final WidgetSprites TOGGLE_SPRITES = new WidgetSprites(
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on"),
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_off"),
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on")
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on"),
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_off"),
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "widget/button/toggle_on")
         );
 
         private final Supplier<Boolean> state;
@@ -808,12 +807,8 @@ public final class FrameworkButton extends AbstractButton
             WidgetSprites texture = button.getTexture();
             if(texture != null)
             {
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
-                graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight());
-                graphics.setColor(1, 1, 1, 1);
-                RenderSystem.disableBlend();
+                int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
             }
 
             Label label = button.getLabel();
@@ -828,17 +823,14 @@ public final class FrameworkButton extends AbstractButton
             {
                 int iconX = contentLeft;
                 int iconY = button.getY() + (button.getHeight() - button.icon.height()) / 2;
-                RenderSystem.enableBlend();
-                graphics.setColor(1, 1, 1, button.active ? 1.0F : 0.5F);
-                button.icon.draw(graphics, iconX, iconY, partialTick);
-                graphics.setColor(1, 1, 1, 1);
-                RenderSystem.disableBlend();
+                int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
+                button.icon.draw(graphics, iconX, iconY, alpha, partialTick);
             }
 
             int yOffset = (button.getHeight() - TOGGLE_SIZE) / 2;
             int stateIconY = button.getY() + yOffset;
             int stateIconX = button.getX() + button.getWidth() - TOGGLE_SIZE - yOffset;
-            graphics.blitSprite(TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
         }
     }
 

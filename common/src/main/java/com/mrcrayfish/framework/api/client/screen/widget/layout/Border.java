@@ -5,6 +5,8 @@ package com.mrcrayfish.framework.api.client.screen.widget.layout;
  */
 public final class Border extends EdgeInsets
 {
+    public static final Border ZERO = Border.of(0);
+
     private Border(int left, int top, int right, int bottom)
     {
         super(left, top, right, bottom);

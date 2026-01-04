@@ -45,6 +45,7 @@ public interface IClientHelper
     ChunkSectionLayer getChunkSectionLayer(ResolvedModel model);
 
     ChunkSectionLayer getChunkSectionLayer(BlockModelPart part);
+
     /**
      * Sets the scrolling state of AbstractSelectionList. This field is private, so field is exposed
      * using AW/AT on subprojects.
@@ -53,5 +54,4 @@ public interface IClientHelper
      * @param state the new scrolling state
      */
     void setScrollingState(AbstractSelectionList<?> list, boolean state);
-
 }
