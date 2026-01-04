@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -1158,24 +1159,23 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
      * These states include enabled, disabled, hovered, and dragging. Disabled state may be null
      * to hide the scroller completely when a selection list is not active.
      */
-    public record ScrollerSprites(ResourceLocation enabled, @Nullable ResourceLocation disabled, ResourceLocation hovered, ResourceLocation dragging)
+    public static final class ScrollerSprites
     {
-        /**
-         * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
-         * disabled, and hovered states. The hovering state is also used for the dragging state.
-         *
-         * @param enabled  the resource location to a sprite for the enabled state.
-         * @param disabled the resource location to a sprite for the disabled state.
-         * @param hovered  the resource location to a sprite for the hovered state.
-         * @return A new {@link ScrollerSprites} instance
-         */
-        public static ScrollerSprites of(ResourceLocation enabled, ResourceLocation disabled, ResourceLocation hovered)
+        private final Identifier enabled;
+        private final @Nullable Identifier disabled;
+        private final Identifier hovered;
+        private final Identifier dragging;
+
+        private ScrollerSprites(Identifier enabled, @Nullable Identifier disabled, Identifier hovered, Identifier dragging)
         {
-            return new ScrollerSprites(enabled, disabled, hovered, hovered);
+            this.enabled = enabled;
+            this.disabled = disabled;
+            this.hovered = hovered;
+            this.dragging = dragging;
         }
 
         /**
-         * Creates a {@link ScrollerSprites} instance with all states using the same {@link ResourceLocation}.
+         * Creates a {@link ScrollerSprites} instance with all states using the same {@link Identifier}.
          *
          * @param all the resource location to be used for all states (enabled, disabled, hovered, and dragging).
          * @return A new {@link ScrollerSprites} instance with all states set to the given resource location.
@@ -1186,15 +1186,44 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
 
         /**
-         * Retrieves the appropriate {@link ResourceLocation} based on the given state.
+         * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
+         * disabled, and hovered states. The hovering state is also used for the dragging state.
+         *
+         * @param enabled  the resource location to a sprite for the enabled state.
+         * @param disabled the resource location to a sprite for the disabled state.
+         * @param hovered  the resource location to a sprite for the hovered state.
+         * @return A new {@link ScrollerSprites} instance
+         */
+        public static ScrollerSprites of(Identifier enabled, Identifier disabled, Identifier hovered)
+        {
+            return new ScrollerSprites(enabled, disabled, hovered, hovered);
+        }
+
+        /**
+         * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
+         * disabled, hovered, and dragging states.
+         *
+         * @param enabled  the resource location to a sprite for the enabled state.
+         * @param disabled the resource location to a sprite for the disabled state.
+         * @param hovered  the resource location to a sprite for the hovered state.
+         * @param dragging the resource location to a sprite for the dragging state.
+         * @return A new {@link ScrollerSprites} instance
+         */
+        public static ScrollerSprites of(Identifier enabled, Identifier disabled, Identifier hovered, Identifier dragging)
+        {
+            return new ScrollerSprites(enabled, disabled, hovered, dragging);
+        }
+
+        /**
+         * Retrieves the appropriate {@link Identifier} based on the given state.
          *
          * @param enabled  true if the scroller is enabled
          * @param hovered  true if the scroller is being hovered by the cursor
          * @param dragging true if the scroller is currently being dragged
-         * @return The {@link ResourceLocation}  corresponding to the specified state.
+         * @return The {@link Identifier}  corresponding to the specified state.
          */
         @Nullable
-        public ResourceLocation get(boolean enabled, boolean hovered, boolean dragging)
+        public Identifier get(boolean enabled, boolean hovered, boolean dragging)
         {
             if(!enabled) return this.disabled;
             if(hovered) return this.hovered;
