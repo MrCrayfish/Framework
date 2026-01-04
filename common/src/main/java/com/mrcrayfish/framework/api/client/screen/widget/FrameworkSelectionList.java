@@ -51,8 +51,8 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected @Nullable ItemSprites itemSprites;
     protected int itemSpacing;
     protected @Nullable ResourceLocation listBackground;
-    protected Border listBorder;
-    protected Padding listPadding;
+    protected Border listBorder = Border.ZERO;
+    protected Padding listPadding = Padding.ZERO;
     protected boolean scrolling;
     protected boolean scrollBarAlwaysVisible;
     protected int scrollBarSpacing;
@@ -61,9 +61,9 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected int scrollerWidth = 6;
     protected int minScrollerHeight = 32;
     protected @Nullable ResourceLocation scrollBarBackground;
-    protected Border scrollBarBorder;
-    protected Padding scrollBarPadding;
-    protected Padding scrollBarContainerPadding;
+    protected Border scrollBarBorder = Border.ZERO;
+    protected Padding scrollBarPadding = Padding.ZERO;
+    protected Padding scrollBarContainerPadding = Padding.ZERO;
     protected @Nullable Supplier<Boolean> activeSupplier;
 
     /**

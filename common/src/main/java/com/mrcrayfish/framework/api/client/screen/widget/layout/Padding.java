@@ -5,6 +5,8 @@ package com.mrcrayfish.framework.api.client.screen.widget.layout;
  */
 public final class Padding extends EdgeInsets
 {
+    public static final Padding ZERO = Padding.of(0);
+
     private Padding(int left, int top, int right, int bottom)
     {
         super(left, top, right, bottom);
