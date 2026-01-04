@@ -18,8 +18,6 @@ import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.RenderTypeGroup;
 import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 
 /**
  * Author: MrCrayfish

@@ -13,9 +13,6 @@ import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import com.mrcrayfish.framework.client.ClientUtils;
@@ -12,13 +11,17 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -35,36 +38,40 @@ import java.util.function.Supplier;
  */
 public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelectionList.Item>
 {
-    public static final ResourceLocation DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
+    public static final Identifier DEFAULT_BACKGROUND = Utils.rl("widget/selection_list/background");
     public static final ItemSprites DEFAULT_ITEM_SPRITE = ItemSprites.builder()
         .setEnabledSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
         .setEnabledHoveredSelected(Utils.rl("widget/selection_list/item_enabled_selected"))
         .build();
     public static final Padding DEFAULT_LIST_PADDING = Padding.of(4);
     public static final Border DEFAULT_LIST_BORDER = Border.of(0);
-    public static final ItemSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(ResourceLocation.withDefaultNamespace("widget/scroller"));
-    public static final ResourceLocation DEFAULT_SCROLL_BAR_BACKGROUND = ResourceLocation.withDefaultNamespace("widget/scroller_background");
+    public static final ItemSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(Identifier.withDefaultNamespace("widget/scroller"));
+    public static final Identifier DEFAULT_SCROLL_BAR_BACKGROUND = Identifier.withDefaultNamespace("widget/scroller_background");
     public static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
     public static final Border DEFAULT_SCROLL_BAR_BORDER = Border.of(0);
     public static final Padding DEFAULT_SCROLL_BAR_CONTAINER_PADDING = Padding.of(0);
 
+    // Properties
     protected @Nullable ItemSprites itemSprites;
     protected int itemSpacing;
-    protected @Nullable ResourceLocation listBackground;
-    protected Border listBorder;
-    protected Padding listPadding;
-    protected boolean scrolling;
+    protected @Nullable Identifier listBackground;
+    protected Border listBorder = Border.ZERO;
+    protected Padding listPadding = Padding.ZERO;
     protected boolean scrollBarAlwaysVisible;
     protected int scrollBarSpacing;
     protected ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
     protected @Nullable ItemSprites scrollerSprites;
     protected int scrollerWidth = 6;
     protected int minScrollerHeight = 32;
-    protected @Nullable ResourceLocation scrollBarBackground;
-    protected Border scrollBarBorder;
-    protected Padding scrollBarPadding;
-    protected Padding scrollBarContainerPadding;
+    protected @Nullable Identifier scrollBarBackground;
+    protected Border scrollBarBorder = Border.ZERO;
+    protected Padding scrollBarPadding = Padding.ZERO;
+    protected Padding scrollBarContainerPadding = Padding.ZERO;
     protected @Nullable Supplier<Boolean> activeSupplier;
+
+    // States
+    protected boolean scrolling;
+    protected boolean ignoreReposition;
 
     /**
      * Constructs a FrameworkSelectionList with specified dimensions, position, and item height.
@@ -80,10 +87,9 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected FrameworkSelectionList(int width, int height, int x, int y, int itemHeight)
     {
         super(Minecraft.getInstance(), width, height, y, itemHeight);
-        this.setPosition(x, y);
     }
 
-    private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable ResourceLocation listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ItemSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable ResourceLocation scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
+    private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable Identifier listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ItemSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable Identifier scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
     {
         this(width, height, x, y, itemHeight);
         this.itemSprites = itemSprites;
@@ -106,13 +112,30 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         {
             itemsSupplier.accept(this::addItem);
         }
+        this.setPosition(x, y);
     }
 
     @Override
     public void setPosition(int x, int y)
     {
+        this.ignoreReposition = true;
         super.setPosition(x, y);
-        this.setSize(this.width, this.height);
+        this.ignoreReposition = false;
+        this.repositionItems();
+    }
+
+    @Override
+    public void setX(int x)
+    {
+        super.setX(x);
+        this.repositionItems();
+    }
+
+    @Override
+    public void setY(int y)
+    {
+        super.setY(y);
+        this.repositionItems();
     }
 
     @Override
@@ -136,7 +159,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public int getRowRight()
     {
-        if(this.getMaxScroll() > 0 || this.scrollBarAlwaysVisible)
+        if(this.maxScrollAmount() > 0 || this.scrollBarAlwaysVisible)
         {
             int scrollBarArea = switch(this.scrollBarStyle) {
                 case DETACHED -> this.listPadding.right() + this.listBorder.right() + this.scrollBarSpacing + this.scrollBarContainerPadding.left() + this.scrollBarBorder.left() + this.scrollBarPadding.left() + this.scrollerWidth + this.scrollBarPadding.right() + this.scrollBarBorder.right() + this.scrollBarContainerPadding.right();
@@ -147,14 +170,42 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         return this.getX() + this.getWidth() - this.listPadding.right() - this.listBorder.right();
     }
 
-    @Override
-    protected int getRowTop(int index)
+    // Hooked via Mixin
+    public int getFirstItemY()
     {
-        return this.getY() + this.listBorder.top() + this.listPadding.top() - (int) this.getScrollAmount() + index * this.itemHeight + index * this.itemSpacing;
+        return this.getY() + this.listBorder.top() + this.listPadding.top();
+    }
+
+    // Hooked via Mixin
+    public void repositionItems()
+    {
+        if(this.ignoreReposition)
+            return;
+        int nextY = this.getFirstItemY() - (int) this.scrollAmount();
+        for(Item item : this.children())
+        {
+            item.setY(nextY);
+            nextY += item.getHeight();
+            nextY += this.itemSpacing;
+            item.setX(this.getRowLeft());
+            item.setWidth(this.getRowWidth());
+        }
     }
 
     @Override
-    protected int getScrollbarPosition()
+    public int getNextY()
+    {
+        int nextY = this.getFirstItemY() - (int) this.scrollAmount();
+        for(Item item : this.children())
+        {
+            nextY += item.getHeight();
+            nextY += this.itemSpacing;
+        }
+        return nextY;
+    }
+
+    @Override
+    protected int scrollBarX()
     {
         int offset = switch(this.scrollBarStyle) {
             case DETACHED -> this.scrollerWidth + this.scrollBarPadding.right() + this.scrollBarBorder.right() + this.scrollBarContainerPadding.right();
@@ -166,7 +217,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected int getScrollbarHeight()
     {
         int scrollAreaHeight = this.getScrollAreaHeight();
-        int scrollBarHeight = (int) (Mth.square(scrollAreaHeight) / (float) this.getMaxPosition());
+        int scrollBarHeight = (int) (Mth.square(scrollAreaHeight) / (float) this.contentHeight());
         return Mth.clamp(scrollBarHeight, this.minScrollerHeight, scrollAreaHeight);
     }
 
@@ -189,15 +240,21 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     }
 
     @Override
-    public int getMaxScroll()
+    public int maxScrollAmount()
     {
-        return Math.max(0, this.getMaxPosition() - this.height + this.listBorder.top() + this.listPadding.top() + this.listPadding.bottom() + this.listBorder.bottom());
+        return Math.max(0, this.contentHeight() - this.height + this.listBorder.top() + this.listPadding.top() + this.listPadding.bottom() + this.listBorder.bottom());
     }
 
     @Override
-    protected int getMaxPosition()
+    protected int contentHeight()
     {
-        return this.getItemCount() * (this.itemHeight + this.itemSpacing) - this.itemSpacing;
+        int height = 0;
+        for(Item item : this.children())
+        {
+            height += item.getHeight();
+            height += this.itemSpacing;
+        }
+        return Math.max(0, height - this.itemSpacing);
     }
 
     @Override
@@ -209,7 +266,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
         this.renderListBackground(graphics, mouseX, mouseY, partialTick);
         this.renderListItems(graphics, mouseX, mouseY, partialTick);
-        this.renderScrollBar(graphics, mouseX, mouseY, partialTick);
+        this.renderScrollbar(graphics, mouseX, mouseY);
     }
 
     protected int getListBackgroundWidth()
@@ -230,53 +287,44 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         // Draw outlines and background
         if(this.listBackground != null)
         {
-            RenderSystem.enableBlend();
-            RenderSystem.enableDepthTest();
-            graphics.blitSprite(this.listBackground, this.getX(), this.getY(), this.getListBackgroundWidth(), this.getListBackgroundHeight());
-            RenderSystem.disableBlend();
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.listBackground, this.getX(), this.getY(), this.getListBackgroundWidth(), this.getListBackgroundHeight());
         }
     }
 
-    protected void renderScrollBar(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    @Override
+    protected void renderScrollbar(GuiGraphics graphics, int mouseX, int mouseY)
     {
-        int maxScroll = this.getMaxScroll();
+        int maxScroll = this.maxScrollAmount();
         if(maxScroll > 0 || this.scrollBarAlwaysVisible)
         {
             // Draw a background behind the scroll bar
             if(this.scrollBarBackground != null)
             {
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
                 int scrollBarTop = this.getY();
                 if(this.scrollBarStyle == ScrollBarStyle.MERGED)
                     scrollBarTop += this.listBorder.top() + this.listPadding.top() + this.scrollBarContainerPadding.top();
-                int scrollBarLeft = this.getScrollbarPosition() - this.scrollBarPadding.left() - this.scrollBarBorder.left();
+                int scrollBarLeft = this.scrollBarX() - this.scrollBarPadding.left() - this.scrollBarBorder.left();
                 int scrollBarAreaWidth = this.scrollBarBorder.left() + this.scrollBarPadding.left() + this.scrollerWidth + this.scrollBarPadding.right() + this.scrollBarBorder.right();
                 int scrollBarAreaHeight = this.getHeight() - this.scrollBarContainerPadding.top() - this.scrollBarContainerPadding.bottom();
                 if(this.scrollBarStyle == ScrollBarStyle.MERGED)
                     scrollBarAreaHeight -= this.listBorder.top() + this.listPadding.top() + this.listPadding.bottom() + this.listBorder.bottom();
-                graphics.blitSprite(this.scrollBarBackground, scrollBarLeft, scrollBarTop, scrollBarAreaWidth, scrollBarAreaHeight);
-                RenderSystem.disableBlend();
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.scrollBarBackground, scrollBarLeft, scrollBarTop, scrollBarAreaWidth, scrollBarAreaHeight);
             }
 
             // Draw scroll bar
             boolean scrollBarEnabled = maxScroll > 0;
-            int scrollBarStart = this.getScrollbarPosition();
+            int scrollBarStart = this.scrollBarX();
             int scrollBarEnd = scrollBarStart + this.scrollerWidth;
             int scrollBarHeight = this.getScrollbarHeight();
-            int scrollBarTop = (int) (this.getScrollAreaTop() + (this.getScrollAreaHeight() - this.getScrollbarHeight()) * (this.getScrollAmount() / Math.max(maxScroll, 1)));
+            int scrollBarTop = (int) (this.getScrollAreaTop() + (this.getScrollAreaHeight() - this.getScrollbarHeight()) * (this.scrollAmount() / Math.max(maxScroll, 1)));
             boolean scrollBarHovered = ClientUtils.isPointInArea(mouseX, mouseY, scrollBarStart, scrollBarTop, this.scrollerWidth, scrollBarHeight);
             if(this.scrollerSprites != null)
             {
-                ResourceLocation sprite = this.scrollerSprites.getSprite(scrollBarEnabled, scrollBarHovered, this.scrolling);
+                Identifier sprite = this.scrollerSprites.getSprite(scrollBarEnabled, scrollBarHovered, this.scrolling);
                 if(sprite != null)
                 {
-                    RenderSystem.enableBlend();
-                    RenderSystem.enableDepthTest();
-                    graphics.setColor(1, 1, 1, this.active ? 1.0F : 0.5F);
-                    graphics.blitSprite(sprite, scrollBarStart, scrollBarTop, scrollBarEnd - scrollBarStart, scrollBarHeight);
-                    graphics.setColor(1, 1, 1, 1);
-                    RenderSystem.disableBlend();
+                    int alpha = ARGB.white(this.active ? 1.0F : 0.5F);
+                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, scrollBarStart, scrollBarTop, scrollBarEnd - scrollBarStart, scrollBarHeight, alpha);
                 }
             }
             else
@@ -292,51 +340,46 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
         graphics.enableScissor(this.getRowLeft(), this.getY() + this.listBorder.top(), this.getRowRight(), this.getY() + this.getHeight() - this.listBorder.bottom());
-
-        int rowLeft = this.getRowLeft();
-        int rowWidth = this.getRowWidth();
-        int rowHeight = this.itemHeight;
-        int rowCount = this.getItemCount();
-
-        // For efficiency, find the index to start drawing based on scroll amount
-        int startIndex = Math.max(0, (int) ((this.getScrollAmount() - this.listPadding.top()) / (rowHeight + this.itemSpacing))); // TODO test
-        for(int i = startIndex; i < rowCount; i++)
+        for(Item item : this.children())
         {
-            int rowTop = this.getRowTop(i);
-            if(rowTop <= this.getY() + this.getHeight())
+            if(item.getY() + item.getHeight() >= this.getY() && item.getY() <= this.getBottom())
             {
-                boolean hovered = !this.scrolling && ClientUtils.isPointInArea(mouseX, mouseY, rowLeft, rowTop, rowWidth, rowHeight);
-                boolean selected = this.isSelectedItem(i);
-                Item item = this.getEntry(i);
-                item.setHovered(hovered);
-                item.renderBackground(this.itemSprites, graphics, i, rowLeft, rowTop, rowWidth, rowHeight, mouseX, mouseY, hovered, selected);
-                item.render(graphics, i, rowTop, rowLeft, rowWidth, rowHeight, mouseX, mouseY, selected, partialTick);
-                continue;
+                this.renderItem(graphics, mouseX, mouseY, partialTick, item);
             }
-            // Break if the item is below the content area. Also stops drawing subsequent items.
-            break;
         }
-
         graphics.disableScissor();
     }
 
     @Override
-    protected void renderSelection(GuiGraphics graphics, int top, int rowWidth, int rowHeight, int outlineColour, int innerColour) {}
+    protected void renderItem(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, Item item)
+    {
+        boolean hovered = !this.scrolling && item.isMouseOver(mouseX, mouseY) && this.isMouseOver(mouseX, mouseY);
+        boolean selected = this.getSelected() == item;
+        item.setHovered(hovered);
+        item.renderBackground(this.itemSprites, graphics, mouseX, mouseY, hovered, selected);
+        item.renderContent(graphics, mouseX, mouseY, selected, partialTick);
+    }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    protected void renderSelection(GuiGraphics graphics, Item item, int outlineColour)
     {
-        if(!this.active || !this.isValidMouseClick(button))
+        super.renderSelection(graphics, item, outlineColour);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
+    {
+        if(!this.isActive() || !this.isValidClickButton(event.buttonInfo()))
             return false;
 
-        this.updateScrollingState(mouseX, mouseY, button);
-        if(!this.isMouseOver(mouseX, mouseY))
+        this.updateScrolling(event);
+        if(!this.isMouseOver(event.x(), event.y()))
             return false;
 
-        Item item = this.getEntry(mouseX, mouseY);
+        Item item = this.getEntryAtPosition(event.x(), event.y());
         if(item != null)
         {
-            if(item.mouseClicked(mouseX, mouseY, button))
+            if(item.mouseClicked(event, doubleClick))
             {
                 Item focused = this.getFocused();
                 if(focused != item && focused instanceof ContainerEventHandler handler)
@@ -352,25 +395,25 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    public boolean mouseReleased(MouseButtonEvent event)
     {
         this.scrolling = false;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
+    public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY)
     {
-        if(button == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+        if(event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
         {
-            if(this.getFocused() != null && this.isDragging() && this.getFocused().mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+            if(this.getFocused() != null && this.isDragging() && this.getFocused().mouseDragged(event, deltaX, deltaY))
             {
                 return true;
             }
             if(this.scrolling)
             {
-                double unitsPerScroll = (double) this.getMaxScroll() / Math.max(1, this.getScrollAreaHeight() - this.getScrollbarHeight());
-                this.setScrollAmount(this.getScrollAmount() + deltaY * unitsPerScroll);
+                double unitsPerScroll = (double) this.maxScrollAmount() / Math.max(1, this.getScrollAreaHeight() - this.getScrollbarHeight());
+                this.setScrollAmount(this.scrollAmount() + deltaY * unitsPerScroll);
                 return true;
             }
         }
@@ -383,73 +426,63 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         return this.active && super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
     }
 
+    /**
+     * Adds an item to the selection list.
+     *
+     * @param item the item to be added to the list
+     */
     public void addItem(Item item)
     {
         super.addEntry(item);
     }
 
-    @Nullable
-    public Item removeItem(int index)
+    /**
+     * Removes an item at the specified index from the list if the index is valid.
+     *
+     * @param index the position of the item to be removed
+     */
+    public void removeItem(int index)
     {
-        if(index >= 0 && index < this.children().size())
+        List<Item> children = this.children();
+        if(index >= 0 && index < children.size())
         {
-            Item removed = super.remove(index);
-            if(removed != null) this.clampScrollAmount();
-            return removed;
+            this.removeEntry(children.get(index));
         }
-        return null;
     }
 
-    public boolean removeItem(Item item)
+    /**
+     * Removes a specified item from the selection list.
+     *
+     * @param item the item to be removed from the list
+     */
+    public void removeItem(Item item)
     {
-        boolean result = super.removeEntry(item);
-        if(result) this.clampScrollAmount();
-        return result;
+        super.removeEntry(item);
     }
 
+    /**
+     * Removes all items in the list that satisfy the specified predicate
+     *
+     * @param predicate the condition used to determine which items to remove
+     */
     public void removeIf(Predicate<? super Item> predicate)
     {
-        if(this.children().removeIf(predicate))
+        List<Item> remove = this.children().stream().filter(predicate).toList();
+        if(!remove.isEmpty())
         {
-            this.clampScrollAmount();
+            this.ignoreReposition = true;
+            this.removeEntries(remove);
+            this.ignoreReposition = false;
+            this.repositionItems();
         }
-    }
-
-    public Item getEntry(double mouseX, double mouseY)
-    {
-        int contentLeft = this.getX() + this.listBorder.left() + this.listPadding.left();
-        int contentTop = this.getY() + this.listBorder.top();
-        int contentWidth = this.getRowWidth();
-        int contentHeight = this.getHeight() - this.listBorder.top() - this.listBorder.bottom();
-        if(ClientUtils.isPointInArea((int) mouseX, (int) mouseY, contentLeft, contentTop, contentWidth, contentHeight))
-        {
-            int rowLeft = this.getRowLeft();
-            int rowWidth = this.getRowWidth();
-            int rowHeight = this.itemHeight;
-            int rowCount = this.getItemCount();
-            int startIndex = Math.max(0, (int) ((this.getScrollAmount() - this.listPadding.top()) / (rowHeight + this.itemSpacing)));
-            for(int i = startIndex; i < rowCount; i++)
-            {
-                int rowTop = this.getRowTop(i);
-                if(rowTop <= this.getY() + this.getHeight())
-                {
-                    if(ClientUtils.isPointInArea((int) mouseX, (int) mouseY, rowLeft, rowTop, rowWidth, rowHeight))
-                    {
-                        return this.getEntry(i);
-                    }
-                    continue;
-                }
-                break;
-            }
-        }
-        return null;
     }
 
     @Override
-    protected void updateScrollingState(double mouseX, double mouseY, int button)
+    public boolean updateScrolling(MouseButtonEvent event)
     {
-        this.scrolling = this.getMaxScroll() > 0 && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) mouseX, (int) mouseY, this.getScrollbarPosition(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
+        this.scrolling = this.scrollbarVisible() && event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) event.x(), (int) event.y(), this.scrollBarX(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
         ClientServices.CLIENT.setScrollingState(this, this.scrolling);
+        return this.scrolling;
     }
 
     @Override
@@ -477,7 +510,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     {
         private boolean hovered;
 
-        protected abstract void renderContent(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick);
+        protected abstract void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick);
 
         private void setHovered(boolean hovered)
         {
@@ -490,25 +523,49 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
 
         @Override
+        public int getContentX()
+        {
+            return this.getX();
+        }
+
+        @Override
+        public int getContentY()
+        {
+            return this.getY();
+        }
+
+        @Override
+        public int getContentHeight()
+        {
+            return this.getHeight();
+        }
+
+        @Override
+        public int getContentWidth()
+        {
+            return this.getWidth();
+        }
+
+        @Override
         public Component getNarration()
         {
             return CommonComponents.EMPTY;
         }
 
         @Override
-        public final void render(GuiGraphics graphics, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean selected, float partialTick)
+        public final void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean selected, float partialTick)
         {
-            this.renderContent(graphics, index, x, y, width, height, mouseX, mouseY, this.hovered, selected, partialTick);
+            this.renderContent(graphics, mouseX, mouseY, this.hovered, selected, partialTick);
         }
 
-        protected void renderBackground(@Nullable ItemSprites sprites, GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, boolean hovered, boolean selected)
+        protected void renderBackground(@Nullable ItemSprites sprites, GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected)
         {
             if(sprites != null)
             {
-                ResourceLocation sprite = sprites.getSprite(true, hovered, selected);
+                Identifier sprite = sprites.getSprite(true, hovered, selected);
                 if(sprite != null)
                 {
-                    graphics.blitSprite(sprite, x, y, width, height);
+                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
                 }
             }
         }
@@ -539,7 +596,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         private int itemHeight = 20;
         private @Nullable ItemSprites itemSprites = DEFAULT_ITEM_SPRITE;
         private int itemSpacing = 0;
-        private @Nullable ResourceLocation listBackground = DEFAULT_BACKGROUND;
+        private @Nullable Identifier listBackground = DEFAULT_BACKGROUND;
         private Border listBorder = DEFAULT_LIST_BORDER;
         private Padding listPadding = DEFAULT_LIST_PADDING;
         private boolean scrollBarAlwaysVisible;
@@ -548,7 +605,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         private @Nullable ItemSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
         private int scrollerWidth = 6;
         private int minScrollerHeight = 32;
-        private @Nullable ResourceLocation scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
+        private @Nullable Identifier scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
         private Border scrollBarBorder = DEFAULT_SCROLL_BAR_BORDER;
         private Padding scrollBarPadding = DEFAULT_SCROLL_BAR_PADDING;
         private Padding scrollBarContainerPadding = DEFAULT_SCROLL_BAR_CONTAINER_PADDING;
@@ -693,7 +750,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param texture the background resource location, or null for no background
          * @return this {@link Builder} for method chaining
          */
-        public Builder setListBackground(@Nullable ResourceLocation texture)
+        public Builder setListBackground(@Nullable Identifier texture)
         {
             this.listBackground = texture;
             return this;
@@ -814,7 +871,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param texture the resource location to a sprite, or null for no background
          * @return this {@link Builder} for method chaining
          */
-        public Builder setScrollBarBackground(@Nullable ResourceLocation texture)
+        public Builder setScrollBarBackground(@Nullable Identifier texture)
         {
             this.scrollBarBackground = texture;
             return this;
@@ -889,19 +946,19 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
      */
     public static final class ItemSprites
     {
-        private final ImmutableMap<Integer, ResourceLocation> map;
+        private final ImmutableMap<Integer, Identifier> map;
 
         private ItemSprites(
-                @Nullable ResourceLocation enabled,
-                @Nullable ResourceLocation disabled,
-                @Nullable ResourceLocation enabledHovered,
-                @Nullable ResourceLocation disabledHovered,
-                @Nullable ResourceLocation enabledSelected,
-                @Nullable ResourceLocation disabledSelected,
-                @Nullable ResourceLocation enabledHoveredSelected,
-                @Nullable ResourceLocation disabledHoveredSelected)
+                @Nullable Identifier enabled,
+                @Nullable Identifier disabled,
+                @Nullable Identifier enabledHovered,
+                @Nullable Identifier disabledHovered,
+                @Nullable Identifier enabledSelected,
+                @Nullable Identifier disabledSelected,
+                @Nullable Identifier enabledHoveredSelected,
+                @Nullable Identifier disabledHoveredSelected)
         {
-            ImmutableMap.Builder<Integer, ResourceLocation> builder = ImmutableMap.builder();
+            ImmutableMap.Builder<Integer, Identifier> builder = ImmutableMap.builder();
             if(disabled != null) builder.put(this.calculateKey(false, false, false), disabled);
             if(enabled != null) builder.put(this.calculateKey(true, false, false), enabled);
             if(disabledHovered != null) builder.put(this.calculateKey(false, true, false), disabledHovered);
@@ -928,10 +985,10 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param enabled  indicates the enabled state
          * @param hovered  indicates the hovered state
          * @param selected indicates the selected state
-         * @return a {@link ResourceLocation} pointing to a texture based on the given states, or null
+         * @return a {@link Identifier} pointing to a texture based on the given states, or null
          */
         @Nullable
-        public ResourceLocation getSprite(boolean enabled, boolean hovered, boolean selected)
+        public Identifier getSprite(boolean enabled, boolean hovered, boolean selected)
         {
             return this.map.get(this.calculateKey(enabled, hovered, selected));
         }
@@ -943,7 +1000,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param all the resource location to be used for all sprite states; can be null
          * @return a new instance of {@link ItemSprites} with the same resource location for all states
          */
-        public static ItemSprites of(@Nullable ResourceLocation all)
+        public static ItemSprites of(@Nullable Identifier all)
         {
             return new ItemSprites(all, all, all, all, all, all, all, all);
         }
@@ -958,7 +1015,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param enabledSelected the resource location to a texture for the enabled and selected state, or null for no texture
          * @return a new {@link ItemSprites}  instance initialised with the provided resource locations
          */
-        public static ItemSprites of(@Nullable ResourceLocation enabled, @Nullable ResourceLocation disabled, @Nullable ResourceLocation enabledSelected)
+        public static ItemSprites of(@Nullable Identifier enabled, @Nullable Identifier disabled, @Nullable Identifier enabledSelected)
         {
             return new ItemSprites(enabled, disabled, enabled, disabled, enabledSelected, disabled, enabledSelected, disabled);
         }
@@ -973,14 +1030,14 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
         public static class Builder
         {
-            private @Nullable ResourceLocation enabled;
-            private @Nullable ResourceLocation disabled;
-            private @Nullable ResourceLocation enabledHovered;
-            private @Nullable ResourceLocation disabledHovered;
-            private @Nullable ResourceLocation enabledSelected;
-            private @Nullable ResourceLocation disabledSelected;
-            private @Nullable ResourceLocation enabledHoveredSelected;
-            private @Nullable ResourceLocation disabledHoveredSelected;
+            private @Nullable Identifier enabled;
+            private @Nullable Identifier disabled;
+            private @Nullable Identifier enabledHovered;
+            private @Nullable Identifier disabledHovered;
+            private @Nullable Identifier enabledSelected;
+            private @Nullable Identifier disabledSelected;
+            private @Nullable Identifier enabledHoveredSelected;
+            private @Nullable Identifier disabledHoveredSelected;
 
             /**
              * Builds an {@link ItemSprites} instance with the configured sprites
@@ -998,7 +1055,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setEnabled(@Nullable ResourceLocation texture)
+            public Builder setEnabled(@Nullable Identifier texture)
             {
                 this.enabled = texture;
                 return this;
@@ -1010,7 +1067,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setDisabled(@Nullable ResourceLocation texture)
+            public Builder setDisabled(@Nullable Identifier texture)
             {
                 this.disabled = texture;
                 return this;
@@ -1022,7 +1079,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setEnabledHovered(@Nullable ResourceLocation texture)
+            public Builder setEnabledHovered(@Nullable Identifier texture)
             {
                 this.enabledHovered = texture;
                 return this;
@@ -1034,7 +1091,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setDisabledHovered(@Nullable ResourceLocation texture)
+            public Builder setDisabledHovered(@Nullable Identifier texture)
             {
                 this.disabledHovered = texture;
                 return this;
@@ -1046,7 +1103,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setEnabledSelected(@Nullable ResourceLocation texture)
+            public Builder setEnabledSelected(@Nullable Identifier texture)
             {
                 this.enabledSelected = texture;
                 return this;
@@ -1058,7 +1115,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setDisabledSelected(@Nullable ResourceLocation texture)
+            public Builder setDisabledSelected(@Nullable Identifier texture)
             {
                 this.disabledSelected = texture;
                 return this;
@@ -1070,7 +1127,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setEnabledHoveredSelected(@Nullable ResourceLocation texture)
+            public Builder setEnabledHoveredSelected(@Nullable Identifier texture)
             {
                 this.enabledHoveredSelected = texture;
                 return this;
@@ -1082,7 +1139,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
              * @param texture the resource location to a sprite texture, or null
              * @return this {@link Builder} for method chaining
              */
-            public Builder setDisabledHoveredSelected(@Nullable ResourceLocation texture)
+            public Builder setDisabledHoveredSelected(@Nullable Identifier texture)
             {
                 this.disabledHoveredSelected = texture;
                 return this;

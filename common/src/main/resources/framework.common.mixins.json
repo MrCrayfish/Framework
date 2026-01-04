@@ -5,7 +5,9 @@
     "compatibilityLevel": "JAVA_21",
     "refmap": "${mod_id}.refmap.json",
     "client": [
+        "client.AbstractSelectionListMixin",
         "client.ClientConfigurationPacketListenerImplMixin",
+        "client.EditBoxMixin",
         "client.MinecraftMixin"
     ],
     "injectors": {
