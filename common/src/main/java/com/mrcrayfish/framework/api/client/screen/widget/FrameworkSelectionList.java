@@ -45,7 +45,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         .build();
     public static final Padding DEFAULT_LIST_PADDING = Padding.of(4);
     public static final Border DEFAULT_LIST_BORDER = Border.of(0);
-    public static final ItemSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(Identifier.withDefaultNamespace("widget/scroller"));
+    public static final ScrollerSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(Identifier.withDefaultNamespace("widget/scroller"));
     public static final Identifier DEFAULT_SCROLL_BAR_BACKGROUND = Identifier.withDefaultNamespace("widget/scroller_background");
     public static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
     public static final Border DEFAULT_SCROLL_BAR_BORDER = Border.of(0);
@@ -60,7 +60,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     protected boolean scrollBarAlwaysVisible;
     protected int scrollBarSpacing;
     protected ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
-    protected @Nullable ItemSprites scrollerSprites;
+    protected @Nullable ScrollerSprites scrollerSprites;
     protected int scrollerWidth = 6;
     protected int minScrollerHeight = 32;
     protected @Nullable Identifier scrollBarBackground;
@@ -89,7 +89,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         super(Minecraft.getInstance(), width, height, y, itemHeight);
     }
 
-    private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable Identifier listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ItemSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable Identifier scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
+    private FrameworkSelectionList(int x, int y, int width, int height, int itemHeight, @Nullable ItemSprites itemSprites, int itemSpacing, @Nullable Identifier listBackground, Border listBorder, Padding listPadding, boolean scrollBarAlwaysVisible, int scrollBarSpacing, ScrollBarStyle scrollBarStyle, @Nullable ScrollerSprites scrollerSprites, int scrollerWidth, int minScrollerHeight, @Nullable Identifier scrollBarBackground, Border scrollBarBorder, Padding scrollBarPadding, Padding scrollBarContainerPadding, @Nullable Supplier<Boolean> activeSupplier, @Nullable Consumer<Consumer<Item>> itemsSupplier)
     {
         this(width, height, x, y, itemHeight);
         this.itemSprites = itemSprites;
@@ -312,7 +312,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
             }
 
             // Draw scroll bar
-            boolean scrollBarEnabled = maxScroll > 0;
+            boolean scrollBarEnabled = maxScroll > 0 && this.isActive();
             int scrollBarStart = this.scrollBarX();
             int scrollBarEnd = scrollBarStart + this.scrollerWidth;
             int scrollBarHeight = this.getScrollbarHeight();
@@ -320,7 +320,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
             boolean scrollBarHovered = ClientUtils.isPointInArea(mouseX, mouseY, scrollBarStart, scrollBarTop, this.scrollerWidth, scrollBarHeight);
             if(this.scrollerSprites != null)
             {
-                Identifier sprite = this.scrollerSprites.getSprite(scrollBarEnabled, scrollBarHovered, this.scrolling);
+                Identifier sprite = this.scrollerSprites.get(scrollBarEnabled, scrollBarHovered, this.scrolling);
                 if(sprite != null)
                 {
                     int alpha = ARGB.white(this.active ? 1.0F : 0.5F);
@@ -602,7 +602,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         private boolean scrollBarAlwaysVisible;
         private int scrollBarSpacing = 4;
         private ScrollBarStyle scrollBarStyle = ScrollBarStyle.DETACHED;
-        private @Nullable ItemSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
+        private @Nullable ScrollerSprites scrollerSprites = DEFAULT_SCROLLER_SPRITE;
         private int scrollerWidth = 6;
         private int minScrollerHeight = 32;
         private @Nullable Identifier scrollBarBackground = DEFAULT_SCROLL_BAR_BACKGROUND;
@@ -830,12 +830,12 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
 
         /**
-         * Sets the {@link ItemSprites} used for rendering the scroller in the scroll bar
+         * Sets the {@link ScrollerSprites} used for rendering the scroller in the scroll bar
          *
          * @param sprites the sprites to use for the scroller, or null to disable
          * @return this {@link Builder} for method chaining
          */
-        public Builder setScrollerSprites(@Nullable ItemSprites sprites)
+        public Builder setScrollerSprites(@Nullable ScrollerSprites sprites)
         {
             this.scrollerSprites = sprites;
             return this;
@@ -1144,6 +1144,56 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
                 this.disabledHoveredSelected = texture;
                 return this;
             }
+        }
+    }
+
+    /**
+     * Represents a set of sprites used for rendering the scroller in different visual states.
+     * These states include enabled, disabled, hovered, and dragging. Disabled state may be null
+     * to hide the scroller completely when a selection list is not active.
+     */
+    public record ScrollerSprites(ResourceLocation enabled, @Nullable ResourceLocation disabled, ResourceLocation hovered, ResourceLocation dragging)
+    {
+        /**
+         * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
+         * disabled, and hovered states. The hovering state is also used for the dragging state.
+         *
+         * @param enabled  the resource location to a sprite for the enabled state.
+         * @param disabled the resource location to a sprite for the disabled state.
+         * @param hovered  the resource location to a sprite for the hovered state.
+         * @return A new {@link ScrollerSprites} instance
+         */
+        public static ScrollerSprites of(ResourceLocation enabled, ResourceLocation disabled, ResourceLocation hovered)
+        {
+            return new ScrollerSprites(enabled, disabled, hovered, hovered);
+        }
+
+        /**
+         * Creates a {@link ScrollerSprites} instance with all states using the same {@link ResourceLocation}.
+         *
+         * @param all the resource location to be used for all states (enabled, disabled, hovered, and dragging).
+         * @return A new {@link ScrollerSprites} instance with all states set to the given resource location.
+         */
+        public static ScrollerSprites of(ResourceLocation all)
+        {
+            return new ScrollerSprites(all, all, all, all);
+        }
+
+        /**
+         * Retrieves the appropriate {@link ResourceLocation} based on the given state.
+         *
+         * @param enabled  true if the scroller is enabled
+         * @param hovered  true if the scroller is being hovered by the cursor
+         * @param dragging true if the scroller is currently being dragged
+         * @return The {@link ResourceLocation}  corresponding to the specified state.
+         */
+        @Nullable
+        public ResourceLocation get(boolean enabled, boolean hovered, boolean dragging)
+        {
+            if(!enabled) return this.disabled;
+            if(hovered) return this.hovered;
+            if(dragging) return this.dragging;
+            return this.enabled;
         }
     }
 }
