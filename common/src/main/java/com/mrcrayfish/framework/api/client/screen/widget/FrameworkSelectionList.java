@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -1101,8 +1102,32 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
      * These states include enabled, disabled, hovered, and dragging. Disabled state may be null
      * to hide the scroller completely when a selection list is not active.
      */
-    public record ScrollerSprites(ResourceLocation enabled, @Nullable ResourceLocation disabled, ResourceLocation hovered, ResourceLocation dragging)
+    public static final class ScrollerSprites
     {
+        private final ResourceLocation enabled;
+        private final @Nullable ResourceLocation disabled;
+        private final ResourceLocation hovered;
+        private final ResourceLocation dragging;
+
+        private ScrollerSprites(ResourceLocation enabled, @Nullable ResourceLocation disabled, ResourceLocation hovered, ResourceLocation dragging)
+        {
+            this.enabled = enabled;
+            this.disabled = disabled;
+            this.hovered = hovered;
+            this.dragging = dragging;
+        }
+
+        /**
+         * Creates a {@link ScrollerSprites} instance with all states using the same {@link ResourceLocation}.
+         *
+         * @param all the resource location to be used for all states (enabled, disabled, hovered, and dragging).
+         * @return A new {@link ScrollerSprites} instance with all states set to the given resource location.
+         */
+        public static ScrollerSprites of(ResourceLocation all)
+        {
+            return new ScrollerSprites(all, all, all, all);
+        }
+
         /**
          * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
          * disabled, and hovered states. The hovering state is also used for the dragging state.
@@ -1118,14 +1143,18 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
 
         /**
-         * Creates a {@link ScrollerSprites} instance with all states using the same {@link ResourceLocation}.
+         * Creates an instance of {@link ScrollerSprites} with the specified ResourceLocations for enabled,
+         * disabled, hovered, and dragging states.
          *
-         * @param all the resource location to be used for all states (enabled, disabled, hovered, and dragging).
-         * @return A new {@link ScrollerSprites} instance with all states set to the given resource location.
+         * @param enabled  the resource location to a sprite for the enabled state.
+         * @param disabled the resource location to a sprite for the disabled state.
+         * @param hovered  the resource location to a sprite for the hovered state.
+         * @param dragging the resource location to a sprite for the dragging state.
+         * @return A new {@link ScrollerSprites} instance
          */
-        public static ScrollerSprites of(ResourceLocation all)
+        public static ScrollerSprites of(ResourceLocation enabled, ResourceLocation disabled, ResourceLocation hovered, ResourceLocation dragging)
         {
-            return new ScrollerSprites(all, all, all, all);
+            return new ScrollerSprites(enabled, disabled, hovered, dragging);
         }
 
         /**
