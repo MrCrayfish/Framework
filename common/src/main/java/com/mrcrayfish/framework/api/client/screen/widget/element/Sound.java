@@ -14,6 +14,16 @@ import java.util.function.Supplier;
 public abstract class Sound
 {
     /**
+     * The default volume level for UI sounds.
+     */
+    public static final float DEFAULT_UI_VOLUME = 0.25F;
+
+    /**
+     * The default pitch value for UI sounds.
+     */
+    public static final float DEFAULT_UI_PITCH = 1.0F;
+
+    /**
      * @return a {@link Holder} containing the {@link SoundEvent}
      */
     public abstract SoundEvent value();
@@ -29,15 +39,15 @@ public abstract class Sound
     public abstract float pitch();
 
     /**
-     * Creates a new {@link Sound} instance using the specified {@link SoundEvent} holder.
-     * The created sound will have default static values for volume and pitch, both set to 1.0.
+     * Creates a new {@link Sound} instance using the specified {@link Holder} of {@link SoundEvent}.
+     * The default values for ui volume and pitch will be used.
      *
      * @param holder a {@link Holder} containing the {@link SoundEvent}
-     * @return a new {@code Sound} using the provided holder, and volume/pitch set to 1.0
+     * @return a new {@link Sound} using the specified holder and default volume and pitch values
      */
     public static Sound create(Holder<SoundEvent> holder)
     {
-        return new Impl(holder::value, rand -> 1.0F, rand -> 1.0F);
+        return new Impl(holder::value, rand -> DEFAULT_UI_VOLUME, rand -> DEFAULT_UI_PITCH);
     }
 
     /**
@@ -77,7 +87,7 @@ public abstract class Sound
      */
     public static Sound create(SoundEvent event)
     {
-        return new Impl(() -> event, rand -> 1.0F, rand -> 1.0F);
+        return new Impl(() -> event, rand -> DEFAULT_UI_VOLUME, rand -> DEFAULT_UI_PITCH);
     }
 
     /**
@@ -117,7 +127,7 @@ public abstract class Sound
      */
     public static Sound create(Supplier<SoundEvent> sound)
     {
-        return new Impl(sound, rand -> 1.0F, rand -> 1.0F);
+        return new Impl(sound, rand -> DEFAULT_UI_VOLUME, rand -> DEFAULT_UI_PITCH);
     }
 
     /**
