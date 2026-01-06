@@ -47,7 +47,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         .build();
     public static final Padding DEFAULT_LIST_PADDING = Padding.of(4);
     public static final Border DEFAULT_LIST_BORDER = Border.of(0);
-    public static final ScrollerSprites DEFAULT_SCROLLER_SPRITE = ItemSprites.of(Identifier.withDefaultNamespace("widget/scroller"));
+    public static final ScrollerSprites DEFAULT_SCROLLER_SPRITE = ScrollerSprites.of(Identifier.withDefaultNamespace("widget/scroller"));
     public static final Identifier DEFAULT_SCROLL_BAR_BACKGROUND = Identifier.withDefaultNamespace("widget/scroller_background");
     public static final Padding DEFAULT_SCROLL_BAR_PADDING = Padding.of(0);
     public static final Border DEFAULT_SCROLL_BAR_BORDER = Border.of(0);
@@ -1180,7 +1180,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
          * @param all the resource location to be used for all states (enabled, disabled, hovered, and dragging).
          * @return A new {@link ScrollerSprites} instance with all states set to the given resource location.
          */
-        public static ScrollerSprites of(ResourceLocation all)
+        public static ScrollerSprites of(Identifier all)
         {
             return new ScrollerSprites(all, all, all, all);
         }
