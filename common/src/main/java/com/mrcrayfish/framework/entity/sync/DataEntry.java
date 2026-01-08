@@ -90,13 +90,17 @@ public class DataEntry<E extends Entity, T>
 
     public void write(ValueOutput output)
     {
-        output.store("Value", this.key.serializer().codec(), this.value);
+        this.key.serializer().writer().accept(output, this.value);
     }
 
     public void read(ValueInput input)
     {
         this.removeSignal();
-        input.read("Value", this.key.serializer().codec()).ifPresent(value -> this.value = value);
+        T newValue = this.key.serializer().reader().apply(input);
+        if(newValue != null)
+        {
+            this.value = newValue;
+        }
         this.updateSignal();
     }
 
