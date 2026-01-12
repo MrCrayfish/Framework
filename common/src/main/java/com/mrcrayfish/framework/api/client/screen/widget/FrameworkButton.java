@@ -257,7 +257,7 @@ public final class FrameworkButton extends AbstractButton
     @Override
     protected boolean isValidClickButton(int button)
     {
-        return button == 0 || this.actions != null && this.actions.containsKey(button);
+        return button == 0 || this.actions != null && this.actions.containsKey(MouseInput.fromButton(button));
     }
 
     /**
