@@ -10,11 +10,13 @@
             "test.network.NetworkTest",
             "test.openmodel.OpenModelTest",
             "test.openmodeldata.OpenModelDataTest",
-            "test.syncedentitydata.SyncedEntityDataTest"
+            "test.syncedentitydata.SyncedEntityDataTest",
+            "test.widgets.WidgetsTest"
         ],
         "client": [
             "test.dataloader.DataLoaderTest",
-            "test.openmodeldata.ClientOpenModelDataTest"
+            "test.openmodeldata.ClientOpenModelDataTest",
+            "test.widgets.WidgetsTestClient"
         ]
     },
     "custom": {

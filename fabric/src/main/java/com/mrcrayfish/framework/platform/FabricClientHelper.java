@@ -4,6 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.platform.services.IClientHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
@@ -30,6 +31,12 @@ public class FabricClientHelper implements IClientHelper
     {
         ModelManager manager = Minecraft.getInstance().getModelManager();
         return manager.bakedRegistry.getOrDefault(location, manager.getMissingModel());
+    }
+
+    @Override
+    public void setScrollingState(AbstractSelectionList<?> list, boolean state)
+    {
+        list.scrolling = state;
     }
 
     private static BlockElement.Deserializer createBlockElementDeserializerInstance()

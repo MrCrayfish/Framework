@@ -2,6 +2,8 @@ package com.mrcrayfish.framework.platform.services;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
+import com.mrcrayfish.framework.api.client.screen.widget.FrameworkSelectionList;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -27,4 +29,6 @@ public interface IClientHelper
      * @return the baked model or missing model if location doesn't exist
      */
     BakedModel getBakedModel(ResourceLocation location);
+
+    void setScrollingState(AbstractSelectionList<?> list, boolean scrolling);
 }
