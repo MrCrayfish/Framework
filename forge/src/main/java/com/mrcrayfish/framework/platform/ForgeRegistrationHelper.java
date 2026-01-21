@@ -1,8 +1,9 @@
 package com.mrcrayfish.framework.platform;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mrcrayfish.framework.api.FrameworkAPI;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
-import com.mrcrayfish.framework.api.registry.RegistryEntry;
+import com.mrcrayfish.framework.api.util.EnvironmentHelper;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.util.ReflectionUtils;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.network.IContainerFactory;
@@ -27,7 +27,9 @@ import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,20 +39,32 @@ import java.util.stream.Collectors;
  */
 public class ForgeRegistrationHelper implements IRegistrationHelper
 {
-    public static final Type ENTRY_CONTAINER = Type.getType(RegistryContainer.class);
+    public static final Type REGISTRY_CONTAINER_TYPE = Type.getType(RegistryContainer.class);
+
+    private final Set<Class<?>> registryClasses = new HashSet<>();
+    private boolean loadedRegistryClasses;
 
     @Override
-    public List<RegistryEntry<?>> getAllRegistryEntries()
+    public <T> List<T> getRegistryObjects(Class<T> objectType)
     {
-        return ModList.get().getAllScanData().stream()
-                .map(ModFileScanData::getAnnotations)
-                .flatMap(Collection::stream)
-                .filter(a -> ENTRY_CONTAINER.equals(a.annotationType()))
-                .filter(a -> a.targetType() == ElementType.TYPE)
-                .map(ModFileScanData.AnnotationData::memberName)
-                .map(ReflectionUtils::getClass)
-                .map(ReflectionUtils::findRegistryEntriesInClass)
-                .flatMap(Collection::stream)
+        if(!this.loadedRegistryClasses)
+        {
+            ModList.get().getAllScanData().stream()
+                    .map(ModFileScanData::getAnnotations)
+                    .flatMap(Collection::stream)
+                    .filter(a -> a.targetType() == ElementType.TYPE)
+                    .filter(a -> REGISTRY_CONTAINER_TYPE.equals(a.annotationType()))
+                    .filter(a -> {
+                        boolean clientOnly = (boolean) a.annotationData().getOrDefault("clientOnly", false);
+                        return !clientOnly || EnvironmentHelper.getEnvironment().isClient();
+                    })
+                    .map(ModFileScanData.AnnotationData::memberName)
+                    .map(ReflectionUtils::getClass)
+                    .forEach(this.registryClasses::add);
+            this.loadedRegistryClasses = true;
+        }
+        return this.registryClasses.stream()
+                .flatMap(holderClass -> ReflectionUtils.findPublicStaticObjects(objectType, holderClass).stream())
                 .collect(Collectors.toList());
     }
 

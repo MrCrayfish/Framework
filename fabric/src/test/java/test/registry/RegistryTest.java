@@ -1,5 +1,6 @@
 package test.registry;
 
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -24,6 +25,9 @@ public class RegistryTest
     public static final RegistryEntry<Item> THE_BEST_ITEM = RegistryEntry.item(new ResourceLocation("framework_test", "best_item"), () -> new BlockItem(THE_BEST_BLOCK.get(), new Item.Properties()));
     public static final RegistryEntry<Block> THE_ACTUAL_BEST_BLOCK = RegistryEntry.blockWithItem(new ResourceLocation("framework_test", "best_block"), () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
 
+    public static final FrameworkRegistry<MyCustomObject<?>> REGISTRY = FrameworkRegistry.<MyCustomObject<?>>builder(new ResourceLocation("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject<String>> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, new ResourceLocation("registry_test", "my_awesome_object"), () -> new MyCustomObject<>("Hello World!"));
+
     public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(new ResourceLocation("registry_test", "tab"), builder -> {
         builder.title(Component.literal("Creative tabs are pretty cool!"));
         builder.icon(() -> new ItemStack(Items.STICK));
@@ -31,4 +35,6 @@ public class RegistryTest
             output.accept(new ItemStack(Items.STICK));
         });
     });
+
+    public record MyCustomObject<T>(T value) {}
 }

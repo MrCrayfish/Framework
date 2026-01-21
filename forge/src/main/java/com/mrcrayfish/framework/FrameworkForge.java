@@ -1,10 +1,14 @@
 package com.mrcrayfish.framework;
 
 import com.mrcrayfish.framework.api.registry.BlockRegistryEntry;
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.IRegisterFunction;
 import com.mrcrayfish.framework.client.ClientFrameworkForge;
 import com.mrcrayfish.framework.entity.sync.ForgeSyncedEntityDataHandler;
 import com.mrcrayfish.framework.event.ForgeEvents;
+import com.mrcrayfish.framework.platform.Services;
+import com.mrcrayfish.framework.platform.registry.ForgeRegistryProxy;
+import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +25,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,6 +47,7 @@ public class FrameworkForge
         bus.addListener(this::onCommonSetup);
         bus.addListener(this::onLoadComplete);
         bus.addListener(this::onRegister);
+        bus.addListener(this::onRegisterNewRegistry);
         bus.addListener(ForgeSyncedEntityDataHandler::registerCapabilities);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             bus.addListener(this::onClientSetup);
@@ -72,14 +79,7 @@ public class FrameworkForge
 
     private void onRegister(RegisterEvent event)
     {
-        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(new IRegisterFunction()
-        {
-            @Override
-            public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
-            {
-                event.register(registry.key(), name, supplier);
-            }
-        }));
+        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(event::register));
 
         // Special case for block registry entries to register items
         if(event.getRegistryKey().equals(Registries.ITEM))
@@ -97,5 +97,18 @@ public class FrameworkForge
     private void onLoadComplete(FMLLoadCompleteEvent event)
     {
         FrameworkData.setLoaded();
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void onRegisterNewRegistry(NewRegistryEvent event)
+    {
+        // Registers custom registries using NeoForge's event
+        Services.REGISTRATION.getRegistryObjects(FrameworkRegistry.class).forEach(registry -> {
+            Constants.LOG.debug("Registering custom registry: {}", registry.getKey().location());
+            RegistryBuilder<?> builder = new RegistryBuilder().setName(registry.getKey().location());
+            if(!registry.shouldSync())
+                builder.disableSync();
+            registry.setProxy(ForgeRegistryProxy.wrap(event.create(builder)));
+        });
     }
 }

@@ -2,16 +2,17 @@ package com.mrcrayfish.framework.api.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mrcrayfish.framework.platform.Services;
+import com.mrcrayfish.framework.registry.RegisterConsumer;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -44,15 +46,21 @@ import java.util.function.Supplier;
  */
 public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
-    protected final Registry<?> registry;
-    protected final ResourceLocation id;
-    protected final Supplier<T> supplier;
+    protected final WrappedRegistry<T> registry;
+    protected final ResourceLocation valueId;
+    protected final Supplier<T> valueSupplier;
 
-    RegistryEntry(Registry<?> registry, ResourceLocation id, Supplier<T> supplier)
+    @SuppressWarnings("unchecked")
+    RegistryEntry(Registry<?> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
+    {
+        this((WrappedRegistry<T>) WrappedRegistry.wrapVanilla(registry), valueId, valueSupplier);
+    }
+
+    RegistryEntry(WrappedRegistry<T> registry, ResourceLocation valueId, Supplier<T> valueSupplier)
     {
         this.registry = registry;
-        this.id = id;
-        this.supplier = supplier;
+        this.valueId = valueId;
+        this.valueSupplier = valueSupplier;
     }
 
     private T instance;
@@ -68,18 +76,18 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     {
         if(this.instance != null)
             throw new IllegalStateException("Entry has already been created");
-        this.instance = this.supplier.get();
+        this.instance = this.valueSupplier.get();
         return this.instance;
     }
 
-    public Registry<?> getRegistry()
+    public ResourceKey<Registry<T>> getRegistryKey()
     {
-        return this.registry;
+        return this.registry.getKey();
     }
 
     public ResourceLocation getId()
     {
-        return this.id;
+        return this.valueId;
     }
 
     protected void invalidate()
@@ -87,13 +95,38 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         this.instance = null;
     }
 
-    @SuppressWarnings("unchecked")
-    public void register(IRegisterFunction function)
+    @ApiStatus.Internal
+    public void register(RegisterConsumer<T> consumer)
     {
-        function.call((Registry<? super Object>) this.registry, this.id, () -> {
-            this.invalidate();
-            return this.create();
-        });
+        this.invalidate();
+        T value = this.create();
+        consumer.accept(this.registry.getKey(), this.valueId, () -> value);
+    }
+
+    /**
+     * Creates a registry entry using a custom registry.
+     *
+     * <p>Please note that the object type of the FrameworkRegistry argument is a wildcard and
+     * unrestricted. This is to allow this method to be more flexible in cases where the type of the
+     * supplied value does not strictly match the registry type.</p>
+     *
+     * <p>For example, a registry may be created as {@code FrameworkRegistry<MyObject<?>>} but the
+     * supplied object type is {@code MyObject<String>}. The registry is expecting {@code MyObject<?>},
+     * but it would not be possible to add {@code MyObject<String>} if this method expected the
+     * supplied value type to exactly match the type of the registry. It is more useful that the type
+     * of the {@code RegistryEntry} preserves its type, so that when calling {@code RegistryEntry#get()}
+     * it will return {@code MyObject<String>}, rather than a wildcard.</p>
+     *
+     * @param registry the registry to bound this entry to
+     * @param id       a resource location representing the id of the value. Must be unique
+     * @param supplier a supplier which provides an instance of the value
+     * @param <T>      the type of the object being registered
+     * @return a registry entry that represents the registered object
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> RegistryEntry<T> custom(FrameworkRegistry registry, ResourceLocation id, Supplier<T> supplier)
+    {
+        return new RegistryEntry<>(registry, id, supplier);
     }
 
     public static <T extends Attribute> RegistryEntry<T> attribute(ResourceLocation id, Supplier<T> supplier)

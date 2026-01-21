@@ -24,37 +24,12 @@ public class FrameworkSetup
 
     public static void run()
     {
-        if(initialized)
-            return;
-
-        Registration.init();
-        FrameworkConfigManager.getInstance();
-
-        if(Services.PLATFORM.getPlatform().isFabric())
+        if(!initialized)
         {
-            // Register all entries
-            Registration.getAllRegistryEntries().forEach(entry ->
-            {
-                entry.register(new IRegisterFunction()
-                {
-                    @Override
-                    public <T> void call(Registry<T> registry, ResourceLocation name, Supplier<T> supplier)
-                    {
-                        Registry.register(registry, name, supplier.get());
-                    }
-                });
-            });
-
-            // Special case for block registry entries to register items
-            Registration.get(Registries.BLOCK).forEach(entry ->
-            {
-                if(entry instanceof BlockRegistryEntry<?, ?> blockEntry)
-                {
-                    blockEntry.item().ifPresent(item -> Registry.register(BuiltInRegistries.ITEM, entry.getId(), item));
-                }
-            });
+            Registration.init();
+            FrameworkConfigManager.getInstance();
+            initialized = true;
         }
-        initialized = true;
     }
 
     static void init()

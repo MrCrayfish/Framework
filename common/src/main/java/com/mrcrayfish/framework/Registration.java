@@ -48,9 +48,10 @@ public final class Registration
 
     public static void init()
     {
-        Services.REGISTRATION.getAllRegistryEntries().forEach(entry -> {
-            ENTRY_MAP.computeIfAbsent(entry.getRegistry().key().location(), location -> new ArrayList<>()).add(entry);
+        Services.REGISTRATION.getRegistryObjects(RegistryEntry.class).forEach(entry -> {
+            ENTRY_MAP.computeIfAbsent(entry.getRegistryKey().location(), location -> new ArrayList<>()).add(entry);
         });
+        Services.REGISTRATION.init();
     }
 
     public static List<RegistryEntry<?>> get(ResourceKey<? extends Registry<?>> key)
@@ -63,7 +64,7 @@ public final class Registration
         return ENTRY_MAP.values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(entry -> {
-                    int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistry().key().location());
+                    int index = REGISTRATION_PRIORITY.indexOf(entry.getRegistryKey().location());
                     return index != -1 ? index : 1000;
                 }))
                 .collect(Collectors.toCollection(ArrayList::new));

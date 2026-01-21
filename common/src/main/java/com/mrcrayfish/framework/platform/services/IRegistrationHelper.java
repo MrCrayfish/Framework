@@ -24,7 +24,9 @@ import java.util.function.Supplier;
  */
 public interface IRegistrationHelper
 {
-    List<RegistryEntry<?>> getAllRegistryEntries();
+    default void init() {}
+
+    <T> List<T> getRegistryObjects(Class<T> objectType);
 
     <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> function, Supplier<Block[]> validBlocksSupplier);
 

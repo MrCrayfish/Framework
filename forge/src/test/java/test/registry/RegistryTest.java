@@ -1,5 +1,6 @@
 package test.registry;
 
+import com.mrcrayfish.framework.api.registry.FrameworkRegistry;
 import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.api.registry.RegistryEntry;
 import net.minecraft.network.chat.Component;
@@ -36,6 +37,9 @@ public class RegistryTest
     public static final RegistryEntry<ResourceLocation> CUSTOM_AWESOME_STAT = RegistryEntry.customStat(new ResourceLocation("registry_test", "awesome_stat"), StatFormatter.DEFAULT);
     public static final RegistryEntry<GameEvent> CUSTOM_GAME_EVENT = RegistryEntry.gameEvent(new ResourceLocation("registry_test", "awesome_game_event"));
 
+    public static final FrameworkRegistry<MyCustomObject<?>> REGISTRY = FrameworkRegistry.<MyCustomObject<?>>builder(new ResourceLocation("registry_test", "custom_registry")).build();
+    public static final RegistryEntry<MyCustomObject<String>> MY_FIRST_CUSTOM_REGISTRY_OBJECT = RegistryEntry.custom(REGISTRY, new ResourceLocation("registry_test", "my_awesome_object"), () -> new MyCustomObject<>("Hello World!"));
+
     public static final RegistryEntry<CreativeModeTab> CUSTOM_TAB = RegistryEntry.creativeModeTab(new ResourceLocation("registry_test", "tab"), builder -> {
         builder.title(Component.literal("Creative tabs are pretty cool!"));
         builder.icon(() -> new ItemStack(Items.STICK));
@@ -61,6 +65,10 @@ public class RegistryTest
 
         player.awardStat(CUSTOM_AWESOME_STAT.get());
         player.level().gameEvent(CUSTOM_GAME_EVENT.get(), event.getPos(), new GameEvent.Context(player, null));
+
+        REGISTRY.forEach(myCustomObject -> {
+            System.out.println(myCustomObject.value);
+        });
     }
 
     private void onGameEvent(VanillaGameEvent event)
@@ -77,4 +85,6 @@ public class RegistryTest
             event.setCanceled(true);
         }
     }
+
+    public record MyCustomObject<T>(T value) {}
 }
