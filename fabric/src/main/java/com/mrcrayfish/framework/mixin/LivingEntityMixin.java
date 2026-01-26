@@ -15,16 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin
 {
-    @Inject(method = "die", at = @At(value = "HEAD"), cancellable = true)
-    private void frameworkOnDie(DamageSource source, CallbackInfo ci)
-    {
-        LivingEntity entity = (LivingEntity) (Object) this;
-        if(FrameworkEntityEvents.LIVING_ENTITY_DEATH.post().handle(entity, source))
-        {
-            ci.cancel();
-        }
-    }
-
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void frameworkOnPreTick(CallbackInfo ci)
     {
