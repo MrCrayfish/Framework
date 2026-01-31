@@ -174,6 +174,12 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     }
 
     @Override
+    public boolean isActive()
+    {
+        return this.active;
+    }
+
+    @Override
     public boolean isMouseOver(double mouseX, double mouseY)
     {
         return mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight() && mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth();
