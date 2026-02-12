@@ -1,10 +1,6 @@
 package test.widgets;
 
-import com.mrcrayfish.framework.api.client.screen.widget.Buttons;
-import com.mrcrayfish.framework.api.client.screen.widget.TooltipOptions;
-import com.mrcrayfish.framework.api.client.screen.widget.FrameworkButton;
-import com.mrcrayfish.framework.api.client.screen.widget.FrameworkEditBox;
-import com.mrcrayfish.framework.api.client.screen.widget.FrameworkSelectionList;
+import com.mrcrayfish.framework.api.client.screen.widget.*;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -70,6 +66,12 @@ public class TestScreen extends Screen
         MutableBoolean state2 = new MutableBoolean();
         first.addChild(Buttons.createToggle(Component.literal("Test"), state2::getValue, state2::setValue)
             .setSize(100, 20)
+            .build());
+        first.addChild(FrameworkStepper.builder(FrameworkStepper.INT)
+            .setSize(100, 20)
+            .setMinValue(0)
+            .setMaxValue(10)
+            .setSpacing(2)
             .build());
         wrapper.addChild(first);
 

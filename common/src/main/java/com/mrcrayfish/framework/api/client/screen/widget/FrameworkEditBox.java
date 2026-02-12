@@ -29,7 +29,7 @@ import java.util.function.*;
  */
 public final class FrameworkEditBox extends AbstractContainerWidget
 {
-    private static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
+    public static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
         ResourceLocation.withDefaultNamespace("widget/text_field"),
         ResourceLocation.withDefaultNamespace("widget/text_field_highlighted")
     );
