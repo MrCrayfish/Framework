@@ -67,6 +67,12 @@ public class TestScreen extends Screen
         first.addChild(Buttons.createToggle(Component.literal("Test"), state2::getValue, state2::setValue)
             .setSize(100, 20)
             .build());
+        first.addChild(FrameworkStepper.builder(FrameworkStepper.INT)
+            .setSize(100, 20)
+            .setMinValue(0)
+            .setMaxValue(10)
+            .setSpacing(2)
+            .build());
         wrapper.addChild(first);
 
         LinearLayout second = LinearLayout.vertical().spacing(4);
