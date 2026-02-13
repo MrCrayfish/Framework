@@ -1,10 +1,11 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.google.common.annotations.Beta;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.util.Utils;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -19,8 +20,11 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -46,6 +50,24 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
      * stepping distances, and the initial value.
      */
     public static final Type<IntBuilder> INT = new Type<>(FrameworkStepper.IntBuilder::new);
+
+    /**
+     * A {@link FrameworkStepper.Type} that produces an {@link LongBuilder}.
+     *
+     * <p>This is used to create a stepper capable of handling long values. The builder returned
+     * by {@code FrameworkStepper.builder(FrameworkStepper.LONG)} allows configuration of bounds,
+     * stepping distances, and the initial value.
+     */
+    public static final Type<LongBuilder> LONG = new Type<>(FrameworkStepper.LongBuilder::new);
+
+    /**
+     * A {@link FrameworkStepper.Type} that produces an {@link DoubleBuilder}.
+     *
+     * <p>This is used to create a stepper capable of handling double values. The builder returned
+     * by {@code FrameworkStepper.builder(FrameworkStepper.DOUBLE)} allows configuration of bounds,
+     * stepping distances, and the initial value.
+     */
+    public static final Type<DoubleBuilder> DOUBLE = new Type<>(FrameworkStepper.DoubleBuilder::new);
 
     private final Controller<T> controller;
     private final FrameworkEditBox valueEditBox;
@@ -147,19 +169,46 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     public void setX(int x)
     {
         super.setX(x);
-        int buttonSize = Math.max(10, this.getHeight());
-        this.valueEditBox.setX(x + buttonSize + this.spacing);
-        this.backwardsButton.setX(x);
-        this.forwardsButton.setX(x + this.getWidth() - buttonSize);
+        this.updateWidgets();
     }
 
     @Override
     public void setY(int y)
     {
         super.setY(y);
-        this.valueEditBox.setY(y);
-        this.backwardsButton.setY(y);
-        this.forwardsButton.setY(y);
+        this.updateWidgets();
+    }
+
+    @Override
+    public void setWidth(int width)
+    {
+        super.setWidth(width);
+        this.updateWidgets();
+    }
+
+    @Override
+    public void setHeight(int height)
+    {
+        super.setHeight(height);
+        this.updateWidgets();
+    }
+
+    @Override
+    public void setSize(int width, int height)
+    {
+        super.setSize(width, height);
+        this.updateWidgets();
+    }
+
+    private void updateWidgets()
+    {
+        int buttonSize = Math.max(10, this.getHeight());
+        this.valueEditBox.setPosition(this.getX() + buttonSize + this.spacing, this.getY());
+        this.valueEditBox.setSize(this.getWidth() - buttonSize * 2 - this.spacing * 2, buttonSize);
+        this.backwardsButton.setPosition(this.getX(), this.getY());
+        this.backwardsButton.setSize(buttonSize, buttonSize);
+        this.forwardsButton.setPosition(this.getX() + this.getWidth() - buttonSize, this.getY());
+        this.forwardsButton.setSize(buttonSize, buttonSize);
     }
 
     @Override
@@ -219,7 +268,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
      * @param <B> the concrete builder subtype extending this class
      * @param <T> the value type handled by the resulting {@link FrameworkStepper}
      */
-    public static sealed abstract class Builder<B extends Builder<B, T>, T> permits IntBuilder
+    public static sealed abstract class Builder<B extends Builder<B, T>, T> permits NumberBuilder
     {
         protected int x;
         protected int y;
@@ -422,61 +471,53 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     }
 
     /**
-     * Constructs a {@link FrameworkStepper} that handles integer values.
+     * A base abstract class for building number-based steppers with configurable options.
      *
-     * <p>The builder allows configuration of the stepper's bounds, initial value, stepping distance,
-     * and visual elements inherited from {@link Builder}. The resulting {@link FrameworkStepper}
-     * uses an internal {@link IntController} to enforce limits and perform increments or decrements.
+     * <p>This class provides methods to configure the bounds, step sizes, and initial values
+     * for a number stepper. It is intended to be extended by specific number type implementations.
      *
-     * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.INT).build()}
+     * @param <B> the type of the builder subclass
+     * @param <V> the number type handled by the builder
      */
-    public static final class IntBuilder extends Builder<IntBuilder, Integer>
+    private static non-sealed abstract class NumberBuilder<B extends NumberBuilder<B, V>, V extends Number> extends Builder<B, V>
     {
-        private int initialValue;
-        private int minValue = Integer.MIN_VALUE;
-        private int maxValue = Integer.MAX_VALUE;
-        private int step = 1;
-        private int bigStep = 10;
-
-        private IntBuilder() {}
-
-        @Override
-        public FrameworkStepper<Integer> build()
-        {
-            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new IntController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
-        }
+        protected V initialValue;
+        protected V minValue;
+        protected V maxValue;
+        protected V step;
+        protected V bigStep;
 
         /**
-         * Sets the initial integer value for the stepper
+         * Sets the initial number value for the stepper
          *
          * @param initialValue the initial value
          * @return this {@link IntBuilder} for method chaining
          */
-        public IntBuilder setInitialValue(int initialValue)
+        public B setInitialValue(V initialValue)
         {
             this.initialValue = initialValue;
             return this.self();
         }
 
         /**
-         * Sets the minimum integer value of the stepper (aka the lower bound)
+         * Sets the minimum number value of the stepper (aka the lower bound)
          *
-         * @param minValue the minimum integer value
+         * @param minValue the minimum number value
          * @return this {@link IntBuilder} for method chaining
          */
-        public IntBuilder setMinValue(int minValue)
+        public B setMinValue(V minValue)
         {
             this.minValue = minValue;
             return this.self();
         }
 
         /**
-         * Sets the maximum integer value of the stepper (aka the upper bound)
+         * Sets the maximum number value of the stepper (aka the upper bound)
          *
-         * @param maxValue the maximum integer value
+         * @param maxValue the maximum number value
          * @return this {@link IntBuilder} for method chaining
          */
-        public IntBuilder setMaxValue(int maxValue)
+        public B setMaxValue(V maxValue)
         {
             this.maxValue = maxValue;
             return this.self();
@@ -485,10 +526,10 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         /**
          * Sets the step distance to apply when either the backward or forward button is pressed
          *
-         * @param step the step distance as an integer
+         * @param step the step distance as an number
          * @return this {@link IntBuilder} for method chaining
          */
-        public IntBuilder setStep(int step)
+        public B setStep(V step)
         {
             this.step = step;
             return this.self();
@@ -498,13 +539,100 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
          * Sets the big step distance to apply when either the backward or forward button is pressed.
          * The big step is applied when the user is holding the shift key down.
          *
-         * @param bigStep the step distance as an integer
+         * @param bigStep the step distance as a number
          * @return this {@link IntBuilder} for method chaining
          */
-        public IntBuilder setBigStep(int bigStep)
+        public B setBigStep(V bigStep)
         {
             this.bigStep = bigStep;
             return this.self();
+        }
+    }
+
+    /**
+     * Constructs a {@link FrameworkStepper} that handles integer values.
+
+     * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.INT).build()}
+     */
+    public static final class IntBuilder extends NumberBuilder<IntBuilder, Integer>
+    {
+        private IntBuilder()
+        {
+            this.initialValue = 0;
+            this.minValue = Integer.MIN_VALUE;
+            this.maxValue = Integer.MAX_VALUE;
+            this.step = 1;
+            this.bigStep = 10;
+        }
+
+        @Override
+        public FrameworkStepper<Integer> build()
+        {
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new IntController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+        }
+    }
+
+    /**
+     * Constructs a {@link FrameworkStepper} that handles long values.
+
+     * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.LONG).build()}
+     */
+    public static final class LongBuilder extends NumberBuilder<LongBuilder, Long>
+    {
+        private LongBuilder()
+        {
+            this.initialValue = 0L;
+            this.minValue = Long.MIN_VALUE;
+            this.maxValue = Long.MAX_VALUE;
+            this.step = 1L;
+            this.bigStep = 10L;
+        }
+
+        @Override
+        public FrameworkStepper<Long> build()
+        {
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new LongController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+        }
+    }
+
+    /**
+     * Constructs a {@link FrameworkStepper} that handles double values.
+     *
+     * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.DOUBLE).build()}
+     */
+    public static final class DoubleBuilder extends NumberBuilder<DoubleBuilder, Double>
+    {
+        private static final DecimalFormat DEFAULT_FORMATTER;
+
+        static
+        {
+            DEFAULT_FORMATTER = new DecimalFormat("0.#");
+            DEFAULT_FORMATTER.setMinimumFractionDigits(1);
+            DEFAULT_FORMATTER.setMaximumFractionDigits(3);
+            DEFAULT_FORMATTER.setDecimalSeparatorAlwaysShown(true);
+        }
+
+        private DecimalFormat formatter = DEFAULT_FORMATTER;
+
+        private DoubleBuilder()
+        {
+            this.initialValue = 0.0;
+            this.minValue = -Double.MAX_VALUE;
+            this.maxValue = Double.MAX_VALUE;
+            this.step = 1.0;
+            this.bigStep = 10.0;
+        }
+
+        public DoubleBuilder setFormatter(DecimalFormat formatter)
+        {
+            this.formatter = formatter;
+            return this.self();
+        }
+
+        @Override
+        public FrameworkStepper<Double> build()
+        {
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new DoubleController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
         }
     }
 
@@ -526,16 +654,20 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         protected abstract void step(StepDirection direction, boolean shift);
     }
 
-    private static final class IntController extends Controller<Integer>
+    private static abstract class NumberController<V extends Number> extends Controller<V>
     {
-        private final int minValue;
-        private final int maxValue;
-        private final int step;
-        private final int bigStep;
-        private final @Nullable Consumer<Integer> callback;
-        private int value;
+        protected final V minValue;
+        protected final V maxValue;
+        protected final V step;
+        protected final V bigStep;
+        protected final @Nullable Consumer<V> callback;
+        protected final Function<String, V> parser;
+        protected final Function<V, String> stringify;
+        protected final BiFunction<V, V, Integer> compare;
+        private final Clamper<V, V, V, V> clamper;
+        protected V value;
 
-        private IntController(int minValue, int maxValue, int step, int bigStep, int initialValue, @Nullable Consumer<Integer> callback)
+        private NumberController(V minValue, V maxValue, V step, V bigStep, V initialValue, @Nullable Consumer<V> callback, Function<String, V> parser, Function<V, String> stringify, BiFunction<V, V, Integer> compare, Clamper<V, V, V, V> clamper)
         {
             this.minValue = minValue;
             this.maxValue = maxValue;
@@ -543,16 +675,20 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
             this.bigStep = bigStep;
             this.value = initialValue;
             this.callback = callback;
+            this.parser = parser;
+            this.stringify = stringify;
+            this.compare = compare;
+            this.clamper = clamper;
         }
 
         @Override
-        protected Integer get()
+        protected V get()
         {
             return this.value;
         }
 
         @Override
-        protected void set(Integer value)
+        protected void set(V value)
         {
             this.value = value;
             if(this.callback != null)
@@ -566,35 +702,91 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
             return true;
         }
 
-        @Override
-        protected Integer parseText(String s)
+        @Nullable
+        protected V parseText(String s)
         {
-            return Ints.tryParse(s);
+            return this.parser.apply(s);
         }
 
-        @Override
         protected String toText()
         {
-            return Integer.toString(this.value);
+            return this.stringify.apply(this.value);
         }
 
-        @Override
         protected boolean canStep(StepDirection direction)
         {
             return switch(direction) {
-                case BACKWARDS -> this.value > this.minValue;
-                case FORWARDS -> this.value < this.maxValue;
+                case BACKWARDS -> this.compare.apply(this.value, this.minValue) > 0;
+                case FORWARDS ->this.compare.apply(this.value, this.maxValue) < 0;
             };
         }
 
         @Override
         protected void step(StepDirection direction, boolean shift)
         {
+            this.value = this.clamper.apply(this.applyStep(this.value, direction, shift), this.minValue, this.maxValue);
+        }
+
+        protected abstract V applyStep(V value, StepDirection direction, boolean shift);
+
+        @FunctionalInterface
+        protected interface Clamper<V, L, U, R>
+        {
+            R apply(V v, L l, U u);
+        }
+    }
+
+    private static final class IntController extends NumberController<Integer>
+    {
+        private IntController(Integer minValue, Integer maxValue, Integer step, Integer bigStep, Integer initialValue, @Nullable Consumer<Integer> callback)
+        {
+            super(minValue, maxValue, step, bigStep, initialValue, callback, Ints::tryParse, value -> Integer.toString(value), Integer::compare, Mth::clamp);
+        }
+
+        @Override
+        protected Integer applyStep(Integer value, StepDirection direction, boolean shift)
+        {
             int step = shift ? this.bigStep : this.step;
-            switch(direction) {
-                case BACKWARDS -> this.value = Mth.clamp(this.value - step, this.minValue, this.maxValue);
-                case FORWARDS -> this.value = Mth.clamp(this.value + step, this.minValue, this.maxValue);
-            }
+            return direction == StepDirection.BACKWARDS ? value - step : value + step;
+        }
+    }
+
+    private static final class LongController extends NumberController<Long>
+    {
+        private LongController(Long minValue, Long maxValue, Long step, Long bigStep, Long initialValue, @Nullable Consumer<Long> callback)
+        {
+            super(minValue, maxValue, step, bigStep, initialValue, callback, Longs::tryParse, value -> Long.toString(value), Long::compare, Mth::clamp);
+        }
+
+        @Override
+        protected Long applyStep(Long value, StepDirection direction, boolean shift)
+        {
+            long step = shift ? this.bigStep : this.step;
+            return direction == StepDirection.BACKWARDS ? value - step : value + step;
+        }
+    }
+
+    private static final class DoubleController extends NumberController<Double>
+    {
+        private final DecimalFormat formatter;
+
+        private DoubleController(Double minValue, Double maxValue, Double step, Double bigStep, Double initialValue, @Nullable Consumer<Double> callback, DecimalFormat formatter)
+        {
+            super(minValue, maxValue, step, bigStep, initialValue, callback, Doubles::tryParse, value -> Double.toString(value), Double::compare, Mth::clamp);
+            this.formatter = formatter;
+        }
+
+        @Override
+        protected String toText()
+        {
+            return this.formatter.format(this.value);
+        }
+
+        @Override
+        protected Double applyStep(Double value, StepDirection direction, boolean shift)
+        {
+            double step = shift ? this.bigStep : this.step;
+            return direction == StepDirection.BACKWARDS ? value - step : value + step;
         }
     }
 
