@@ -67,12 +67,6 @@ public class TestScreen extends Screen
         first.addChild(Buttons.createToggle(Component.literal("Test"), state2::getValue, state2::setValue)
             .setSize(100, 20)
             .build());
-        first.addChild(FrameworkStepper.builder(FrameworkStepper.INT)
-            .setSize(100, 20)
-            .setMinValue(0)
-            .setMaxValue(10)
-            .setSpacing(2)
-            .build());
         wrapper.addChild(first);
 
         LinearLayout second = LinearLayout.vertical().spacing(4);
@@ -118,6 +112,28 @@ public class TestScreen extends Screen
             }).build());
 
         wrapper.addChild(second);
+
+        LinearLayout third = LinearLayout.vertical().spacing(4);
+        third.addChild(FrameworkStepper.builder(FrameworkStepper.INT)
+            .setSize(100, 20)
+            .setMinValue(0)
+            .setMaxValue(10)
+            .setSpacing(2)
+            .build());
+        third.addChild(FrameworkStepper.builder(FrameworkStepper.LONG)
+            .setSize(100, 20)
+            .setMinValue(-100L)
+            .setMaxValue(100L)
+            .setBigStep(50L)
+            .setSpacing(2)
+            .build());
+        third.addChild(FrameworkStepper.builder(FrameworkStepper.DOUBLE)
+            .setSize(100, 20)
+            .setMinValue(-5.5)
+            .setMaxValue(10.125)
+            .setSpacing(2)
+            .build());
+        wrapper.addChild(third);
 
         wrapper.arrangeElements();
         wrapper.setPosition(10, 10);
