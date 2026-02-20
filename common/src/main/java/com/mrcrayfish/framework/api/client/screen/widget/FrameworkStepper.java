@@ -2,6 +2,7 @@ package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.google.common.annotations.Beta;
 import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
@@ -59,6 +60,15 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
      * stepping distances, and the initial value.
      */
     public static final Type<LongBuilder> LONG = new Type<>(FrameworkStepper.LongBuilder::new);
+
+    /**
+     * A {@link FrameworkStepper.Type} that produces an {@link FloatBuilder}.
+     *
+     * <p>This is used to create a stepper capable of handling float values. The builder returned
+     * by {@code FrameworkStepper.builder(FrameworkStepper.FLOAT)} allows configuration of bounds,
+     * stepping distances, and the initial value.
+     */
+    public static final Type<FloatBuilder> FLOAT = new Type<>(FrameworkStepper.FloatBuilder::new);
 
     /**
      * A {@link FrameworkStepper.Type} that produces an {@link DoubleBuilder}.
@@ -596,6 +606,47 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     }
 
     /**
+     * Constructs a {@link FrameworkStepper} that handles float values.
+     *
+     * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.FLAT).build()}
+     */
+    public static final class FloatBuilder extends NumberBuilder<FloatBuilder, Float>
+    {
+        private static final DecimalFormat DEFAULT_FORMATTER;
+
+        static
+        {
+            DEFAULT_FORMATTER = new DecimalFormat("0.#");
+            DEFAULT_FORMATTER.setMinimumFractionDigits(1);
+            DEFAULT_FORMATTER.setMaximumFractionDigits(3);
+            DEFAULT_FORMATTER.setDecimalSeparatorAlwaysShown(true);
+        }
+
+        private DecimalFormat formatter = DEFAULT_FORMATTER;
+
+        private FloatBuilder()
+        {
+            this.initialValue = 0.0F;
+            this.minValue = -Float.MAX_VALUE;
+            this.maxValue = Float.MAX_VALUE;
+            this.step = 1.0F;
+            this.bigStep = 10.0F;
+        }
+
+        public FloatBuilder setFormatter(DecimalFormat formatter)
+        {
+            this.formatter = formatter;
+            return this.self();
+        }
+
+        @Override
+        public FrameworkStepper<Float> build()
+        {
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new FloatController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+        }
+    }
+
+    /**
      * Constructs a {@link FrameworkStepper} that handles double values.
      *
      * <p>To start using this builder, begin with the code {@code FrameworkStepper.builder(FrameworkStepper.DOUBLE).build()}
@@ -762,6 +813,30 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         protected Long applyStep(Long value, StepDirection direction, boolean shift)
         {
             long step = shift ? this.bigStep : this.step;
+            return direction == StepDirection.BACKWARDS ? value - step : value + step;
+        }
+    }
+
+    private static final class FloatController extends NumberController<Float>
+    {
+        private final DecimalFormat formatter;
+
+        private FloatController(Float minValue, Float maxValue, Float step, Float bigStep, Float initialValue, @Nullable Consumer<Float> callback, DecimalFormat formatter)
+        {
+            super(minValue, maxValue, step, bigStep, initialValue, callback, Floats::tryParse, value -> Float.toString(value), Double::compare, Mth::clamp);
+            this.formatter = formatter;
+        }
+
+        @Override
+        protected String toText()
+        {
+            return this.formatter.format(this.value);
+        }
+
+        @Override
+        protected Float applyStep(Float value, StepDirection direction, boolean shift)
+        {
+            float step = shift ? this.bigStep : this.step;
             return direction == StepDirection.BACKWARDS ? value - step : value + step;
         }
     }
