@@ -223,6 +223,8 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
 
     protected int getScrollbarHeight()
     {
+        if(this.scrollBarAlwaysVisible && this.getMaxScroll() <= 0)
+            return this.minScrollerHeight;
         int scrollAreaHeight = this.getScrollAreaHeight();
         int scrollBarHeight = (int) (Mth.square(scrollAreaHeight) / (float) this.contentHeight());
         return Mth.clamp(scrollBarHeight, this.minScrollerHeight, scrollAreaHeight);
