@@ -127,6 +127,14 @@ public class TestScreen extends Screen
             .setBigStep(50L)
             .setSpacing(2)
             .build());
+        third.addChild(FrameworkStepper.builder(FrameworkStepper.FLOAT)
+            .setSize(100, 20)
+            .setMinValue(-5.5F)
+            .setMaxValue(10.125F)
+            .setStep(2.5F)
+            .setBigStep(3.75F)
+            .setSpacing(2)
+            .build());
         third.addChild(FrameworkStepper.builder(FrameworkStepper.DOUBLE)
             .setSize(100, 20)
             .setMinValue(-5.5)
