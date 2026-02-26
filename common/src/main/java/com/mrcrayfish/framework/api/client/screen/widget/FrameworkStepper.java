@@ -83,15 +83,17 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     private final FrameworkEditBox valueEditBox;
     private final FrameworkButton backwardsButton;
     private final FrameworkButton forwardsButton;
+    private final @Nullable Supplier<Boolean> activeSupplier;
     private final int spacing;
     private boolean errored;
 
-    private FrameworkStepper(int x, int y, int width, int height, Controller<T> controller, WidgetSprites editBoxBackground, WidgetSprites buttonTexture, int spacing, Icon backwardsIcon, Icon forwardsIcon, int textColour, int erroredTextColour)
+    private FrameworkStepper(int x, int y, int width, int height, Controller<T> controller, WidgetSprites editBoxBackground, WidgetSprites buttonTexture, int spacing, Icon backwardsIcon, Icon forwardsIcon, int textColour, int erroredTextColour, @Nullable Supplier<Boolean> activeSupplier)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         int buttonSize = Math.max(10, height);
         this.spacing = spacing;
         this.controller = controller;
+        this.activeSupplier = activeSupplier;
         Style normalStyle = Style.EMPTY.withColor(textColour);
         Style errorStyle = Style.EMPTY.withColor(erroredTextColour);
         this.valueEditBox = FrameworkEditBox.builder()
@@ -165,6 +167,10 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
+        if(this.activeSupplier != null)
+        {
+            this.active = this.activeSupplier.get();
+        }
         this.children().forEach(listener -> {
             if(listener instanceof AbstractWidget widget) {
                 widget.render(graphics, mouseX, mouseY, partialTick);
@@ -292,6 +298,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         protected @Nullable Consumer<T> callback;
         protected int textColour = 0xFFFFFFFF;
         protected int erroredTextColour = 0xFFFF5555;
+        protected @Nullable Supplier<Boolean> activeSupplier;
 
         private Builder() {}
 
@@ -478,6 +485,19 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
             this.erroredTextColour = colour;
             return this.self();
         }
+
+        /**
+         * Sets a dependency on an arbitrary boolean. This will update the
+         * {@link AbstractWidget#active} property of the stepper.
+         *
+         * @param active a {@link Supplier} returning a {@link Boolean} representing the dependent state
+         * @return this {@link B} for method chaining
+         */
+        public B setDependent(Supplier<Boolean> active)
+        {
+            this.activeSupplier = active;
+            return this.self();
+        }
     }
 
     /**
@@ -578,7 +598,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         @Override
         public FrameworkStepper<Integer> build()
         {
-            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new IntController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new IntController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour, this.activeSupplier);
         }
     }
 
@@ -601,7 +621,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         @Override
         public FrameworkStepper<Long> build()
         {
-            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new LongController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new LongController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour, this.activeSupplier);
         }
     }
 
@@ -642,7 +662,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         @Override
         public FrameworkStepper<Float> build()
         {
-            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new FloatController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new FloatController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour, this.activeSupplier);
         }
     }
 
@@ -683,7 +703,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         @Override
         public FrameworkStepper<Double> build()
         {
-            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new DoubleController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour);
+            return new FrameworkStepper<>(this.x, this.y, this.width, this.height, new DoubleController(this.minValue, this.maxValue, this.step, this.bigStep, this.initialValue, this.callback, this.formatter), this.editBoxBackground, this.buttonTexture, this.spacing, this.backwardsIcon, this.forwardsIcon, this.textColour, this.erroredTextColour, this.activeSupplier);
         }
     }
 
