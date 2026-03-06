@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.client;
 
+import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
 import com.mrcrayfish.framework.api.event.ClientConnectionEvents;
 import com.mrcrayfish.framework.api.event.ClientEvents;
 import com.mrcrayfish.framework.api.event.InputEvents;

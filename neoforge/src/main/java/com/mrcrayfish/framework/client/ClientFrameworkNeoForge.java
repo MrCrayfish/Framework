@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.checkerframework.checker.units.qual.N;
 
 /**
  * Author: MrCrayfish
@@ -22,6 +23,7 @@ public final class ClientFrameworkNeoForge
     {
         ClientBootstrap.init();
         NeoForge.EVENT_BUS.register(new ClientNeoForgeEvents());
+        NeoForge.EVENT_BUS.register(new ClientOverlayEvents());
     }
 
     @SubscribeEvent

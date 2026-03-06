@@ -7,3 +7,5 @@ accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl con
 accessible field net/minecraft/client/multiplayer/ClientHandshakePacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/client/gui/components/AbstractSelectionList scrolling Z
+accessible field net/minecraft/client/gui/screens/Screen deferredTooltipRendering Lnet/minecraft/client/gui/screens/Screen$DeferredTooltipRendering;
+accessible class net/minecraft/client/gui/screens/Screen$DeferredTooltipRendering
