@@ -7,6 +7,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.util.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -16,7 +17,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -40,8 +41,8 @@ import java.util.function.Supplier;
 @Beta
 public class FrameworkStepper<T> extends AbstractContainerWidget
 {
-    private static final ResourceLocation BACKWARDS_SPRITE = Utils.rl("widget/stepper/backwards");
-    private static final ResourceLocation FORWARDS_SPRITE = Utils.rl("widget/stepper/forwards");
+    private static final Identifier BACKWARDS_SPRITE = Utils.rl("widget/stepper/backwards");
+    private static final Identifier FORWARDS_SPRITE = Utils.rl("widget/stepper/forwards");
 
     /**
      * A {@link FrameworkStepper.Type} that produces an {@link IntBuilder}.
@@ -111,7 +112,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
                     this.errored = true;
                 }
             })
-            .setStyleFormatter((text, index) -> {
+            .setTextFormatter((text, index) -> {
                 return FormattedCharSequence.forward(text, this.errored ? errorStyle : normalStyle);
             })
             .setClearOnRightClick(false)
@@ -119,7 +120,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         this.backwardsButton = FrameworkButton.builder()
             .setDependent(() -> this.isActive() && controller.canStep(StepDirection.BACKWARDS))
             .setAction(btn -> {
-                controller.step(StepDirection.BACKWARDS, Screen.hasShiftDown());
+                controller.step(StepDirection.BACKWARDS, Minecraft.getInstance().hasShiftDown());
                 this.valueEditBox.getEditBox().setValue(controller.toText());
             })
             .setSize(buttonSize, buttonSize)
@@ -130,7 +131,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         this.forwardsButton = FrameworkButton.builder()
             .setDependent(() -> this.isActive() && controller.canStep(StepDirection.FORWARDS))
             .setAction(btn -> {
-                controller.step(StepDirection.FORWARDS, Screen.hasShiftDown());
+                controller.step(StepDirection.FORWARDS, Minecraft.getInstance().hasShiftDown());
                 this.valueEditBox.getEditBox().setValue(controller.toText());
             })
             .setSize(buttonSize, buttonSize)
@@ -247,6 +248,18 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         {
             this.getFocused().setFocused(true);
         }
+    }
+
+    @Override
+    protected int contentHeight()
+    {
+        return this.getHeight();
+    }
+
+    @Override
+    protected double scrollRate()
+    {
+        return 0;
     }
 
     private enum StepDirection

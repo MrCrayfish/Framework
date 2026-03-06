@@ -20,6 +20,8 @@
         "client.GameRendererMixin",
         "client.KeyboardHandlerMixin",
         "client.LocalPlayerMixin",
+        "client.MinecraftMixin",
+        "client.MouseHandlerMixin",
         "client.OptionsMixin"
     ],
     "injectors": {

@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.mixin.client;
 
+import com.mrcrayfish.framework.api.client.screen.overlay.OverlayController;
+import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
 import net.minecraft.client.Minecraft;
@@ -66,5 +68,11 @@ public class FabricMinecraftMixin
     {
         Minecraft mc = (Minecraft) (Object) this;
         FrameworkScreenEvents.CLOSED.post().handle(mc.screen);
+
+        if(screen instanceof Overlayable overlayable)
+        {
+            OverlayController controller = overlayable.getOverlayController();
+            controller.closeAll();
+        }
     }
 }
