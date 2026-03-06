@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
@@ -19,11 +18,13 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * An improved version of edit boxes, with support for icons and more customisation options.
@@ -32,7 +33,7 @@ import java.util.function.*;
  */
 public final class FrameworkEditBox extends AbstractContainerWidget
 {
-    private static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
+    public static final WidgetSprites DEFAULT_SPRITES = new WidgetSprites(
         Identifier.withDefaultNamespace("widget/text_field"),
         Identifier.withDefaultNamespace("widget/text_field_highlighted")
     );

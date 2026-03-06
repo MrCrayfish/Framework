@@ -37,6 +37,7 @@ public final class ClientFrameworkNeoForge
     {
         TaskRunner.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
         NeoForge.EVENT_BUS.register(new ClientNeoForgeEvents());
+        NeoForge.EVENT_BUS.register(new ClientOverlayEvents());
     }
 
     @SubscribeEvent

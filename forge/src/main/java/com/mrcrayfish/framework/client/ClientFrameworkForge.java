@@ -22,6 +22,7 @@ public final class ClientFrameworkForge
     {
         ClientBootstrap.init();
         MinecraftForge.EVENT_BUS.register(new ClientForgeEvents());
+        MinecraftForge.EVENT_BUS.register(new ClientOverlayEvents());
     }
 
     @SubscribeEvent

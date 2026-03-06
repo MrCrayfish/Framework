@@ -1,5 +1,7 @@
 package com.mrcrayfish.framework.client;
 
+import com.mrcrayfish.framework.api.client.screen.overlay.OverlayController;
+import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
 import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkClientConnectionEvents;
 import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
@@ -49,6 +51,60 @@ public class FabricClientEvents implements ClientModInitializer
             });
             net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
                 FrameworkScreenEvents.AFTER_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
+            });
+        });
+
+        // Events for overlays
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseClick(screen).register((screen1, event) -> {
+                if(screen1 instanceof Overlayable overlayable) {
+                    OverlayController controller = overlayable.getOverlayController();
+                    if(controller.blocksInput()) {
+                        controller.mouseClicked(event, false); // TODO fix in future. fabric doesn't pass double click flag yet
+                        return false;
+                    }
+                }
+                return true;
+            });
+            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseRelease(screen).register((screen1, event) -> {
+                if(screen1 instanceof Overlayable overlayable) {
+                    OverlayController controller = overlayable.getOverlayController();
+                    if(controller.blocksInput()) {
+                        controller.mouseReleased(event); // TODO fix in future. fabric doesn't pass double click flag yet
+                        return false;
+                    }
+                }
+                return true;
+            });
+            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseScroll(screen).register((screen1, mouseX, mouseY, horizontalAmount, verticalAmount) -> {
+                if(screen1 instanceof Overlayable overlayable) {
+                    OverlayController controller = overlayable.getOverlayController();
+                    if(controller.blocksInput()) {
+                        controller.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+                        return false;
+                    }
+                }
+                return true;
+            });
+            net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents.allowKeyPress(screen).register((screen1, event) -> {
+                if(screen1 instanceof Overlayable overlayable) {
+                    OverlayController controller = overlayable.getOverlayController();
+                    if(controller.blocksInput()) {
+                        controller.keyPressed(event);
+                        return false;
+                    }
+                }
+                return true;
+            });
+            net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents.allowKeyRelease(screen).register((screen1, event) -> {
+                if(screen1 instanceof Overlayable overlayable) {
+                    OverlayController controller = overlayable.getOverlayController();
+                    if(controller.blocksInput()) {
+                        controller.keyReleased(event);
+                        return false;
+                    }
+                }
+                return true;
             });
         });
     }
