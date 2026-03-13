@@ -2,6 +2,8 @@ package com.mrcrayfish.framework.api.client.screen.overlay;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
+import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -30,23 +32,28 @@ public abstract class Window extends Overlay implements LayoutElement
 {
     private final Layout layout;
     private final List<AbstractWidget> widgets;
-    private final int outerMargin;
+    private final Margin outerMargin;
     private final Identifier background;
 
     @SuppressWarnings("unchecked")
-    protected <T extends Window> Window(Function<T, Layout> content, int outerMargin, int contentPadding, Identifier background)
+    protected <T extends Window> Window(Function<T, Layout> content, Margin outerMargin, Padding contentPadding, Identifier background)
     {
         FrameLayout wrapper = new FrameLayout();
         if(content != null)
         {
             Layout layout = content.apply((T) this);
-            wrapper.addChild(layout, s -> s.padding(contentPadding));
+            wrapper.addChild(layout, s -> s.padding(contentPadding.left(), contentPadding.top(), contentPadding.right(), contentPadding.bottom()));
             wrapper.arrangeElements();
         }
         this.layout = wrapper;
-        this.widgets = captureWidgets(layout);
+        this.widgets = captureWidgets(wrapper);
         this.outerMargin = outerMargin;
         this.background = background;
+    }
+
+    public Margin getOuterMargin()
+    {
+        return this.outerMargin;
     }
 
     @Override
@@ -122,8 +129,8 @@ public abstract class Window extends Overlay implements LayoutElement
      */
     protected void clampToBounds(ScreenRectangle bounds)
     {
-        int x = Mth.clamp(this.getX(), this.outerMargin, bounds.width() - this.getWidth() - this.outerMargin);
-        int y = Mth.clamp(this.getY(), this.outerMargin, bounds.height() - this.getHeight() - this.outerMargin);
+        int x = Mth.clamp(this.getX(), this.outerMargin.left(), bounds.width() - this.getWidth() - this.outerMargin.right());
+        int y = Mth.clamp(this.getY(), this.outerMargin.top(), bounds.height() - this.getHeight() - this.outerMargin.bottom());
         this.layout.setPosition(x, y);
     }
 
@@ -152,8 +159,8 @@ public abstract class Window extends Overlay implements LayoutElement
     {
         protected @Nullable Function<T, Layout> layout;
         protected @Nullable Identifier background;
-        protected int outerMargin = 5;
-        protected int contentPadding;
+        protected Margin outerMargin = Margin.of(5);
+        protected Padding contentPadding = Padding.ZERO;
 
         public abstract T build();
 
@@ -190,7 +197,7 @@ public abstract class Window extends Overlay implements LayoutElement
          * @param contentPadding the amount of space in pixels to apply as padding on all sides of the content
          * @return this {@link B} for method chaining
          */
-        public B setContentPadding(int contentPadding)
+        public B setContentPadding(Padding contentPadding)
         {
             this.contentPadding = contentPadding;
             return this.self();
@@ -215,7 +222,7 @@ public abstract class Window extends Overlay implements LayoutElement
          * @param outerMargin the margin in pixels, applied around the entire window
          * @return this {@link B} for method chaining
          */
-        public B setOuterMargin(int outerMargin)
+        public B setOuterMargin(Margin outerMargin)
         {
             this.outerMargin = outerMargin;
             return this.self();
