@@ -41,6 +41,7 @@ public class TestScreen extends FrameworkScreen
             .setPreferredAnchor(Anchor.BELOW_LEFT)
             .setDropdownMinWidth(200)
             .setSearchable(true)
+            .setAllowEmpty(true)
             .setValues(() -> BuiltInRegistries.PARTICLE_TYPE.keySet().stream().sorted(Comparator.comparing(ResourceLocation::toString)).toList())
             .build());
         first.addChild(FrameworkButton.builder()

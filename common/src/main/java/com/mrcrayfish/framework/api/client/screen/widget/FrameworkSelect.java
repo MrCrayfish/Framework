@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Beta
 public final class FrameworkSelect<T> extends AbstractWidget
@@ -63,7 +64,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
     private final @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip;
     private final int tooltipOptions;
     private final @Nullable Consumer<Dropdown.Builder> buildDropdownListener;
-    private final @Nullable Consumer<T> callback;
+    private final @Nullable Consumer<@Nullable T> callback;
     private final LinkedHashMap<String, OptionItem> options;
     private final FrameworkSelectionList list;
     private final FrameworkEditBox searchField;
@@ -74,7 +75,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
     private boolean shiftWasDown;
     private boolean mouseIsHovering;
 
-    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, @Nullable Consumer<T> callback, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable ResourceLocation dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
+    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, boolean allowEmpty, @Nullable Consumer<@Nullable T> callback, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable ResourceLocation dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.type = type;
@@ -91,9 +92,15 @@ public final class FrameworkSelect<T> extends AbstractWidget
         this.buildDropdownListener = buildDropdownListener;
 
         // Build the select options
-        this.options = values.stream()
-            .map(t -> new OptionItem(t, objectToLabel.apply(t)))
-            .collect(Collectors.toMap(OptionItem::getKey, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+        Stream<OptionItem> stream = Stream.concat(
+            allowEmpty ? Stream.of(new OptionItem(null, Component.literal(""))) : Stream.empty(),
+            values.stream().map(t -> new OptionItem(t, objectToLabel.apply(t)))
+        );
+        this.options = stream.collect(Collectors.toMap(OptionItem::getKey, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+
+        // Check for non-empty options when select doesn't allow empty options
+        if(!allowEmpty && this.options.isEmpty())
+            throw new IllegalArgumentException("There must be at least one option when allowEmpty is false");
 
         var horizontalDropdownPadding = dropdownPadding.left() + dropdownPadding.right();
         int widgetWidth = Math.max(width - horizontalDropdownPadding, dropdownMinWidth - horizontalDropdownPadding);
@@ -122,8 +129,11 @@ public final class FrameworkSelect<T> extends AbstractWidget
             buildSearchFieldListener.accept(searchFieldBuilder);
         this.searchField = searchFieldBuilder.build();
 
-        // Use the first option as the selected option
-        this.selected = Optional.ofNullable(this.options.firstEntry()).map(Map.Entry::getValue).orElse(null);
+        if(!allowEmpty)
+        {
+            // Use the first option as the selected option
+            this.selected = Optional.ofNullable(this.options.firstEntry()).map(Map.Entry::getValue).orElse(null);
+        }
 
         this.updateActiveState();
         this.rebuildTooltip();
@@ -148,11 +158,14 @@ public final class FrameworkSelect<T> extends AbstractWidget
      */
     public void setSelected(T selected)
     {
-        OptionItem item = this.options.get(selected.toString());
-        if(item != null)
+        for(OptionItem option : this.options.values())
         {
-            this.selected = item;
-            this.triggerCallback();
+            if(option.value == selected)
+            {
+                this.selected = option;
+                this.triggerCallback();
+                break;
+            }
         }
     }
 
@@ -287,7 +300,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
             int margin = Math.max((this.getHeight() - 8) / 2, 0);
             int maxWidth = (textEnd == -1 ? this.getWidth() - margin : textEnd - 5) - margin;
             Font font = Minecraft.getInstance().font;
-            String label = this.selected.value.toString();
+            String label = this.selected.label.getString();
             if(font.width(label) > maxWidth)
             {
                 label = font.plainSubstrByWidth(label, maxWidth - font.width("...")) + "...";
@@ -368,9 +381,9 @@ public final class FrameworkSelect<T> extends AbstractWidget
     {
         private final String key;
         private final Component label;
-        private final T value;
+        private final @Nullable T value;
 
-        public OptionItem(T value, Component label)
+        public OptionItem(@Nullable T value, Component label)
         {
             this.key = label.getString();
             this.label = label;
@@ -430,7 +443,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
         private int height = 20;
         private boolean allowEmpty;
         private boolean searchable = true;
-        private @Nullable Consumer<T> callback;
+        private @Nullable Consumer<@Nullable T> callback;
         private @Nullable Anchor preferredAnchor;
         private @Nullable WidgetSprites buttonTexture = DEFAULT_SPRITES;
         private Function<FrameworkSelect<T>, @Nullable Icon> iconFunction = btn -> DEFAULT_ICON;
@@ -454,7 +467,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
 
         public FrameworkSelect<T> build()
         {
-            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.callback, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
+            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.allowEmpty, this.callback, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
         }
 
         /**
@@ -582,7 +595,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
          * @param callback the callback to invoke, or {@code null} if no callback is required
          * @return this {@link Builder} instance for method chaining
          */
-        public Builder<T> setCallback(@Nullable Consumer<T> callback)
+        public Builder<T> setCallback(@Nullable Consumer<@Nullable T> callback)
         {
             this.callback = callback;
             return this;
