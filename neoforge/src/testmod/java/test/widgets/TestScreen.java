@@ -41,6 +41,7 @@ public class TestScreen extends FrameworkScreen
             .setSearchable(true)
             .setAllowEmpty(true)
             .setValues(() -> BuiltInRegistries.PARTICLE_TYPE.keySet().stream().sorted(Comparator.comparing(Identifier::toString)).toList())
+            .setInitialValue(Identifier.withDefaultNamespace("bubble"))
             .build());
         first.addChild(FrameworkButton.builder()
                 .setLabel(Component.literal("Normal"))
