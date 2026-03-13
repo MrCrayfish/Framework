@@ -66,6 +66,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
     private final @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip;
     private final int tooltipOptions;
     private final @Nullable Consumer<Dropdown.Builder> buildDropdownListener;
+    private final @Nullable Consumer<T> callback;
     private final LinkedHashMap<String, OptionItem> options;
     private final FrameworkSelectionList list;
     private final FrameworkEditBox searchField;
@@ -76,11 +77,12 @@ public final class FrameworkSelect<T> extends AbstractWidget
     private boolean shiftWasDown;
     private boolean mouseIsHovering;
 
-    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable Identifier dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
+    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, @Nullable Consumer<T> callback, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable Identifier dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.type = type;
         this.searchable = searchable;
+        this.callback = callback;
         this.preferredAnchor = preferredAnchor;
         this.texture = texture;
         this.iconFunction = iconFunction;
@@ -153,6 +155,33 @@ public final class FrameworkSelect<T> extends AbstractWidget
         if(item != null)
         {
             this.selected = item;
+            this.triggerCallback();
+        }
+    }
+
+    /**
+     * Directly sets the selected item for this select. The provided option item must exist in the
+     * valid options, as defined when building the select.
+     *
+     * @param item the option item that represents the value to be selected
+     */
+    private void setSelected(OptionItem item)
+    {
+        if(this.options.containsValue(item))
+        {
+            this.selected = item;
+            this.triggerCallback();
+        }
+    }
+
+    /**
+     * Invokes the callback function associated with the selected value.
+     */
+    private void triggerCallback()
+    {
+        if(this.callback != null && this.selected != null)
+        {
+            this.callback.accept(this.selected.value);
         }
     }
 
@@ -364,7 +393,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
         {
             if(FrameworkSelect.this.dropdown != null)
             {
-                FrameworkSelect.this.selected = this;
+                FrameworkSelect.this.setSelected(this);
                 FrameworkSelect.this.dropdown.close();
                 return true;
             }
@@ -401,6 +430,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
         private int height = 20;
         private boolean allowEmpty;
         private boolean searchable = true;
+        private @Nullable Consumer<T> callback;
         private @Nullable Anchor preferredAnchor;
         private @Nullable WidgetSprites buttonTexture = DEFAULT_SPRITES;
         private Function<FrameworkSelect<T>, @Nullable Icon> iconFunction = btn -> DEFAULT_ICON;
@@ -424,7 +454,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
 
         public FrameworkSelect<T> build()
         {
-            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
+            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.callback, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
         }
 
         /**
@@ -543,6 +573,18 @@ public final class FrameworkSelect<T> extends AbstractWidget
         public Builder<T> setSearchable(boolean searchable)
         {
             this.searchable = searchable;
+            return this;
+        }
+
+        /**
+         * Sets the callback when the selected value of the select is updated
+         *
+         * @param callback the callback to invoke, or {@code null} if no callback is required
+         * @return this {@link Builder} instance for method chaining
+         */
+        public Builder<T> setCallback(@Nullable Consumer<T> callback)
+        {
+            this.callback = callback;
             return this;
         }
 
