@@ -1,5 +1,8 @@
 package test.widgets;
 
+import com.mrcrayfish.framework.api.client.screen.Anchor;
+import com.mrcrayfish.framework.api.client.screen.FrameworkScreen;
+import com.mrcrayfish.framework.api.client.screen.overlay.impl.Modal;
 import com.mrcrayfish.framework.api.client.screen.widget.*;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import net.minecraft.ChatFormatting;
@@ -7,14 +10,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
 
-public class TestScreen extends Screen
+import java.util.Comparator;
+import java.util.List;
+
+public class TestScreen extends FrameworkScreen
 {
     protected TestScreen()
     {
@@ -29,10 +36,44 @@ public class TestScreen extends Screen
         LinearLayout wrapper = LinearLayout.horizontal().spacing(4);
 
         LinearLayout first = LinearLayout.vertical().spacing(2);
-        first.addChild(FrameworkButton.builder()
+        first.addChild(FrameworkSelect.builder(ResourceLocation.class, rl -> Component.literal(rl.toString()))
             .setSize(100, 20)
-            .setLabel(Component.literal("Normal"))
+            .setPreferredAnchor(Anchor.BELOW_LEFT)
+            .setDropdownMinWidth(200)
+            .setSearchable(true)
+            .setValues(() -> BuiltInRegistries.PARTICLE_TYPE.keySet().stream().sorted(Comparator.comparing(ResourceLocation::toString)).toList())
             .build());
+        first.addChild(FrameworkButton.builder()
+                .setLabel(Component.literal("Normal"))
+            .setSize(100, 20)
+            .setAction(btn -> {
+                LinearLayout content = LinearLayout.vertical().spacing(4);
+                content.addChild(FrameworkEditBox.builder()
+                    .setSize(150, 20)
+                    .setHint(Component.literal("Search..."))
+                    .build());
+                content.addChild(FrameworkSelectionList.builder()
+                    .setSize(150, 100)
+                    .setItemHeight(16)
+                    .setScrollBarStyle(FrameworkSelectionList.ScrollBarStyle.MERGED)
+                    .setScrollBarAlwaysVisible(true)
+                    .setInitialItems(items -> {
+                        items.accept(new TitleItem(Component.literal("Fruits")));
+                        items.accept(new TextItem("Apple"));
+                        items.accept(new TextItem("Banana"));
+                        items.accept(new TextItem("Orange"));
+                        items.accept(new TextItem("Mango"));
+                        items.accept(new TextItem("Apple"));
+                        items.accept(new TextItem("Banana"));
+                        items.accept(new TextItem("Orange"));
+                        items.accept(new TextItem("Mango"));
+                        items.accept(new TextItem("Apple"));
+                        items.accept(new TextItem("Banana"));
+                        items.accept(new TextItem("Orange"));
+                        items.accept(new TextItem("Mango"));
+                    }).build());
+                Modal.builder().setContent(content).build().show();
+            }).build());
         MutableBoolean state = new MutableBoolean();
         first.addChild(Buttons.createOnOff(Component.literal("Toggle"), state::getValue, state::setValue)
             .setSize(100, 20)
@@ -53,10 +94,6 @@ public class TestScreen extends Screen
             .setLabel(Component.literal("Tooltip"))
             .setTooltip(btn -> Tooltip.create(Component.literal("It is wednesday my dudes")))
             .setTooltipOptions(TooltipOptions.REBUILD_TOOLTIP_ON_WIDGET_HOVER)
-            .build());
-        first.addChild(FrameworkEditBox.builder()
-            .setSize(100, 40)
-            .setInitialText("Stone Axe")
             .build());
         first.addChild(FrameworkEditBox.builder()
             .setSize(100, 20)

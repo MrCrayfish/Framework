@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -422,6 +423,16 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         {
             this.clampScrollAmount();
         }
+    }
+
+    public void replaceItems(Collection<Item> items)
+    {
+        super.replaceEntries(items);
+    }
+
+    public void scrollToItem(Item item)
+    {
+        super.centerScrollOn(item);
     }
 
     public Item getEntry(double mouseX, double mouseY)
