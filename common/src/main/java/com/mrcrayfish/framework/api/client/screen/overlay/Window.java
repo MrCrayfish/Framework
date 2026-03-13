@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.overlay;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
@@ -28,6 +29,7 @@ import java.util.function.Function;
  * optionally be padded. A window comes with base customisation options, like setting the background
  * texture and applying a margin around the window.
  */
+@Beta
 public abstract class Window extends Overlay implements LayoutElement
 {
     private final Layout layout;

@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.overlay;
 
+import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +15,7 @@ import java.util.function.Consumer;
 /**
  * Represents a visual overlay that can be displayed on an {@link Overlayable} screen.
  */
+@Beta
 public abstract class Overlay
 {
     @Nullable Overlayable owner;
