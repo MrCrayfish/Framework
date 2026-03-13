@@ -7,5 +7,3 @@ accessible field net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl
 accessible method net/minecraft/client/gui/components/AbstractSelectionList getFirstEntryY ()I
 accessible method net/minecraft/client/renderer/item/CuboidItemModelWrapper <init> (Ljava/util/List;Lnet/minecraft/client/resources/model/geometry/QuadCollection;Lnet/minecraft/client/renderer/item/ModelRenderProperties;Lorg/joml/Matrix4fc;)V
 accessible field net/minecraft/client/gui/components/AbstractScrollArea scrolling Z
-accessible field net/minecraft/client/gui/screens/Screen deferredTooltipRendering Lnet/minecraft/client/gui/screens/Screen$DeferredTooltipRendering;
-accessible class net/minecraft/client/gui/screens/Screen$DeferredTooltipRendering
