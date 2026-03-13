@@ -9,5 +9,3 @@ accessible method net/minecraft/client/renderer/item/BlockModelWrapper <init> (L
 accessible method net/minecraft/client/renderer/item/BlockModelWrapper detectRenderType (Ljava/util/List;)Ljava/util/function/Function;
 accessible method net/minecraft/client/gui/components/AbstractSelectionList getFirstEntryY ()I
 accessible field net/minecraft/client/gui/components/AbstractScrollArea scrolling Z
-accessible field net/minecraft/client/gui/screens/Screen deferredTooltipRendering Lnet/minecraft/client/gui/screens/Screen$DeferredTooltipRendering;
-accessible class net/minecraft/client/gui/screens/Screen$DeferredTooltipRendering
