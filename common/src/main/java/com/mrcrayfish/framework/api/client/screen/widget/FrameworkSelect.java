@@ -75,7 +75,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
     private boolean shiftWasDown;
     private boolean mouseIsHovering;
 
-    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, boolean allowEmpty, @Nullable Consumer<@Nullable T> callback, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable ResourceLocation dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
+    private FrameworkSelect(int x, int y, int width, int height, Class<T> type, Function<T, Component> objectToLabel, List<T> values, boolean searchable, boolean allowEmpty, @Nullable T initialValue, @Nullable Consumer<@Nullable T> callback, @Nullable Anchor preferredAnchor, @Nullable WidgetSprites texture, Function<FrameworkSelect<T>, @Nullable Icon> iconFunction, @Nullable ResourceLocation dropdownBackground, Padding dropdownPadding, int dropdownMinWidth, int visibleListItems, @Nullable Supplier<Boolean> active, @Nullable Function<FrameworkSelect<T>, Tooltip> tooltip, int tooltipDelay, int tooltipOptions, @Nullable Consumer<FrameworkSelectionList.Builder> buildOptionListListener, @Nullable Consumer<FrameworkEditBox.Builder> buildSearchFieldListener, @Nullable Consumer<Dropdown.Builder> buildDropdownListener)
     {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.type = type;
@@ -97,10 +97,6 @@ public final class FrameworkSelect<T> extends AbstractWidget
             values.stream().map(t -> new OptionItem(t, objectToLabel.apply(t)))
         );
         this.options = stream.collect(Collectors.toMap(OptionItem::getKey, Function.identity(), (a, b) -> a, LinkedHashMap::new));
-
-        // Check for non-empty options when select doesn't allow empty options
-        if(!allowEmpty && this.options.isEmpty())
-            throw new IllegalArgumentException("There must be at least one option when allowEmpty is false");
 
         var horizontalDropdownPadding = dropdownPadding.left() + dropdownPadding.right();
         int widgetWidth = Math.max(width - horizontalDropdownPadding, dropdownMinWidth - horizontalDropdownPadding);
@@ -129,11 +125,26 @@ public final class FrameworkSelect<T> extends AbstractWidget
             buildSearchFieldListener.accept(searchFieldBuilder);
         this.searchField = searchFieldBuilder.build();
 
-        if(!allowEmpty)
+        // Try and set the initial value (as long as it's a valid value)
+        if(initialValue != null)
+        {
+            this.options.values().stream()
+                .filter(item -> initialValue.equals(item.value))
+                .findAny()
+                .ifPresent(item -> this.selected = item);
+        }
+
+        // If the select doesn't allow empty values, try and select the first possible value in the options
+        if(!allowEmpty && this.selected == null)
         {
             // Use the first option as the selected option
             this.selected = Optional.ofNullable(this.options.firstEntry()).map(Map.Entry::getValue).orElse(null);
         }
+
+        // Validate that a value was selected if select doesn't allow empty. This can only happen if
+        // the select wasn't configured with any options in the Builder class.
+        if(!allowEmpty && this.selected == null)
+            throw new IllegalArgumentException("There must be at least one option when allowEmpty is false");
 
         this.updateActiveState();
         this.rebuildTooltip();
@@ -443,6 +454,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
         private int height = 20;
         private boolean allowEmpty;
         private boolean searchable = true;
+        private @Nullable T initialValue;
         private @Nullable Consumer<@Nullable T> callback;
         private @Nullable Anchor preferredAnchor;
         private @Nullable WidgetSprites buttonTexture = DEFAULT_SPRITES;
@@ -467,7 +479,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
 
         public FrameworkSelect<T> build()
         {
-            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.allowEmpty, this.callback, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
+            return new FrameworkSelect<>(this.x, this.y, this.width, this.height, this.type, this.valueToLabel, this.values.get(), this.searchable, this.allowEmpty, this.initialValue, this.callback, this.preferredAnchor, this.buttonTexture, this.iconFunction, this.dropdownBackground, this.dropdownPadding, this.dropdownMinWidth, this.visibleListItems, this.active, this.tooltip, this.tooltipDelay, this.tooltipOptions, this.buildOptionListListener, this.buildSearchFieldListener, this.buildDropdownListener);
         }
 
         /**
@@ -586,6 +598,18 @@ public final class FrameworkSelect<T> extends AbstractWidget
         public Builder<T> setSearchable(boolean searchable)
         {
             this.searchable = searchable;
+            return this;
+        }
+
+        /**
+         * Sets the initial value for the select.
+         *
+         * @param initialValue the initial value to be set
+         * @return this {@link Builder} instance for method chaining
+         */
+        public Builder<T> setInitialValue(T initialValue)
+        {
+            this.initialValue = initialValue;
             return this;
         }
 
