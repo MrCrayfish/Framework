@@ -78,7 +78,7 @@ public abstract class Overlay
      * @param positioner a consumer that accepts a {@link ScreenRectangle}; used for post positioning
      *                   of elements after opening
      */
-    public final void open(Consumer<ScreenRectangle> positioner)
+    public final void show(Consumer<ScreenRectangle> positioner)
     {
         Screen screen = Minecraft.getInstance().screen;
         if(screen instanceof Overlayable overlayable)

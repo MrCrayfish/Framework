@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -484,6 +485,16 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
             this.ignoreReposition = false;
             this.repositionItems();
         }
+    }
+
+    public void replaceItems(Collection<Item> items)
+    {
+        super.replaceEntries(items);
+    }
+
+    public void scrollToItem(Item item)
+    {
+        super.centerScrollOn(item);
     }
 
     @Override
