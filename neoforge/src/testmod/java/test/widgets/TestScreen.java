@@ -70,7 +70,7 @@ public class TestScreen extends FrameworkScreen
                         items.accept(new TextItem("Orange"));
                         items.accept(new TextItem("Mango"));
                     }).build());
-                Modal.builder().setContent(content).build().show();
+                Modal.builder().setContent(content).build().show(Modal.Position.TOP);
             }).build());
         MutableBoolean state = new MutableBoolean();
         first.addChild(Buttons.createOnOff(Component.literal("Toggle"), state::getValue, state::setValue)

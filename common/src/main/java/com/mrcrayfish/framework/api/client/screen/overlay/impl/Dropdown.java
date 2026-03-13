@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.overlay.impl;
 
+import com.google.common.annotations.Beta;
 import com.mrcrayfish.framework.api.client.screen.Anchor;
 import com.mrcrayfish.framework.api.client.screen.overlay.Window;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+@Beta
 public final class Dropdown extends Window
 {
     private Dropdown(@Nullable Function<Dropdown, Layout> content, Margin outerMargin, Padding contentPadding, Identifier background)
