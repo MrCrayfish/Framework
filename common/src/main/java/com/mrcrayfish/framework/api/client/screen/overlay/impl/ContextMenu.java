@@ -7,7 +7,7 @@ import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.layouts.Layout;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 @Beta
 public final class ContextMenu extends Window
 {
-    private ContextMenu(@Nullable Function<ContextMenu, Layout> content, Margin outerMargin, Padding contentPadding, ResourceLocation background)
+    private ContextMenu(@Nullable Function<ContextMenu, Layout> content, Margin outerMargin, Padding contentPadding, Identifier background)
     {
         super(content, outerMargin, contentPadding, background);
     }
