@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.api.client.screen.overlay.Window;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import net.minecraft.client.gui.layouts.Layout;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -13,7 +13,7 @@ import java.util.function.Function;
 @Beta
 public final class Modal extends Window
 {
-    private Modal(@Nullable Function<Modal, Layout> layout, Margin outerMargin, Padding contentPadding, @Nullable ResourceLocation background)
+    private Modal(@Nullable Function<Modal, Layout> layout, Margin outerMargin, Padding contentPadding, @Nullable Identifier background)
     {
         super(layout, outerMargin, contentPadding, background);
     }
