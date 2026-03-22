@@ -16,7 +16,8 @@
         "client": [
             "test.dataloader.DataLoaderTest",
             "test.openmodeldata.ClientOpenModelDataTest",
-            "test.standalonemodel.ClientStandaloneModelTest"
+            "test.standalonemodel.ClientStandaloneModelTest",
+            "test.widgets.WidgetsTestClient"
         ]
     },
     "custom": {
