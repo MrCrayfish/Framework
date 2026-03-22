@@ -3,7 +3,7 @@ package com.mrcrayfish.framework.api.client.screen.overlay;
 import com.google.common.annotations.Beta;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
@@ -41,23 +41,23 @@ public abstract class Overlay
     /**
      * The main overlay render call. Implementation specific.
      *
-     * @param graphics    a {@link GuiGraphics} instance
+     * @param extractor   a {@link GuiGraphicsExtractor} instance
      * @param mouseX      the current x position of the mouse
      * @param mouseY      the current y position of the mouse
      * @param partialTick the current partial tick
      */
-    public abstract void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
+    public abstract void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick);
 
     /**
      * Renders the background for this overlay. The default implementation will fill the entire
      * viewport with a semi-transparent black colour.
      *
-     * @param graphics a {@link GuiGraphics} instance used for rendering
+     * @param extractor a {@link GuiGraphicsExtractor} instance used for rendering
      */
-    public void renderBackground(GuiGraphics graphics)
+    public void renderBackground(GuiGraphicsExtractor extractor)
     {
         Window window = Minecraft.getInstance().getWindow();
-        graphics.fill(0, 0, window.getWidth(), window.getHeight(), 0x50000000);
+        extractor.fill(0, 0, window.getWidth(), window.getHeight(), 0x50000000);
     }
 
     /**

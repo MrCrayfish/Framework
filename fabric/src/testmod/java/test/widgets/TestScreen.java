@@ -7,7 +7,7 @@ import com.mrcrayfish.framework.api.client.screen.widget.*;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -195,10 +195,10 @@ public class TestScreen extends FrameworkScreen
         }
 
         @Override
-        protected void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
+        protected void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
         {
             int textY = this.getContentY() + (this.getContentHeight() - 8) / 2;
-            graphics.drawString(Minecraft.getInstance().font, this.text, this.getContentX() + 5, textY, 0xFFFFFFFF);
+            extractor.text(Minecraft.getInstance().font, this.text, this.getContentX() + 5, textY, 0xFFFFFFFF);
         }
     }
 
@@ -218,13 +218,13 @@ public class TestScreen extends FrameworkScreen
         }
 
         @Override
-        protected void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
+        protected void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
         {
             int textY = this.getContentY() + (this.getContentHeight() - 8) / 2;
-            graphics.drawCenteredString(Minecraft.getInstance().font, this.text, this.getContentX() + this.getContentWidth() / 2, textY, 0xFFFFFFFF);
+            extractor.centeredText(Minecraft.getInstance().font, this.text, this.getContentX() + this.getContentWidth() / 2, textY, 0xFFFFFFFF);
         }
 
         @Override
-        protected void renderBackground(FrameworkSelectionList.@Nullable ItemSprites sprites, GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected) {}
+        protected void extractBackground(FrameworkSelectionList.@Nullable ItemSprites sprites, GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected) {}
     }
 }

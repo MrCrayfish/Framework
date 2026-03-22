@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.api.client.screen.overlay.Window;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -29,9 +29,9 @@ public final class ContextMenu extends Window
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics)
+    public void renderBackground(GuiGraphicsExtractor extractor)
     {
         var window = Minecraft.getInstance().getWindow();
-        graphics.fill(0, 0, window.getWidth(), window.getHeight(), 0x20000000);
+        extractor.fill(0, 0, window.getWidth(), window.getHeight(), 0x20000000);
     }
 }

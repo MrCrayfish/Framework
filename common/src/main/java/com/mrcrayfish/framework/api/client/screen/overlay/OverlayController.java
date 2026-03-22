@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.overlay;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.KeyEvent;
@@ -151,21 +150,21 @@ public final class OverlayController implements ContainerEventHandler
     /**
      * Renders all overlays managed by this controller.
      *
-     * @param graphics    the {@link GuiGraphics} instance used for drawing operations
+     * @param extractor   the {@link GuiGraphicsExtractor} instance used for drawing operations
      * @param mouseX      the current x position of the mouse cursor
      * @param mouseY      the current y position of the mouse cursor
      * @param partialTick the interpolation factor between ticks, used for smooth animations
      */
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
-        Matrix3x2fStack pose = graphics.pose();
+        Matrix3x2fStack pose = extractor.pose();
         for(Overlay overlay : this.stack)
         {
             // Translate on z so overlays don't mess with each other on depth buffer
             // This is terrible but solved once updated to 1.21.11+
-            graphics.nextStratum(); // TODO 1.12.11 TEST
-            overlay.renderBackground(graphics);
-            overlay.render(graphics, mouseX, mouseY, partialTick);
+            extractor.nextStratum(); // TODO 1.12.11 TEST
+            overlay.renderBackground(extractor);
+            overlay.render(extractor, mouseX, mouseY, partialTick);
         }
     }
 

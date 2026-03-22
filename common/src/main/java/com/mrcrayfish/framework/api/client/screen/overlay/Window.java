@@ -2,10 +2,9 @@ package com.mrcrayfish.framework.api.client.screen.overlay;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Margin;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
@@ -107,13 +106,13 @@ public abstract class Window extends Overlay implements LayoutElement
     }
 
     @Override
-    public final void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public final void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         if(this.background != null)
         {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.background, this.layout.getX(), this.layout.getY(), this.layout.getWidth(), this.layout.getHeight());
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, this.background, this.layout.getX(), this.layout.getY(), this.layout.getWidth(), this.layout.getHeight());
         }
-        this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
+        this.widgets.forEach(widget -> widget.extractRenderState(extractor, mouseX, mouseY, partialTick));
     }
 
     @Override

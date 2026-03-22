@@ -1,7 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.google.common.annotations.Beta;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.api.client.screen.Anchor;
 import com.mrcrayfish.framework.api.client.screen.overlay.impl.Dropdown;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
@@ -10,14 +9,13 @@ import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
@@ -283,14 +281,14 @@ public final class FrameworkSelect<T> extends AbstractWidget
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractWidgetRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         this.updateActiveState();
         this.updateTooltip();
         if(this.texture != null)
         {
             float alpha = this.active ? 1.0F : 0.75F;
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.texture.get(this.active, this.isHoveredOrFocused() && this.active), this.getX(), this.getY(), this.getWidth(), this.getHeight(), alpha);
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, this.texture.get(this.active, this.isHoveredOrFocused() && this.active), this.getX(), this.getY(), this.getWidth(), this.getHeight(), alpha);
         }
         int textEnd = -1;
         if(this.iconFunction != null)
@@ -302,7 +300,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
                 int iconX = this.getX() + this.getWidth() - icon.width() - margin;
                 int iconY = this.getY() + margin;
                 int alpha = ARGB.white(this.active ? 1.0F : 0.5F);
-                icon.draw(graphics, iconX, iconY, alpha, partialTick);
+                icon.draw(extractor, iconX, iconY, alpha, partialTick);
                 textEnd = iconX;
             }
         }
@@ -316,7 +314,7 @@ public final class FrameworkSelect<T> extends AbstractWidget
             {
                 label = font.plainSubstrByWidth(label, maxWidth - font.width("...")) + "...";
             }
-            graphics.drawString(Minecraft.getInstance().font, label, this.getX() + margin, this.getY() + margin, 0xFFFFFFFF);
+            extractor.text(Minecraft.getInstance().font, label, this.getX() + margin, this.getY() + margin, 0xFFFFFFFF);
         }
     }
 
@@ -425,16 +423,16 @@ public final class FrameworkSelect<T> extends AbstractWidget
         }
 
         @Override
-        protected void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
+        protected void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick)
         {
-            graphics.drawCenteredString(Minecraft.getInstance().font, this.label, this.getX() + this.getWidth() / 2, this.getY() + 4, 0xFFFFFFFF);
+            extractor.centeredText(Minecraft.getInstance().font, this.label, this.getX() + this.getWidth() / 2, this.getY() + 4, 0xFFFFFFFF);
         }
 
         @Override
-        protected void renderBackground(FrameworkSelectionList.@Nullable ItemSprites sprites, GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected)
+        protected void extractBackground(FrameworkSelectionList.@Nullable ItemSprites sprites, GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected)
         {
             selected = (FrameworkSelect.this.selected == this) || hovered;
-            super.renderBackground(sprites, graphics, mouseX, mouseY, hovered, selected);
+            super.extractBackground(sprites, extractor, mouseX, mouseY, hovered, selected);
         }
     }
 

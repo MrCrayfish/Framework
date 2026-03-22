@@ -6,9 +6,7 @@ import com.mrcrayfish.framework.api.client.screen.overlay.OverlayController;
 import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
 import com.mrcrayfish.framework.api.event.client.FrameworkClientTickEvents;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,8 +32,8 @@ public class GameRendererMixin
         FrameworkClientTickEvents.END_RENDER.post().handle(timer);
     }
 
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;renderWithTooltipAndSubtitles(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-    private void onRenderScreen(Screen screen, GuiGraphics graphics, int mouseX, int mouseY, float partialTick, Operation<Void> operation)
+    @WrapOperation(method = "extractGui", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;extractRenderStateWithTooltipAndSubtitles(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"))
+    private void onRenderScreen(Screen screen, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick, Operation<Void> operation)
     {
         if(screen instanceof Overlayable overlayable)
         {
@@ -44,16 +42,16 @@ public class GameRendererMixin
             int overrideMouseX = controller.blocksInput() ? 1000000 : mouseX;
             int overrideMouseY = controller.blocksInput() ? 1000000 : mouseY;
 
-            graphics.nextStratum();
-            screen.renderBackground(graphics, overrideMouseX, overrideMouseY, partialTick);
-            graphics.nextStratum();
-            screen.render(graphics, overrideMouseX, overrideMouseY, partialTick);
-            overlayable.getOverlayController().render(graphics, mouseX, mouseY, partialTick);
-            graphics.renderDeferredElements();
+            extractor.nextStratum();
+            screen.extractBackground(extractor, overrideMouseX, overrideMouseY, partialTick);
+            extractor.nextStratum();
+            screen.extractRenderState(extractor, overrideMouseX, overrideMouseY, partialTick);
+            overlayable.getOverlayController().render(extractor, mouseX, mouseY, partialTick);
+            extractor.extractDeferredElements(mouseX, mouseY, partialTick);
         }
         else
         {
-            operation.call(screen, graphics, mouseX, mouseY, partialTick);
+            operation.call(screen, extractor, mouseX, mouseY, partialTick);
         }
     }
 }

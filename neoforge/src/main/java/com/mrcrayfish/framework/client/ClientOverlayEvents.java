@@ -2,9 +2,7 @@ package com.mrcrayfish.framework.client;
 
 import com.mrcrayfish.framework.api.client.screen.overlay.OverlayController;
 import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,13 +24,13 @@ public final class ClientOverlayEvents
             int overrideMouseX = controller.blocksInput() ? 1000000 : event.getMouseX();
             int overrideMouseY = controller.blocksInput() ? 1000000 : event.getMouseY();
 
-            GuiGraphics graphics = event.getGuiGraphics();
+            GuiGraphicsExtractor graphics = event.getGuiGraphics();
             graphics.nextStratum();
-            screen.renderBackground(graphics, overrideMouseX, overrideMouseY, event.getPartialTick());
+            screen.extractBackground(graphics, overrideMouseX, overrideMouseY, event.getPartialTick());
             graphics.nextStratum();
-            screen.render(graphics, overrideMouseX, overrideMouseY, event.getPartialTick());
+            screen.extractRenderState(graphics, overrideMouseX, overrideMouseY, event.getPartialTick());
             overlayable.getOverlayController().render(graphics, event.getMouseX(), event.getMouseY(), event.getPartialTick());
-            graphics.renderDeferredElements();
+            graphics.extractDeferredElements(event.getMouseX(), event.getMouseY(), event.getPartialTick());
         }
     }
 

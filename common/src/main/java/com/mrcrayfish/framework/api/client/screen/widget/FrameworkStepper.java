@@ -8,13 +8,13 @@ import com.google.common.primitives.Longs;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.AbstractScrollArea;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
@@ -90,7 +90,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
 
     private FrameworkStepper(int x, int y, int width, int height, Controller<T> controller, WidgetSprites editBoxBackground, WidgetSprites buttonTexture, int spacing, Icon backwardsIcon, Icon forwardsIcon, int textColour, int erroredTextColour, @Nullable Supplier<Boolean> activeSupplier)
     {
-        super(x, y, width, height, CommonComponents.EMPTY);
+        super(x, y, width, height, CommonComponents.EMPTY, AbstractScrollArea.defaultSettings(0));
         int buttonSize = Math.max(10, height);
         this.spacing = spacing;
         this.controller = controller;
@@ -166,7 +166,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractWidgetRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         if(this.activeSupplier != null)
         {
@@ -174,7 +174,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         }
         this.children().forEach(listener -> {
             if(listener instanceof AbstractWidget widget) {
-                widget.render(graphics, mouseX, mouseY, partialTick);
+                widget.extractRenderState(extractor, mouseX, mouseY, partialTick);
             }
         });
     }
