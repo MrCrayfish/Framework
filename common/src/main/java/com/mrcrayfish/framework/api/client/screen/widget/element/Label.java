@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.api.client.screen.widget.element;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
@@ -38,13 +38,13 @@ public abstract class Label
     /**
      * Draws the label at the specified position with the given colour and shadow option.
      *
-     * @param graphics a {@link GuiGraphics} instance
+     * @param graphics a {@link GuiGraphicsExtractor} instance
      * @param x        the x pos to draw the label
      * @param y        the y pos to draw the label
      * @param colour   the colour to apply to the text
      * @param shadow   true if the text should be drawn with a shadow
      */
-    public abstract void draw(GuiGraphics graphics, int x, int y, int colour, boolean shadow);
+    public abstract void draw(GuiGraphicsExtractor graphics, int x, int y, int colour, boolean shadow);
 
     /**
      * Creates a {@link Label} with the provided text
@@ -103,9 +103,9 @@ public abstract class Label
         }
 
         @Override
-        public void draw(GuiGraphics graphics, int x, int y, int colour, boolean shadow)
+        public void draw(GuiGraphicsExtractor extractor, int x, int y, int colour, boolean shadow)
         {
-            graphics.drawString(this.font, this.text.get(), x, y, colour, shadow);
+            extractor.text(this.font, this.text.get(), x, y, colour, shadow);
         }
     }
 }

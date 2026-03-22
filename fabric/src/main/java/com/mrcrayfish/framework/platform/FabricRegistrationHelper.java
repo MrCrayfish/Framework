@@ -11,11 +11,11 @@ import com.mrcrayfish.framework.api.registry.RegistryContainer;
 import com.mrcrayfish.framework.platform.services.IRegistrationHelper;
 import com.mrcrayfish.framework.registry.VanillaRegistryProxy;
 import com.mrcrayfish.framework.util.ReflectionUtils;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
@@ -67,7 +67,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
         // Registers custom registries using Fabric's registry builder
         Services.REGISTRATION.getRegistryObjects(FrameworkRegistry.class).forEach(registry -> {
             Constants.LOG.debug("Registering custom registry: {}", registry.getKey().identifier());
-            var builder = FabricRegistryBuilder.createSimple(registry.getKey());
+            var builder = FabricRegistryBuilder.create(registry.getKey());
             if(registry.shouldSync()) builder.attribute(RegistryAttribute.SYNCED);
             registry.setProxy(VanillaRegistryProxy.wrap(builder.buildAndRegister()));
         });
@@ -206,7 +206,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     @Override
     public <T extends AbstractContainerMenu, D extends IMenuData<D>> MenuType<T> createMenuTypeWithData(StreamCodec<RegistryFriendlyByteBuf, D> codec, TriFunction<Integer, Inventory, D, T> function)
     {
-        return new ExtendedScreenHandlerType<>(function::apply, codec);
+        return new ExtendedMenuType<>(function::apply, codec);
     }
 
     @Override
@@ -220,7 +220,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
     @Override
     public CreativeModeTab.Builder createCreativeModeTabBuilder()
     {
-        return FabricItemGroup.builder();
+        return FabricCreativeModeTab.builder();
     }
 
     private static class AnnotationDataCollector extends ClassVisitor

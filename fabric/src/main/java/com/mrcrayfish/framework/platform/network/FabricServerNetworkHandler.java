@@ -26,7 +26,7 @@ public class FabricServerNetworkHandler
     public static <T> void receiveConfiguration(ConfigurationMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ServerConfigurationNetworking.Context context)
     {
         ConfigurationMessageContext ctx = new ConfigurationMessageContext(message.flow(), context.server(), context.responseSender()::disconnect, b -> {}, s -> {
-            context.networkHandler().completeTask(new ConfigurationTask.Type(s));
+            context.packetListener().completeTask(new ConfigurationTask.Type(s));
         });
         message.handler().accept(payload.msg(), ctx);
         ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(network.encode(msg)));

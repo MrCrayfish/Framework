@@ -40,11 +40,11 @@ public class FabricConfigurationTask<T> implements ConfigurationTask
     {
         Constants.LOG.debug(ConfigurationMessage.MARKER, "Sending configuration task '%s'".formatted(this.type.id()));
         this.messages.get().forEach(msg -> {
-            consumer.accept(ServerPlayNetworking.createS2CPacket(this.network.encode(msg)));
+            consumer.accept(ServerPlayNetworking.createClientboundPacket(this.network.encode(msg)));
         });
         if(!this.completeImmediately)
         {
-            consumer.accept(ServerPlayNetworking.createS2CPacket(
+            consumer.accept(ServerPlayNetworking.createClientboundPacket(
                 this.network.encode(new FinishedConfigurationTask(this.type, FinishedConfigurationTask.Action.AWAIT))
             ));
             return;

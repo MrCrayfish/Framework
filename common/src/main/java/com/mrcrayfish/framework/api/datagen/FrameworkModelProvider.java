@@ -4,7 +4,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Maps;
 import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.data.models.model.ModelInstance;
-import net.minecraft.client.renderer.block.model.BlockModelDefinition;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -38,7 +38,6 @@ public class FrameworkModelProvider implements DataProvider
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public CompletableFuture<?> run(CachedOutput output)
     {
         Map<Block, BlockModelDefinitionGenerator> generators = new HashMap<>();
@@ -46,11 +45,14 @@ public class FrameworkModelProvider implements DataProvider
         Map<Identifier, ModelInstance> models = new HashMap<>();
         for(FrameworkGenerator.Factory<? extends FrameworkGenerator> generator : this.generators)
             generator.apply(generators, clientItems, models).generate();
+        //noinspection DataFlowIssue,NullableProblems
         return CompletableFuture.allOf(
-            DataProvider.saveAll(output, BlockModelDefinition.CODEC, block -> {
+            DataProvider.saveAll(output, BlockStateModelDispatcher.CODEC, block -> {
+                //noinspection deprecation
                 return this.blockstates.json(block.builtInRegistryHolder().key().identifier());
             }, Maps.transformValues(generators, BlockModelDefinitionGenerator::create)),
             DataProvider.saveAll(output, ClientItem.CODEC, item -> {
+                //noinspection deprecation
                 return this.items.json(item.builtInRegistryHolder().key().identifier());
             }, clientItems),
             DataProvider.saveAll(output, Supplier::get, this.models::json, models)

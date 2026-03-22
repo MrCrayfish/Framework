@@ -34,7 +34,7 @@ public class ClientNeoForgeEvents
     {
         if(event.getScreen() instanceof ContainerScreen screen)
         {
-            FrameworkScreenEvents.AFTER_DRAW_CONTAINER_BACKGROUND.post().handle(screen, event.getGuiGraphics(), event.getMouseX(), event.getMouseY());
+            FrameworkScreenEvents.AFTER_EXTRACT_BACKGROUND.post().handle(screen, event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
         }
     }
 
@@ -87,13 +87,13 @@ public class ClientNeoForgeEvents
     @SubscribeEvent
     public void onScreenRenderPre(ScreenEvent.Render.Pre event)
     {
-        FrameworkScreenEvents.BEFORE_DRAW.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        FrameworkScreenEvents.BEFORE_EXTRACT.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
     }
 
     @SubscribeEvent
     public void onScreenRenderPost(ScreenEvent.Render.Post event)
     {
-        FrameworkScreenEvents.AFTER_DRAW.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+        FrameworkScreenEvents.AFTER_EXTRACT.post().handle(event.getScreen(), event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST) // Lowest means last, if called unlikely been cancelled

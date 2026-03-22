@@ -1,9 +1,9 @@
 package com.mrcrayfish.framework.api.client.model;
 
 import com.mrcrayfish.framework.platform.ClientServices;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
-import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.client.resources.model.SimpleModelWrapper;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,7 +115,7 @@ public abstract class FrameworkModelResource<T>
      * @param location the location of the model. The path starts from the models directory.
      * @return a new model resource holding the definition
      */
-    public static FrameworkModelResource<BlockModelPart> createVanilla(Identifier location)
+    public static FrameworkModelResource<BlockStateModelPart> createVanilla(Identifier location)
     {
         // Internal code, do not call services directly since they may change at any time.
         return createCustom(location, (model, baker) -> {

@@ -5,10 +5,7 @@ import com.google.gson.JsonElement;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelBaker;
 import com.mrcrayfish.framework.api.client.model.FrameworkModelResource;
 import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.cuboid.CuboidModelElement;
 import net.minecraft.resources.Identifier;
 
 /**
@@ -23,7 +20,7 @@ public interface IClientHelper
      * @param context the gson deserialization context
      * @return a block element instance
      */
-    BlockElement deserializeBlockElement(JsonElement element, JsonDeserializationContext context);
+    CuboidModelElement deserializeBlockElement(JsonElement element, JsonDeserializationContext context);
 
     /**
      * Gets a BakedModel in the ModelManager using a ModelIdentifier
@@ -41,10 +38,6 @@ public interface IClientHelper
      * @param <T>
      */
     <T> FrameworkModelResource<T> createModelResource(Identifier id, FrameworkModelBaker<T> baker);
-
-    ChunkSectionLayer getChunkSectionLayer(ResolvedModel model);
-
-    ChunkSectionLayer getChunkSectionLayer(BlockModelPart part);
 
     /**
      * Sets the scrolling state of AbstractSelectionList. This field is private, so field is exposed

@@ -62,12 +62,12 @@ public class SyncedEntityDataTest implements ModInitializer
             this.lastClickedPos = pos;
             if(TOUCHED_GRASS.getValue(player))
             {
-                player.displayClientMessage(Component.literal("You've already touched grass!"), true);
+                player.sendOverlayMessage(Component.literal("You've already touched grass!"));
             }
             else
             {
                 TOUCHED_GRASS.setValue(player, true);
-                player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
+                player.sendOverlayMessage(Component.literal("Well done, you've finally touched grass!"));
             }
         }
         return InteractionResult.PASS;
@@ -79,7 +79,7 @@ public class SyncedEntityDataTest implements ModInitializer
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            player.displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            player.sendOverlayMessage(Component.literal("This animal has been hit " + newCount + " times!"));
         }
         return InteractionResult.PASS;
     }

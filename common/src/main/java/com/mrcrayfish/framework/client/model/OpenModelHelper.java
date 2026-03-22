@@ -2,7 +2,7 @@ package com.mrcrayfish.framework.client.model;
 
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -17,7 +17,7 @@ public class OpenModelHelper
 {
     public static DataObject getData(BlockState state)
     {
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockModelShaper().getBlockModel(state);
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state);
         return model instanceof IOpenModel openModel ? openModel.getData() : DataObject.EMPTY;
     }
 

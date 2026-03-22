@@ -78,12 +78,12 @@ public class SyncedEntityDataTest
             this.lastClickedPos = event.getPos();
             if(TOUCHED_GRASS.getValue(player))
             {
-                player.displayClientMessage(Component.literal("You've already touched grass!"), true);
+                player.sendOverlayMessage(Component.literal("You've already touched grass!"));
             }
             else
             {
                 TOUCHED_GRASS.setValue(player, true);
-                player.displayClientMessage(Component.literal("Well done, you've finally touched grass!"), true);
+                player.sendOverlayMessage(Component.literal("Well done, you've finally touched grass!"));
             }
         }
     }
@@ -94,14 +94,14 @@ public class SyncedEntityDataTest
         {
             int newCount = HIT_COUNT.getValue(animal) + 1;
             HIT_COUNT.setValue(animal, newCount);
-            event.getEntity().displayClientMessage(Component.literal("This animal has been hit " + newCount + " times!"), true);
+            event.getEntity().sendOverlayMessage(Component.literal("This animal has been hit " + newCount + " times!"));
         }
 
         if(event.getTarget() instanceof Zombie zombie && !zombie.level().isClientSide())
         {
             TestCounter counter = STRIKE_COUNT.getValue(zombie);
             counter.increment();
-            event.getEntity().displayClientMessage(Component.literal("This zombie has been hit " + counter.getCount() + " times!"), true);
+            event.getEntity().sendOverlayMessage(Component.literal("This zombie has been hit " + counter.getCount() + " times!"));
         }
     }
 

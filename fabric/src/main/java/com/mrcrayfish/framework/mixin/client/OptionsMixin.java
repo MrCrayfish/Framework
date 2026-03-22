@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.mixin.client;
 
 import com.mrcrayfish.framework.platform.Services;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -21,6 +21,6 @@ public class OptionsMixin
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;load()V"))
     private void frameworkInit(Minecraft minecraft, File file, CallbackInfo ci)
     {
-        Services.REGISTRATION.getRegistryObjects(KeyMapping.class).forEach(KeyBindingHelper::registerKeyBinding);
+        Services.REGISTRATION.getRegistryObjects(KeyMapping.class).forEach(KeyMappingHelper::registerKeyMapping);
     }
 }

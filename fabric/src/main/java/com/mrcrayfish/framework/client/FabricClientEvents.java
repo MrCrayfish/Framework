@@ -27,10 +27,10 @@ public class FabricClientEvents implements ClientModInitializer
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             FrameworkClientTickEvents.END_CLIENT.post().handle();
         });
-        ClientTickEvents.START_WORLD_TICK.register(level -> {
+        ClientTickEvents.START_LEVEL_TICK.register(level -> {
             FrameworkTickEvents.START_LEVEL.post().handle(level);
         });
-        ClientTickEvents.END_WORLD_TICK.register(level -> {
+        ClientTickEvents.END_LEVEL_TICK.register(level -> {
             FrameworkTickEvents.END_LEVEL.post().handle(level);
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -40,15 +40,15 @@ public class FabricClientEvents implements ClientModInitializer
             FrameworkClientConnectionEvents.LOGGING_OUT.post().handle(handler.getConnection());
         });
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            List<AbstractWidget> widgets = Screens.getButtons(screen);
+            List<AbstractWidget> widgets = Screens.getWidgets(screen);
             FrameworkScreenEvents.INIT.post().handle(screen, Collections.unmodifiableList(widgets), widgets::add, widgets::remove);
         });
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.beforeRender(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
-                FrameworkScreenEvents.BEFORE_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
+            net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.beforeExtract(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
+                FrameworkScreenEvents.BEFORE_EXTRACT.post().handle(screen1, poseStack, mouseX, mouseY, partialTick);
             });
-            net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
-                FrameworkScreenEvents.AFTER_DRAW.post().handle(screen, poseStack, mouseX, mouseY, partialTick);
+            net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterExtract(screen).register((screen1, poseStack, mouseX, mouseY, partialTick) -> {
+                FrameworkScreenEvents.AFTER_EXTRACT.post().handle(screen1, poseStack, mouseX, mouseY, partialTick);
             });
         });
     }

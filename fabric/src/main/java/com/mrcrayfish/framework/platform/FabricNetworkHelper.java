@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.api.network.FrameworkNetworkBuilder;
 import com.mrcrayfish.framework.platform.network.FabricNetworkBuilder;
 import com.mrcrayfish.framework.platform.services.INetworkHelper;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +30,7 @@ public class FabricNetworkHelper implements INetworkHelper
     @Override
     public <D extends IMenuData<D>> OptionalInt openMenuWithData(ServerPlayer player, MenuProvider provider, D data)
     {
-        return player.openMenu(new ExtendedScreenHandlerFactory<D>()
+        return player.openMenu(new ExtendedMenuProvider<>()
         {
             @Override
             public D getScreenOpeningData(ServerPlayer player)

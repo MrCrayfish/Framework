@@ -96,8 +96,8 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
 
         // Ping lets the client know that this network is also running on the server.
         // If no ping is received, it's most likely the mod is not installed on the server.
-        PayloadTypeRegistry.configurationS2C().register(this.pingMessage.type(), this.pingMessage.codec());
-        PayloadTypeRegistry.configurationC2S().register(this.pingMessage.type(), this.pingMessage.codec());
+        PayloadTypeRegistry.serverboundConfiguration().register(this.pingMessage.type(), this.pingMessage.codec());
+        PayloadTypeRegistry.clientboundConfiguration().register(this.pingMessage.type(), this.pingMessage.codec());
         TaskRunner.runIf(Environment.CLIENT, () -> () -> {
             ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
                 ClientConfigurationNetworking.registerReceiver(this.pingMessage.type(), (payload, context) -> {
@@ -140,9 +140,9 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
 
     private <T> void registerPlayS2C(PlayMessage<T> message)
     {
-        PayloadTypeRegistry.playS2C().register(message.type(), message.codec());
+        PayloadTypeRegistry.clientboundPlay().register(message.type(), message.codec());
         Optional.ofNullable(message.flow()).ifPresent(flow ->
-            PayloadTypeRegistry.playC2S().register(message.type(), message.codec())
+            PayloadTypeRegistry.serverboundPlay().register(message.type(), message.codec())
         );
         TaskRunner.runIf(Environment.CLIENT, () -> () -> {
             ClientPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
@@ -153,9 +153,9 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
 
     private <T> void registerPlayC2S(PlayMessage<T> message)
     {
-        PayloadTypeRegistry.playC2S().register(message.type(), message.codec());
+        PayloadTypeRegistry.serverboundPlay().register(message.type(), message.codec());
         Optional.ofNullable(message.flow()).ifPresent(flow ->
-            PayloadTypeRegistry.playS2C().register(message.type(), message.codec())
+            PayloadTypeRegistry.clientboundPlay().register(message.type(), message.codec())
         );
         ServerPlayNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
             FabricServerNetworkHandler.receivePlay(message, payload, this, context);
@@ -166,9 +166,9 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     {
         if(message == this.pingMessage)
             return;
-        PayloadTypeRegistry.configurationS2C().register(message.type(), message.codec());
+        PayloadTypeRegistry.clientboundConfiguration().register(message.type(), message.codec());
         Optional.ofNullable(message.flow()).ifPresent(flow ->
-            PayloadTypeRegistry.configurationC2S().register(message.type(), message.codec())
+            PayloadTypeRegistry.serverboundConfiguration().register(message.type(), message.codec())
         );
         TaskRunner.runIf(Environment.CLIENT, () -> () -> {
             ClientConfigurationConnectionEvents.INIT.register((handler, client) -> {
@@ -183,9 +183,9 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     {
         if(message == this.pingMessage)
             return;
-        PayloadTypeRegistry.configurationC2S().register(message.type(), message.codec());
+        PayloadTypeRegistry.serverboundConfiguration().register(message.type(), message.codec());
         Optional.ofNullable(message.flow()).ifPresent(flow ->
-            PayloadTypeRegistry.configurationS2C().register(message.type(), message.codec())
+            PayloadTypeRegistry.clientboundConfiguration().register(message.type(), message.codec())
         );
         ServerConfigurationNetworking.registerGlobalReceiver(message.type(), (payload, context) -> {
             FabricServerNetworkHandler.receiveConfiguration(message, payload, this, context);
@@ -197,8 +197,8 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     {
         switch(connection.getSending())
         {
-            case SERVERBOUND -> connection.send(ClientPlayNetworking.createC2SPacket(this.encode(message)));
-            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createS2CPacket(this.encode(message)));
+            case SERVERBOUND -> connection.send(ClientPlayNetworking.createServerboundPacket(this.encode(message)));
+            case CLIENTBOUND -> connection.send(ServerPlayNetworking.createClientboundPacket(this.encode(message)));
         }
     }
 
@@ -212,7 +212,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     public void sendToTrackingEntity(Supplier<Entity> supplier, Object message)
     {
         Entity entity = supplier.get();
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createClientboundPacket(this.encode(message));
         ((ServerChunkCache) entity.level().getChunkSource()).sendToTrackingPlayers(entity, packet);
     }
 
@@ -241,7 +241,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     public void sendToTrackingChunk(Supplier<LevelChunk> supplier, Object message)
     {
         LevelChunk chunk = supplier.get();
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createClientboundPacket(this.encode(message));
         ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(e -> e.connection.send(packet));
     }
 
@@ -251,7 +251,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
         LevelLocation location = supplier.get();
         Level level = location.level();
         Vec3 pos = location.pos();
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createClientboundPacket(this.encode(message));
         this.server.getPlayerList().broadcast(null, pos.x, pos.y, pos.z, location.range(), level.dimension(), packet);
     }
 
@@ -266,7 +266,7 @@ public final class FabricNetwork implements FrameworkNetwork, Registration.Event
     @Override
     public void sendToAll(Object message)
     {
-        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createS2CPacket(this.encode(message));
+        Packet<ClientCommonPacketListener> packet = ServerPlayNetworking.createClientboundPacket(this.encode(message));
         this.server.getPlayerList().broadcastAll(packet);
     }
 

@@ -2,10 +2,10 @@ package com.mrcrayfish.framework.client.model;
 
 import com.google.gson.*;
 import com.mrcrayfish.framework.api.serialize.DataObject;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.block.model.TextureSlots;
-import net.minecraft.client.resources.model.UnbakedGeometry;
 import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.cuboid.ItemTransforms;
+import net.minecraft.client.resources.model.geometry.UnbakedGeometry;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public record OpenBlockModel(@Nullable UnbakedGeometry geometry, @Nullable Unbak
             JsonObject object = element.getAsJsonObject();
             UnbakedGeometry geometry = this.createGeometry(context, object);
             Identifier parent = this.parseString(object, "parent", Identifier::parse, null);
-            TextureSlots.Data textures = this.parseObject(object, "textures", o -> TextureSlots.parseTextureMap(o), TextureSlots.Data.EMPTY);
+            TextureSlots.Data textures = this.parseObject(object, "textures", TextureSlots::parseTextureMap, TextureSlots.Data.EMPTY);
             Boolean ambientOcclusion = this.parseString(object, "ambientocclusion", Boolean::parseBoolean, null);
             ItemTransforms transforms = this.parseObject(object, "display", o -> context.deserialize(o, ItemTransforms.class), null);
             UnbakedModel.GuiLight guiLight = this.parseString(object, "gui_light", UnbakedModel.GuiLight::getByName, null);

@@ -3,15 +3,15 @@ package com.mrcrayfish.framework.client.model;
 import com.mojang.serialization.MapCodec;
 import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 //import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
-import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 
 public class FabricFrameworkBlockStateModel
 {
-    public record Unbaked(Variant variant) implements CustomUnbakedBlockStateModel
+    // TODO 26.1 reimplement
+   /* public record Unbaked(Variant variant) implements CustomUnbakedBlockStateModel
     {
         public static final MapCodec<FabricFrameworkBlockStateModel.Unbaked> MAP_CODEC = Variant.MAP_CODEC.xmap(FabricFrameworkBlockStateModel.Unbaked::new, FabricFrameworkBlockStateModel.Unbaked::variant);
 
@@ -34,5 +34,5 @@ public class FabricFrameworkBlockStateModel
         {
             this.variant.resolveDependencies(resolver);
         }
-    }
+    }*/
 }

@@ -19,7 +19,7 @@ public class FabricClientNetworkHandler
         Minecraft minecraft = context.client();
         PlayMessageContext ctx = new PlayMessageContext(message.flow(), minecraft, context.responseSender()::disconnect, b -> {}, minecraft.player);
         message.handler().accept(payload.msg(), ctx);
-        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createC2SPacket(network.encode(msg))));
+        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createServerboundPacket(network.encode(msg))));
     }
 
     public static <T> void receiveConfiguration(ConfigurationMessage<T> message, FrameworkPayload<T> payload, FabricNetwork network, ClientConfigurationNetworking.Context context)
@@ -27,6 +27,6 @@ public class FabricClientNetworkHandler
         Minecraft minecraft = Minecraft.getInstance();
         ConfigurationMessageContext ctx = new ConfigurationMessageContext(message.flow(), minecraft, context.responseSender()::disconnect, b -> {}, id -> {});
         message.handler().accept(payload.msg(), ctx);
-        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createC2SPacket(network.encode(msg))));
+        ctx.getReply().ifPresent(msg -> context.responseSender().sendPacket(ClientPlayNetworking.createServerboundPacket(network.encode(msg))));
     }
 }

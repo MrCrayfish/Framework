@@ -1,6 +1,6 @@
 package test.menudata;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,10 +29,11 @@ public class MenuDataTestClient
         }
 
         @Override
-        protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
+        protected void extractMenuBackground(GuiGraphicsExtractor extractor, int x, int y, int width, int height)
         {
-            graphics.drawString(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFFFF);
-            graphics.drawString(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFFFF);
+            super.extractMenuBackground(extractor, x, y, width, height);
+            extractor.text(this.font, Integer.toString(this.menu.getCount()), 0, 0, 0xFFFFFFFF);
+            extractor.text(this.font, this.menu.getMessage(), 0, 20, 0xFFFFFFFF);
         }
     }
 }

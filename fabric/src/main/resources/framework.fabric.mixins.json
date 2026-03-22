@@ -15,7 +15,7 @@
         "ServerPlayerMixin"
     ],
     "client": [
-        "client.AbstractContainerScreenMixin",
+        "client.ScreenMixin",
         "client.FabricMinecraftMixin",
         "client.GameRendererMixin",
         "client.KeyboardHandlerMixin",

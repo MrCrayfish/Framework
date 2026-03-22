@@ -19,9 +19,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 //import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
 //import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 //import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
-import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedModelDeserializer;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -41,10 +38,11 @@ public class ClientFrameworkFabric implements ClientModInitializer
     {
         TaskRunner.setExecutor(LogicalEnvironment.CLIENT, Minecraft.getInstance());
         ItemModels.ID_MAPPER.put(FrameworkItemModel.ID, FrameworkItemModel.Unbaked.MAP_CODEC);
-        CustomUnbakedBlockStateModel.register(FrameworkBlockStateModel.ID, FabricFrameworkBlockStateModel.Unbaked.MAP_CODEC);
-        UnbakedModelDeserializer.register(OpenModelGeometry.Loader.ID, new OpenModelGeometry.Loader());
-        ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
-        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(Utils.rl("json_data_manager"), JsonDataManager.getInstance());
+        // TODO 26.1 reimplement
+        //CustomUnbakedBlockStateModel.register(FrameworkBlockStateModel.ID, FabricFrameworkBlockStateModel.Unbaked.MAP_CODEC);
+        //UnbakedModelDeserializer.register(OpenModelGeometry.Loader.ID, new OpenModelGeometry.Loader());
+        //ModelLoadingPlugin.register(new FrameworkModelLoadingPlugin());
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(Utils.rl("json_data_manager"), JsonDataManager.getInstance());
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             FrameworkData.setLoaded();
         });

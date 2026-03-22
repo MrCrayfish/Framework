@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.widget.element;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
@@ -26,13 +26,13 @@ public abstract class Icon
     /**
      * Draws this icon at the given position
      *
-     * @param graphics    a {@link GuiGraphics} instance
+     * @param graphics    a {@link GuiGraphicsExtractor} instance
      * @param x           the x pos to draw the icon
      * @param y           the y pos to draw the icon
      * @param alpha       the alpha of the icon between 0 and 1
      * @param partialTick the current partial tick value
      */
-    public abstract void draw(GuiGraphics graphics, int x, int y, int alpha, float partialTick);
+    public abstract void draw(GuiGraphicsExtractor graphics, int x, int y, int alpha, float partialTick);
 
     /**
      * Creates an {@link Icon} instance that represents a sprite using the specified resource location, width, and height.
@@ -92,9 +92,9 @@ public abstract class Icon
         }
 
         @Override
-        public void draw(GuiGraphics graphics, int x, int y, int alpha, float partialTick)
+        public void draw(GuiGraphicsExtractor extractor, int x, int y, int alpha, float partialTick)
         {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.resource.get(), x, y, this.width, this.height, alpha);
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, this.resource.get(), x, y, this.width, this.height, alpha);
         }
     }
 }

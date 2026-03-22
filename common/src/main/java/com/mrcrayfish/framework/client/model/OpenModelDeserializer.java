@@ -3,10 +3,10 @@ package com.mrcrayfish.framework.client.model;
 import com.google.gson.*;
 import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.util.GsonUtils;
-import net.minecraft.client.renderer.block.model.BlockElement;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.SimpleUnbakedGeometry;
-import net.minecraft.client.resources.model.UnbakedGeometry;
+import net.minecraft.client.resources.model.cuboid.CuboidModel;
+import net.minecraft.client.resources.model.cuboid.CuboidModelElement;
+import net.minecraft.client.resources.model.cuboid.UnbakedCuboidGeometry;
+import net.minecraft.client.resources.model.geometry.UnbakedGeometry;
 import net.minecraft.util.GsonHelper;
 import org.joml.Vector3f;
 
@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Author: MrCrayfish
  */
-public class OpenModelDeserializer extends BlockModel.Deserializer
+public class OpenModelDeserializer extends CuboidModel.Deserializer
 {
     // TODO investigate if not needed and can merge into OpenBlockModel
     public static final OpenModelDeserializer INSTANCE = new OpenModelDeserializer();
@@ -27,19 +27,19 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
     @Override
     public UnbakedGeometry getElements(JsonDeserializationContext context, JsonObject object) throws JsonParseException
     {
-        List<BlockElement> list = new ArrayList<>();
+        List<CuboidModelElement> list = new ArrayList<>();
         for(JsonElement element : GsonHelper.getAsJsonArray(object, "components", new JsonArray()))
         {
-            list.add(this.readBlockElement(element, context));
+            list.add(this.readCuboidElement(element, context));
         }
-        return new SimpleUnbakedGeometry(list);
+        return new UnbakedCuboidGeometry(list);
     }
 
     /**
      * Reads a block element without restrictions on the size and rotation angle.
      */
     @SuppressWarnings("ConstantConditions")
-    private BlockElement readBlockElement(JsonElement element, JsonDeserializationContext context)
+    private CuboidModelElement readCuboidElement(JsonElement element, JsonDeserializationContext context)
     {
         JsonObject object = element.getAsJsonObject();
 
@@ -56,7 +56,7 @@ public class OpenModelDeserializer extends BlockModel.Deserializer
         object.add("to", zero);
 
         // Read vanilla element and construct new element with custom properties
-        BlockElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
-        return new BlockElement(from, to, e.faces(), e.rotation(), e.shade(), e.lightEmission());
+        CuboidModelElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
+        return new CuboidModelElement(from, to, e.faces(), e.rotation(), e.shade(), e.lightEmission());
     }
 }

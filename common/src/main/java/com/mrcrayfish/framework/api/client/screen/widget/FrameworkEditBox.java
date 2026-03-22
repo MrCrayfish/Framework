@@ -4,7 +4,7 @@ import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -21,7 +21,10 @@ import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * An improved version of edit boxes, with support for icons and more customisation options.
@@ -154,7 +157,7 @@ public final class FrameworkEditBox extends AbstractContainerWidget
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractWidgetRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         if(this.activeSupplier != null)
         {
@@ -166,9 +169,9 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         {
             int alpha = ARGB.white(this.editBox.isActive() ? 1.0F : 0.5F);
             Identifier background = this.background.get(this.editBox.isActive(), this.editBox.isFocused());
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight(), alpha);
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight(), alpha);
         }
-        this.layout.visitWidgets(widget -> widget.render(graphics,  mouseX, mouseY, partialTick));
+        this.layout.visitWidgets(widget -> widget.extractRenderState(extractor, mouseX, mouseY, partialTick));
     }
 
     @Override
@@ -706,11 +709,11 @@ public final class FrameworkEditBox extends AbstractContainerWidget
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+        protected void extractWidgetRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
         {
             int iconX = this.getX() + (this.getWidth() - this.icon.width()) / 2;
             int iconY = this.getY() + (this.getHeight() - this.icon.height()) / 2;
-            this.icon.draw(graphics, iconX, iconY, ARGB.white(1.0F), partialTick);
+            this.icon.draw(extractor, iconX, iconY, ARGB.white(1.0F), partialTick);
         }
 
         @Override

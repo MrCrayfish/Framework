@@ -84,7 +84,7 @@ public class RegistryTest
     public static final RegistryEntry<RecipeDisplay.Type<AwesomeRecipeDisplay>> MY_AWESOME_RECIPE_DISPLAY = RegistryEntry.recipeDisplay(rl("awesome_recipe_display"), () -> AwesomeRecipeDisplay.TYPE);
     public static final RegistryEntry<RecipeBookCategory> MY_AWESOME_RECIPE_BOOK_CATEGORY = RegistryEntry.recipeBookCategory(rl("awesome_recipe_book_category"));
     public static final RegistryEntry<RecipeType<AwesomeRecipe>> MY_AWESOME_RECIPE_TYPE = RegistryEntry.recipeType(rl("awesome_recipe_type"));
-    public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), AwesomeRecipe.AwesomeSerializer::new);
+    public static final RegistryEntry<RecipeSerializer<AwesomeRecipe>> MY_AWESOME_RECIPE_SERIALIZER = RegistryEntry.recipeSerializer(rl("awesome_recipe_serializer"), () -> new RecipeSerializer<>(AwesomeRecipe.CODEC, AwesomeRecipe.STREAM_CODEC));
     public static final RegistryEntry<SoundEvent> MY_AWESOME_SOUND_EVENT = RegistryEntry.soundEvent(rl("awesome_sound_event"), id -> () -> SoundEvent.createVariableRangeEvent(id));
     public static final RegistryEntry<DataComponentType<Integer>> SIMPLE_COUNTER = RegistryEntry.dataComponentType(rl("simple_counter"), builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
@@ -143,6 +143,10 @@ public class RegistryTest
 
     public static class AwesomeRecipe implements Recipe<CraftingInput>
     {
+        public static final AwesomeRecipe INSTANCE = new AwesomeRecipe();
+        public static final MapCodec<AwesomeRecipe> CODEC = MapCodec.unit(INSTANCE);
+        public static final StreamCodec<RegistryFriendlyByteBuf, AwesomeRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+
         @Override
         public boolean matches(CraftingInput input, Level level)
         {
@@ -150,9 +154,21 @@ public class RegistryTest
         }
 
         @Override
-        public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider)
+        public ItemStack assemble(CraftingInput input)
         {
             return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean showNotification()
+        {
+            return false;
+        }
+
+        @Override
+        public String group()
+        {
+            return "";
         }
 
         @Override
@@ -177,25 +193,6 @@ public class RegistryTest
         public RecipeBookCategory recipeBookCategory()
         {
             return MY_AWESOME_RECIPE_BOOK_CATEGORY.get();
-        }
-
-        public static class AwesomeSerializer implements RecipeSerializer<AwesomeRecipe>
-        {
-            private static final AwesomeRecipe RECIPE = new AwesomeRecipe();
-            private static final MapCodec<AwesomeRecipe> CODEC = MapCodec.unit(RECIPE);
-            private static final StreamCodec<RegistryFriendlyByteBuf, AwesomeRecipe> STREAM_CODEC = StreamCodec.unit(RECIPE);
-
-            @Override
-            public MapCodec<AwesomeRecipe> codec()
-            {
-                return CODEC;
-            }
-
-            @Override
-            public StreamCodec<RegistryFriendlyByteBuf, AwesomeRecipe> streamCodec()
-            {
-                return STREAM_CODEC;
-            }
         }
     }
 

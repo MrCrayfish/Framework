@@ -5,7 +5,7 @@ import com.mrcrayfish.framework.api.event.FrameworkPlayerEvents;
 import com.mrcrayfish.framework.api.event.FrameworkServerEvents;
 import com.mrcrayfish.framework.api.event.FrameworkTickEvents;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -26,10 +26,10 @@ public class FabricEvents implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             FrameworkTickEvents.END_SERVER.post().handle(server);
         });
-        ServerTickEvents.START_WORLD_TICK.register(level -> {
+        ServerTickEvents.START_LEVEL_TICK.register(level -> {
             FrameworkTickEvents.START_LEVEL.post().handle(level);
         });
-        ServerTickEvents.END_WORLD_TICK.register(level -> {
+        ServerTickEvents.END_LEVEL_TICK.register(level -> {
             FrameworkTickEvents.END_LEVEL.post().handle(level);
         });
         EntityTrackingEvents.START_TRACKING.register((entity, player) -> {
@@ -50,7 +50,7 @@ public class FabricEvents implements ModInitializer
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             FrameworkPlayerEvents.RESPAWN.post().handle(newPlayer, alive);
         });
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+        ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, origin, destination) -> {
             FrameworkPlayerEvents.CHANGE_DIMENSION.post().handle(player, origin.dimension(), destination.dimension());
         });
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {

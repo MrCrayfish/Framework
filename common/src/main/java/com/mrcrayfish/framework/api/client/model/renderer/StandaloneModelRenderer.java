@@ -1,18 +1,20 @@
 package com.mrcrayfish.framework.api.client.model.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
 import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 import java.util.List;
@@ -20,6 +22,21 @@ import java.util.List;
 public class StandaloneModelRenderer
 {
     private static final Direction[] DIRECTIONS = Direction.values();
+    private static final QuadInstance QUAD_INSTANCE = new QuadInstance();
+
+    public static void submitDraw(SubmitNodeCollector collector, BlockStateModelPart model, PoseStack pose, float red, float green, float blue, int light, int overlay)
+    {
+        submitDraw(collector, model, ChunkSectionLayer.SOLID, pose, red, green, blue, light, overlay);
+    }
+
+    public static void submitDraw(SubmitNodeCollector collector, BlockStateModelPart model, ChunkSectionLayer layer, PoseStack pose, float red, float green, float blue, int light, int overlay)
+    {
+        collector.submitCustomGeometry(pose, getSheet(layer), (pose1, consumer) -> {
+            for(Direction direction : DIRECTIONS)
+                putQuads(pose1, consumer, red, green, blue, model.getQuads(direction), light, overlay);
+            putQuads(pose1, consumer, red, green, blue, model.getQuads(null), light, overlay);
+        });
+    }
 
     /**
      * Draws a FrameworkStandaloneModel into the buffer
@@ -33,6 +50,7 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
+    @Deprecated
     public static void draw(FrameworkBakedModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
         draw(model.quads(), model.layer(), stack, source, red, green, blue, light, overlay);
@@ -50,23 +68,15 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    public static void draw(BlockModelPart model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
+    @Deprecated
+    public static void draw(BlockStateModelPart model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
-        VertexConsumer consumer = source.getBuffer(getSheet(getRenderType(model)));
+        VertexConsumer consumer = source.getBuffer(getSheet(ChunkSectionLayer.SOLID));
         for(Direction direction : DIRECTIONS)
         {
             putQuads(stack.last(), consumer, red, green, blue, model.getQuads(direction), light, overlay);
         }
         putQuads(stack.last(), consumer, red, green, blue, model.getQuads(null), light, overlay);
-    }
-
-    public static void submitDraw(SubmitNodeCollector collector, BlockModelPart model, PoseStack stack, float red, float green, float blue, int light, int overlay)
-    {
-        collector.submitCustomGeometry(stack, getSheet(getRenderType(model)), (pose, consumer) -> {
-            for(Direction direction : DIRECTIONS)
-                putQuads(pose, consumer, red, green, blue, model.getQuads(direction), light, overlay);
-            putQuads(pose, consumer, red, green, blue, model.getQuads(null), light, overlay);
-        });
     }
 
     /**
@@ -82,8 +92,12 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
+    @Deprecated
     public static void draw(QuadCollection collection, ChunkSectionLayer layer, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
+        red = Mth.clamp(red, 0, 1);
+        green = Mth.clamp(green, 0, 1);
+        blue = Mth.clamp(blue, 0, 1);
         VertexConsumer consumer = source.getBuffer(getSheet(layer));
         for(Direction direction : DIRECTIONS)
         {
@@ -96,25 +110,21 @@ public class StandaloneModelRenderer
     {
         for(BakedQuad quad : quads)
         {
-            if(quad.isTinted())
+            QUAD_INSTANCE.setLightCoords(light);
+            QUAD_INSTANCE.setOverlayCoords(overlay);
+            if(quad.materialInfo().isTinted())
             {
-                red = Mth.clamp(red, 0, 1);
-                green = Mth.clamp(green, 0, 1);
-                blue = Mth.clamp(blue, 0, 1);
-                consumer.putBulkData(pose, quad, red, green, blue, 1, light, overlay);
+                QUAD_INSTANCE.setColor(ARGB.colorFromFloat(1.0F, red, green, blue));
+                consumer.putBakedQuad(pose, quad, QUAD_INSTANCE);
                 return;
             }
-            consumer.putBulkData(pose, quad, 1, 1, 1, 1, light, overlay);
+            QUAD_INSTANCE.setColor(0xFFF000F0);
+            consumer.putBakedQuad(pose, quad, QUAD_INSTANCE);
         }
-    }
-
-    private static ChunkSectionLayer getRenderType(BlockModelPart part)
-    {
-        return ClientServices.CLIENT.getChunkSectionLayer(part);
     }
 
     private static RenderType getSheet(ChunkSectionLayer layer)
     {
-        return layer == ChunkSectionLayer.TRANSLUCENT ? Sheets.translucentItemSheet() : Sheets.cutoutBlockSheet();
+        return layer == ChunkSectionLayer.TRANSLUCENT ? Sheets.translucentBlockSheet() : Sheets.cutoutBlockSheet();
     }
 }

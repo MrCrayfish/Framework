@@ -7,7 +7,7 @@ import com.mrcrayfish.framework.client.ClientUtils;
 import com.mrcrayfish.framework.platform.ClientServices;
 import com.mrcrayfish.framework.util.Utils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -258,15 +258,15 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractWidgetRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         if(this.activeSupplier != null)
         {
             this.active = this.activeSupplier.get();
         }
-        this.renderListBackground(graphics, mouseX, mouseY, partialTick);
-        this.renderListItems(graphics, mouseX, mouseY, partialTick);
-        this.renderScrollbar(graphics, mouseX, mouseY);
+        this.extractListBackground(extractor, mouseX, mouseY, partialTick);
+        this.extractListItems(extractor, mouseX, mouseY, partialTick);
+        this.extractScrollbar(extractor, mouseX, mouseY);
     }
 
     protected int getListBackgroundWidth()
@@ -282,17 +282,17 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         return this.getHeight();
     }
 
-    protected void renderListBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractListBackground(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         // Draw outlines and background
         if(this.listBackground != null)
         {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.listBackground, this.getX(), this.getY(), this.getListBackgroundWidth(), this.getListBackgroundHeight());
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, this.listBackground, this.getX(), this.getY(), this.getListBackgroundWidth(), this.getListBackgroundHeight());
         }
     }
 
     @Override
-    protected void renderScrollbar(GuiGraphics graphics, int mouseX, int mouseY)
+    protected void extractScrollbar(GuiGraphicsExtractor extractor, int mouseX, int mouseY)
     {
         int maxScroll = this.maxScrollAmount();
         if(maxScroll > 0 || this.scrollBarAlwaysVisible)
@@ -308,7 +308,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
                 int scrollBarAreaHeight = this.getHeight() - this.scrollBarContainerPadding.top() - this.scrollBarContainerPadding.bottom();
                 if(this.scrollBarStyle == ScrollBarStyle.MERGED)
                     scrollBarAreaHeight -= this.listBorder.top() + this.listPadding.top() + this.listPadding.bottom() + this.listBorder.bottom();
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.scrollBarBackground, scrollBarLeft, scrollBarTop, scrollBarAreaWidth, scrollBarAreaHeight);
+                extractor.blitSprite(RenderPipelines.GUI_TEXTURED, this.scrollBarBackground, scrollBarLeft, scrollBarTop, scrollBarAreaWidth, scrollBarAreaHeight);
             }
 
             // Draw scroll bar
@@ -324,46 +324,46 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
                 if(sprite != null)
                 {
                     int alpha = ARGB.white(this.active ? 1.0F : 0.5F);
-                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, scrollBarStart, scrollBarTop, scrollBarEnd - scrollBarStart, scrollBarHeight, alpha);
+                    extractor.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, scrollBarStart, scrollBarTop, scrollBarEnd - scrollBarStart, scrollBarHeight, alpha);
                 }
             }
             else
             {
                 // Fallback
                 int scrollBarColour = scrollBarHovered ? 0xFF332E2D : 0xFF47403E;
-                graphics.fill(scrollBarStart, scrollBarTop, scrollBarEnd, scrollBarTop + scrollBarHeight, scrollBarColour);
+                extractor.fill(scrollBarStart, scrollBarTop, scrollBarEnd, scrollBarTop + scrollBarHeight, scrollBarColour);
             }
         }
     }
 
     @Override
-    protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractListItems(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
-        graphics.enableScissor(this.getRowLeft(), this.getY() + this.listBorder.top(), this.getRowRight(), this.getY() + this.getHeight() - this.listBorder.bottom());
+        extractor.enableScissor(this.getRowLeft(), this.getY() + this.listBorder.top(), this.getRowRight(), this.getY() + this.getHeight() - this.listBorder.bottom());
         for(Item item : this.children())
         {
             if(item.getY() + item.getHeight() >= this.getY() && item.getY() <= this.getBottom())
             {
-                this.renderItem(graphics, mouseX, mouseY, partialTick, item);
+                this.extractItem(extractor, mouseX, mouseY, partialTick, item);
             }
         }
-        graphics.disableScissor();
+        extractor.disableScissor();
     }
 
-    @Override
-    protected void renderItem(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, Item item)
+    protected void extractItem(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick, Item item)
     {
         boolean hovered = !this.scrolling && item.isMouseOver(mouseX, mouseY) && this.isMouseOver(mouseX, mouseY);
         boolean selected = this.getSelected() == item;
         item.setHovered(hovered);
-        item.renderBackground(this.itemSprites, graphics, mouseX, mouseY, hovered, selected);
-        item.renderContent(graphics, mouseX, mouseY, selected, partialTick);
+        item.extractBackground(this.itemSprites, extractor, mouseX, mouseY, hovered, selected);
+        item.extractContent(extractor, mouseX, mouseY, selected, partialTick);
     }
 
     @Override
-    protected void renderSelection(GuiGraphics graphics, Item item, int outlineColour)
+    protected void extractSelection(GuiGraphicsExtractor graphics, Item item, int outlineColor)
     {
-        super.renderSelection(graphics, item, outlineColour);
+        // TODO 26.1 wat this doing?
+        super.extractSelection(graphics, item, outlineColor);
     }
 
     @Override
@@ -510,7 +510,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     {
         private boolean hovered;
 
-        protected abstract void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick);
+        protected abstract void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected, float partialTick);
 
         private void setHovered(boolean hovered)
         {
@@ -553,19 +553,19 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         }
 
         @Override
-        public final void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean selected, float partialTick)
+        public final void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean selected, float partialTick)
         {
-            this.renderContent(graphics, mouseX, mouseY, this.hovered, selected, partialTick);
+            this.extractContent(extractor, mouseX, mouseY, this.hovered, selected, partialTick);
         }
 
-        protected void renderBackground(@Nullable ItemSprites sprites, GuiGraphics graphics, int mouseX, int mouseY, boolean hovered, boolean selected)
+        protected void extractBackground(@Nullable ItemSprites sprites, GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean hovered, boolean selected)
         {
             if(sprites != null)
             {
                 Identifier sprite = sprites.getSprite(true, hovered, selected);
                 if(sprite != null)
                 {
-                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    extractor.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
                 }
             }
         }

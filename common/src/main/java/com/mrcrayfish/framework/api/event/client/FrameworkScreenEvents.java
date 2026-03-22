@@ -1,7 +1,7 @@
 package com.mrcrayfish.framework.api.event.client;
 
 import com.mrcrayfish.framework.api.event.FrameworkEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -19,16 +19,16 @@ public final class FrameworkScreenEvents
         listeners.forEach(listener -> listener.handle(screen, widgets, add, remove));
     });
 
-    public static final FrameworkEvent<BeforeDraw> BEFORE_DRAW = new FrameworkEvent<>(listeners -> ((screen, poseStack, mouseX, mouseY, partialTick) -> {
+    public static final FrameworkEvent<BeforeExtract> BEFORE_EXTRACT = new FrameworkEvent<>(listeners -> ((screen, poseStack, mouseX, mouseY, partialTick) -> {
         listeners.forEach(listener -> listener.handle(screen, poseStack, mouseX, mouseY, partialTick));
     }));
 
-    public static final FrameworkEvent<AfterDraw> AFTER_DRAW = new FrameworkEvent<>(listeners -> ((screen, poseStack, mouseX, mouseY, partialTick) -> {
+    public static final FrameworkEvent<AfterExtract> AFTER_EXTRACT = new FrameworkEvent<>(listeners -> ((screen, poseStack, mouseX, mouseY, partialTick) -> {
         listeners.forEach(listener -> listener.handle(screen, poseStack, mouseX, mouseY, partialTick));
     }));
 
-    public static final FrameworkEvent<AfterDrawContainerBackground> AFTER_DRAW_CONTAINER_BACKGROUND = new FrameworkEvent<>(listeners -> (screen, stack, mouseX, mouseY) -> {
-        listeners.forEach(listener -> listener.handle(screen, stack, mouseX, mouseY));
+    public static final FrameworkEvent<AfterExtractBackground> AFTER_EXTRACT_BACKGROUND = new FrameworkEvent<>(listeners -> (screen, stack, mouseX, mouseY, partialTick) -> {
+        listeners.forEach(listener -> listener.handle(screen, stack, mouseX, mouseY, partialTick));
     });
 
     public static final FrameworkEvent<Opened> OPENED = new FrameworkEvent<>(listeners -> (screen) -> {
@@ -46,21 +46,21 @@ public final class FrameworkScreenEvents
     }
 
     @FunctionalInterface
-    public interface BeforeDraw
+    public interface BeforeExtract
     {
-        void handle(Screen screen, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
+        void handle(Screen screen, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick);
     }
 
     @FunctionalInterface
-    public interface AfterDraw
+    public interface AfterExtract
     {
-        void handle(Screen screen, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
+        void handle(Screen screen, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick);
     }
 
     @FunctionalInterface
-    public interface AfterDrawContainerBackground
+    public interface AfterExtractBackground
     {
-        void handle(AbstractContainerScreen<?> screen, GuiGraphics graphics, int mouseX, int mouseY);
+        void handle(Screen screen, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick);
     }
 
     @FunctionalInterface

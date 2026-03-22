@@ -2,8 +2,8 @@ package com.mrcrayfish.framework.client.model;
 
 import com.mojang.serialization.MapCodec;
 import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.neoforged.neoforge.client.model.block.CustomUnbakedBlockStateModel;

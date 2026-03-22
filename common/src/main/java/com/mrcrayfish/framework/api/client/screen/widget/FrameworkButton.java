@@ -1,6 +1,5 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.framework.Constants;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Icon;
 import com.mrcrayfish.framework.api.client.screen.widget.element.Label;
@@ -8,7 +7,7 @@ import com.mrcrayfish.framework.api.client.screen.widget.element.Sound;
 import com.mrcrayfish.framework.api.client.screen.widget.input.Action;
 import com.mrcrayfish.framework.api.client.screen.widget.input.MouseInput;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -233,13 +232,13 @@ public final class FrameworkButton extends AbstractButton
     public void playDownSound(SoundManager manager) {}
 
     @Override
-    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
     {
         this.updateActiveState();
         this.updateTooltip();
         if(this.contentRenderer != null)
         {
-            this.contentRenderer.draw(this, graphics, mouseX, mouseY, partialTick);
+            this.contentRenderer.extractContents(this, extractor, mouseX, mouseY, partialTick);
         }
     }
 
@@ -745,13 +744,13 @@ public final class FrameworkButton extends AbstractButton
         public DefaultContentRenderer() {}
 
         @Override
-        public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+        public void extractContents(FrameworkButton button, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
         {
             WidgetSprites texture = button.getTexture();
             if(texture != null)
             {
                 int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
+                extractor.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
             }
 
             Label label = button.getLabel();
@@ -773,14 +772,14 @@ public final class FrameworkButton extends AbstractButton
             int textY = contentTop + (contentHeight - label.height()) / 2 + 1;
             int textColour = button.active ? 0xFFFFFFFF : 0xFF666666;
             boolean textShadow = button.active;
-            label.draw(graphics, textX, textY, textColour, textShadow);
+            label.draw(extractor, textX, textY, textColour, textShadow);
 
             if(button.icon != null)
             {
                 int iconX = contentLeft;
                 int iconY = contentTop + (contentHeight - button.icon.height()) / 2;
                 int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
-                button.icon.draw(graphics, iconX, iconY, alpha, partialTick);
+                button.icon.draw(extractor, iconX, iconY, alpha, partialTick);
             }
         }
     }
@@ -802,13 +801,13 @@ public final class FrameworkButton extends AbstractButton
         }
 
         @Override
-        public void draw(FrameworkButton button, GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+        public void extractContents(FrameworkButton button, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick)
         {
             WidgetSprites texture = button.getTexture();
             if(texture != null)
             {
                 int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
+                extractor.blitSprite(RenderPipelines.GUI_TEXTURED, texture.get(button.active, button.isHoveredOrFocused() && button.active), button.getX(), button.getY(), button.getWidth(), button.getHeight(), alpha);
             }
 
             Label label = button.getLabel();
@@ -817,25 +816,25 @@ public final class FrameworkButton extends AbstractButton
             int textY = button.getY() + (button.getHeight() - label.height()) / 2 + 1;
             int textColour = button.active ? 0xFFFFFFFF : 0xFF666666;
             boolean textShadow = button.active;
-            label.draw(graphics, textX, textY, textColour, textShadow);
+            label.draw(extractor, textX, textY, textColour, textShadow);
 
             if(button.icon != null)
             {
                 int iconX = contentLeft;
                 int iconY = button.getY() + (button.getHeight() - button.icon.height()) / 2;
                 int alpha = ARGB.white(button.active ? 1.0F : 0.5F);
-                button.icon.draw(graphics, iconX, iconY, alpha, partialTick);
+                button.icon.draw(extractor, iconX, iconY, alpha, partialTick);
             }
 
             int yOffset = (button.getHeight() - TOGGLE_SIZE) / 2;
             int stateIconY = button.getY() + yOffset;
             int stateIconX = button.getX() + button.getWidth() - TOGGLE_SIZE - yOffset;
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
+            extractor.blitSprite(RenderPipelines.GUI_TEXTURED, TOGGLE_SPRITES.get(this.state.get(), button.isHovered()), stateIconX, stateIconY, TOGGLE_SIZE, TOGGLE_SIZE);
         }
     }
 
     public interface ContentRenderer<T>
     {
-        void draw(T widget, GuiGraphics graphics, int mouseX, int mouseY, float partialTick);
+        void extractContents(T widget, GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick);
     }
 }
