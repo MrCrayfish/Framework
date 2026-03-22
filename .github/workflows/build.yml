@@ -91,8 +91,8 @@ jobs:
       - name: Construct artifact files
         id: artifacts
         run: |
-          echo "fabric=fabric/build/libs/${{ steps.mod_data.outputs.mod_id }}-fabric-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}-signed.jar" >> "$GITHUB_OUTPUT"
-          echo "neoforge=neoforge/build/libs/${{ steps.mod_data.outputs.mod_id }}-neoforge-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}-signed.jar" >> "$GITHUB_OUTPUT"
+          echo "fabric=fabric/build/libs/${{ steps.mod_data.outputs.mod_id }}-fabric-${{ steps.mod_data.outputs.mod_version }}+${{ steps.mod_data.outputs.minecraft_version }}-signed.jar" >> "$GITHUB_OUTPUT"
+          echo "neoforge=neoforge/build/libs/${{ steps.mod_data.outputs.mod_id }}-neoforge-${{ steps.mod_data.outputs.mod_version }}+${{ steps.mod_data.outputs.minecraft_version }}-signed.jar" >> "$GITHUB_OUTPUT"
       - name: Create Changelog Files
         run: |
           echo "" > CHANGELOG.txt
@@ -144,7 +144,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ steps.mod_data.outputs.mod_id }}-${{ steps.mod_data.outputs.minecraft_version }}-${{ steps.mod_data.outputs.mod_version }}'
+          name: '${{ steps.mod_data.outputs.mod_id }}-${{ steps.mod_data.outputs.mod_version }}+${{ steps.mod_data.outputs.minecraft_version }}'
           path: |
             ${{ steps.artifacts.outputs.fabric }}
             ${{ steps.artifacts.outputs.fabric }}.asc
