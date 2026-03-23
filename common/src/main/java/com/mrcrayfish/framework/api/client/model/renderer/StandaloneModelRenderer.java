@@ -39,7 +39,7 @@ public class StandaloneModelRenderer
     }
 
     /**
-     * Draws a FrameworkStandaloneModel into the buffer
+     * Draws a FrameworkStandaloneModel into the buffer, usually in a GUI
      *
      * @param model the model to draw
      * @param stack the current PoseStack
@@ -50,14 +50,13 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    @Deprecated
     public static void draw(FrameworkBakedModel model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
         draw(model.quads(), model.layer(), stack, source, red, green, blue, light, overlay);
     }
 
     /**
-     * Draws a BlockModelPart into the buffer
+     * Draws a BlockModelPart into the buffer, usually in a GUI
      *
      * @param model the model to draw
      * @param stack the current PoseStack
@@ -68,7 +67,6 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    @Deprecated
     public static void draw(BlockStateModelPart model, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
         VertexConsumer consumer = source.getBuffer(getSheet(ChunkSectionLayer.SOLID));
@@ -80,7 +78,7 @@ public class StandaloneModelRenderer
     }
 
     /**
-     * Draws a QuadCollection into the buffer
+     * Draws a QuadCollection into the buffer, usually in a GUI
      *
      * @param collection the model to draw
      * @param layer the chunk section layer of the model
@@ -92,7 +90,6 @@ public class StandaloneModelRenderer
      * @param light the lighting for the model
      * @param overlay the overlay texture for the model
      */
-    @Deprecated
     public static void draw(QuadCollection collection, ChunkSectionLayer layer, PoseStack stack, MultiBufferSource source, float red, float green, float blue, int light, int overlay)
     {
         red = Mth.clamp(red, 0, 1);
@@ -118,7 +115,7 @@ public class StandaloneModelRenderer
                 consumer.putBakedQuad(pose, quad, QUAD_INSTANCE);
                 return;
             }
-            QUAD_INSTANCE.setColor(0xFFF000F0);
+            QUAD_INSTANCE.setColor(0xFFFFFFFF);
             consumer.putBakedQuad(pose, quad, QUAD_INSTANCE);
         }
     }
