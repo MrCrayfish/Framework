@@ -1,0 +1,5 @@
+{
+    "framework.gui.sync_config_failed": "(Framework) Не вдалося обробити налаштування синхронізації із сервера. Подробиці дивіться в журналах.",
+    "framework.gui.sync_entity_data_failed": "(Framework) Отримано невідомі синхронізовані ключі даних сутности. Подробиці дивіться в журналах.",
+    "modmenu.descriptionTranslation.framework": "Бібліотека з потужними утилітами для розробників"
+}
