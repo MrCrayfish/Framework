@@ -360,6 +360,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         extractor.disableScissor();
     }
 
+    @Override
     protected void extractItem(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick, Item item)
     {
         boolean hovered = !this.scrolling && item.isMouseOver(mouseX, mouseY) && this.isMouseOver(mouseX, mouseY);
@@ -367,13 +368,6 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
         item.setHovered(hovered);
         item.extractBackground(this.itemSprites, extractor, mouseX, mouseY, hovered, selected);
         item.extractContent(extractor, mouseX, mouseY, selected, partialTick);
-    }
-
-    @Override
-    protected void extractSelection(GuiGraphicsExtractor graphics, Item item, int outlineColor)
-    {
-        // TODO 26.1 wat this doing?
-        super.extractSelection(graphics, item, outlineColor);
     }
 
     @Override
