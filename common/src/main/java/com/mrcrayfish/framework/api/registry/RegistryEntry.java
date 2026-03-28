@@ -42,7 +42,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -234,9 +233,9 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         });
     }
     
-    public static <T extends LootItemFunction> RegistryEntry<LootItemFunctionType<T>> lootFunctionType(Identifier id, Supplier<MapCodec<T>> codecFactory)
+    public static <T extends LootItemFunction> RegistryEntry<MapCodec<T>> lootFunctionType(Identifier id, Supplier<MapCodec<T>> codecFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, id, () -> new LootItemFunctionType<>(codecFactory.get()));
+        return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, id, codecFactory);
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuType(Identifier id, BiFunction<Integer, Inventory, T> menuFactory)
