@@ -41,6 +41,7 @@ public final class Registration
         list.add(Registries.RECIPE_TYPE.identifier());
         list.add(Registries.RECIPE_SERIALIZER.identifier());
         list.add(Registries.COMMAND_ARGUMENT_TYPE.identifier());
+        list.add(Registries.LOOT_FUNCTION_TYPE.identifier());
     });
 
     private static final Map<Identifier, List<RegistryEntry<?>>> REGISTRY_ENTRIES = new HashMap<>();

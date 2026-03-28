@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.serialization.MapCodec;
 import com.mrcrayfish.framework.api.menu.IMenuData;
 import com.mrcrayfish.framework.platform.Services;
 import com.mrcrayfish.framework.registry.RegisterConsumer;
@@ -40,6 +41,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -229,6 +232,11 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
             Item.Properties itemProperties = itemPropertiesFactory.get();
             return itemFactory.apply(itemProperties.setId(ResourceKey.create(Registries.ITEM, id)));
         });
+    }
+    
+    public static <T extends LootItemFunction> RegistryEntry<LootItemFunctionType<T>> lootFunctionType(Identifier id, Supplier<MapCodec<T>> codecFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, id, () -> new LootItemFunctionType<>(codecFactory.get()));
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuType(Identifier id, BiFunction<Integer, Inventory, T> menuFactory)
