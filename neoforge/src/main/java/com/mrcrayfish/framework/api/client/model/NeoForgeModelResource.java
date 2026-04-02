@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.client.model;
 
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
@@ -19,7 +20,7 @@ public class NeoForgeModelResource<T> extends FrameworkModelResource<T>
         this.baker = new UnbakedStandaloneModel<>()
         {
             @Override
-            public T bake(ModelBaker baker)
+            public @NotNull T bake(ModelBaker baker, ModelDebugName name)
             {
                 ResolvedModel resolvedModel = baker.getModel(location);
                 return modelBaker.bake(resolvedModel, baker);
