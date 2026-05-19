@@ -301,13 +301,13 @@ public final class FrameworkSelect<T> extends AbstractWidget
                 int iconY = this.getY() + margin;
                 int alpha = ARGB.white(this.active ? 1.0F : 0.5F);
                 icon.draw(extractor, iconX, iconY, alpha, partialTick);
-                textEnd = iconX;
+                textEnd = this.getWidth() - icon.width() - margin;
             }
         }
         if(this.selected != null)
         {
             int margin = Math.max((this.getHeight() - 8) / 2, 0);
-            int maxWidth = (textEnd == -1 ? this.getWidth() - margin : textEnd - 5) - margin;
+            int maxWidth = (textEnd == -1 ? this.getWidth() - margin: textEnd - 4) - margin;
             Font font = Minecraft.getInstance().font;
             String label = this.selected.label.getString();
             if(font.width(label) > maxWidth)
