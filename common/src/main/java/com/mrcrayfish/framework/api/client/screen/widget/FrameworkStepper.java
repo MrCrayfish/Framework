@@ -757,12 +757,12 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
             this.maxValue = maxValue;
             this.step = step;
             this.bigStep = bigStep;
-            this.value = initialValue;
             this.callback = callback;
             this.parser = parser;
             this.stringify = stringify;
             this.compare = compare;
             this.clamper = clamper;
+            this.value = clamper.apply(initialValue, this.minValue, this.maxValue);
         }
 
         @Override
@@ -774,7 +774,7 @@ public class FrameworkStepper<T> extends AbstractContainerWidget
         @Override
         protected void set(V value)
         {
-            this.value = value;
+            this.value = this.clamper.apply(value, this.minValue, this.maxValue);
             if(this.callback != null)
             {
                 this.callback.accept(this.value);
