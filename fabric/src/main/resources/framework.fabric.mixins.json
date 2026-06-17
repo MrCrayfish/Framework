@@ -15,14 +15,15 @@
         "ServerPlayerMixin"
     ],
     "client": [
-        "client.ScreenMixin",
         "client.FabricMinecraftMixin",
         "client.GameRendererMixin",
+        "client.GuiMixin",
         "client.KeyboardHandlerMixin",
         "client.LocalPlayerMixin",
         "client.MinecraftMixin",
         "client.MouseHandlerMixin",
-        "client.OptionsMixin"
+        "client.OptionsMixin",
+        "client.ScreenMixin"
     ],
     "injectors": {
         "defaultRequire": 1

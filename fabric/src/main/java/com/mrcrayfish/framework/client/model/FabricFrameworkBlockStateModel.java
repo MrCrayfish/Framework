@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.client.model;
 
 import com.mojang.serialization.MapCodec;
 import com.mrcrayfish.framework.api.client.model.FrameworkBakedModel;
-//import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
 import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.Variant;

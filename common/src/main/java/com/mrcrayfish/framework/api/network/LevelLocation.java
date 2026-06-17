@@ -37,12 +37,12 @@ public final class LevelLocation
 
     public static LevelLocation create(ServerLevel level, BlockPos pos)
     {
-        return new LevelLocation(level, pos.getCenter(), 16);
+        return new LevelLocation(level, Vec3.atCenterOf(pos), 16);
     }
 
     public static LevelLocation create(ServerLevel level, BlockPos pos, double range)
     {
-        return new LevelLocation(level, pos.getCenter(), range);
+        return new LevelLocation(level, Vec3.atCenterOf(pos), range);
     }
 
     public static LevelLocation create(ServerLevel level, Vec3 pos, double range)

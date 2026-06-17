@@ -5,8 +5,6 @@ import com.mrcrayfish.framework.api.serialize.DataHelper;
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorResolverRegistry;
-import net.fabricmc.fabric.impl.client.rendering.BlockColorRegistryImpl;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.resources.Identifier;
 

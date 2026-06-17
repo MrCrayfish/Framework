@@ -82,7 +82,7 @@ public abstract class Overlay
      */
     public final void show(Consumer<ScreenRectangle> positioner)
     {
-        Screen screen = Minecraft.getInstance().screen;
+        Screen screen = Minecraft.getInstance().gui.screen();
         if(screen instanceof Overlayable overlayable)
         {
             if(overlayable.getOverlayController().open(this))

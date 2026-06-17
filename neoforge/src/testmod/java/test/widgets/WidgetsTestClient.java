@@ -14,7 +14,7 @@ public class WidgetsTestClient
     public static void onRegisterCommands(RegisterClientCommandsEvent event)
     {
         event.getDispatcher().register(Commands.literal("widgets_test:open").executes(context -> {
-            Minecraft.getInstance().setScreen(new TestScreen());
+            Minecraft.getInstance().gui.setScreen(new TestScreen());
             return 1;
         }));
     }

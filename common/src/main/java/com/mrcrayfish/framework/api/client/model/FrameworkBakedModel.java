@@ -2,7 +2,6 @@ package com.mrcrayfish.framework.api.client.model;
 
 import com.mrcrayfish.framework.api.serialize.DataObject;
 import com.mrcrayfish.framework.client.model.IOpenModel;
-import com.mrcrayfish.framework.platform.ClientServices;
 import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;

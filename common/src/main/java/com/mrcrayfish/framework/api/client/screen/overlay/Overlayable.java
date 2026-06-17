@@ -19,6 +19,6 @@ public interface Overlayable
      */
     default boolean isDisplayed()
     {
-        return Minecraft.getInstance().screen == this;
+        return Minecraft.getInstance().gui.screen() == this;
     }
 }
