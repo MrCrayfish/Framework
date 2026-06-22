@@ -37,12 +37,13 @@ public final class LevelLocation
 
     public static LevelLocation create(ServerLevel level, BlockPos pos)
     {
-        return new LevelLocation(level, pos.getCenter(), 16);
+        // changed: BlockPos#getCenter() removed in MC 26.2, use Vec3.atCenterOf(pos) instead
+        return new LevelLocation(level, Vec3.atCenterOf(pos), 16);
     }
 
     public static LevelLocation create(ServerLevel level, BlockPos pos, double range)
     {
-        return new LevelLocation(level, pos.getCenter(), range);
+        return new LevelLocation(level, Vec3.atCenterOf(pos), range);
     }
 
     public static LevelLocation create(ServerLevel level, Vec3 pos, double range)

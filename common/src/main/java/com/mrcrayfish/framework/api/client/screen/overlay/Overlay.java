@@ -82,7 +82,8 @@ public abstract class Overlay
      */
     public final void show(Consumer<ScreenRectangle> positioner)
     {
-        Screen screen = Minecraft.getInstance().screen;
+        // changed: Minecraft#screen field moved to Minecraft.gui.screen() in MC 26.2
+        Screen screen = Minecraft.getInstance().gui.screen();
         if(screen instanceof Overlayable overlayable)
         {
             if(overlayable.getOverlayController().open(this))

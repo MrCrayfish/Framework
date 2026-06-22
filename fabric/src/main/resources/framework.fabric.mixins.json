@@ -16,6 +16,7 @@
     ],
     "client": [
         "client.ScreenMixin",
+        "client.FabricGuiMixin",
         "client.FabricMinecraftMixin",
         "client.GameRendererMixin",
         "client.KeyboardHandlerMixin",
