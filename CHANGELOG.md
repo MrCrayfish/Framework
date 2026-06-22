@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1] - Fix GameRenderer mixin crash on launch
+
+The `client.GameRendererMixin` `@WrapOperation` on `extractGui` crashed at launch with "could not find any targets matching 'extractGui' in net/minecraft/client/renderer/GameRenderer" — MC 26.2 removed `GameRenderer#extractGui` and moved the screen-extraction call (`Screen#extractRenderStateWithTooltipAndSubtitles`) into `Gui#extractRenderState`.
+
+- Moved the `onRenderScreen` `@WrapOperation` from `GameRendererMixin` (targeting `GameRenderer`) into `FabricGuiMixin` (already targeting `Gui`), retargeted at `extractRenderState`.
+- `multiloader-common.gradle`: made the `signing { sign publishing.publications.mavenJava }` call conditional on `SIGNING_KEY` being set — it was unconditionally registering a sign task that failed `publishToMavenLocal` when no key is configured (needed for local dependency testing against [[Backpacked]]).
+
 ## [0.14.0] - MC 26.2 upgrade
 
 Upgraded from Minecraft 26.1.2 to 26.2 (Fabric + NeoForge). Both subprojects build successfully; not yet launch-tested in-game.
