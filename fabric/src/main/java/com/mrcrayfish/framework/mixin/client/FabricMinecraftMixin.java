@@ -1,13 +1,8 @@
 package com.mrcrayfish.framework.mixin.client;
 
-import com.mrcrayfish.framework.api.client.screen.overlay.OverlayController;
-import com.mrcrayfish.framework.api.client.screen.overlay.Overlayable;
 import com.mrcrayfish.framework.api.event.client.FrameworkInputEvents;
-import com.mrcrayfish.framework.api.event.client.FrameworkScreenEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.InteractionHand;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -57,22 +52,6 @@ public class FabricMinecraftMixin
         }
     }
 
-    @Inject(method = "setScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", opcode = Opcodes.PUTFIELD), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void frameworkOnScreenAdded(Screen screen, CallbackInfo ci)
-    {
-        FrameworkScreenEvents.OPENED.post().handle(screen);
-    }
-
-    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
-    private void frameworkOnScreenClosed(Screen screen, CallbackInfo ci)
-    {
-        Minecraft mc = (Minecraft) (Object) this;
-        FrameworkScreenEvents.CLOSED.post().handle(mc.screen);
-
-        if(screen instanceof Overlayable overlayable)
-        {
-            OverlayController controller = overlayable.getOverlayController();
-            controller.closeAll();
-        }
-    }
+    // changed: setScreen and its "screen" field moved from Minecraft to Gui in MC 26.2 —
+    // the two injections below were moved into FabricGuiMixin targeting Gui.class instead.
 }

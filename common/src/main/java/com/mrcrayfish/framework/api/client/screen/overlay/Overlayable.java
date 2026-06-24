@@ -19,6 +19,7 @@ public interface Overlayable
      */
     default boolean isDisplayed()
     {
-        return Minecraft.getInstance().screen == this;
+        // changed: Minecraft#screen field moved to Minecraft.gui.screen() in MC 26.2
+        return Minecraft.getInstance().gui.screen() == this;
     }
 }

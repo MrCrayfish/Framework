@@ -15,7 +15,8 @@ public class WidgetsTestClient implements ClientModInitializer
             dispatcher.register(ClientCommands.literal("widgets_test:open").executes(context -> {
                 // Scheduled due to how Fabric handles client commands
                 Minecraft.getInstance().scheduleWithResult(completableFuture -> {
-                    Minecraft.getInstance().setScreen(new TestScreen());
+                    // changed: Minecraft#setScreen removed in MC 26.2, use setScreenAndShow instead
+                    Minecraft.getInstance().setScreenAndShow(new TestScreen());
                     completableFuture.complete(Unit.INSTANCE);
                 });
                 return 1;

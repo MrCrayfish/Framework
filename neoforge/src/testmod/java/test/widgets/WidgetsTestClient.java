@@ -14,7 +14,8 @@ public class WidgetsTestClient
     public static void onRegisterCommands(RegisterClientCommandsEvent event)
     {
         event.getDispatcher().register(Commands.literal("widgets_test:open").executes(context -> {
-            Minecraft.getInstance().setScreen(new TestScreen());
+            // changed: Minecraft#setScreen removed in MC 26.2, use setScreenAndShow instead
+            Minecraft.getInstance().setScreenAndShow(new TestScreen());
             return 1;
         }));
     }
