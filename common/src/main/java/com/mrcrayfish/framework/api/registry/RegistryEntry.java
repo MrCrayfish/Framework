@@ -44,6 +44,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.*;
 
@@ -54,6 +55,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 {
     protected final WrappedRegistry<T> registry;
     protected final Identifier valueId;
+    protected final ResourceKey<@NotNull T> valueKey;
     protected final Supplier<T> valueSupplier;
 
     @SuppressWarnings("unchecked")
@@ -66,11 +68,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     {
         this.registry = registry;
         this.valueId = valueId;
+        this.valueKey = ResourceKey.create(registry.getKey(), valueId);
         this.valueSupplier = valueSupplier;
     }
 
     private T instance;
-    private Holder<T> holder;
+    private Holder<@NotNull T> holder;
 
     public T get()
     {
@@ -79,7 +82,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return this.instance;
     }
 
-    public Holder<T> holder()
+    public Holder<@NotNull T> holder()
     {
         if(this.holder == null)
             throw new IllegalStateException("Entry has not been created yet");
@@ -94,7 +97,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return this.instance;
     }
 
-    public ResourceKey<Registry<T>> getRegistryKey()
+    public ResourceKey<@NotNull T> key()
+    {
+        return this.valueKey;
+    }
+
+    public ResourceKey<@NotNull Registry<@NotNull T>> getRegistryKey()
     {
         return this.registry.getKey();
     }
@@ -155,7 +163,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
             return blockFactory.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
-        }, t -> null);
+        }, _ -> null);
     }
 
     public static <T extends Block> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
@@ -163,9 +171,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
             return blockFactory.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
-        }, t -> {
-            return new BlockItem(t, new Item.Properties().useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id)));
-        });
+        }, t -> new BlockItem(t, new Item.Properties().useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id))));
     }
 
     public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
@@ -179,12 +185,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         });
     }
 
-    public static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> blockEntity(Identifier id, BiFunction<BlockPos, BlockState, T> blockEntityFactory, Supplier<Block[]> validBlocks)
+    public static <T extends BlockEntity> RegistryEntry<BlockEntityType<@NotNull T>> blockEntity(Identifier id, BiFunction<BlockPos, BlockState, T> blockEntityFactory, Supplier<Block[]> validBlocks)
     {
         return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createBlockEntityType(blockEntityFactory, validBlocks));
     }
 
-    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> RegistryEntry<I> commandArgumentType(Identifier id, Class<A> argumentTypeClass, Supplier<I> argumentTypeFactory)
+    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<@NotNull A>, I extends ArgumentTypeInfo<@NotNull A, @NotNull T>> RegistryEntry<I> commandArgumentType(Identifier id, Class<A> argumentTypeClass, Supplier<I> argumentTypeFactory)
     {
         return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, argumentTypeFactory));
     }
@@ -203,21 +209,19 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
     }
 
-    public static <T> RegistryEntry<DataComponentType<T>> dataComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<T>> builderOperator)
+    public static <T> RegistryEntry<DataComponentType<@NotNull T>> dataComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
     {
         return new RegistryEntry<>(BuiltInRegistries.DATA_COMPONENT_TYPE, id, () -> builderOperator.apply(DataComponentType.builder()).build());
     }
 
-    public static <T> RegistryEntry<DataComponentType<T>> enchantmentEffectComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<T>> builderOperator)
+    public static <T> RegistryEntry<DataComponentType<@NotNull T>> enchantmentEffectComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
     {
         return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, id, () -> builderOperator.apply(DataComponentType.builder()).build());
     }
 
-    public static <T extends Entity> RegistryEntry<EntityType<T>> entityType(Identifier id, Supplier<EntityType.Builder<T>> entityTypeFactory)
+    public static <T extends Entity> RegistryEntry<EntityType<@NotNull T>> entityType(Identifier id, Supplier<EntityType.Builder<@NotNull T>> entityTypeFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENTITY_TYPE, id, () -> {
-            return entityTypeFactory.get().build(ResourceKey.create(Registries.ENTITY_TYPE, id));
-        });
+        return new RegistryEntry<>(BuiltInRegistries.ENTITY_TYPE, id, () -> entityTypeFactory.get().build(ResourceKey.create(Registries.ENTITY_TYPE, id)));
     }
 
     public static <T extends Fluid> RegistryEntry<T> fluid(Identifier id, Supplier<T> fluidFactory)
@@ -238,12 +242,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, id, codecFactory);
     }
 
-    public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<T>> menuType(Identifier id, BiFunction<Integer, Inventory, T> menuFactory)
+    public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<@NotNull T>> menuType(Identifier id, BiFunction<Integer, Inventory, T> menuFactory)
     {
         return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuType(menuFactory));
     }
 
-    public static <T extends AbstractContainerMenu, D extends IMenuData<D>> RegistryEntry<MenuType<T>> menuTypeWithData(Identifier id, StreamCodec<RegistryFriendlyByteBuf, D> dataCodec, TriFunction<Integer, Inventory, D, T> menuFactory)
+    public static <T extends AbstractContainerMenu, D extends IMenuData<D>> RegistryEntry<MenuType<@NotNull T>> menuTypeWithData(Identifier id, StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull D> dataCodec, TriFunction<Integer, Inventory, D, T> menuFactory)
     {
         return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(dataCodec, menuFactory));
     }
@@ -263,7 +267,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.POTION, id, potionFactory);
     }
 
-    public static <T extends RecipeDisplay, D extends RecipeDisplay.Type<T>> RegistryEntry<D> recipeDisplay(Identifier id, Supplier<D> recipeDisplayFactory)
+    public static <T extends RecipeDisplay, D extends RecipeDisplay.Type<@NotNull T>> RegistryEntry<D> recipeDisplay(Identifier id, Supplier<D> recipeDisplayFactory)
     {
         return new RegistryEntry<>(BuiltInRegistries.RECIPE_DISPLAY, id, recipeDisplayFactory);
     }
@@ -273,7 +277,7 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.RECIPE_BOOK_CATEGORY, id, RecipeBookCategory::new);
     }
 
-    public static <T extends Recipe<?>> RegistryEntry<RecipeType<T>> recipeType(Identifier id)
+    public static <T extends Recipe<?>> RegistryEntry<RecipeType<@NotNull T>> recipeType(Identifier id)
     {
         return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<>() {
             @Override
