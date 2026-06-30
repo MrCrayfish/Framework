@@ -78,7 +78,7 @@ public class FabricRegistrationHelper implements IRegistrationHelper
                 Registry registry = BuiltInRegistries.REGISTRY.getValue(registryKey.identifier());
                 if(registry == null)
                     throw new NullPointerException("Registry not found: " + registryKey);
-                Registry.register(registry, name, valueSupplier.get());
+                Registry.register(registry, name.identifier(), valueSupplier.get());
             });
         });
 

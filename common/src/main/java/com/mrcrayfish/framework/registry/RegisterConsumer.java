@@ -3,6 +3,7 @@ package com.mrcrayfish.framework.registry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -12,5 +13,5 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface RegisterConsumer<T>
 {
-    void accept(ResourceKey<Registry<T>> registryKey, Identifier name, Supplier<T> valueSupplier);
+    void accept(ResourceKey<@NotNull Registry<@NotNull T>> registryKey, ResourceKey<@NotNull T> key, Supplier<T> valueSupplier);
 }

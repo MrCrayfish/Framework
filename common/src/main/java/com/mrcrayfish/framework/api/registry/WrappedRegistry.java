@@ -25,10 +25,10 @@ import java.util.Iterator;
  */
 public class WrappedRegistry<T> implements Iterable<T>
 {
-    private final ResourceKey<Registry<T>> key;
+    private final ResourceKey<@NotNull Registry<@NotNull T>> key;
     private @Nullable RegistryProxy<T> proxy;
 
-    public WrappedRegistry(ResourceKey<Registry<T>> key)
+    public WrappedRegistry(ResourceKey<@NotNull Registry<@NotNull T>> key)
     {
         this.key = key;
     }
@@ -36,7 +36,7 @@ public class WrappedRegistry<T> implements Iterable<T>
     /**
      * @return The ResourceKey of this registry
      */
-    public ResourceKey<Registry<T>> getKey()
+    public ResourceKey<@NotNull Registry<@NotNull T>> getKey()
     {
         return this.key;
     }

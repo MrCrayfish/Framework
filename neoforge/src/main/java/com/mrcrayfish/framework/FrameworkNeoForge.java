@@ -68,7 +68,7 @@ public class FrameworkNeoForge
     private void onRegister(RegisterEvent event)
     {
         // Get all RegistryEntry instances and register them into the registries
-        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register(event::register));
+        Registration.get(event.getRegistryKey()).forEach(entry -> entry.register((registryKey, key, valueSupplier) -> event.register(registryKey, key.identifier(), valueSupplier)));
 
         // Special case for block registry entries to register items
         if(event.getRegistryKey().equals(Registries.ITEM))

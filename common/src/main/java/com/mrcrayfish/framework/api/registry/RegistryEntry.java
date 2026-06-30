@@ -54,21 +54,30 @@ import java.util.function.*;
 public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegistryEntry
 {
     protected final WrappedRegistry<T> registry;
-    protected final Identifier valueId;
-    protected final ResourceKey<@NotNull T> valueKey;
+    protected final ResourceKey<@NotNull T> key;
     protected final Supplier<T> valueSupplier;
 
     @SuppressWarnings("unchecked")
-    RegistryEntry(Registry<?> registry, Identifier valueId, Supplier<T> valueSupplier)
+    RegistryEntry(Registry<?> registry, Identifier key, Supplier<T> valueSupplier)
     {
-        this((WrappedRegistry<T>) WrappedRegistry.wrapVanilla(registry), valueId, valueSupplier);
+        this((WrappedRegistry<T>) WrappedRegistry.wrapVanilla(registry), key, valueSupplier);
     }
 
-    RegistryEntry(WrappedRegistry<T> registry, Identifier valueId, Supplier<T> valueSupplier)
+    @SuppressWarnings("unchecked")
+    RegistryEntry(Registry<?> registry, ResourceKey<?> key, Supplier<T> valueSupplier)
+    {
+        this((WrappedRegistry<T>) WrappedRegistry.wrapVanilla(registry), (ResourceKey<@NotNull T>) key, valueSupplier);
+    }
+
+    RegistryEntry(WrappedRegistry<T> registry, Identifier key, Supplier<T> valueSupplier)
+    {
+        this(registry, ResourceKey.create(registry.getKey(), key), valueSupplier);
+    }
+
+    RegistryEntry(WrappedRegistry<T> registry, ResourceKey<@NotNull T> key, Supplier<T> valueSupplier)
     {
         this.registry = registry;
-        this.valueId = valueId;
-        this.valueKey = ResourceKey.create(registry.getKey(), valueId);
+        this.key = key;
         this.valueSupplier = valueSupplier;
     }
 
@@ -97,19 +106,19 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return this.instance;
     }
 
-    public ResourceKey<@NotNull T> key()
-    {
-        return this.valueKey;
-    }
-
     public ResourceKey<@NotNull Registry<@NotNull T>> getRegistryKey()
     {
         return this.registry.getKey();
     }
 
+    public ResourceKey<@NotNull T> getKey()
+    {
+        return this.key;
+    }
+
     public Identifier getId()
     {
-        return this.valueId;
+        return this.key.identifier();
     }
 
     protected void invalidate()
@@ -123,8 +132,8 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
     {
         this.invalidate();
         T value = this.create();
-        consumer.accept(this.registry.getKey(), this.valueId, () -> value);
-        this.holder = this.registry.getProxy().getHolder(this.valueId);
+        consumer.accept(this.registry.getKey(), this.key, () -> value);
+        this.holder = this.registry.getProxy().getHolder(this.key);
     }
 
     /**
@@ -153,35 +162,65 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(registry, id, supplier);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> RegistryEntry<T> custom(FrameworkRegistry registry, ResourceKey<@NotNull T> key, Supplier<T> supplier)
+    {
+        return new RegistryEntry<>(registry, key, supplier);
+    }
+
     public static <T extends Attribute> RegistryEntry<T> attribute(Identifier id, Supplier<T> attributeFactory)
     {
         return new RegistryEntry<>(BuiltInRegistries.ATTRIBUTE, id, attributeFactory);
     }
 
+    public static <T extends Attribute> RegistryEntry<T> attribute(ResourceKey<@NotNull Attribute> key, Supplier<T> attributeFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.ATTRIBUTE, key, attributeFactory);
+    }
+
     public static <T extends Block> RegistryEntry<T> block(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
-        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
+        return block(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory);
+    }
+
+    public static <T extends Block> RegistryEntry<T> block(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    {
+        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
-            return blockFactory.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
+            return blockFactory.apply(properties.setId(key));
         }, _ -> null);
     }
 
     public static <T extends Block> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
-        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
+        return blockWithItem(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory);
+    }
+
+    public static <T extends Block> RegistryEntry<T> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    {
+        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
-            return blockFactory.apply(properties.setId(ResourceKey.create(Registries.BLOCK, id)));
-        }, t -> new BlockItem(t, new Item.Properties().useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id))));
+            return blockFactory.apply(properties.setId(key));
+        }, t -> {
+            ResourceKey<@NotNull Item> itemKey = ResourceKey.create(Registries.ITEM, key.identifier());
+            return new BlockItem(t, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey));
+        });
     }
 
     public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
     {
-        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, id, () -> {
+        return blockWithItem(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory, itemFactory, itemPropertiesFactory);
+    }
+
+    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
+    {
+        return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties blockProperties = blockPropertiesFactory.get();
-            return blockFactory.apply(blockProperties.setId(ResourceKey.create(Registries.BLOCK, id)));
+            return blockFactory.apply(blockProperties.setId(key));
         }, t -> {
             Item.Properties itemProperties = itemPropertiesFactory.get();
-            return itemFactory.apply(t, itemProperties.useBlockDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, id)));
+            ResourceKey<@NotNull Item> itemKey = ResourceKey.create(Registries.ITEM, key.identifier());
+            return itemFactory.apply(t, itemProperties.useBlockDescriptionPrefix().setId(itemKey));
         });
     }
 
@@ -190,14 +229,29 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, () -> Services.REGISTRATION.createBlockEntityType(blockEntityFactory, validBlocks));
     }
 
+    public static <T extends BlockEntity> RegistryEntry<BlockEntityType<@NotNull T>> blockEntity(ResourceKey<@NotNull BlockEntityType<?>> key, BiFunction<BlockPos, BlockState, T> blockEntityFactory, Supplier<Block[]> validBlocks)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, () -> Services.REGISTRATION.createBlockEntityType(blockEntityFactory, validBlocks));
+    }
+
     public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<@NotNull A>, I extends ArgumentTypeInfo<@NotNull A, @NotNull T>> RegistryEntry<I> commandArgumentType(Identifier id, Class<A> argumentTypeClass, Supplier<I> argumentTypeFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, id, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, argumentTypeFactory));
+        return commandArgumentType(ResourceKey.create(Registries.COMMAND_ARGUMENT_TYPE, id), argumentTypeClass, argumentTypeFactory);
+    }
+
+    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<@NotNull A>, I extends ArgumentTypeInfo<@NotNull A, @NotNull T>> RegistryEntry<I> commandArgumentType(ResourceKey<@NotNull ArgumentTypeInfo<?, ?>> key, Class<A> argumentTypeClass, Supplier<I> argumentTypeFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, key, () -> Services.REGISTRATION.createArgumentTypeInfo(argumentTypeClass, argumentTypeFactory));
     }
 
     public static RegistryEntry<CreativeModeTab> creativeModeTab(Identifier id, Consumer<CreativeModeTab.Builder> builderConsumer)
     {
-        return new RegistryEntry<>(BuiltInRegistries.CREATIVE_MODE_TAB, id, () -> {
+        return creativeModeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, id), builderConsumer);
+    }
+
+    public static RegistryEntry<CreativeModeTab> creativeModeTab(ResourceKey<@NotNull CreativeModeTab> key, Consumer<CreativeModeTab.Builder> builderConsumer)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.CREATIVE_MODE_TAB, key, () -> {
             CreativeModeTab.Builder builder = Services.REGISTRATION.createCreativeModeTabBuilder();
             builderConsumer.accept(builder);
             return builder.build();
@@ -206,94 +260,179 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
 
     public static RegistryEntry<Identifier> customStat(Identifier id, StatFormatter formatter)
     {
-        return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, id, formatter);
+        return customStat(ResourceKey.create(Registries.CUSTOM_STAT, id), formatter);
+    }
+
+    public static RegistryEntry<Identifier> customStat(ResourceKey<@NotNull Identifier> key, StatFormatter formatter)
+    {
+        return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, key, formatter);
     }
 
     public static <T> RegistryEntry<DataComponentType<@NotNull T>> dataComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
     {
-        return new RegistryEntry<>(BuiltInRegistries.DATA_COMPONENT_TYPE, id, () -> builderOperator.apply(DataComponentType.builder()).build());
+        return dataComponentType(ResourceKey.create(Registries.DATA_COMPONENT_TYPE, id), builderOperator);
+    }
+
+    public static <T> RegistryEntry<DataComponentType<@NotNull T>> dataComponentType(ResourceKey<@NotNull DataComponentType<?>> key, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.DATA_COMPONENT_TYPE, key, () -> builderOperator.apply(DataComponentType.builder()).build());
     }
 
     public static <T> RegistryEntry<DataComponentType<@NotNull T>> enchantmentEffectComponentType(Identifier id, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, id, () -> builderOperator.apply(DataComponentType.builder()).build());
+        return enchantmentEffectComponentType(ResourceKey.create(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, id), builderOperator);
+    }
+
+    public static <T> RegistryEntry<DataComponentType<@NotNull T>> enchantmentEffectComponentType(ResourceKey<@NotNull DataComponentType<?>> key, UnaryOperator<DataComponentType.Builder<@NotNull T>> builderOperator)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, key, () -> builderOperator.apply(DataComponentType.builder()).build());
     }
 
     public static <T extends Entity> RegistryEntry<EntityType<@NotNull T>> entityType(Identifier id, Supplier<EntityType.Builder<@NotNull T>> entityTypeFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ENTITY_TYPE, id, () -> entityTypeFactory.get().build(ResourceKey.create(Registries.ENTITY_TYPE, id)));
+        return entityType(ResourceKey.create(Registries.ENTITY_TYPE, id), entityTypeFactory);
+    }
+
+    public static <T extends Entity> RegistryEntry<EntityType<@NotNull T>> entityType(ResourceKey<@NotNull EntityType<?>> key, Supplier<EntityType.Builder<@NotNull T>> entityTypeFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.ENTITY_TYPE, key, () -> entityTypeFactory.get().build(key));
     }
 
     public static <T extends Fluid> RegistryEntry<T> fluid(Identifier id, Supplier<T> fluidFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.FLUID, id, fluidFactory);
+        return fluid(ResourceKey.create(Registries.FLUID, id), fluidFactory);
+    }
+
+    public static <T extends Fluid> RegistryEntry<T> fluid(ResourceKey<@NotNull Fluid> key, Supplier<T> fluidFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.FLUID, key, fluidFactory);
     }
 
     public static <T extends Item> RegistryEntry<T> item(Identifier id, Function<Item.Properties, T> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.ITEM, id, () -> {
+        return item(ResourceKey.create(Registries.ITEM, id), itemFactory, itemPropertiesFactory);
+    }
+
+    public static <T extends Item> RegistryEntry<T> item(ResourceKey<@NotNull Item> key, Function<Item.Properties, T> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.ITEM, key, () -> {
             Item.Properties itemProperties = itemPropertiesFactory.get();
-            return itemFactory.apply(itemProperties.setId(ResourceKey.create(Registries.ITEM, id)));
+            return itemFactory.apply(itemProperties.setId(key));
         });
     }
-    
+
     public static <T extends LootItemFunction> RegistryEntry<MapCodec<T>> lootFunctionType(Identifier id, Supplier<MapCodec<T>> codecFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, id, codecFactory);
+        return lootFunctionType(ResourceKey.create(Registries.LOOT_FUNCTION_TYPE, id), codecFactory);
+    }
+
+    public static <T extends LootItemFunction> RegistryEntry<MapCodec<T>> lootFunctionType(ResourceKey<@NotNull MapCodec<? extends LootItemFunction>> key, Supplier<MapCodec<T>> codecFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.LOOT_FUNCTION_TYPE, key, codecFactory);
     }
 
     public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<@NotNull T>> menuType(Identifier id, BiFunction<Integer, Inventory, T> menuFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuType(menuFactory));
+        return menuType(ResourceKey.create(Registries.MENU, id), menuFactory);
+    }
+
+    public static <T extends AbstractContainerMenu> RegistryEntry<MenuType<@NotNull T>> menuType(ResourceKey<@NotNull MenuType<?>> key, BiFunction<Integer, Inventory, T> menuFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.MENU, key, () -> Services.REGISTRATION.createMenuType(menuFactory));
     }
 
     public static <T extends AbstractContainerMenu, D extends IMenuData<D>> RegistryEntry<MenuType<@NotNull T>> menuTypeWithData(Identifier id, StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull D> dataCodec, TriFunction<Integer, Inventory, D, T> menuFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MENU, id, () -> Services.REGISTRATION.createMenuTypeWithData(dataCodec, menuFactory));
+        return menuTypeWithData(ResourceKey.create(Registries.MENU, id), dataCodec, menuFactory);
+    }
+
+    public static <T extends AbstractContainerMenu, D extends IMenuData<D>> RegistryEntry<MenuType<@NotNull T>> menuTypeWithData(ResourceKey<@NotNull MenuType<?>> key, StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull D> dataCodec, TriFunction<Integer, Inventory, D, T> menuFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.MENU, key, () -> Services.REGISTRATION.createMenuTypeWithData(dataCodec, menuFactory));
     }
 
     public static <T extends MobEffect> RegistryEntry<T> mobEffect(Identifier id, Supplier<T> mobEffectFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.MOB_EFFECT, id, mobEffectFactory);
+        return mobEffect(ResourceKey.create(Registries.MOB_EFFECT, id), mobEffectFactory);
+    }
+
+    public static <T extends MobEffect> RegistryEntry<T> mobEffect(ResourceKey<@NotNull MobEffect> key, Supplier<T> mobEffectFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.MOB_EFFECT, key, mobEffectFactory);
     }
 
     public static <T extends ParticleType<?>> RegistryEntry<T> particleType(Identifier id, Supplier<T> particleTypeFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.PARTICLE_TYPE, id, particleTypeFactory);
+        return particleType(ResourceKey.create(Registries.PARTICLE_TYPE, id), particleTypeFactory);
+    }
+
+    public static <T extends ParticleType<?>> RegistryEntry<T> particleType(ResourceKey<@NotNull ParticleType<?>> key, Supplier<T> particleTypeFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.PARTICLE_TYPE, key, particleTypeFactory);
     }
 
     public static <T extends Potion> RegistryEntry<T> potion(Identifier id, Supplier<T> potionFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.POTION, id, potionFactory);
+        return potion(ResourceKey.create(Registries.POTION, id), potionFactory);
+    }
+
+    public static <T extends Potion> RegistryEntry<T> potion(ResourceKey<@NotNull Potion> key, Supplier<T> potionFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.POTION, key, potionFactory);
     }
 
     public static <T extends RecipeDisplay, D extends RecipeDisplay.Type<@NotNull T>> RegistryEntry<D> recipeDisplay(Identifier id, Supplier<D> recipeDisplayFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_DISPLAY, id, recipeDisplayFactory);
+        return recipeDisplay(ResourceKey.create(Registries.RECIPE_DISPLAY, id), recipeDisplayFactory);
+    }
+
+    public static <T extends RecipeDisplay, D extends RecipeDisplay.Type<@NotNull T>> RegistryEntry<D> recipeDisplay(ResourceKey<RecipeDisplay.@NotNull Type<?>> key, Supplier<D> recipeDisplayFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_DISPLAY, key, recipeDisplayFactory);
     }
 
     public static RegistryEntry<RecipeBookCategory> recipeBookCategory(Identifier id)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_BOOK_CATEGORY, id, RecipeBookCategory::new);
+        return recipeBookCategory(ResourceKey.create(Registries.RECIPE_BOOK_CATEGORY, id));
+    }
+
+    public static RegistryEntry<RecipeBookCategory> recipeBookCategory(ResourceKey<@NotNull RecipeBookCategory> key)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_BOOK_CATEGORY, key, RecipeBookCategory::new);
     }
 
     public static <T extends Recipe<?>> RegistryEntry<RecipeType<@NotNull T>> recipeType(Identifier id)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, id, () -> new RecipeType<>() {
+        return recipeType(ResourceKey.create(Registries.RECIPE_TYPE, id));
+    }
+
+    public static <T extends Recipe<?>> RegistryEntry<RecipeType<@NotNull T>> recipeType(ResourceKey<@NotNull RecipeType<?>> key)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_TYPE, key, () -> new RecipeType<>() {
             @Override
             public String toString() {
-                return id.getPath();
+                return key.identifier().getPath();
             }
         });
     }
 
     public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(Identifier id, Supplier<T> recipeSerializerFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.RECIPE_SERIALIZER, id, recipeSerializerFactory);
+        return recipeSerializer(ResourceKey.create(Registries.RECIPE_SERIALIZER, id), recipeSerializerFactory);
+    }
+
+    public static <T extends RecipeSerializer<?>> RegistryEntry<T> recipeSerializer(ResourceKey<@NotNull RecipeSerializer<?>> key, Supplier<T> recipeSerializerFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.RECIPE_SERIALIZER, key, recipeSerializerFactory);
     }
 
     public static <T extends SoundEvent> RegistryEntry<T> soundEvent(Identifier id, Function<Identifier, Supplier<T>> soundEventFactory)
     {
-        return new RegistryEntry<>(BuiltInRegistries.SOUND_EVENT, id, soundEventFactory.apply(id));
+        return soundEvent(ResourceKey.create(Registries.SOUND_EVENT, id), soundEventFactory);
+    }
+
+    public static <T extends SoundEvent> RegistryEntry<T> soundEvent(ResourceKey<SoundEvent> key, Function<Identifier, Supplier<T>> soundEventFactory)
+    {
+        return new RegistryEntry<>(BuiltInRegistries.SOUND_EVENT, key, soundEventFactory.apply(key.identifier()));
     }
 }

@@ -3,16 +3,11 @@ package com.mrcrayfish.framework.registry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 
-public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
+public record VanillaRegistryProxy<T>(Registry<@NotNull T> registry) implements RegistryProxy<T>
 {
-    private final Registry<T> registry;
-
-    private VanillaRegistryProxy(Registry<T> registry)
-    {
-        this.registry = registry;
-    }
-
     @Override
     public boolean containsKey(Identifier id)
     {
@@ -26,9 +21,15 @@ public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
     }
 
     @Override
-    public Holder<T> getHolder(Identifier id)
+    public Holder<@NotNull T> getHolder(Identifier id)
     {
         return this.registry.get(id).orElseThrow();
+    }
+
+    @Override
+    public Holder<@NotNull T> getHolder(ResourceKey<@NotNull T> key)
+    {
+        return this.registry.get(key).orElseThrow();
     }
 
     @Override
@@ -37,7 +38,7 @@ public final class VanillaRegistryProxy<T> implements RegistryProxy<T>
         return this.registry;
     }
 
-    public static <T> VanillaRegistryProxy<T> wrap(Registry<T> registry)
+    public static <T> VanillaRegistryProxy<T> wrap(Registry<@NotNull T> registry)
     {
         return new VanillaRegistryProxy<>(registry);
     }
