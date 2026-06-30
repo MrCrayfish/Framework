@@ -21,6 +21,11 @@ public final class CustomStatRegistryEntry extends RegistryEntry<Identifier>
         this.formatter = formatter;
     }
 
+    public StatFormatter getFormatter()
+    {
+        return this.formatter;
+    }
+
     @Override
     public void register(RegisterConsumer<Identifier> consumer)
     {
