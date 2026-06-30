@@ -45,6 +45,7 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.*;
 
@@ -178,12 +179,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         return new RegistryEntry<>(BuiltInRegistries.ATTRIBUTE, key, attributeFactory);
     }
 
-    public static <T extends Block> RegistryEntry<T> block(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    public static <T extends Block> BlockRegistryEntry<T, @Nullable BlockItem> block(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
         return block(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory);
     }
 
-    public static <T extends Block> RegistryEntry<T> block(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    public static <T extends Block> BlockRegistryEntry<T, @Nullable BlockItem> block(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
@@ -191,12 +192,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         }, _ -> null);
     }
 
-    public static <T extends Block> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    public static <T extends Block> BlockRegistryEntry<T, BlockItem> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
         return blockWithItem(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory);
     }
 
-    public static <T extends Block> RegistryEntry<T> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
+    public static <T extends Block> BlockRegistryEntry<T, BlockItem> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory)
     {
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties properties = blockPropertiesFactory.get();
@@ -207,12 +208,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         });
     }
 
-    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
+    public static <T extends Block, E extends BlockItem> BlockRegistryEntry<T, E> blockWithItem(Identifier id, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
     {
         return blockWithItem(ResourceKey.create(Registries.BLOCK, id), blockFactory, blockPropertiesFactory, itemFactory, itemPropertiesFactory);
     }
 
-    public static <T extends Block, E extends BlockItem> RegistryEntry<T> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
+    public static <T extends Block, E extends BlockItem> BlockRegistryEntry<T, E> blockWithItem(ResourceKey<@NotNull Block> key, Function<BlockBehaviour.Properties, T> blockFactory, Supplier<BlockBehaviour.Properties> blockPropertiesFactory, BiFunction<T, Item.Properties, E> itemFactory, Supplier<Item.Properties> itemPropertiesFactory)
     {
         return new BlockRegistryEntry<>(BuiltInRegistries.BLOCK, key, () -> {
             BlockBehaviour.Properties blockProperties = blockPropertiesFactory.get();
@@ -258,12 +259,12 @@ public sealed class RegistryEntry<T> permits BlockRegistryEntry, CustomStatRegis
         });
     }
 
-    public static RegistryEntry<Identifier> customStat(Identifier id, StatFormatter formatter)
+    public static CustomStatRegistryEntry customStat(Identifier id, StatFormatter formatter)
     {
         return customStat(ResourceKey.create(Registries.CUSTOM_STAT, id), formatter);
     }
 
-    public static RegistryEntry<Identifier> customStat(ResourceKey<@NotNull Identifier> key, StatFormatter formatter)
+    public static CustomStatRegistryEntry customStat(ResourceKey<@NotNull Identifier> key, StatFormatter formatter)
     {
         return new CustomStatRegistryEntry(BuiltInRegistries.CUSTOM_STAT, key, formatter);
     }
