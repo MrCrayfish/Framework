@@ -166,7 +166,7 @@ public record SyncedClassKey<E extends Entity>(Class<E> entityClass, Identifier 
     public static final SyncedClassKey<ElderGuardian> ELDER_GUARDIAN = new SyncedClassKey<>(ElderGuardian.class, Identifier.withDefaultNamespace("elder_guardian"));
     public static final SyncedClassKey<EndCrystal> END_CRYSTAL = new SyncedClassKey<>(EndCrystal.class, Identifier.withDefaultNamespace("end_crystal"));
     public static final SyncedClassKey<EnderDragon> ENDER_DRAGON = new SyncedClassKey<>(EnderDragon.class, Identifier.withDefaultNamespace("ender_dragon"));
-    public static final SyncedClassKey<EnderMan> ENDER_MAN = new SyncedClassKey<>(EnderMan.class, Identifier.withDefaultNamespace("ender_man"));
+    public static final SyncedClassKey<Enderman> ENDER_MAN = new SyncedClassKey<>(Enderman.class, Identifier.withDefaultNamespace("ender_man"));
     public static final SyncedClassKey<Endermite> ENDERMITE = new SyncedClassKey<>(Endermite.class, Identifier.withDefaultNamespace("endermite"));
     public static final SyncedClassKey<Evoker> EVOKER = new SyncedClassKey<>(Evoker.class, Identifier.withDefaultNamespace("evoker"));
     public static final SyncedClassKey<EvokerFangs> EVOKER_FANGS = new SyncedClassKey<>(EvokerFangs.class, Identifier.withDefaultNamespace("evoker_fangs"));

@@ -47,7 +47,7 @@ public class ClientStandaloneModelTest implements ClientModInitializer
         {
             stack.pushPose();
             stack.translate(0.5, 0, 0.5);
-            stack.mulPose(Axis.YP.rotationDegrees(45));
+            stack.rotate(Axis.YP.rotationDegrees(45));
             stack.scale(2, 2, 2);
             stack.translate(-0.5, 0, -0.5);
             StandaloneModelRenderer.submitDraw(collector, CUSTOM_MODEL.getModel(), stack, 1, 1, 1, renderState.lightCoords, OverlayTexture.NO_OVERLAY);

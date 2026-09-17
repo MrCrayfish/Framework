@@ -1,5 +1,6 @@
 package com.mrcrayfish.framework.api.client.screen.overlay;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -8,7 +9,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -204,7 +204,7 @@ public final class OverlayController implements ContainerEventHandler
     public boolean keyPressed(KeyEvent event)
     {
         // Allows the user to press escape to close the top overlay
-        if(event.key() == GLFW.GLFW_KEY_ESCAPE)
+        if(event.key() == InputConstants.KEY_ESCAPE)
         {
             Overlay overlay = this.stack.peek();
             if(overlay != null)

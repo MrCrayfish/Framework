@@ -57,6 +57,6 @@ public class OpenModelDeserializer extends CuboidModel.Deserializer
 
         // Read vanilla element and construct new element with custom properties
         CuboidModelElement e = ClientServices.CLIENT.deserializeBlockElement(element, context);
-        return new CuboidModelElement(from, to, e.faces(), e.rotation(), e.shade(), e.lightEmission());
+        return new CuboidModelElement(from, to, e.faces(), e.rotation(), e.shadeDirectionOverride(), e.lightEmission());
     }
 }

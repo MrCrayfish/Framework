@@ -1,6 +1,7 @@
 package com.mrcrayfish.framework.api.client.screen.widget;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Border;
 import com.mrcrayfish.framework.api.client.screen.widget.layout.Padding;
 import com.mrcrayfish.framework.client.ClientUtils;
@@ -19,7 +20,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
 import java.util.List;
@@ -407,7 +407,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY)
     {
-        if(event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+        if(event.button() == InputConstants.MOUSE_BUTTON_LEFT)
         {
             if(this.getFocused() != null && this.isDragging() && this.getFocused().mouseDragged(event, deltaX, deltaY))
             {
@@ -493,7 +493,7 @@ public class FrameworkSelectionList extends ObjectSelectionList<FrameworkSelecti
     @Override
     public boolean updateScrolling(MouseButtonEvent event)
     {
-        this.scrolling = this.scrollable() && event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) event.x(), (int) event.y(), this.scrollBarX(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
+        this.scrolling = this.scrollable() && event.button() == InputConstants.MOUSE_BUTTON_LEFT && ClientUtils.isPointInArea((int) event.x(), (int) event.y(), this.scrollBarX(), this.getScrollAreaTop(), this.scrollerWidth, this.getScrollAreaHeight());
         ClientServices.CLIENT.setScrollingState(this, this.scrolling);
         return this.scrolling;
     }

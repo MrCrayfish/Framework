@@ -1,6 +1,6 @@
 package com.mrcrayfish.framework.client;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mrcrayfish.framework.FrameworkData;
 import com.mrcrayfish.framework.api.LogicalEnvironment;
 import com.mrcrayfish.framework.api.util.TaskRunner;
